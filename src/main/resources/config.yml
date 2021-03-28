@@ -1,0 +1,8 @@
+#If true, the plugin will preload all scripts on startup.
+preload-scripts: true
+#If true, all scripts in the "autorun_scripts" folder will be loaded and run automatically on plugin load.
+autorun-scripts: true
+#The delay for loading scripts (in ticks) after the plugin loads.
+script-load-delay: 20
+messages:
+  plugin-prefix: '&8[&6PySpigot&8] &r'

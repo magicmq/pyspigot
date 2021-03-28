@@ -1,0 +1,8 @@
+name: ${project.name}
+version: ${project.version}
+author: magicmq
+main: dev.magicmq.pyspigot.PySpigot
+commands:
+  pyspigot:
+    description: The main command for PySpigot.
+    aliases: [ps]
