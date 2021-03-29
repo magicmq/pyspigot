@@ -60,7 +60,6 @@ public class ListenerManager {
 
         listener.addEvent(function, eventClass);
         Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, executor, PySpigot.get(), ignoreCancelled);
-        throw new NullPointerException();
     }
 
     public void registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
