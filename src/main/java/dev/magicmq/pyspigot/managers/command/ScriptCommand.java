@@ -1,14 +1,14 @@
 package dev.magicmq.pyspigot.managers.command;
 
+import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.managers.script.Script;
+import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
-import org.python.core.PyBaseCode;
-import org.python.core.PyBoolean;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
+import org.python.core.*;
 
 import java.util.List;
+import java.util.logging.Level;
 
 public class ScriptCommand extends BukkitCommand {
 
@@ -29,11 +29,24 @@ public class ScriptCommand extends BukkitCommand {
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-        PyObject result = function._jcall(new Object[]{sender, this, commandLabel, args});
-        if (result instanceof PyBoolean) {
-            return ((PyBoolean) result).getBooleanValue();
+        try {
+            PyObject result = function._jcall(new Object[]{sender, this, commandLabel, args});
+            if (result instanceof PyBoolean) {
+                return ((PyBoolean) result).getBooleanValue();
+            }
+
+            throw new CommandException("Error when executing command belonging to script " + script.getName() + ": Command function must return a boolean!");
+        } catch (PyException e) {
+            if (e.getCause() != null && !(e.getCause() instanceof PyException))
+                e.getCause().printStackTrace();
+            else {
+                if (e.traceback != null)
+                    PySpigot.get().getLogger().log(Level.SEVERE, "Error when executing command belonging to script " + script.getName() + ": " + e.getMessage() + "\n\n" + e.traceback.dumpStack());
+                else
+                    PySpigot.get().getLogger().log(Level.SEVERE, "Error when executing command belonging to script " + script.getName() + ": " + e.getMessage());
+            }
         }
-        throw new UnsupportedOperationException("Command function must return a boolean!");
+        return true;
     }
 
     public Script getScript() {

@@ -12,6 +12,8 @@ import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.managers.task.TaskManager;
 import org.bukkit.Bukkit;
 import org.python.core.PyException;
+import org.python.core.PyIndentationError;
+import org.python.core.PyObject;
 import org.python.core.PySyntaxError;
 import org.python.util.PythonInterpreter;
 
@@ -19,6 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -29,16 +32,18 @@ public class ScriptManager {
 
     private final PythonInterpreter interpreter;
     private final List<Script> scripts;
+    private final HashMap<String, PyObject> globalVariables;
 
     private ScriptManager() {
         this.interpreter = new PythonInterpreter();
         this.scripts = new ArrayList<>();
+        this.globalVariables = new HashMap<>();
 
-        interpreter.set("listener_manager", ListenerManager.get());
-        interpreter.set("command_manager", CommandManager.get());
-        interpreter.set("config_manager", ConfigManager.get());
-        interpreter.set("task_manager", TaskManager.get());
-        interpreter.set("global_variables", interpreter);
+        interpreter.set("listeners", ListenerManager.get());
+        interpreter.set("commands", CommandManager.get());
+        interpreter.set("configs", ConfigManager.get());
+        interpreter.set("tasks", TaskManager.get());
+        interpreter.set("globals", globalVariables);
 
         File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
         if (!scripts.exists())
@@ -104,7 +109,7 @@ public class ScriptManager {
                     return true;
                 } else
                     return false;
-            } catch (PySyntaxError e) {
+            } catch (PySyntaxError | PyIndentationError e) {
                 PySpigot.get().getLogger().log(Level.SEVERE, e.getMessage());
                 return false;
             }
@@ -150,7 +155,7 @@ public class ScriptManager {
                     return false;
 
                 return runScript(script.getName());
-            } catch (PySyntaxError e) {
+            } catch (PySyntaxError | PyIndentationError e) {
                 PySpigot.get().getLogger().log(Level.SEVERE, e.getMessage());
                 return false;
             }
@@ -183,7 +188,14 @@ public class ScriptManager {
                 interpreter.exec(script.getCode());
                 script.setRunning(true);
             } catch (PyException e) {
-                PySpigot.get().getLogger().log(Level.SEVERE, "Error when running " + script.getName() + ": " + e.getMessage() + "\n\n" + e.traceback.dumpStack());
+                if (e.getCause() != null && !(e.getCause() instanceof PyException))
+                    e.getCause().printStackTrace();
+                else {
+                    if (e.traceback != null)
+                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when running script " + script.getName() + ": " + e.getMessage() + "\n\n" + e.traceback.dumpStack());
+                    else
+                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when running script " + script.getName() + ": " + e.getMessage());
+                }
                 return false;
             }
             return true;

@@ -7,12 +7,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
 import org.python.core.PyBaseCode;
+import org.python.core.PyException;
 import org.python.core.PyFunction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class ListenerManager {
 
@@ -40,7 +42,17 @@ public class ListenerManager {
                 if (!eventClass.isAssignableFrom(event.getClass())) {
                     return;
                 }
+
                 function._jcall(new Object[]{event});
+            } catch (PyException e) {
+                if (e.getCause() != null && !(e.getCause() instanceof PyException))
+                    e.getCause().printStackTrace();
+                else {
+                    if (e.traceback != null)
+                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when executing event listener belonging to script " + script.getName() + ": " + e.getMessage() + "\n\n" + e.traceback.dumpStack());
+                    else
+                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when executing event listener belonging to script " + script.getName() + ": " + e.getMessage());
+                }
             } catch (Throwable t) {
                 throw new EventException(t);
             }
@@ -48,6 +60,7 @@ public class ListenerManager {
 
         listener.addEvent(function, eventClass);
         Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, executor, PySpigot.get(), ignoreCancelled);
+        throw new NullPointerException();
     }
 
     public void registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
