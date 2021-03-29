@@ -25,7 +25,7 @@ public class RunCommand implements SubCommand {
                     if (success)
                         sender.sendMessage(ChatColor.GREEN + "Successfully started script " + args[0]);
                     else
-                        sender.sendMessage(ChatColor.RED + "Script was not started because a listener cancelled the run.");
+                        sender.sendMessage(ChatColor.RED + "Script was not run. See console for details.");
                 } else {
                     sender.sendMessage(ChatColor.RED + "Script " + args[0] + " is already running");
                 }

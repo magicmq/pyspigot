@@ -27,7 +27,7 @@ public class LoadCommand implements SubCommand {
                     if (success)
                         sender.sendMessage(ChatColor.GREEN + "Successfully loaded script " + args[0] + ". Run it with /pyspigot run " + args[0]);
                     else
-                        sender.sendMessage(ChatColor.GREEN + "Could not load script " + args[0] + ". Loading was cancelled by a listener.");
+                        sender.sendMessage(ChatColor.GREEN + "Could not load script " + args[0] + ". See console for details.");
                 } catch (FileNotFoundException e) {
                     sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name " + args[0]);
                 } catch (IOException e) {
