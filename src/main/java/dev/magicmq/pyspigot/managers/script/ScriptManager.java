@@ -1,5 +1,6 @@
 package dev.magicmq.pyspigot.managers.script;
 
+import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.event.ScriptRunEvent;
@@ -8,7 +9,6 @@ import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.managers.command.CommandManager;
 import dev.magicmq.pyspigot.managers.config.ConfigManager;
 import dev.magicmq.pyspigot.managers.listener.ListenerManager;
-import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.managers.task.TaskManager;
 import org.bukkit.Bukkit;
 import org.python.core.PyException;
@@ -48,16 +48,9 @@ public class ScriptManager {
         File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
         if (!scripts.exists())
             scripts.mkdir();
-        File autorunScripts = new File(PySpigot.get().getDataFolder(), "autorun_scripts");
-        if (!autorunScripts.exists())
-            autorunScripts.mkdir();
 
         Bukkit.getScheduler().runTaskLater(PySpigot.get(), () -> {
-            if (PluginConfig.preloadScripts()) {
-                loadAllScripts();
-            }
-
-            if (PluginConfig.autorunScripts()) {
+            if (PluginConfig.autorunScriptsEnabled()) {
                 loadAutorunScripts();
             }
         }, PluginConfig.getLoadScriptDelay());
@@ -67,85 +60,36 @@ public class ScriptManager {
         interpreter.close();
     }
 
-    private void loadAllScripts() {
-        PySpigot.get().getLogger().log(Level.INFO, "Initializing scripts...");
-        int numOfScripts = 0;
-        File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
-        if (scripts.isDirectory()) {
-            File[] files = scripts.listFiles();
-            for (File file : files) {
-                if (!file.getName().endsWith(".py"))
-                    continue;
-
-                try {
-                    if (loadScript(file.getName()))
-                        numOfScripts++;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        PySpigot.get().getLogger().log(Level.INFO, "Found and initialized " + numOfScripts + " scripts!");
-    }
-
-    public boolean loadScript(String name) throws IOException {
-        if (getScript(name) != null)
-            throw new IllegalArgumentException("Attempted to load " + name + ", but there is already a loaded script with this name. Script names must be unique.");
-
-        if (!name.endsWith(".py")) {
-            name += ".py";
-        }
-
-        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
-        File scriptFile = new File(scriptsFolder, name);
-        try (FileReader reader = new FileReader(scriptFile)) {
-            try {
-                Script script = new Script(scriptFile.getName(), interpreter.compile(reader, scriptFile.getName()), scriptFile, ScriptType.NORMAL);
-
-                ScriptLoadEvent event = new ScriptLoadEvent(script);
-                Bukkit.getPluginManager().callEvent(event);
-                if (!event.isCancelled()) {
-                    this.scripts.add(script);
-                    return true;
-                } else
-                    return false;
-            } catch (PySyntaxError | PyIndentationError e) {
-                PySpigot.get().getLogger().log(Level.SEVERE, e.getMessage());
-                return false;
-            }
-        }
-    }
-
     private void loadAutorunScripts() {
         PySpigot.get().getLogger().log(Level.INFO, "Initializing autorun scripts...");
         int numOfScripts = 0;
-        File scripts = new File(PySpigot.get().getDataFolder(), "autorun_scripts");
-        if (scripts.isDirectory()) {
-            File[] files = scripts.listFiles();
-            for (File file : files) {
-                if (!file.getName().endsWith(".py"))
-                    continue;
-
-                try {
-                    if (loadAutorunScript(file.getName()))
-                        numOfScripts++;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
+        if (scriptsFolder.isDirectory()) {
+            for (String script : PluginConfig.getAutorunScripts()) {
+                File file = new File(scriptsFolder, script);
+                if (file.exists()) {
+                    try {
+                        if (loadScript(script, ScriptType.AUTORUN))
+                            numOfScripts++;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else
+                    PySpigot.get().getLogger().log(Level.WARNING, "Could not find script " + script + " in the scripts folder! Did you make sure to include the extension (.py)?");
             }
         }
         PySpigot.get().getLogger().log(Level.INFO, "Found and initialized " + numOfScripts + " autorun scripts!");
     }
 
-    private boolean loadAutorunScript(String name) throws IOException {
+    public boolean loadScript(String name, ScriptType type) throws IOException {
         if (getScript(name) != null)
-            throw new IllegalArgumentException("Attempted to load " + name + ", but there is already a loaded script with this name. Script names must be unique.");
+            throw new IllegalArgumentException("Attempted to load script " + name + ", but there is already a loaded script with this name. Script names must be unique.");
 
-        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "autorun_scripts");
+        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
             try {
-                Script script = new Script(scriptFile.getName(), interpreter.compile(reader, scriptFile.getName()), scriptFile, ScriptType.AUTORUN);
+                Script script = new Script(scriptFile.getName(), interpreter.compile(reader, scriptFile.getName()), scriptFile, type);
 
                 ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
                 Bukkit.getPluginManager().callEvent(eventLoad);
@@ -168,51 +112,9 @@ public class ScriptManager {
         ScriptUnloadEvent event = new ScriptUnloadEvent(script);
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
-            if (script.isRunning()) {
-                if (!stopScript(name))
-                    return false;
-            }
-            scripts.remove(script);
-            return true;
-        } else
-            return false;
-    }
-
-    public boolean runScript(String name) {
-        Script script = getScript(name);
-
-        ScriptRunEvent event = new ScriptRunEvent(script);
-        Bukkit.getPluginManager().callEvent(event);
-        if (!event.isCancelled()) {
-            try {
-                interpreter.exec(script.getCode());
-                script.setRunning(true);
-            } catch (PyException e) {
-                if (e.getCause() != null && !(e.getCause() instanceof PyException))
-                    e.getCause().printStackTrace();
-                else {
-                    if (e.traceback != null)
-                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when running script " + script.getName() + ": " + e.getMessage() + "\n\n" + e.traceback.dumpStack());
-                    else
-                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when running script " + script.getName() + ": " + e.getMessage());
-                }
+            if (!stopScript(name))
                 return false;
-            }
-            return true;
-        } else
-            return false;
-    }
-
-    public boolean stopScript(String name) {
-        Script script = getScript(name);
-
-        ScriptStopEvent event = new ScriptStopEvent(script);
-        Bukkit.getPluginManager().callEvent(event);
-        if (!event.isCancelled()) {
-            ListenerManager.get().stopScript(script);
-            TaskManager.get().stopScript(script);
-            CommandManager.get().stopScript(script);
-            script.setRunning(false);
+            scripts.remove(script);
             return true;
         } else
             return false;
@@ -221,41 +123,28 @@ public class ScriptManager {
     public boolean reloadScript(String name) throws IOException {
         Script script = getScript(name);
 
-        if (script.isRunning()) {
-            if (!stopScript(name))
-                return false;
-        }
-        scripts.remove(script);
+        if (!unloadScript(name))
+            return false;
 
-        if (script.getType() == ScriptType.AUTORUN)
-            return loadAutorunScript(script.getName());
-        else
-            if (!loadScript(script.getName()))
-                return false;
+        return loadScript(script.getName(), script.getType());
+    }
 
-        if (script.isRunning()) {
-            if (runScript(script.getName()))
-                return true;
+    public void handleScriptException(Script script, PyException exception, String message) {
+        if (exception.getCause() != null && !(exception.getCause() instanceof PyException))
+            exception.getCause().printStackTrace();
+        else {
+            if (exception.traceback != null)
+                PySpigot.get().getLogger().log(Level.SEVERE, message + " " + script.getName() + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
             else
-                return false;
-        } else
-            return true;
+                PySpigot.get().getLogger().log(Level.SEVERE, message + " " + script.getName() + ": " + exception.getMessage());
+        }
     }
 
     public boolean isScript(String name) {
         return getScript(name) != null;
     }
 
-    public boolean isScriptRunning(String name) {
-        Script script = getScript(name);
-        return script.isRunning();
-    }
-
     public Script getScript(String name) {
-        if (!name.endsWith(".py")) {
-            name += ".py";
-        }
-
         for (Script script : scripts) {
             if (script.getName().equals(name))
                 return script;
@@ -265,6 +154,39 @@ public class ScriptManager {
 
     public List<String> getLoadedScripts() {
         return scripts.stream().map(Script::getName).collect(Collectors.toList());
+    }
+
+    private boolean runScript(String name) {
+        Script script = getScript(name);
+
+        ScriptRunEvent event = new ScriptRunEvent(script);
+        Bukkit.getPluginManager().callEvent(event);
+        if (!event.isCancelled()) {
+            try {
+                interpreter.exec(script.getCode());
+            } catch (PyException e) {
+                handleScriptException(script, e, "Error when running script");
+                PySpigot.get().getLogger().log(Level.SEVERE, "Script " + script.getName() + " has been unloaded due to a crash.");
+                unloadScript(name);
+                return false;
+            }
+            return true;
+        } else
+            return false;
+    }
+
+    private boolean stopScript(String name) {
+        Script script = getScript(name);
+
+        ScriptStopEvent event = new ScriptStopEvent(script);
+        Bukkit.getPluginManager().callEvent(event);
+        if (!event.isCancelled()) {
+            ListenerManager.get().stopScript(script);
+            TaskManager.get().stopScript(script);
+            CommandManager.get().stopScript(script);
+            return true;
+        } else
+            return false;
     }
 
     public static ScriptManager get() {

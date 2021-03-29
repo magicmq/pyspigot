@@ -4,6 +4,8 @@ import dev.magicmq.pyspigot.PySpigot;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.List;
+
 public class PluginConfig {
 
     private static FileConfiguration config;
@@ -16,16 +18,16 @@ public class PluginConfig {
         config = PySpigot.get().getConfig();
     }
 
-    public static boolean preloadScripts() {
-        return config.getBoolean("preload-scripts", true);
-    }
-
-    public static boolean autorunScripts() {
-        return config.getBoolean("autorun-scripts", true);
-    }
-
     public static long getLoadScriptDelay() {
         return config.getLong("script-load-delay", 20L);
+    }
+
+    public static boolean autorunScriptsEnabled() {
+        return config.getBoolean("autorun-scripts-enabled", true);
+    }
+
+    public static List<String> getAutorunScripts() {
+        return config.getStringList("autorun-scripts");
     }
 
     public static String getMessage(String key, boolean withPrefix) {

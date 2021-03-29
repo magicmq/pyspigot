@@ -1,14 +1,16 @@
 package dev.magicmq.pyspigot.managers.command;
 
-import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.managers.script.Script;
+import dev.magicmq.pyspigot.managers.script.ScriptManager;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
-import org.python.core.*;
+import org.python.core.PyBoolean;
+import org.python.core.PyException;
+import org.python.core.PyFunction;
+import org.python.core.PyObject;
 
 import java.util.List;
-import java.util.logging.Level;
 
 public class ScriptCommand extends BukkitCommand {
 
@@ -37,14 +39,7 @@ public class ScriptCommand extends BukkitCommand {
 
             throw new CommandException("Error when executing command belonging to script " + script.getName() + ": Command function must return a boolean!");
         } catch (PyException e) {
-            if (e.getCause() != null && !(e.getCause() instanceof PyException))
-                e.getCause().printStackTrace();
-            else {
-                if (e.traceback != null)
-                    PySpigot.get().getLogger().log(Level.SEVERE, "Error when executing command belonging to script " + script.getName() + ": " + e.getMessage() + "\n\n" + e.traceback.dumpStack());
-                else
-                    PySpigot.get().getLogger().log(Level.SEVERE, "Error when executing command belonging to script " + script.getName() + ": " + e.getMessage());
-            }
+            ScriptManager.get().handleScriptException(script, e, "Error when executing command beloning to script");
         }
         return true;
     }

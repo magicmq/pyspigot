@@ -4,7 +4,10 @@ import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.managers.script.Script;
 import dev.magicmq.pyspigot.managers.script.ScriptManager;
 import org.bukkit.Bukkit;
-import org.bukkit.event.*;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventException;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.EventExecutor;
 import org.python.core.PyBaseCode;
 import org.python.core.PyException;
@@ -14,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 public class ListenerManager {
 
@@ -45,14 +47,7 @@ public class ListenerManager {
 
                 function._jcall(new Object[]{event});
             } catch (PyException e) {
-                if (e.getCause() != null && !(e.getCause() instanceof PyException))
-                    e.getCause().printStackTrace();
-                else {
-                    if (e.traceback != null)
-                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when executing event listener belonging to script " + script.getName() + ": " + e.getMessage() + "\n\n" + e.traceback.dumpStack());
-                    else
-                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when executing event listener belonging to script " + script.getName() + ": " + e.getMessage());
-                }
+                ScriptManager.get().handleScriptException(script, e, "Error when executing event listener belonging to script");
             } catch (Throwable t) {
                 throw new EventException(t);
             }

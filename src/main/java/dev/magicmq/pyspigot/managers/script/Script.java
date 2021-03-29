@@ -11,15 +11,11 @@ public class Script {
     private final File file;
     private final ScriptType type;
 
-    private boolean running;
-
     public Script(String name, PyCode code, File file, ScriptType type) {
         this.name = name;
         this.code = code;
         this.file = file;
         this.type = type;
-
-        this.running = false;
     }
 
     public String getName() {
@@ -36,14 +32,6 @@ public class Script {
 
     public ScriptType getType() {
         return type;
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
     }
 
     @Override

@@ -28,6 +28,7 @@ public class PySpigot extends JavaPlugin {
 
         ScriptManager.get();
         ListenerManager.get();
+        CommandManager.get();
         TaskManager.get();
         ConfigManager.get();
     }
@@ -37,7 +38,6 @@ public class PySpigot extends JavaPlugin {
         TaskManager.get().shutdown();
         CommandManager.get().shutdown();
         ScriptManager.get().shutdown();
-
     }
 
     public void reload() {
