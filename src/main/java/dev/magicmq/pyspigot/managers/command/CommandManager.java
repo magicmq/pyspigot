@@ -66,7 +66,7 @@ public class CommandManager {
             throw new UnsupportedOperationException("Used fallback prefix (script name) when registering command " + name);
     }
 
-    public void deregisterCommand(String name) {
+    public void unregisterCommand(String name) {
         ScriptCommand command = getCommand(name);
         if (command != null) {
             deregisterCommand(command);
