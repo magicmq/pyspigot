@@ -3,8 +3,6 @@ package dev.magicmq.pyspigot.managers.script;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.event.ScriptLoadEvent;
-import dev.magicmq.pyspigot.event.ScriptRunEvent;
-import dev.magicmq.pyspigot.event.ScriptStopEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.managers.command.CommandManager;
 import dev.magicmq.pyspigot.managers.config.ConfigManager;
@@ -159,34 +157,24 @@ public class ScriptManager {
     private boolean runScript(String name) {
         Script script = getScript(name);
 
-        ScriptRunEvent event = new ScriptRunEvent(script);
-        Bukkit.getPluginManager().callEvent(event);
-        if (!event.isCancelled()) {
-            try {
-                interpreter.exec(script.getCode());
-            } catch (PyException e) {
-                handleScriptException(script, e, "Error when running script");
-                PySpigot.get().getLogger().log(Level.SEVERE, "Script " + script.getName() + " has been unloaded due to a crash.");
-                unloadScript(name);
-                return false;
-            }
-            return true;
-        } else
+        try {
+            interpreter.exec(script.getCode());
+        } catch (PyException e) {
+            handleScriptException(script, e, "Error when running script");
+            PySpigot.get().getLogger().log(Level.SEVERE, "Script " + script.getName() + " has been unloaded due to a crash.");
+            unloadScript(name);
             return false;
+        }
+        return true;
     }
 
     private boolean stopScript(String name) {
         Script script = getScript(name);
 
-        ScriptStopEvent event = new ScriptStopEvent(script);
-        Bukkit.getPluginManager().callEvent(event);
-        if (!event.isCancelled()) {
-            ListenerManager.get().stopScript(script);
-            TaskManager.get().stopScript(script);
-            CommandManager.get().stopScript(script);
-            return true;
-        } else
-            return false;
+        ListenerManager.get().stopScript(script);
+        TaskManager.get().stopScript(script);
+        CommandManager.get().stopScript(script);
+        return true;
     }
 
     public static ScriptManager get() {
