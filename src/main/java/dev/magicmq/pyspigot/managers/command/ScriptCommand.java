@@ -39,7 +39,7 @@ public class ScriptCommand extends BukkitCommand {
 
             throw new CommandException("Error when executing command belonging to script " + script.getName() + ": Command function must return a boolean!");
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when executing command beloning to script");
+            ScriptManager.get().handleScriptException(script, e, "Error when executing command belonging to script");
         }
         return true;
     }
