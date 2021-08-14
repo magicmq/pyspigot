@@ -7,10 +7,7 @@ import me.lucko.jarrelocator.JarRelocator;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +35,7 @@ public class LibraryManager {
     }
 
     public void initLibraries() {
-        List<File> toLoad = new ArrayList<>();
+        SortedSet<File> toLoad = new TreeSet<>();
         if (libsFolder.isDirectory()) {
             toLoad.addAll(Arrays.asList(libsFolder.listFiles()));
         }
