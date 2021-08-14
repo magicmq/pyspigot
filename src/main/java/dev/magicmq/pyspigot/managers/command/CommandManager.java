@@ -40,6 +40,7 @@ public class CommandManager {
     public void shutdown() {
         for (ScriptCommand command : registeredCommands) {
             command.unregister(commandMap);
+            knownCommands.remove(command.getName());
         }
     }
 
