@@ -4,6 +4,7 @@ import dev.magicmq.pyspigot.PySpigot;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class PluginConfig {
@@ -28,6 +29,15 @@ public class PluginConfig {
 
     public static List<String> getAutorunScripts() {
         return config.getStringList("autorun-scripts");
+    }
+
+    public static HashMap<String, String> getLibraryRelocations() {
+        HashMap<String, String> toReturn = new HashMap<>();
+        for (String string : config.getStringList("library-relocations")) {
+            String[] split = string.split("\\|");
+            toReturn.put(split[0], split[1]);
+        }
+        return toReturn;
     }
 
     public static String getMessage(String key, boolean withPrefix) {

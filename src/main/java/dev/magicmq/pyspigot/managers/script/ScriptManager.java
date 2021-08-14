@@ -6,13 +6,11 @@ import dev.magicmq.pyspigot.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.managers.command.CommandManager;
 import dev.magicmq.pyspigot.managers.config.ConfigManager;
+import dev.magicmq.pyspigot.managers.libraries.LibraryManager;
 import dev.magicmq.pyspigot.managers.listener.ListenerManager;
 import dev.magicmq.pyspigot.managers.task.TaskManager;
 import org.bukkit.Bukkit;
-import org.python.core.PyException;
-import org.python.core.PyIndentationError;
-import org.python.core.PyObject;
-import org.python.core.PySyntaxError;
+import org.python.core.*;
 import org.python.util.PythonInterpreter;
 
 import java.io.File;
@@ -33,7 +31,10 @@ public class ScriptManager {
     private final HashMap<String, PyObject> globalVariables;
 
     private ScriptManager() {
-        this.interpreter = new PythonInterpreter();
+        PySystemState state = new PySystemState();
+        state.setClassLoader(LibraryManager.get().getClassLoader());
+        this.interpreter = new PythonInterpreter(null, state);
+
         this.scripts = new ArrayList<>();
         this.globalVariables = new HashMap<>();
 

@@ -22,14 +22,20 @@
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <artifactId>spigot</artifactId>
+            <version>1.12.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.python</groupId>
             <artifactId>jython-slim</artifactId>
             <version>2.7.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.lucko</groupId>
+            <artifactId>jar-relocator</artifactId>
+            <version>1.5</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -75,6 +81,10 @@
                         <relocation>
                             <pattern>org.objectweb.asm</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.shaded.org.objectweb.asm</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>me.lucko.jarrelocator</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.shaded.me.lucko.jarrelocator</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>

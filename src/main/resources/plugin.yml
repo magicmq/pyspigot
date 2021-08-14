@@ -2,6 +2,7 @@ name: ${project.name}
 version: ${project.version}
 author: magicmq
 main: dev.magicmq.pyspigot.PySpigot
+load: STARTUP
 commands:
   pyspigot:
     description: The main command for PySpigot.

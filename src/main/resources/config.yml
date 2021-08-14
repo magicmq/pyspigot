@@ -5,5 +5,6 @@ autorun-scripts-enabled: true
 # A list of scripts to autorun on plugin load
 autorun-scripts:
   - 'test.py'
+library-relocations: []
 messages:
   plugin-prefix: '&8[&6PySpigot&8] &r'
