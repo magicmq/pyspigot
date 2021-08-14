@@ -79,12 +79,20 @@
                     <finalName>${project.name}-${project.version}</finalName>
                     <relocations>
                         <relocation>
-                            <pattern>org.objectweb.asm</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.shaded.org.objectweb.asm</shadedPattern>
+                            <pattern>io.netty</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.io.netty</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>me.lucko.jarrelocator</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.shaded.me.lucko.jarrelocator</shadedPattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.me.lucko.jarrelocator</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.objectweb.asm</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.objectweb.asm</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.com.google</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
@@ -94,6 +102,7 @@
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
+                                <exclude>images/ant_logo_large.gif</exclude>
                             </excludes>
                         </filter>
                     </filters>
