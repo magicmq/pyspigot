@@ -9,13 +9,11 @@ public class Script {
     private final String name;
     private final PyCode code;
     private final File file;
-    private final ScriptType type;
 
-    public Script(String name, PyCode code, File file, ScriptType type) {
+    public Script(String name, PyCode code, File file) {
         this.name = name;
         this.code = code;
         this.file = file;
-        this.type = type;
     }
 
     public String getName() {
@@ -28,10 +26,6 @@ public class Script {
 
     public File getFile() {
         return file;
-    }
-
-    public ScriptType getType() {
-        return type;
     }
 
     @Override

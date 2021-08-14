@@ -1,9 +1,6 @@
 # The delay for loading autorun scripts (in ticks) after the plugin loads.
 script-load-delay: 20
-# If true, the plugin will attempt to load all scripts in autorun-scripts below on plugin load
-autorun-scripts-enabled: true
-# A list of scripts to autorun on plugin load
-autorun-scripts: []
+#List of relocation rules for libraries in the libs folder. Format as <pattern>|<relocated pattern>
 library-relocations: []
 messages:
   plugin-prefix: '&8[&6PySpigot&8] &r'

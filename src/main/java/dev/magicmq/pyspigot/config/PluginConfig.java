@@ -23,10 +23,6 @@ public class PluginConfig {
         return config.getLong("script-load-delay", 20L);
     }
 
-    public static boolean autorunScriptsEnabled() {
-        return config.getBoolean("autorun-scripts-enabled", true);
-    }
-
     public static List<String> getAutorunScripts() {
         return config.getStringList("autorun-scripts");
     }

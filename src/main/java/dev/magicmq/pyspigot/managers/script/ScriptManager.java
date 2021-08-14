@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -48,39 +49,33 @@ public class ScriptManager {
         if (!scripts.exists())
             scripts.mkdir();
 
-        Bukkit.getScheduler().runTaskLater(PySpigot.get(), () -> {
-            if (PluginConfig.autorunScriptsEnabled()) {
-                loadAutorunScripts();
-            }
-        }, PluginConfig.getLoadScriptDelay());
+        Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getLoadScriptDelay());
     }
 
     public void shutdown() {
         interpreter.close();
     }
 
-    private void loadAutorunScripts() {
-        PySpigot.get().getLogger().log(Level.INFO, "Initializing autorun scripts...");
+    private void loadScripts() {
+        PySpigot.get().getLogger().log(Level.INFO, "Initializing scripts...");
         int numOfScripts = 0;
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         if (scriptsFolder.isDirectory()) {
-            for (String script : PluginConfig.getAutorunScripts()) {
-                File file = new File(scriptsFolder, script);
-                if (file.exists()) {
-                    try {
-                        if (loadScript(script, ScriptType.AUTORUN))
-                            numOfScripts++;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else
-                    PySpigot.get().getLogger().log(Level.WARNING, "Could not find script " + script + " in the scripts folder! Did you make sure to include the extension (.py)?");
+            List<File> toLoad = new ArrayList<>();
+            toLoad.addAll(Arrays.asList(scriptsFolder.listFiles()));
+            for (File script : toLoad) {
+                try {
+                    if (loadScript(script.getName()))
+                        numOfScripts++;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        PySpigot.get().getLogger().log(Level.INFO, "Found and initialized " + numOfScripts + " autorun scripts!");
+        PySpigot.get().getLogger().log(Level.INFO, "Found and initialized " + numOfScripts + " scripts!");
     }
 
-    public boolean loadScript(String name, ScriptType type) throws IOException {
+    public boolean loadScript(String name) throws IOException {
         if (getScript(name) != null)
             throw new IllegalArgumentException("Attempted to load script " + name + ", but there is already a loaded script with this name. Script names must be unique.");
 
@@ -88,7 +83,7 @@ public class ScriptManager {
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
             try {
-                Script script = new Script(scriptFile.getName(), interpreter.compile(reader, scriptFile.getName()), scriptFile, type);
+                Script script = new Script(scriptFile.getName(), interpreter.compile(reader, scriptFile.getName()), scriptFile);
 
                 ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
                 Bukkit.getPluginManager().callEvent(eventLoad);
@@ -125,7 +120,7 @@ public class ScriptManager {
         if (!unloadScript(name))
             return false;
 
-        return loadScript(script.getName(), script.getType());
+        return loadScript(script.getName());
     }
 
     public void handleScriptException(Script script, PyException exception, String message) {

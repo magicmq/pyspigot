@@ -3,7 +3,6 @@ package dev.magicmq.pyspigot.commands.subcommands;
 import dev.magicmq.pyspigot.commands.SubCommand;
 import dev.magicmq.pyspigot.commands.SubCommandMeta;
 import dev.magicmq.pyspigot.managers.script.ScriptManager;
-import dev.magicmq.pyspigot.managers.script.ScriptType;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -24,7 +23,7 @@ public class LoadCommand implements SubCommand {
         if (args.length > 0) {
             if (!ScriptManager.get().isScript(args[0])) {
                 try {
-                    boolean success = ScriptManager.get().loadScript(args[0], ScriptType.NORMAL);
+                    boolean success = ScriptManager.get().loadScript(args[0]);
                     if (success)
                         sender.sendMessage(ChatColor.GREEN + "Successfully loaded script " + args[0]);
                     else
