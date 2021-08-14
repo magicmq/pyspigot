@@ -45,6 +45,10 @@ public class ScriptManager {
         interpreter.set("tasks", TaskManager.get());
         interpreter.set("globals", globalVariables);
 
+        if (PluginConfig.doAutoImportBukkit()) {
+            interpreter.set("bukkit", Bukkit.class);
+        }
+
         File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
         if (!scripts.exists())
             scripts.mkdir();
