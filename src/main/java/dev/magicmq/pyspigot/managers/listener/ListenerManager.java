@@ -29,7 +29,7 @@ public class ListenerManager {
     }
 
     public void registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString, boolean ignoreCancelled) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         DummyListener listener = get().getListener(script);
         if (listener == null) {
             listener = new DummyListener(script);
@@ -70,7 +70,7 @@ public class ListenerManager {
     }
 
     public void unregisterEvent(PyFunction function) {
-        String scriptName = ((PyBaseCode) function.getFuncCode()).co_filename;
+        String scriptName = ((PyBaseCode) function.__code__).co_filename;
         DummyListener dummyListener = getListener(scriptName);
         Class<? extends Event> event = dummyListener.removeEvent(function);
         try {

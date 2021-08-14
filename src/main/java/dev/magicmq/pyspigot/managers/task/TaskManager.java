@@ -29,31 +29,31 @@ public class TaskManager {
     }
 
     public int runTask(PyFunction function) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
         return Bukkit.getScheduler().runTask(PySpigot.get(), task).getTaskId();
     }
 
     public int runTaskAsync(PyFunction function) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
         return Bukkit.getScheduler().runTaskAsynchronously(PySpigot.get(), task).getTaskId();
     }
 
     public int runTaskLater(PyFunction function, long delay) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
         return Bukkit.getScheduler().runTaskLater(PySpigot.get(), task, delay).getTaskId();
     }
 
     public int runTaskLaterAsync(PyFunction function, long delay) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
         return Bukkit.getScheduler().runTaskLaterAsynchronously(PySpigot.get(), task, delay).getTaskId();
     }
 
     public int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         RepeatingTask task = new RepeatingTask(script, function);
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(PySpigot.get(), task, delay, interval);
         task.setTaskId(bukkitTask.getTaskId());
@@ -62,7 +62,7 @@ public class TaskManager {
     }
 
     public int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         RepeatingTask task = new RepeatingTask(script, function);
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(PySpigot.get(), task, delay, interval);
         task.setTaskId(bukkitTask.getTaskId());

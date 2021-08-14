@@ -45,7 +45,7 @@ public class CommandManager {
     }
 
     public void registerCommand(PyFunction function, String name) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         ScriptCommand command = new ScriptCommand(script, function, name);
         boolean registered = commandMap.register(script.getName(), command);
         if (registered)
@@ -55,7 +55,7 @@ public class CommandManager {
     }
 
     public void registerCommand(PyFunction function, String name, String description, String usageMessage, List<String> aliases) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.getFuncCode()).co_filename);
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         ScriptCommand command = new ScriptCommand(script, function, name, description, usageMessage, aliases);
         boolean registered = commandMap.register(script.getName(), command);
         if (registered)
