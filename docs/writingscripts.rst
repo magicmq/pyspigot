@@ -31,16 +31,16 @@ PySpigot scripts should be placed into the ``scripts`` folder in PySpigot's main
 
 PySpigot scripts should also have a ``.py`` extension. Any files in the ``scripts`` folder that does not end in ``.py`` will not be parsed and loaded.
 
-Autorun Scripts
+Script Loading
 ***************
 
-PySpigot can load and run scripts automatically at server start. The time at which autorun scripts load as well as which scripts should be automatically run at plugin load can be adjusted in PySpigot's ``config.yml``.
+PySpigot loads and runs all scripts in the scripts folder automatically and in alphabetical order. This means that if a script depends on another script, then you should name it such that it falls after the script it depends on alphabetically (so it loads after the script it depends on).
 
-There are three config options pertaining to autorun scripts:
+There is only one config option related to loading scripts:
 
-* ``script-load-delay``: This is the delay, in ticks, that PySpigot will wait **after server loading is completed** to load autorun scripts. For example, if the value is 20, then PySpigot will wait 20 ticks (or 1 second) after the server finishes loading to load autorun scripts.
-* ``autorun-script-enabled``: PySpigot will only load autorun scripts automatically if this is true. To either temporarily or permanently disable script autorun without clearing the ``autorun-scripts`` list, set this to false.
-* ``autorun-scripts``: This is a list containing all scripts that should be loaded and run automatically at server startup. Script names should include the extension (``.py``).
+* ``script-load-delay``: This is the delay, in ticks, that PySpigot will wait **after server loading is completed** to load scripts. For example, if the value is 20, then PySpigot will wait 20 ticks (or 1 second) after the server finishes loading to load scripts.
+
+Of course, scripts can also be manually loaded using /pyspigot load <scriptname> if you want to load/enable a script after server start/plugin load.
 
 Script Errors and Crashes
 *************************
