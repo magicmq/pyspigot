@@ -3,7 +3,6 @@ package dev.magicmq.pyspigot.managers.command;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.managers.script.Script;
 import dev.magicmq.pyspigot.managers.script.ScriptManager;
-import dev.magicmq.pyspigot.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -15,7 +14,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class CommandManager {

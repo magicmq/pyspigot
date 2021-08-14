@@ -23,10 +23,6 @@ public class PluginConfig {
         return config.getLong("script-load-delay", 20L);
     }
 
-    public static List<String> getAutorunScripts() {
-        return config.getStringList("autorun-scripts");
-    }
-
     public static HashMap<String, String> getLibraryRelocations() {
         HashMap<String, String> toReturn = new HashMap<>();
         for (String string : config.getStringList("library-relocations")) {
