@@ -7,11 +7,13 @@ import dev.magicmq.pyspigot.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
+import org.bukkit.command.SimpleCommandMap;
 import org.python.core.PyBaseCode;
 import org.python.core.PyFunction;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -21,19 +23,14 @@ public class CommandManager {
     private static CommandManager manager;
 
     private CommandMap commandMap;
-    private Field knownCommands;
+    private HashMap<String, Command> knownCommands;
     private final List<ScriptCommand> registeredCommands;
 
     private CommandManager() {
         try {
-            Class<?> craftServer = ReflectionUtil.getCraftBukkitClass("CraftServer");
-            Field commandMap = craftServer.getDeclaredField("commandMap");
-            commandMap.setAccessible(true);
-            this.commandMap = (CommandMap) commandMap.get(Bukkit.getServer());
-
-            knownCommands = this.commandMap.getClass().getDeclaredField("knownCommands");
-            knownCommands.setAccessible(true);
-        } catch (ClassNotFoundException | NoSuchFieldException |IllegalAccessException e) {
+            commandMap = getCommandMap();
+            knownCommands = getKnownCommands(commandMap);
+        } catch (NoSuchFieldException |IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -97,20 +94,22 @@ public class CommandManager {
         return toReturn;
     }
 
-    private void deregisterCommand(ScriptCommand command) {
-        command.unregister(commandMap);
-        removeFromKnownCommands(command.getName());
-        registeredCommands.remove(command);
+    private CommandMap getCommandMap() throws NoSuchFieldException, IllegalAccessException {
+        Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+        field.setAccessible(true);
+        return (CommandMap) field.get(Bukkit.getServer());
     }
 
-    private void removeFromKnownCommands(String name) {
-        try {
-            Map<String, Command> knownCommands = (Map<String, Command>) this.knownCommands.get(commandMap);
-            knownCommands.remove(name);
-            this.knownCommands.set(commandMap, knownCommands);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+    private HashMap<String, Command> getKnownCommands(CommandMap commandMap) throws NoSuchFieldException, IllegalAccessException {
+        Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
+        field.setAccessible(true);
+        return (HashMap<String, Command>) field.get(commandMap);
+    }
+
+    private void deregisterCommand(ScriptCommand command) {
+        command.unregister(commandMap);
+        knownCommands.remove(command.getName());
+        registeredCommands.remove(command);
     }
 
     public static CommandManager get() {
