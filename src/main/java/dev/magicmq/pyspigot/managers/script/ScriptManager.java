@@ -60,7 +60,7 @@ public class ScriptManager {
     }
 
     private void loadScripts() {
-        PySpigot.get().getLogger().log(Level.INFO, "Initializing scripts...");
+        PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
         int numOfScripts = 0;
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         if (scriptsFolder.isDirectory()) {
@@ -75,7 +75,7 @@ public class ScriptManager {
                 }
             }
         }
-        PySpigot.get().getLogger().log(Level.INFO, "Found and initialized " + numOfScripts + " scripts!");
+        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + numOfScripts + " scripts!");
     }
 
     public boolean loadScript(String name) throws IOException {
