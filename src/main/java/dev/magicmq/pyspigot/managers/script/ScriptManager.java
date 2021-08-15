@@ -2,6 +2,7 @@ package dev.magicmq.pyspigot.managers.script;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.managers.command.CommandManager;
@@ -128,13 +129,17 @@ public class ScriptManager {
     }
 
     public void handleScriptException(Script script, PyException exception, String message) {
-        if (exception.getCause() != null && !(exception.getCause() instanceof PyException))
-            exception.getCause().printStackTrace();
-        else {
-            if (exception.traceback != null)
-                PySpigot.get().getLogger().log(Level.SEVERE, message + " " + script.getName() + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
-            else
-                PySpigot.get().getLogger().log(Level.SEVERE, message + " " + script.getName() + ": " + exception.getMessage());
+        ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.doReportException()) {
+            if (exception.getCause() != null && !(exception.getCause() instanceof PyException))
+                exception.getCause().printStackTrace();
+            else {
+                if (exception.traceback != null)
+                    PySpigot.get().getLogger().log(Level.SEVERE, message + " " + script.getName() + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
+                else
+                    PySpigot.get().getLogger().log(Level.SEVERE, message + " " + script.getName() + ": " + exception.getMessage());
+            }
         }
     }
 

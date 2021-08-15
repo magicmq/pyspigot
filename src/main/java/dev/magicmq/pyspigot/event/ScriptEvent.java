@@ -1,27 +1,20 @@
 package dev.magicmq.pyspigot.event;
 
 import dev.magicmq.pyspigot.managers.script.Script;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class ScriptLoadEvent extends ScriptEvent implements Cancellable {
+public class ScriptEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
+    private final Script script;
 
-    public ScriptLoadEvent(Script script) {
-        super(script);
+    public ScriptEvent(Script script) {
+        this.script = script;
     }
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
+    public Script getScript() {
+        return script;
     }
 
     @Override
