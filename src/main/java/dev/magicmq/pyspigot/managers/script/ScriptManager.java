@@ -18,10 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -67,7 +64,7 @@ public class ScriptManager {
         int numOfScripts = 0;
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         if (scriptsFolder.isDirectory()) {
-            List<File> toLoad = new ArrayList<>();
+            SortedSet<File> toLoad = new TreeSet<>();
             toLoad.addAll(Arrays.asList(scriptsFolder.listFiles()));
             for (File script : toLoad) {
                 try {
@@ -162,7 +159,7 @@ public class ScriptManager {
 
     public List<String> getAllScripts() {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
-        List<String> scripts = new ArrayList<>();
+        SortedSet<String> scripts = new TreeSet<>();
         if (scriptsFolder.isDirectory()) {
             for (File file : scriptsFolder.listFiles()) {
                 if (file.getName().endsWith(".py"))
