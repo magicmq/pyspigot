@@ -17,6 +17,7 @@ import org.python.util.PythonInterpreter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -157,6 +158,18 @@ public class ScriptManager {
 
     public List<String> getLoadedScripts() {
         return scripts.stream().map(Script::getName).collect(Collectors.toList());
+    }
+
+    public List<String> getAllScripts() {
+        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
+        List<String> scripts = new ArrayList<>();
+        if (scriptsFolder.isDirectory()) {
+            for (File file : scriptsFolder.listFiles()) {
+                if (file.getName().endsWith(".py"))
+                    scripts.add(file.getName());
+            }
+        }
+        return scripts;
     }
 
     private boolean runScript(String name) {
