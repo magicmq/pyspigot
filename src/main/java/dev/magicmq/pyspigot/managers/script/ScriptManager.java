@@ -39,11 +39,11 @@ public class ScriptManager {
         this.scripts = new ArrayList<>();
         this.globalVariables = new HashMap<>();
 
-        interpreter.set("listeners", ListenerManager.get());
-        interpreter.set("commands", CommandManager.get());
-        interpreter.set("configs", ConfigManager.get());
-        interpreter.set("tasks", TaskManager.get());
-        interpreter.set("globals", globalVariables);
+        interpreter.set("listener", ListenerManager.get());
+        interpreter.set("command", CommandManager.get());
+        interpreter.set("config", ConfigManager.get());
+        interpreter.set("scheduler", TaskManager.get());
+        interpreter.set("global", globalVariables);
 
         if (PluginConfig.doAutoImportBukkit()) {
             interpreter.set("bukkit", Bukkit.class);

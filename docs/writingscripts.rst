@@ -11,7 +11,7 @@ There are a few guidelines that must be followed when writing PySpigot scripts. 
 
 * Scripts must by Python scripts and end in .py. Files that do not end in .py will not load.
 * Scripts must be placed in the ``scripts`` folder
-* Do not assign variables with the name ``listeners``, ``commands``, ``tasks``, ``scripts``, or ``globals``. These variables are inserted to the local namespace automatically at runtime and correspond to the managers that you will use to register listeners, tasks, etc.
+* Do not assign variables with the name ``listener``, ``command``, ``scheduler``, ``config``, ``bukkit``, or ``global``. These variables are inserted to the local namespace automatically at runtime and correspond to the managers that you will use to register listeners, tasks, etc.
 
 Basic Syntax
 ############
@@ -69,13 +69,13 @@ Let's look at the following code that defines and registers an event listener:
     def player_chat(event):
         print('Player sent a chat! Their message was: ' + event.getMessage())
 
-    listeners.registerEvent(player_chat, AsyncPlayerChatEvent)
+    listener.registerEvent(player_chat, AsyncPlayerChatEvent)
 
 First, on line 1, there is an appropriate import statement for Bukkit's ``AsyncPlayerChatEvent``. All events that you wish to listen to *must* be imported!
 
 On line 3, we define a function called ``player_chat`` that takes an event as a parameter (an AsyncPlayerChatEvent in this case). This is the function that will be called when an AsyncPlayerChatEvent occurs. On line 5, we print a simple message to the console that contains the message that was sent in chat.
 
-All event listeners must be registered with PySpigot's listener manager. Fortunately, the listener manager is loaded into the local namespace at runtime as a variable called ``listeners``, so you do not need to access it manually. Event listeners are registered using ``listeners.registerEvent(function, event)`` The ``registerEvent`` function takes two arguments:
+All event listeners must be registered with PySpigot's listener manager. Fortunately, the listener manager is loaded into the local namespace at runtime as a variable called ``listener``, so you do not need to access it manually. Event listeners are registered using ``listener.registerEvent(function, event)`` The ``registerEvent`` function takes two arguments:
 
 * The first argument accepts the function that should be called when the event fires.
 * The second argument accepts the event that should be listened for.
@@ -88,20 +88,20 @@ To summarize:
 
 * All events that you wish to use should be imported using Python's import syntax.
 * All event listeners should be defined as functions in your script that accept a single parameter (the parameter name can be whatever you like).
-* All event listeners must be registered with PySpigot's listener manager using ``listeners.registerEvent(function, event)``.
+* All event listeners must be registered with PySpigot's listener manager using ``listener.registerEvent(function, event)``.
 
 Listener Manager Usage
 **********************
 
 There are five functions available for you to use in your script in the listener manager if you would like greater control over events or need more advanced event handling:
 
-* ``listeners.registerListener(function, event)``: Explained above, takes the function to call when event fires as well as the event to listen to.
-* ``listeners.registerListener(function, event, priority)``: Same as above, except also allows you to define an event priority (how early/late your event listener should fire relative to other listeners for the same event). The priority is a string and
+* ``listener.registerListener(function, event)``: Explained above, takes the function to call when event fires as well as the event to listen to.
+* ``listener.registerListener(function, event, priority)``: Same as above, except also allows you to define an event priority (how early/late your event listener should fire relative to other listeners for the same event). The priority is a string and
    * Event priorities are the same as the priorities found in Bukkit's `EventPriority class <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/EventPriority.html>`__.
-* ``listeners.registerListener(function, event, ignoreCancelled)``: Allows you to "ignore" the event if it has been cancelled. This means that the event will not fire in your script if it has been previously cancelled by another event listener.
+* ``listener.registerListener(function, event, ignoreCancelled)``: Allows you to "ignore" the event if it has been cancelled. This means that the event will not fire in your script if it has been previously cancelled by another event listener.
    * This will only work with events that are `cancellable <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/Cancellable.html>`__.
-* ``listeners.registerListener(function, event, priority, ignoreCancelled)``: Allows you to register an event that is ignored if cancelled *and* that has a priority (a combination of the previous two functions).
-* ``listeners.unregisterEvent(function)``: Allows you to unregister an event listener from your script. Takes the function you want to unregister as an argument.
+* ``listener.registerListener(function, event, priority, ignoreCancelled)``: Allows you to register an event that is ignored if cancelled *and* that has a priority (a combination of the previous two functions).
+* ``listener.unregisterEvent(function)``: Allows you to unregister an event listener from your script. Takes the function you want to unregister as an argument.
 
 Defining Commands
 #################
@@ -122,32 +122,32 @@ Let's look at the following code that defines and registers a command:
         #Do something...
         return True
 
-    commands.registerCommand(kick_command, 'kickplayer')
+    command.registerCommand(kick_command, 'kickplayer')
 
 On line 1, we define a function called ``kick_command`` that takes four arguments, a sender, command, label, and args. Sender is who executed the command, command is a `command <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/command/Command.html>`__ object. The label is exactly the command that the player typed in (if the command had aliases, then this would be the alias that the command sender used if they did). Finally, args is a string array representing each argument that the command sender typed after the label.
 
 On line 3, we return a boolean value from the function. This is a requirement for all command functions! They must return either true or false.
 
-Like listeners, all commands must be registered with PySpigot's command manager. Fortunately, the command manager is loaded into the local namespace at runtime as a variable called ``commands``, so you do not need to access it manually. Commands are registered using ``commands.registerCommand(function, name)`` The ``registerCommand`` function takes two arguments:
+Like listeners, all commands must be registered with PySpigot's command manager. Fortunately, the command manager is loaded into the local namespace at runtime as a variable called ``command``, so you do not need to access it manually. Commands are registered using ``command.registerCommand(function, name)`` The ``registerCommand`` function takes two arguments:
 
 * The first argument accepts the function that should be called when a player executes the command.
 * The second argument is the name of the command, a string.
 
-Therefore, on line 5, we register the command by calling ``commands.registerCommand``, passing it our ``kick_command`` function as well as the string ``kickplayer``, the name the we want our command to be.
+Therefore, on line 5, we register the command by calling ``command.registerCommand``, passing it our ``kick_command`` function as well as the string ``kickplayer``, the name the we want our command to be.
 
 To summarize:
 
 * Like listeners, commands are defined as functions in your script. Command functions *must* take four parameters: a sender, command, label, and args (the names of these can be whatever you like).
-* All commands must be registered with PySpigot's command manager using ``commands.registerCommand(function, name)``.
+* All commands must be registered with PySpigot's command manager using ``command.registerCommand(function, name)``.
 
 Command Manager Usage
 *********************
 
 In addition to the most basic function explained above, the command manager has other methods in case you need greater flexibility or control over commands you define:
 
-* ``commands.registerCommand(function, name)``: Explained above, takes the function to call when the command is executed as well as the name of the command to register.
-* ``commands.registerCommand(function, name, usage, description, aliases)``: In addition to the same arguments as the above function, this one also takes a usage, description, and aliases. Usage is what to send to the player if the command function returns false (if it did not complete successfully). This is usually something like "/command <args>", where you show someone how to execute the command. Description is a description of what the command does, and aliases is a list of strings that someone could use to execute the command (that isn't the command name itself).
-* ``commands.unregisterCommand(function)``: Allows you to unregister a command from your script. Takes the function you want to unregister as an argument.
+* ``command.registerCommand(function, name)``: Explained above, takes the function to call when the command is executed as well as the name of the command to register.
+* ``command.registerCommand(function, name, usage, description, aliases)``: In addition to the same arguments as the above function, this one also takes a usage, description, and aliases. Usage is what to send to the player if the command function returns false (if it did not complete successfully). This is usually something like "/command <args>", where you show someone how to execute the command. Description is a description of what the command does, and aliases is a list of strings that someone could use to execute the command (that isn't the command name itself).
+* ``command.unregisterCommand(function)``: Allows you to unregister a command from your script. Takes the function you want to unregister as an argument.
 
 Tasks
 #####
@@ -167,7 +167,7 @@ Let's take a look at the following code that defines and starts a task:
     def run_task():
         #Do something...
 
-    task_id = tasks.scheduleRepeatingTask(run_task, 0, 100)
+    task_id = scheduler.scheduleRepeatingTask(run_task, 0, 100)
 
 On line 1, we define a function called ``run_task`` that takes no arguments.
 
@@ -177,30 +177,30 @@ Like listeners, all tasks must be registered and run with PySpigot's task manage
 * The second argument is the delay (in ticks) that the scheduler should wait before starting the task when it is registered.
 * The third argument is the interval (in ticks) that the task should be run.
 
-Therefore, on line 4, we register the task as a synchronous repeating task using ``tasks.scheduleRepeatingTask``. This will return a task id, which we then store as a variable called ``task_id``. We store this task id in case we want to cancel our task later. Cancelling a task requires the task ID.
+Therefore, on line 4, we register the task as a synchronous repeating task using ``scheduler.scheduleRepeatingTask``. This will return a task id, which we then store as a variable called ``task_id``. We store this task id in case we want to cancel our task later. Cancelling a task requires the task ID.
 
 To summarize:
 
 * Like listeners, tasks are defined as functions in your script. Task functions do not take any arguments and do not return anything.
-* All tasks must be registered with PySpigot's command manager. To schedule and run a synchronous repeating task, use ``tasks.scheduleRepeatingTask(function, delay, interval)``.
+* All tasks must be registered with PySpigot's command manager. To schedule and run a synchronous repeating task, use ``scheduler.scheduleRepeatingTask(function, delay, interval)``.
 
 Task Manager Usage
 ******************
 
 In addition to scheduling synchronous repeating tasks, the task manager has many other functions to schedule other types of tasks as well as stop tasks:
 
-* ``tasks.runTask(function)``: Run a synchronous task as soon as possible. Takes the function to call when the task runs.
-* ``tasks.runTaskAsync(function)``: Run an asychronous task (a task on a thread other than the main server thread). Takes the function to call when the task runs.
-* ``tasks.runTaskLater(function, delay)``: Run a synchronous task at some point in the future after the specified delay. Takes the function to call when the task runs and the delay to wait (in ticks) before running the task.
-* ``tasks.runTaskLaterAsync(function, delay)``: Run an asynchronous task at some point in the future after the specified delay. Takes the function to call when the task runs and the delay to wait (in ticks) before running the task.
-* ``tasks.scheduleRepeatingTask(function, delay, interval)``: Run a synchronous repeating task that repeats every specified interval. Takes the function to call each time the task runs, the delay to wait (in ticks) before running the task, and the interval (in ticks) at which the task should be run.
-* ``tasks.scheduleAsyncRepeatingTask(function, delay, interval)``: Run an asynchronous repeating task that repeats every specified interval. Takes the function to call each time the task runs, the delay to wait (in ticks) before running the task, and the interval (in ticks) at which the task should be run.
-* ``tasks.stopTask(id)``: Stop/Cancel a task. Takes the id of the task to stop.
+* ``scheduler.runTask(function)``: Run a synchronous task as soon as possible. Takes the function to call when the task runs.
+* ``scheduler.runTaskAsync(function)``: Run an asychronous task (a task on a thread other than the main server thread). Takes the function to call when the task runs.
+* ``scheduler.runTaskLater(function, delay)``: Run a synchronous task at some point in the future after the specified delay. Takes the function to call when the task runs and the delay to wait (in ticks) before running the task.
+* ``scheduler.runTaskLaterAsync(function, delay)``: Run an asynchronous task at some point in the future after the specified delay. Takes the function to call when the task runs and the delay to wait (in ticks) before running the task.
+* ``scheduler.scheduleRepeatingTask(function, delay, interval)``: Run a synchronous repeating task that repeats every specified interval. Takes the function to call each time the task runs, the delay to wait (in ticks) before running the task, and the interval (in ticks) at which the task should be run.
+* ``scheduler.scheduleAsyncRepeatingTask(function, delay, interval)``: Run an asynchronous repeating task that repeats every specified interval. Takes the function to call each time the task runs, the delay to wait (in ticks) before running the task, and the interval (in ticks) at which the task should be run.
+* ``scheduler.stopTask(id)``: Stop/Cancel a task. Takes the id of the task to stop.
 
 Configuration Files
 ###################
 
-With PySpigot, your scripts can load, access, and save to configuration files. All configuration files that scripts access using the config manager are automatically stored in the ``configs`` folder located within PySpigot's plugin folder.
+With PySpigot, your scripts can load, access, and save to configuration files. All configuration files that scripts access using the config manager are automatically stored in the ``config`` folder located within PySpigot's plugin folder.
 
 .. note:: This is not a comprehensive guide to working with config files. For more complete documentation on available methods/functions, see the Javadocs: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/configuration/MemorySection.html. All methods listed here can be called from within your script.
 
@@ -212,43 +212,43 @@ Let's take a look at the following code that loads a config, reads a number and 
 .. code-block:: python
     :linenos:
 
-    config = configs.loadConfig('test.yml')
+    script_config = config.loadConfig('test.yml')
 
     a_number = config.getInt('test-number')
     a_string = config.getString('test-string')
 
-    config.set('test-set', 1337)
-    config.save()
+    script_config.set('test-set', 1337)
+    script_config.save()
 
-On line 1, we load the config using the config manager. Fortunately, the config manager is loaded into the local namespace at runtime as a variable called ``configs``, so you do not need to access it manually. The ``loadConfig`` function takes a string representing the name of the config file to load. If the file does not exist, it will create it automatically.
+On line 1, we load the config using the config manager. Fortunately, the config manager is loaded into the local namespace at runtime as a variable called ``config``, so you do not need to access it manually. The ``loadConfig`` function takes a string representing the name of the config file to load. If the file does not exist, it will create it automatically.
 
 On lines 3 and 4, we read a number and a string from the config, respectively, by using ``getInt`` and ``getString``.
 
-Finally, on lines 5 and 6, we first set the value 1337 to a config key called ``test-set``. Then, we save the config with ``config.save()``.
+Finally, on lines 5 and 6, we first set the value 1337 to a config key called ``test-set``. Then, we save the config with ``script_config.save()``.
 
 .. warning:: Configuration files are not unique to each script! Any script can access any config file. Make sure that when you load a config, the name of the config file you are loading is the name you want to load. Try to use unique names for each script so that the same config file isn't accidentally loaded/saved on multiple different scripts.
 
 To summrize:
 
 * Scripts can load and save to config files that are automatically stored in PySpigot's plugin folder in the ``configs`` folder.
-* To load a config, use ``configs.load(name)``. The ``name`` parameter is the name of the config file you wish to load (including the ``.yml`` extension). If the config file does not exist, it will be created for you automatically. This returns a ``ScriptConfig`` object that is used to access the contents of the config and write to the config.
+* To load a config, use ``config.load(name)``. The ``name`` parameter is the name of the config file you wish to load (including the ``.yml`` extension). If the config file does not exist, it will be created for you automatically. This returns a ``ScriptConfig`` object that is used to access the contents of the config and write to the config.
 * For all available functions/methods to get values from a loaded config, see the `Javadocs <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/configuration/MemorySection.html>`__.
-* To set a value in a config, use ``config.set(key, value)``, where ``key`` is the key you wish to write to and ``value`` is the value to write.
-* Finally, to save a config, use ``config.save()``.
+* To set a value in a config, use ``script_config.set(key, value)``, where ``key`` is the key you wish to write to and ``value`` is the value to write.
+* Finally, to save a config, use ``script_config.save()``.
 
 Config Manager Usage
 ********************
 
 The following are methods/functions that you can use from the config manager:
 
-* ``configs.loadConfig(name)``: This loads/creates the config, as described above. Takes the name of the file you wish to load or create. Returns a ``ScriptConfig`` object representing the config that was loaded/created.
-* ``configs.reloadConfig(config)``: This reloads a config in case there any changes to the file that need to be loaded in. Takes the config (a ``ScriptConfig``) to reload. Returns another ``ScriptConfig`` object representing the config that was reloaded.
+* ``config.loadConfig(name)``: This loads/creates the config, as described above. Takes the name of the file you wish to load or create. Returns a ``ScriptConfig`` object representing the config that was loaded/created.
+* ``config.reloadConfig(config)``: This reloads a config in case there any changes to the file that need to be loaded in. Takes the config (a ``ScriptConfig``) to reload. Returns another ``ScriptConfig`` object representing the config that was reloaded.
 
 ScriptConfig Usage
 ******************
 
 Like described above, loading/reloading a config returns a ``ScriptConfig`` object. This object has many methods/functions that you can use:
 
-* ``config.set(key, value)``: Set a value in the config at the given key. Takes a key representing the key to write to and value which is the value to write.
-* ``config.save()``: This saves the config so that any values you set will be persistent.
+* ``script_config.set(key, value)``: Set a value in the config at the given key. Takes a key representing the key to write to and value which is the value to write.
+* ``script_config.save()``: This saves the config so that any values you set will be persistent.
 * All methods present `here <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/configuration/MemorySection.html>`__ can also be used.

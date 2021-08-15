@@ -8,4 +8,4 @@ def task():
     for player in Bukkit.getOnlinePlayers():
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', message))
 
-task_id = tasks.scheduleRepeatingTask(task, 0, 100)
+task_id = scheduler.scheduleRepeatingTask(task, 0, 100)
