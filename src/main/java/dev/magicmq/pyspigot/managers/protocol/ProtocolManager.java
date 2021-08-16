@@ -30,15 +30,6 @@ public class ProtocolManager {
         listeners = new ArrayList<>();
     }
 
-    public void shutdown() {
-        if (protocolManager == null)
-            return;
-
-        for (ScriptPacketListener listener : listeners)
-            protocolManager.removePacketListener(listener);
-        asyncProtocolManager.shutdown();
-    }
-
     public com.comphenix.protocol.ProtocolManager getProtocolManager() {
         return protocolManager;
     }
@@ -145,15 +136,6 @@ public class ProtocolManager {
                 asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
             }
             asyncListeners = new ArrayList<>();
-        }
-
-        private void shutdown() {
-            for (ScriptPacketListener listener : asyncListeners) {
-                if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_LISTENER)
-                    asynchronousManager.unregisterAsyncHandler(listener);
-                else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
-                    asynchronousManager.unregisterTimeoutHandler(listener);
-            }
         }
 
         public AsynchronousManager getAsynchronousManager() {
