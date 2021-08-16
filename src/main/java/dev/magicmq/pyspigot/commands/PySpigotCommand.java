@@ -29,6 +29,7 @@ public class PySpigotCommand implements TabExecutor {
         subCommands.add(new LoadCommand());
         subCommands.add(new UnloadCommand());
         subCommands.add(new LoadLibraryCommand());
+        subCommands.add(new ListScriptsCommand());
         subCommands.sort((o1, o2) -> {
             SubCommandMeta subCommandMeta1 = o1.getClass().getAnnotation(SubCommandMeta.class);
             SubCommandMeta subCommandMeta2 = o2.getClass().getAnnotation(SubCommandMeta.class);
