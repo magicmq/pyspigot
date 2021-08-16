@@ -157,7 +157,7 @@ public class ScriptManager {
         return scripts.stream().map(Script::getName).collect(Collectors.toList());
     }
 
-    public List<String> getAllScripts() {
+    public SortedSet<String> getAllScripts() {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         SortedSet<String> scripts = new TreeSet<>();
         if (scriptsFolder.isDirectory()) {
