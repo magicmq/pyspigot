@@ -73,13 +73,7 @@ public class ListenerManager {
         String scriptName = ((PyBaseCode) function.__code__).co_filename;
         DummyListener dummyListener = getListener(scriptName);
         Class<? extends Event> event = dummyListener.removeEvent(function);
-        try {
-            Method method = event.getMethod("getHandlerList", null);
-            HandlerList list = (HandlerList) method.invoke(null, null);
-            list.unregister(dummyListener);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        removeFromHandlers(event, dummyListener);
         if (dummyListener.isEmpty()) {
             registeredScripts.remove(dummyListener);
         }
@@ -107,15 +101,19 @@ public class ListenerManager {
         DummyListener listener = getListener(script);
         if (listener != null) {
             for (Class<? extends Event> event : listener.getEvents()) {
-                try {
-                    Method method = event.getMethod("getHandlerList", null);
-                    HandlerList list = (HandlerList) method.invoke(null, null);
-                    list.unregister(listener);
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
+                removeFromHandlers(event, listener);
             }
             registeredScripts.remove(listener);
+        }
+    }
+
+    private void removeFromHandlers(Class<? extends Event> clazz, DummyListener listener) {
+        try {
+            Method method = clazz.getMethod("getHandlerList", (Class<?>) null);
+            HandlerList list = (HandlerList) method.invoke(null, null);
+            list.unregister(listener);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 
