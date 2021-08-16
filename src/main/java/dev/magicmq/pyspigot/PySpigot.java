@@ -32,6 +32,7 @@ public class PySpigot extends JavaPlugin {
         CommandManager.get();
         TaskManager.get();
         ConfigManager.get();
+        ProtocolManager.get();
     }
 
     @Override
