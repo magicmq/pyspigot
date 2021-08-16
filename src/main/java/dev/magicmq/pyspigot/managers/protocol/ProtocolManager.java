@@ -58,11 +58,14 @@ public class ProtocolManager {
     }
 
     public void unregisterPacketListener(PyFunction function) {
-        ScriptPacketListener listener = getListenerFromFunction(function);
-        if (listener != null) {
-            deregisterListener(listener);
+        if (protocolManager != null) {
+            ScriptPacketListener listener = getListenerFromFunction(function);
+            if (listener != null) {
+                deregisterListener(listener);
+            } else
+                throw new NullPointerException("There was no packet listener found associated with this function!");
         } else
-            throw new NullPointerException("There was no packet listener found associated with this function!");
+            throw new UnsupportedOperationException("ProtocolLib not found on the server! Protocol operations are not possible.");
     }
 
     public AsyncProtocolManager async() {
