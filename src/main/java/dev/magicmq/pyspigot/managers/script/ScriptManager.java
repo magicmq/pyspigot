@@ -9,6 +9,7 @@ import dev.magicmq.pyspigot.managers.command.CommandManager;
 import dev.magicmq.pyspigot.managers.config.ConfigManager;
 import dev.magicmq.pyspigot.managers.libraries.LibraryManager;
 import dev.magicmq.pyspigot.managers.listener.ListenerManager;
+import dev.magicmq.pyspigot.managers.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.managers.task.TaskManager;
 import org.bukkit.Bukkit;
 import org.python.core.*;
@@ -42,6 +43,7 @@ public class ScriptManager {
         interpreter.set("command", CommandManager.get());
         interpreter.set("config", ConfigManager.get());
         interpreter.set("scheduler", TaskManager.get());
+        interpreter.set("protocol", ProtocolManager.get());
         interpreter.set("global", globalVariables);
 
         if (PluginConfig.doAutoImportBukkit()) {
@@ -189,6 +191,7 @@ public class ScriptManager {
         ListenerManager.get().stopScript(script);
         TaskManager.get().stopScript(script);
         CommandManager.get().stopScript(script);
+        ProtocolManager.get().stopScript(script);
         return true;
     }
 
