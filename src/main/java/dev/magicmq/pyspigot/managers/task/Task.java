@@ -18,7 +18,7 @@ public class Task implements Runnable {
     @Override
     public void run() {
         try {
-            function._jcall(new Object[]{});
+            function.__call__();
         } catch (PyException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when running task belonging to script");
         }
