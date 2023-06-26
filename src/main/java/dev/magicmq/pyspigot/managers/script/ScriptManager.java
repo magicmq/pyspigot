@@ -43,7 +43,10 @@ public class ScriptManager {
         interpreter.set("command", CommandManager.get());
         interpreter.set("config", ConfigManager.get());
         interpreter.set("scheduler", TaskManager.get());
-        interpreter.set("protocol", ProtocolManager.get());
+
+        if (ProtocolManager.get().isProtocolAvailable())
+            interpreter.set("protocol", ProtocolManager.get());
+
         interpreter.set("global", globalVariables);
 
         if (PluginConfig.doAutoImportBukkit()) {

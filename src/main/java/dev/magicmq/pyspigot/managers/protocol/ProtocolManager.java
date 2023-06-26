@@ -25,9 +25,13 @@ public class ProtocolManager {
     private ProtocolManager() {
         if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
             protocolManager = ProtocolLibrary.getProtocolManager();
+            asyncProtocolManager = new AsyncProtocolManager();
+            listeners = new ArrayList<>();
         }
-        asyncProtocolManager = new AsyncProtocolManager();
-        listeners = new ArrayList<>();
+    }
+
+    public boolean isProtocolAvailable() {
+        return protocolManager != null;
     }
 
     public com.comphenix.protocol.ProtocolManager getProtocolManager() {
@@ -51,10 +55,8 @@ public class ProtocolManager {
                     listeners.add(listener);
                     protocolManager.addPacketListener(listener);
                 }
-            } else
-                throw new UnsupportedOperationException("Script " + script.getName() + " already has a packet listener for " + type.name() + " registered");
-        } else
-            throw new UnsupportedOperationException("ProtocolLib not found on the server! Protocol operations are not possible.");
+            }
+        }
     }
 
     public void unregisterPacketListener(PyFunction function) {
@@ -62,31 +64,28 @@ public class ProtocolManager {
             ScriptPacketListener listener = getListenerFromFunction(function);
             if (listener != null) {
                 deregisterListener(listener);
-            } else
-                throw new NullPointerException("There was no packet listener found associated with this function!");
-        } else
-            throw new UnsupportedOperationException("ProtocolLib not found on the server! Protocol operations are not possible.");
+            }
+        }
     }
 
     public AsyncProtocolManager async() {
         if (protocolManager != null) {
             return asyncProtocolManager;
         } else
-            throw new UnsupportedOperationException("ProtocolLib not found on the server! Protocol operations are not possible.");
+            return null;
     }
 
     public void stopScript(Script script) {
-        if (protocolManager == null)
-            return;
-
-        for (ScriptPacketListener listener : getListeners(script)) {
-            deregisterListener(listener);
-        }
-        for (ScriptPacketListener listener : asyncProtocolManager.getListeners(script)) {
-            if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_LISTENER)
-                asyncProtocolManager.deregisterAsyncListener(listener);
-            else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
-                asyncProtocolManager.deregisterTimeoutListener(listener);
+        if (protocolManager != null) {
+            for (ScriptPacketListener listener : getListeners(script)) {
+                deregisterListener(listener);
+            }
+            for (ScriptPacketListener listener : asyncProtocolManager.getListeners(script)) {
+                if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_LISTENER)
+                    asyncProtocolManager.deregisterAsyncListener(listener);
+                else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
+                    asyncProtocolManager.deregisterTimeoutListener(listener);
+            }
         }
     }
 
@@ -135,9 +134,7 @@ public class ProtocolManager {
 
 
         private AsyncProtocolManager() {
-            if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
-                asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
-            }
+            asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
             asyncListeners = new ArrayList<>();
         }
 
