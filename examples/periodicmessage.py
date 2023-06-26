@@ -1,4 +1,5 @@
-#Bukkit Imports
+#Imports
+from dev.magicmq.pyspigot import PySpigot as ps
 from org.bukkit import Bukkit
 from org.bukkit import ChatColor
 
@@ -8,4 +9,4 @@ def task():
     for player in Bukkit.getOnlinePlayers():
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', message))
 
-task_id = scheduler.scheduleRepeatingTask(task, 0, 100)
+task_id = ps.scheduler.scheduleRepeatingTask(task, 0, 100)

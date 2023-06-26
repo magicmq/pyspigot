@@ -1,7 +1,8 @@
-#Bukkit Imports
+#Imports
+from dev.magicmq.pyspigot import PySpigot as ps
 from org.bukkit.event.player import AsyncPlayerChatEvent
 
-config = configs.loadConfig('swearfilter.yml')
+config = ps.configs.loadConfig('swearfilter.yml')
 
 swear_words = config.getStringList('swear-words')
 
@@ -11,4 +12,4 @@ def player_chat(event):
         if word in swear_words:
             event.setCancelled(True)
 
-listeners.registerEvent(player_chat, AsyncPlayerChatEvent)
+ps.listener.registerEvent(player_chat, AsyncPlayerChatEvent)

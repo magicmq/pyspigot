@@ -18,6 +18,13 @@ public class PySpigot extends JavaPlugin {
 
     private static PySpigot instance;
 
+    //Define static variables for ease of access by scripts
+    public static ListenerManager listener;
+    public static CommandManager command;
+    public static TaskManager scheduler;
+    public static ConfigManager config;
+    public static ProtocolManager protocol;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -29,13 +36,13 @@ public class PySpigot extends JavaPlugin {
         getCommand("pyspigot").setExecutor(new PySpigotCommand());
 
         ScriptManager.get();
-        ListenerManager.get();
-        CommandManager.get();
-        TaskManager.get();
-        ConfigManager.get();
+        listener = ListenerManager.get();
+        command = CommandManager.get();
+        scheduler = TaskManager.get();
+        config = ConfigManager.get();
 
         if (isProtocolLibAvailable())
-            ProtocolManager.get();
+            protocol = ProtocolManager.get();
     }
 
     @Override

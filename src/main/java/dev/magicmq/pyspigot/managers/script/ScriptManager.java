@@ -6,7 +6,6 @@ import dev.magicmq.pyspigot.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.managers.command.CommandManager;
-import dev.magicmq.pyspigot.managers.config.ConfigManager;
 import dev.magicmq.pyspigot.managers.libraries.LibraryManager;
 import dev.magicmq.pyspigot.managers.listener.ListenerManager;
 import dev.magicmq.pyspigot.managers.protocol.ProtocolManager;
@@ -164,14 +163,6 @@ public class ScriptManager {
 
     private PythonInterpreter initNewInterpreter() {
         PythonInterpreter interpreter = new PythonInterpreter(null, systemState);
-
-        interpreter.set("listener", ListenerManager.get());
-        interpreter.set("command", CommandManager.get());
-        interpreter.set("config", ConfigManager.get());
-        interpreter.set("scheduler", TaskManager.get());
-
-        if (PySpigot.get().isProtocolLibAvailable())
-            interpreter.set("protocol", ProtocolManager.get());
 
         interpreter.set("global", globalVariables);
 

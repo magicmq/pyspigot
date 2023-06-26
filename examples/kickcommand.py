@@ -1,4 +1,5 @@
-#Bukkit Imports
+#Imports
+from dev.magicmq.pyspigot import PySpigot as ps
 from org.bukkit import Bukkit
 from org.bukkit import ChatColor
 
@@ -15,4 +16,4 @@ def kick_command(sender, command, label, args):
         sender.sendMessage('Usage: /kickplayer <player>')
     return True
 
-commands.registerCommand(kick_command, 'kickplayer')
+ps.command.registerCommand(kick_command, 'kickplayer')
