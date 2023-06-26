@@ -56,11 +56,13 @@ public class ScriptManager {
             SortedSet<File> toLoad = new TreeSet<>();
             toLoad.addAll(Arrays.asList(scriptsFolder.listFiles()));
             for (File script : toLoad) {
-                try {
-                    if (loadScript(script.getName()))
-                        numOfScripts++;
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (script.getName().endsWith(".py")) {
+                    try {
+                        if (loadScript(script.getName()))
+                            numOfScripts++;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
