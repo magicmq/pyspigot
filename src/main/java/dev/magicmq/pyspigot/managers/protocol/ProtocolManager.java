@@ -23,19 +23,9 @@ public class ProtocolManager {
     private List<ScriptPacketListener> listeners;
 
     private ProtocolManager() {
-        if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
-            protocolManager = ProtocolLibrary.getProtocolManager();
-            asyncProtocolManager = new AsyncProtocolManager();
-            listeners = new ArrayList<>();
-        }
-    }
-
-    public boolean isProtocolAvailable() {
-        return protocolManager != null;
-    }
-
-    public com.comphenix.protocol.ProtocolManager getProtocolManager() {
-        return protocolManager;
+        protocolManager = ProtocolLibrary.getProtocolManager();
+        asyncProtocolManager = new AsyncProtocolManager();
+        listeners = new ArrayList<>();
     }
 
     public void registerPacketListener(PyFunction function, PacketType type) {
@@ -43,49 +33,40 @@ public class ProtocolManager {
     }
 
     public void registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        if (protocolManager != null) {
-            Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
-            if (!doesScriptHaveListener(script, type)) {
-                if (type.getSender().toSide().isForClient()) {
-                    ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.SYNCHRONOUS);
-                    listeners.add(listener);
-                    protocolManager.addPacketListener(listener);
-                } else if (type.getSender().toSide().isForServer()) {
-                    ScriptPacketListener listener = new PacketSendingListener(script, function, type, priority, ListenerType.SYNCHRONOUS);
-                    listeners.add(listener);
-                    protocolManager.addPacketListener(listener);
-                }
+        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
+        if (!doesScriptHaveListener(script, type)) {
+            if (type.getSender().toSide().isForClient()) {
+                ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.SYNCHRONOUS);
+                listeners.add(listener);
+                protocolManager.addPacketListener(listener);
+            } else if (type.getSender().toSide().isForServer()) {
+                ScriptPacketListener listener = new PacketSendingListener(script, function, type, priority, ListenerType.SYNCHRONOUS);
+                listeners.add(listener);
+                protocolManager.addPacketListener(listener);
             }
         }
     }
 
     public void unregisterPacketListener(PyFunction function) {
-        if (protocolManager != null) {
-            ScriptPacketListener listener = getListenerFromFunction(function);
-            if (listener != null) {
-                deregisterListener(listener);
-            }
+        ScriptPacketListener listener = getListenerFromFunction(function);
+        if (listener != null) {
+            deregisterListener(listener);
         }
     }
 
     public AsyncProtocolManager async() {
-        if (protocolManager != null) {
-            return asyncProtocolManager;
-        } else
-            return null;
+        return asyncProtocolManager;
     }
 
     public void stopScript(Script script) {
-        if (protocolManager != null) {
-            for (ScriptPacketListener listener : getListeners(script)) {
-                deregisterListener(listener);
-            }
-            for (ScriptPacketListener listener : asyncProtocolManager.getListeners(script)) {
-                if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_LISTENER)
-                    asyncProtocolManager.deregisterAsyncListener(listener);
-                else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
-                    asyncProtocolManager.deregisterTimeoutListener(listener);
-            }
+        for (ScriptPacketListener listener : getListeners(script)) {
+            deregisterListener(listener);
+        }
+        for (ScriptPacketListener listener : asyncProtocolManager.getListeners(script)) {
+            if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_LISTENER)
+                asyncProtocolManager.deregisterAsyncListener(listener);
+            else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
+                asyncProtocolManager.deregisterTimeoutListener(listener);
         }
     }
 
