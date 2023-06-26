@@ -18,7 +18,6 @@ import org.python.util.PythonInterpreter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -27,31 +26,16 @@ public class ScriptManager {
 
     private static ScriptManager manager;
 
-    private final PythonInterpreter interpreter;
+    private PySystemState systemState;
     private final List<Script> scripts;
     private final HashMap<String, PyObject> globalVariables;
 
     private ScriptManager() {
-        PySystemState state = new PySystemState();
-        state.setClassLoader(LibraryManager.get().getClassLoader());
-        this.interpreter = new PythonInterpreter(null, state);
+        this.systemState = new PySystemState();
+        systemState.setClassLoader(LibraryManager.get().getClassLoader());
 
         this.scripts = new ArrayList<>();
         this.globalVariables = new HashMap<>();
-
-        interpreter.set("listener", ListenerManager.get());
-        interpreter.set("command", CommandManager.get());
-        interpreter.set("config", ConfigManager.get());
-        interpreter.set("scheduler", TaskManager.get());
-
-        if (PySpigot.get().isProtocolLibAvailable())
-            interpreter.set("protocol", ProtocolManager.get());
-
-        interpreter.set("global", globalVariables);
-
-        if (PluginConfig.doAutoImportBukkit()) {
-            interpreter.set("bukkit", Bukkit.class);
-        }
 
         File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
         if (!scripts.exists())
@@ -61,7 +45,7 @@ public class ScriptManager {
     }
 
     public void shutdown() {
-        interpreter.close();
+        scripts.forEach(script -> script.getInterpreter().close());
     }
 
     private void loadScripts() {
@@ -91,7 +75,9 @@ public class ScriptManager {
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
             try {
-                Script script = new Script(scriptFile.getName(), interpreter.compile(reader, scriptFile.getName()), scriptFile);
+                PythonInterpreter interpreter = initNewInterpreter();
+
+                Script script = new Script(scriptFile.getName(), interpreter, interpreter.compile(reader, scriptFile.getName()), scriptFile);
 
                 ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
                 Bukkit.getPluginManager().callEvent(eventLoad);
@@ -174,11 +160,31 @@ public class ScriptManager {
         return scripts;
     }
 
+    private PythonInterpreter initNewInterpreter() {
+        PythonInterpreter interpreter = new PythonInterpreter(null, systemState);
+
+        interpreter.set("listener", ListenerManager.get());
+        interpreter.set("command", CommandManager.get());
+        interpreter.set("config", ConfigManager.get());
+        interpreter.set("scheduler", TaskManager.get());
+
+        if (PySpigot.get().isProtocolLibAvailable())
+            interpreter.set("protocol", ProtocolManager.get());
+
+        interpreter.set("global", globalVariables);
+
+        if (PluginConfig.doAutoImportBukkit()) {
+            interpreter.set("bukkit", Bukkit.class);
+        }
+
+        return interpreter;
+    }
+
     private boolean runScript(String name) {
         Script script = getScript(name);
 
         try {
-            interpreter.exec(script.getCode());
+            script.getInterpreter().exec(script.getCode());
         } catch (PyException e) {
             handleScriptException(script, e, "Error when running script");
             PySpigot.get().getLogger().log(Level.SEVERE, "Script " + script.getName() + " has been unloaded due to a crash.");
@@ -197,6 +203,8 @@ public class ScriptManager {
 
         if (PySpigot.get().isProtocolLibAvailable())
             ProtocolManager.get().stopScript(script);
+
+        script.getInterpreter().close();
 
         return true;
     }

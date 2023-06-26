@@ -1,23 +1,30 @@
 package dev.magicmq.pyspigot.managers.script;
 
 import org.python.core.PyCode;
+import org.python.util.PythonInterpreter;
 
 import java.io.File;
 
 public class Script {
 
     private final String name;
+    private final PythonInterpreter interpreter;
     private final PyCode code;
     private final File file;
 
-    public Script(String name, PyCode code, File file) {
+    public Script(String name, PythonInterpreter interpreter, PyCode code, File file) {
         this.name = name;
+        this.interpreter = interpreter;
         this.code = code;
         this.file = file;
     }
 
     public String getName() {
         return name;
+    }
+
+    public PythonInterpreter getInterpreter() {
+        return interpreter;
     }
 
     public PyCode getCode() {
