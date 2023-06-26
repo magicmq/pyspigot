@@ -197,6 +197,22 @@ In addition to scheduling synchronous repeating tasks, the task manager has many
 * ``scheduler.scheduleAsyncRepeatingTask(function, delay, interval)``: Run an asynchronous repeating task that repeats every specified interval. Takes the function to call each time the task runs, the delay to wait (in ticks) before running the task, and the interval (in ticks) at which the task should be run.
 * ``scheduler.stopTask(id)``: Stop/Cancel a task. Takes the id of the task to stop.
 
+Global Variables
+################
+
+PySpigot assigns a variable to the local namespace called ``global`` that is available to all loaded scripts. On the Java end, this variable is a ``HashMap``, which stores data in key:value pairs, much like a dict in Python. The intention of this variable is to act as a global set of variables. This is a nifty feature if you would like to share variables/values across multiple different scripts.
+
+Changes to variables inserted into this global set are automatically visible to all scripts. There is no need to re-insert a variable into the global set of variables if its value changes.
+
+* ``global.put(name, value)``: Inserts a new value into the global set of variables with the given name.
+* ``global.get(name)``: Retrieves a value from the global set of variables. Will return ``None`` if no value is found.
+* ``global.remove(name)``: Removes a value from the global set of variables with the given name.
+* ``global.containsKey(name)``: Returns ``True`` if there is a value in the set of global variables with the given name, ``False`` if otherwise.
+
+.. note:: Names are unique. If a new value is inserted into the set of global values with the same name as an existing value, then the old value will be overridden and inevitably lost.
+
+For more advanced usage, see the `JavaDocs for HashMap <https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html>`__ for a complete list of available functions.
+
 Configuration Files
 ###################
 
