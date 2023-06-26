@@ -44,7 +44,7 @@ public class ScriptManager {
         interpreter.set("config", ConfigManager.get());
         interpreter.set("scheduler", TaskManager.get());
 
-        if (ProtocolManager.get().isProtocolAvailable())
+        if (PySpigot.get().isProtocolLibAvailable())
             interpreter.set("protocol", ProtocolManager.get());
 
         interpreter.set("global", globalVariables);
@@ -194,7 +194,10 @@ public class ScriptManager {
         ListenerManager.get().stopScript(script);
         TaskManager.get().stopScript(script);
         CommandManager.get().stopScript(script);
-        ProtocolManager.get().stopScript(script);
+
+        if (PySpigot.get().isProtocolLibAvailable())
+            ProtocolManager.get().stopScript(script);
+
         return true;
     }
 

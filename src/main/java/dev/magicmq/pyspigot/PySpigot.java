@@ -8,6 +8,7 @@ import dev.magicmq.pyspigot.managers.listener.ListenerManager;
 import dev.magicmq.pyspigot.managers.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.managers.script.ScriptManager;
 import dev.magicmq.pyspigot.managers.task.TaskManager;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -32,7 +33,9 @@ public class PySpigot extends JavaPlugin {
         CommandManager.get();
         TaskManager.get();
         ConfigManager.get();
-        ProtocolManager.get();
+
+        if (isProtocolLibAvailable())
+            ProtocolManager.get();
     }
 
     @Override
@@ -45,6 +48,10 @@ public class PySpigot extends JavaPlugin {
     public void reload() {
         reloadConfig();
         PluginConfig.reload();
+    }
+
+    public boolean isProtocolLibAvailable() {
+        return Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;
     }
 
     public static PySpigot get() {
