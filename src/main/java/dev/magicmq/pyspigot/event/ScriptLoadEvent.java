@@ -5,23 +5,12 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class ScriptLoadEvent extends ScriptEvent implements Cancellable {
+public class ScriptLoadEvent extends ScriptEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
 
     public ScriptLoadEvent(Script script) {
         super(script);
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
     }
 
     @Override

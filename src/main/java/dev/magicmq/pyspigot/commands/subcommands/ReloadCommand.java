@@ -27,13 +27,13 @@ public class ReloadCommand implements SubCommand {
                     if (success) {
                         sender.sendMessage(ChatColor.GREEN + "Successfully reloaded script " + args[0]);
                     } else {
-                        sender.sendMessage(ChatColor.RED + "Could not reload script " + args[0] + ". See console for details.");
+                        sender.sendMessage(ChatColor.RED + "There was an error when reloading script " + args[0] + ". See console for details.");
                     }
                 } catch (FileNotFoundException e) {
                     sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name " + args[0] + " to reload from");
                 } catch (IOException e) {
                     e.printStackTrace();
-                    sender.sendMessage(ChatColor.RED + "There was an error loading the script! See the console for details.");
+                    sender.sendMessage(ChatColor.RED + "There was an error when reloading script " + args[0] + ". See console for details.");
                 }
             } else {
                 sender.sendMessage(ChatColor.RED + "Script " + args[0] + " not found");

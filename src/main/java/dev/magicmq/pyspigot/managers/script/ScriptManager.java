@@ -45,12 +45,17 @@ public class ScriptManager {
     }
 
     public void shutdown() {
-        scripts.forEach(script -> script.getInterpreter().close());
+        for (Script script : scripts) {
+            ScriptUnloadEvent event = new ScriptUnloadEvent(script, false);
+            Bukkit.getPluginManager().callEvent(event);
+            stopScript(script, false);
+        }
     }
 
     private void loadScripts() {
         PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
         int numOfScripts = 0;
+        int errorScripts = 0;
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         if (scriptsFolder.isDirectory()) {
             SortedSet<File> toLoad = new TreeSet<>();
@@ -60,13 +65,18 @@ public class ScriptManager {
                     try {
                         if (loadScript(script.getName()))
                             numOfScripts++;
+                        else
+                            errorScripts++;
                     } catch (IOException e) {
                         e.printStackTrace();
+                        errorScripts++;
                     }
                 }
             }
         }
         PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + numOfScripts + " scripts!");
+        if (errorScripts > 0)
+            PySpigot.get().getLogger().log(Level.INFO, errorScripts + " scripts were not loaded due to errros.");
     }
 
     public boolean loadScript(String name) throws IOException {
@@ -76,38 +86,33 @@ public class ScriptManager {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
+            PythonInterpreter interpreter = initNewInterpreter();
             try {
-                PythonInterpreter interpreter = initNewInterpreter();
-
                 Script script = new Script(scriptFile.getName(), interpreter, interpreter.compile(reader, scriptFile.getName()), scriptFile);
 
                 ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
                 Bukkit.getPluginManager().callEvent(eventLoad);
-                if (!eventLoad.isCancelled()) {
-                    this.scripts.add(script);
-                } else
-                    return false;
 
-                return runScript(script.getName());
+                this.scripts.add(script);
+
+                return runScript(script);
             } catch (PySyntaxError | PyIndentationError e) {
-                PySpigot.get().getLogger().log(Level.SEVERE, e.getMessage());
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when parsing script " + scriptFile.getName() + ": " + e.getMessage());
+                interpreter.close();
                 return false;
             }
         }
     }
 
     public boolean unloadScript(String name) {
-        Script script = getScript(name);
+        return unloadScript(getScript(name), false);
+    }
 
-        ScriptUnloadEvent event = new ScriptUnloadEvent(script);
+    public boolean unloadScript(Script script, boolean error) {
+        ScriptUnloadEvent event = new ScriptUnloadEvent(script, error);
         Bukkit.getPluginManager().callEvent(event);
-        if (!event.isCancelled()) {
-            if (!stopScript(name))
-                return false;
-            scripts.remove(script);
-            return true;
-        } else
-            return false;
+        scripts.remove(script);
+        return stopScript(script, error);
     }
 
     public boolean reloadScript(String name) throws IOException {
@@ -174,26 +179,43 @@ public class ScriptManager {
         return interpreter;
     }
 
-    private boolean runScript(String name) {
-        Script script = getScript(name);
-
+    private boolean runScript(Script script) {
         try {
             script.getInterpreter().exec(script.getCode());
+
+            PyObject start = script.getInterpreter().get("start");
+            if (start != null) {
+                if (start instanceof PyFunction)
+                    script.setStartFunction((PyFunction) start);
+                else {
+                    PySpigot.get().getLogger().log(Level.WARNING, "Script " + script.getName() + " has 'start' defined, but it is not a function. Is this a mistake?");
+                }
+            }
+
+            PyObject stop = script.getInterpreter().get("stop");
+            if (stop != null) {
+                if (stop instanceof PyFunction)
+                    script.setStopFunction((PyFunction) stop);
+                else {
+                    PySpigot.get().getLogger().log(Level.WARNING, "Script " + script.getName() + " has 'stop' defined, but it is not a function. Is this a mistake?");
+                }
+            }
+
+            if (script.getStartFunction() != null)
+                script.getStartFunction().__call__();
 
             ScriptPostLoadEvent event = new ScriptPostLoadEvent(script);
             Bukkit.getPluginManager().callEvent(event);
         } catch (PyException e) {
             handleScriptException(script, e, "Error when running script");
-            PySpigot.get().getLogger().log(Level.SEVERE, "Script " + script.getName() + " has been unloaded due to a crash.");
-            unloadScript(name);
+            unloadScript(script, true);
+            PySpigot.get().getLogger().log(Level.SEVERE, "Script " + script.getName() + " has been unloaded due to a runtime error.");
             return false;
         }
         return true;
     }
 
-    private boolean stopScript(String name) {
-        Script script = getScript(name);
-
+    private boolean stopScript(Script script, boolean error) {
         ListenerManager.get().stopScript(script);
         TaskManager.get().stopScript(script);
         CommandManager.get().stopScript(script);
@@ -202,6 +224,16 @@ public class ScriptManager {
             ProtocolManager.get().stopScript(script);
 
         script.getInterpreter().close();
+
+        if (!error) {
+            try {
+                if (script.getStopFunction() != null)
+                    script.getStopFunction().__call__();
+            } catch (PyException e) {
+                handleScriptException(script, e, "Error when executing stop function belonging to script");
+                return false;
+            }
+        }
 
         return true;
     }

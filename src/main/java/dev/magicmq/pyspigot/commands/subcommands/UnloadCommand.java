@@ -24,7 +24,7 @@ public class UnloadCommand implements SubCommand {
                 if (success)
                     sender.sendMessage(ChatColor.GREEN + "Successfully unloaded script " + args[0]);
                 else
-                    sender.sendMessage(ChatColor.GREEN + "Could not unload script " + args[0] + ". Unloading was cancelled by a listener.");
+                    sender.sendMessage(ChatColor.RED + "There was an error when unloading script " + args[0] + ". See console for details.");
             } else {
                 sender.sendMessage(ChatColor.RED + "No loaded script found with the name " + args[0]);
             }

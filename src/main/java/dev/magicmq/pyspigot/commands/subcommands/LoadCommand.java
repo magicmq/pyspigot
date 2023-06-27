@@ -28,12 +28,12 @@ public class LoadCommand implements SubCommand {
                     if (success)
                         sender.sendMessage(ChatColor.GREEN + "Successfully loaded script " + args[0]);
                     else
-                        sender.sendMessage(ChatColor.GREEN + "Could not load script " + args[0] + ". See console for details.");
+                        sender.sendMessage(ChatColor.RED + "There was an error when loading script " + args[0] + ". See console for details.");
                 } catch (FileNotFoundException e) {
                     sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name " + args[0]);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    sender.sendMessage(ChatColor.RED + "There was an error loading the script! See the console for details.");
+                    sender.sendMessage(ChatColor.RED + "There was an error when loading script " + args[0] + ". See console for details.");
                 }
             } else {
                 sender.sendMessage(ChatColor.RED + "There is already a loaded script with the name " + args[0]);

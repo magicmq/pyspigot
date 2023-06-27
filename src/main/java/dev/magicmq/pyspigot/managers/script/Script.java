@@ -1,6 +1,7 @@
 package dev.magicmq.pyspigot.managers.script;
 
 import org.python.core.PyCode;
+import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
 import java.io.File;
@@ -11,6 +12,9 @@ public class Script {
     private final PythonInterpreter interpreter;
     private final PyCode code;
     private final File file;
+
+    private PyFunction startFunction;
+    private PyFunction stopFunction;
 
     public Script(String name, PythonInterpreter interpreter, PyCode code, File file) {
         this.name = name;
@@ -33,6 +37,22 @@ public class Script {
 
     public File getFile() {
         return file;
+    }
+
+    public PyFunction getStartFunction() {
+        return startFunction;
+    }
+
+    public void setStartFunction(PyFunction startFunction) {
+        this.startFunction = startFunction;
+    }
+
+    public PyFunction getStopFunction() {
+        return stopFunction;
+    }
+
+    public void setStopFunction(PyFunction stopFunction) {
+        this.stopFunction = stopFunction;
     }
 
     @Override
