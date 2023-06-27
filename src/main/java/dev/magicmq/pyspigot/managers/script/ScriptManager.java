@@ -4,6 +4,7 @@ import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.event.ScriptLoadEvent;
+import dev.magicmq.pyspigot.event.ScriptPostLoadEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.managers.command.CommandManager;
 import dev.magicmq.pyspigot.managers.libraries.LibraryManager;
@@ -178,6 +179,9 @@ public class ScriptManager {
 
         try {
             script.getInterpreter().exec(script.getCode());
+
+            ScriptPostLoadEvent event = new ScriptPostLoadEvent(script);
+            Bukkit.getPluginManager().callEvent(event);
         } catch (PyException e) {
             handleScriptException(script, e, "Error when running script");
             PySpigot.get().getLogger().log(Level.SEVERE, "Script " + script.getName() + " has been unloaded due to a crash.");
