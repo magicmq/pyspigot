@@ -22,7 +22,7 @@ public class LoadCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            if (!ScriptManager.get().isScript(args[0])) {
+            if (!ScriptManager.get().isScriptLoaded(args[0])) {
                 try {
                     boolean success = ScriptManager.get().loadScript(args[0]);
                     if (success)

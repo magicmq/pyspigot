@@ -134,7 +134,7 @@ public class ScriptManager {
         }
     }
 
-    public boolean isScript(String name) {
+    public boolean isScriptLoaded(String name) {
         return getScript(name) != null;
     }
 
