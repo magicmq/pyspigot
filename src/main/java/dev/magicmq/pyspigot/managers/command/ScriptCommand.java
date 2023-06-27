@@ -11,6 +11,7 @@ import org.python.core.PyFunction;
 import org.python.core.PyObject;
 
 import java.util.List;
+import java.util.logging.Level;
 
 public class ScriptCommand extends BukkitCommand {
 
@@ -33,13 +34,12 @@ public class ScriptCommand extends BukkitCommand {
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
         try {
             PyObject result = function._jcall(new Object[]{sender, this, commandLabel, args});
-            if (result instanceof PyBoolean) {
+            if (result instanceof PyBoolean)
                 return ((PyBoolean) result).getBooleanValue();
-            }
-
-            throw new CommandException("Error when executing command belonging to script " + script.getName() + ": Command function must return a boolean!");
+            else
+                script.getLogger().log(Level.WARNING, "Script command function '" + function.__name__ + "' should return a boolean!");
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when executing command belonging to script");
+            ScriptManager.get().handleScriptException(script, e, "Error when executing command");
         }
         return true;
     }

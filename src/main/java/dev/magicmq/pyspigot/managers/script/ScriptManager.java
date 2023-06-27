@@ -132,9 +132,9 @@ public class ScriptManager {
                 exception.getCause().printStackTrace();
             else {
                 if (exception.traceback != null)
-                    PySpigot.get().getLogger().log(Level.SEVERE, message + " " + script.getName() + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
+                    script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
                 else
-                    PySpigot.get().getLogger().log(Level.SEVERE, message + " " + script.getName() + ": " + exception.getMessage());
+                    script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage());
             }
         }
     }
@@ -188,7 +188,7 @@ public class ScriptManager {
                 if (start instanceof PyFunction)
                     script.setStartFunction((PyFunction) start);
                 else {
-                    PySpigot.get().getLogger().log(Level.WARNING, "Script " + script.getName() + " has 'start' defined, but it is not a function. Is this a mistake?");
+                    script.getLogger().log(Level.WARNING, "'start' is defined, but it is not a function. Is this a mistake?");
                 }
             }
 
@@ -197,7 +197,7 @@ public class ScriptManager {
                 if (stop instanceof PyFunction)
                     script.setStopFunction((PyFunction) stop);
                 else {
-                    PySpigot.get().getLogger().log(Level.WARNING, "Script " + script.getName() + " has 'stop' defined, but it is not a function. Is this a mistake?");
+                    script.getLogger().log(Level.WARNING, "'stop' is defined, but it is not a function. Is this a mistake?");
                 }
             }
 
@@ -207,9 +207,9 @@ public class ScriptManager {
             ScriptPostLoadEvent event = new ScriptPostLoadEvent(script);
             Bukkit.getPluginManager().callEvent(event);
         } catch (PyException e) {
-            handleScriptException(script, e, "Error when running script");
+            handleScriptException(script, e, "Runtime error");
             unloadScript(script, true);
-            PySpigot.get().getLogger().log(Level.SEVERE, "Script " + script.getName() + " has been unloaded due to a runtime error.");
+            script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
             return false;
         }
         return true;
@@ -230,7 +230,7 @@ public class ScriptManager {
                 if (script.getStopFunction() != null)
                     script.getStopFunction().__call__();
             } catch (PyException e) {
-                handleScriptException(script, e, "Error when executing stop function belonging to script");
+                handleScriptException(script, e, "Error when executing stop function");
                 return false;
             }
         }

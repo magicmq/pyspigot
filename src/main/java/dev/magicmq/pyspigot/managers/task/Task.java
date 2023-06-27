@@ -20,7 +20,7 @@ public class Task implements Runnable {
         try {
             function.__call__();
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when running task belonging to script");
+            ScriptManager.get().handleScriptException(script, e, "Error when executing task");
         }
     }
 

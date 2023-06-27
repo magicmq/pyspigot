@@ -1,10 +1,12 @@
 package dev.magicmq.pyspigot.managers.script;
 
+import dev.magicmq.pyspigot.utils.ScriptLogger;
 import org.python.core.PyCode;
 import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 public class Script {
 
@@ -12,6 +14,7 @@ public class Script {
     private final PythonInterpreter interpreter;
     private final PyCode code;
     private final File file;
+    private final ScriptLogger logger;
 
     private PyFunction startFunction;
     private PyFunction stopFunction;
@@ -21,6 +24,8 @@ public class Script {
         this.interpreter = interpreter;
         this.code = code;
         this.file = file;
+
+        this.logger = new ScriptLogger(this);
     }
 
     public String getName() {
@@ -37,6 +42,10 @@ public class Script {
 
     public File getFile() {
         return file;
+    }
+
+    public ScriptLogger getLogger() {
+        return logger;
     }
 
     public PyFunction getStartFunction() {

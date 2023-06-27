@@ -45,7 +45,7 @@ public abstract class ScriptPacketListener extends PacketAdapter {
         try {
             function._jcall(new Object[]{event});
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when calling packet listener belonging to script");
+            ScriptManager.get().handleScriptException(script, e, "Error when calling packet listener");
         }
     }
 }

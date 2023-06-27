@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class ListenerManager {
 
@@ -35,8 +36,10 @@ public class ListenerManager {
             listener = new DummyListener(script);
             registeredScripts.add(listener);
         } else {
-            if (listener.containsEvent(eventClass))
-                throw new UnsupportedOperationException("Tried to register an event, but " + script.getName() + " already has a/an " + eventClass.getSimpleName() + " registered!");
+            if (listener.containsEvent(eventClass)) {
+                script.getLogger().log(Level.SEVERE, "Tried to register an event listener, but " + eventClass.getSimpleName() + " is already registered!");
+                return;
+            }
         }
         EventPriority priority = EventPriority.valueOf(priorityString);
         EventExecutor executor = (listenerInner, event) -> {
@@ -47,7 +50,7 @@ public class ListenerManager {
 
                 function._jcall(new Object[]{event});
             } catch (PyException e) {
-                ScriptManager.get().handleScriptException(script, e, "Error when executing event listener belonging to script");
+                ScriptManager.get().handleScriptException(script, e, "Error when executing event listener");
             } catch (Throwable t) {
                 throw new EventException(t);
             }
