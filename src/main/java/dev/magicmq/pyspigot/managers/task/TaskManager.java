@@ -22,12 +22,6 @@ public class TaskManager {
         repeatingTasks = new ArrayList<>();
     }
 
-    public void shutdown() {
-        for (RepeatingTask task : repeatingTasks) {
-            Bukkit.getScheduler().cancelTask(task.getTaskId());
-        }
-    }
-
     public int runTask(PyFunction function) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);

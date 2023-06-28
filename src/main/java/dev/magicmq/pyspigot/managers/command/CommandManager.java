@@ -43,13 +43,6 @@ public class CommandManager {
         registeredCommands = new ArrayList<>();
     }
 
-    public void shutdown() {
-        for (ScriptCommand command : registeredCommands) {
-            command.unregister(bCommandMap, bKnownCommands);
-        }
-        registeredCommands.clear();
-    }
-
     public ScriptCommand registerCommand(String name, PyFunction commandFunction) {
         return registerCommand(name, "/" + name, "", new ArrayList<>(), null, null, commandFunction, null);
     }

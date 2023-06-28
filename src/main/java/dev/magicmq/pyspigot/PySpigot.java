@@ -47,8 +47,6 @@ public class PySpigot extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        TaskManager.get().shutdown();
-        CommandManager.get().shutdown();
         ScriptManager.get().shutdown();
     }
 
