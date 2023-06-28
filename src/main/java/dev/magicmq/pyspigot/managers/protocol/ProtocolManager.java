@@ -7,7 +7,6 @@ import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.ListenerPriority;
 import dev.magicmq.pyspigot.managers.script.Script;
 import dev.magicmq.pyspigot.managers.script.ScriptManager;
-import org.bukkit.Bukkit;
 import org.python.core.PyBaseCode;
 import org.python.core.PyFunction;
 
@@ -26,6 +25,10 @@ public class ProtocolManager {
         protocolManager = ProtocolLibrary.getProtocolManager();
         asyncProtocolManager = new AsyncProtocolManager();
         listeners = new ArrayList<>();
+    }
+
+    public com.comphenix.protocol.ProtocolManager getProtocolManager() {
+        return protocolManager;
     }
 
     public void registerPacketListener(PyFunction function, PacketType type) {
