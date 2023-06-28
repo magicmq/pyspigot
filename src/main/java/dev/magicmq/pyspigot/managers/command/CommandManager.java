@@ -36,8 +36,7 @@ public class CommandManager {
             bCommandMap = getCommandMap();
             bKnownCommands = getKnownCommands(bCommandMap);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing command manager:");
-            e.printStackTrace();
+            PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing command manager:", e);
         }
 
         registeredCommands = new ArrayList<>();

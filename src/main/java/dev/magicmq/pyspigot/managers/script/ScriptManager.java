@@ -136,7 +136,7 @@ public class ScriptManager {
                 script.getLogger().log(Level.SEVERE, message + ":", exception.getCause());
             } else {
                 if (exception.traceback != null)
-                    script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
+                    script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack() + "\n");
                 else
                     script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage());
             }
