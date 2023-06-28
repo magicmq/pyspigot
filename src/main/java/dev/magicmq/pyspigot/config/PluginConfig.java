@@ -21,7 +21,7 @@ public class PluginConfig {
     public static void reload() {
         config = PySpigot.get().getConfig();
 
-        logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format"));
+        logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format", "MMM dd yyyy HH:mm:ss"));
     }
 
     public static long getLoadScriptDelay() {
@@ -42,11 +42,11 @@ public class PluginConfig {
     }
 
     public static boolean doLogToFile() {
-        return config.getBoolean("log-to-file");
+        return config.getBoolean("log-to-file", true);
     }
 
     public static Level getLogLevel() {
-        return Level.parse(config.getString("min-log-level"));
+        return Level.parse(config.getString("min-log-level", "INFO"));
     }
 
     public static DateTimeFormatter getLogTimestamp() {
