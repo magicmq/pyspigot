@@ -41,6 +41,10 @@ public class ScriptManager {
         if (!scripts.exists())
             scripts.mkdir();
 
+        File logs = new File(PySpigot.get().getDataFolder(), "logs");
+        if (!logs.exists())
+            logs.mkdir();
+
         Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getLoadScriptDelay());
     }
 
@@ -234,6 +238,8 @@ public class ScriptManager {
                 return false;
             }
         }
+
+        script.getLogger().closeFileHandler();
 
         return true;
     }

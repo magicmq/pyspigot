@@ -1,12 +1,15 @@
 package dev.magicmq.pyspigot.managers.script;
 
+import dev.magicmq.pyspigot.PySpigot;
+import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.utils.ScriptLogger;
 import org.python.core.PyCode;
 import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
 import java.io.File;
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.util.logging.Level;
 
 public class Script {
 
@@ -26,10 +29,22 @@ public class Script {
         this.file = file;
 
         this.logger = new ScriptLogger(this);
+        if (PluginConfig.doLogToFile()) {
+            try {
+                this.logger.initFileHandler();
+            } catch (IOException e) {
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing log file for script " + name, e);
+            }
+        }
+        interpreter.set("logger", logger);
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getLogFileName() {
+        return name.substring(0, name.length() - 3) + ".log";
     }
 
     public PythonInterpreter getInterpreter() {

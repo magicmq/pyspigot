@@ -4,12 +4,15 @@ import dev.magicmq.pyspigot.PySpigot;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
+import java.util.logging.Level;
 
 public class PluginConfig {
 
     private static FileConfiguration config;
+
+    private static DateTimeFormatter logTimestamp;
 
     static {
         reload();
@@ -17,6 +20,8 @@ public class PluginConfig {
 
     public static void reload() {
         config = PySpigot.get().getConfig();
+
+        logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format"));
     }
 
     public static long getLoadScriptDelay() {
@@ -34,6 +39,18 @@ public class PluginConfig {
             toReturn.put(split[0], split[1]);
         }
         return toReturn;
+    }
+
+    public static boolean doLogToFile() {
+        return config.getBoolean("log-to-file");
+    }
+
+    public static Level getLogLevel() {
+        return Level.parse(config.getString("min-log-level"));
+    }
+
+    public static DateTimeFormatter getLogTimestamp() {
+        return logTimestamp;
     }
 
     public static String getMessage(String key, boolean withPrefix) {
