@@ -43,31 +43,31 @@ public class CommandManager {
         registeredCommands = new ArrayList<>();
     }
 
-    public ScriptCommand registerCommand(String name, PyFunction commandFunction) {
-        return registerCommand(name, "/" + name, "", new ArrayList<>(), null, null, commandFunction, null);
+    public ScriptCommand registerCommand(PyFunction commandFunction, String name) {
+        return registerCommand(commandFunction, null, name, "/" + name, "", new ArrayList<>(), null, null);
     }
 
-    public ScriptCommand registerCommand(String name, PyFunction commandFunction, PyFunction tabFunction) {
-        return registerCommand(name, "/" + name, "", new ArrayList<>(), null, null, commandFunction, tabFunction);
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
+        return registerCommand(commandFunction, tabFunction, name, "/" + name, "", new ArrayList<>(), null, null);
     }
 
-    public ScriptCommand registerCommand(String name, String description, String usage, PyFunction commandFunction) {
-        return registerCommand(name, usage, description, new ArrayList<>(), null, null, commandFunction, null);
+    public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
+        return registerCommand(commandFunction, null, name, usage, description, new ArrayList<>(), null, null);
     }
 
-    public ScriptCommand registerCommand(String name, String description, String usage, PyFunction commandFunction, PyFunction tabFunction) {
-        return registerCommand(name, usage, description, new ArrayList<>(), null, null, commandFunction, tabFunction);
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
+        return registerCommand(commandFunction, tabFunction, name, usage, description, new ArrayList<>(), null, null);
     }
 
-    public ScriptCommand registerCommand(String name, String description, String usage, List<String> aliases, PyFunction commandFunction) {
-        return registerCommand(name, usage, description, aliases, null, null, commandFunction, null);
+    public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
+        return registerCommand(commandFunction, null, name, usage, description, aliases, null, null);
     }
 
-    public ScriptCommand registerCommand(String name, String description, String usage, List<String> aliases, PyFunction commandFunction, PyFunction tabFunction) {
-        return registerCommand(name, usage, description, aliases, null, null, commandFunction, tabFunction);
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
+        return registerCommand(commandFunction, tabFunction, name, usage, description, aliases, null, null);
     }
 
-    public ScriptCommand registerCommand(String name, String description, String usage, List<String> aliases, String permission, String permissionMessage, PyFunction commandFunction, PyFunction tabFunction) {
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) commandFunction.__code__).co_filename);
         ScriptCommand command = getCommand(name);
         if (command == null) {

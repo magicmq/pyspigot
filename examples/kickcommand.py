@@ -20,4 +20,4 @@ def kick_command_tab(sender, alias, args):
     if len(args) > 0:
         return [player.getName() for player in Bukkit.getOnlinePlayers()]
 
-ps.command.registerCommand('kickplayer', kick_command, kick_command_tab)
+ps.command.registerCommand(kick_command, kick_command_tab, 'kickplayer')
