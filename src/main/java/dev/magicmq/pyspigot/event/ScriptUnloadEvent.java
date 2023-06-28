@@ -1,8 +1,6 @@
 package dev.magicmq.pyspigot.event;
 
-import dev.magicmq.pyspigot.managers.script.Script;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
+import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.HandlerList;
 
 public class ScriptUnloadEvent extends ScriptEvent {

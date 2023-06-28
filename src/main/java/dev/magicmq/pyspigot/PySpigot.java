@@ -1,13 +1,13 @@
 package dev.magicmq.pyspigot;
 
-import dev.magicmq.pyspigot.commands.PySpigotCommand;
+import dev.magicmq.pyspigot.command.PySpigotCommand;
 import dev.magicmq.pyspigot.config.PluginConfig;
-import dev.magicmq.pyspigot.managers.command.CommandManager;
-import dev.magicmq.pyspigot.managers.config.ConfigManager;
-import dev.magicmq.pyspigot.managers.listener.ListenerManager;
-import dev.magicmq.pyspigot.managers.protocol.ProtocolManager;
-import dev.magicmq.pyspigot.managers.script.ScriptManager;
-import dev.magicmq.pyspigot.managers.task.TaskManager;
+import dev.magicmq.pyspigot.manager.command.CommandManager;
+import dev.magicmq.pyspigot.manager.config.ConfigManager;
+import dev.magicmq.pyspigot.manager.listener.ListenerManager;
+import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.manager.task.TaskManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 

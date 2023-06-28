@@ -1,6 +1,6 @@
 package dev.magicmq.pyspigot.event;
 
-import dev.magicmq.pyspigot.managers.script.Script;
+import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.HandlerList;
 
 public class ScriptPostLoadEvent extends ScriptEvent {
