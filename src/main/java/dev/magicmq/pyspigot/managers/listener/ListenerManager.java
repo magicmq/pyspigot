@@ -112,8 +112,8 @@ public class ListenerManager {
 
     private void removeFromHandlers(Class<? extends Event> clazz, DummyListener listener) {
         try {
-            Method method = clazz.getMethod("getHandlerList", (Class<?>) null);
-            HandlerList list = (HandlerList) method.invoke(null, null);
+            Method method = clazz.getDeclaredMethod("getHandlerList");
+            HandlerList list = (HandlerList) method.invoke(null);
             list.unregister(listener);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
