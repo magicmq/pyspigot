@@ -36,7 +36,7 @@ public class ReloadCommand implements SubCommand {
                     sender.sendMessage(ChatColor.RED + "There was an error when reloading script " + args[0] + ". See console for details.");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "Script " + args[0] + " not found");
+                sender.sendMessage(ChatColor.RED + "Loaded script " + args[0] + " not found");
             }
             return true;
         }
