@@ -128,9 +128,9 @@ public class ScriptManager {
         ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception);
         Bukkit.getPluginManager().callEvent(event);
         if (event.doReportException()) {
-            if (exception.getCause() != null && !(exception.getCause() instanceof PyException))
-                exception.getCause().printStackTrace();
-            else {
+            if (exception.getCause() != null && !(exception.getCause() instanceof PyException)) {
+                script.getLogger().log(Level.SEVERE, message + ":", exception.getCause());
+            } else {
                 if (exception.traceback != null)
                     script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
                 else

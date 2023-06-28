@@ -17,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 public class ListenerManager {
 
@@ -37,8 +36,7 @@ public class ListenerManager {
             registeredScripts.add(listener);
         } else {
             if (listener.containsEvent(eventClass)) {
-                script.getLogger().log(Level.SEVERE, "Tried to register an event listener, but " + eventClass.getSimpleName() + " is already registered!");
-                return;
+                throw new UnsupportedOperationException("Tried to register an event listener, but " + eventClass.getSimpleName() + " is already registered!");
             }
         }
         EventPriority priority = EventPriority.valueOf(priorityString);
