@@ -15,10 +15,12 @@ import java.util.logging.*;
 public class ScriptLogger extends Logger {
 
     private String logFilePath;
+    private String logIdentifier;
     private FileHandler handler;
 
     public ScriptLogger(Script script) {
         super("PySpigot/" + script.getName(), null);
+        this.logIdentifier = "[" + "PySpigot/" + script.getName() + "] ";
         this.setParent(PySpigot.get().getLogger());
         this.setLevel(Level.ALL);
 
@@ -34,6 +36,12 @@ public class ScriptLogger extends Logger {
 
     public void closeFileHandler() {
         handler.close();
+    }
+
+    @Override
+    public void log(LogRecord record) {
+        record.setMessage(logIdentifier + record.getMessage());
+        super.log(record);
     }
 
     //Convenience method added for scipts to print debug information to console
@@ -57,8 +65,6 @@ public class ScriptLogger extends Logger {
 
             builder.append("[" + record.getLevel().getLocalizedName() + "] ");
 
-            builder.append("[" + record.getLoggerName() + "] ");
-
             builder.append(super.formatMessage(record));
 
             String throwable = "";
@@ -69,6 +75,8 @@ public class ScriptLogger extends Logger {
                 record.getThrown().printStackTrace(pw);
                 pw.close();
                 throwable = sw.toString();
+            } else {
+                throwable += "\n";
             }
             builder.append(throwable);
 
