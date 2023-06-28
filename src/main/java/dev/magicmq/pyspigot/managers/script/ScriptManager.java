@@ -239,7 +239,7 @@ public class ScriptManager {
             }
         }
 
-        script.getLogger().closeFileHandler();
+        script.closeLogger();
 
         return true;
     }

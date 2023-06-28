@@ -63,6 +63,12 @@ public class Script {
         return logger;
     }
 
+    public void closeLogger() {
+        if (PluginConfig.doLogToFile()) {
+            logger.closeFileHandler();
+        }
+    }
+
     public PyFunction getStartFunction() {
         return startFunction;
     }
