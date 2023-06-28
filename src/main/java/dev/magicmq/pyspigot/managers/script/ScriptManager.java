@@ -220,12 +220,12 @@ public class ScriptManager {
     }
 
     private boolean stopScript(Script script, boolean error) {
-        ListenerManager.get().stopScript(script);
-        TaskManager.get().stopScript(script);
-        CommandManager.get().stopScript(script);
+        ListenerManager.get().unregisterEvents(script);
+        TaskManager.get().stopTasks(script);
+        CommandManager.get().unregisterCommands(script);
 
         if (PySpigot.get().isProtocolLibAvailable())
-            ProtocolManager.get().stopScript(script);
+            ProtocolManager.get().unregisterListeners(script);
 
         script.getInterpreter().close();
 

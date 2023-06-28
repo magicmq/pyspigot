@@ -74,7 +74,7 @@ public class TaskManager {
         }
     }
 
-    public void stopScript(Script script) {
+    public void stopTasks(Script script) {
         for (Iterator<RepeatingTask> iterator = repeatingTasks.iterator(); iterator.hasNext();) {
             RepeatingTask next = iterator.next();
             if (next.getScript().equals(script)) {

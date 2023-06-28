@@ -92,7 +92,7 @@ public class CommandManager {
         }
     }
 
-    public void stopScript(Script script) {
+    public void unregisterCommands(Script script) {
         List<ScriptCommand> toRemove = new ArrayList<>();
         for (ScriptCommand command : registeredCommands) {
             if (command.getScript().equals(script))

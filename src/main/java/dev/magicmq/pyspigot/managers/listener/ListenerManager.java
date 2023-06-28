@@ -98,7 +98,7 @@ public class ListenerManager {
         return null;
     }
 
-    public void stopScript(Script script) {
+    public void unregisterEvents(Script script) {
         DummyListener listener = getListener(script);
         if (listener != null) {
             for (Class<? extends Event> event : listener.getEvents()) {

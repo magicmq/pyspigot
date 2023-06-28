@@ -61,7 +61,7 @@ public class ProtocolManager {
         return asyncProtocolManager;
     }
 
-    public void stopScript(Script script) {
+    public void unregisterListeners(Script script) {
         for (ScriptPacketListener listener : getListeners(script)) {
             deregisterListener(listener);
         }
