@@ -5,7 +5,7 @@ from org.bukkit import ChatColor
 
 kick_message = '&cYou have been kicked by %player%'
 
-def kick_command(sender, command, label, args):
+def kick_command(sender, label, args):
     if len(args) > 0:
         to_kick = Bukkit.getPlayer(args[0])
         if to_kick is not None:
@@ -16,4 +16,8 @@ def kick_command(sender, command, label, args):
         sender.sendMessage('Usage: /kickplayer <player>')
     return True
 
-ps.command.registerCommand(kick_command, 'kickplayer')
+def kick_command_tab(sender, alias, args):
+    if len(args) > 0:
+        return [player.getName() for player in Bukkit.getOnlinePlayers()]
+
+ps.command.registerCommand('kickplayer', kick_command, kick_command_tab)

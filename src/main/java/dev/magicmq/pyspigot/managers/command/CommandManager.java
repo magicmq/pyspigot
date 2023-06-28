@@ -3,14 +3,16 @@ package dev.magicmq.pyspigot.managers.command;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.managers.script.Script;
 import dev.magicmq.pyspigot.managers.script.ScriptManager;
+import dev.magicmq.pyspigot.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
 import org.python.core.PyBaseCode;
 import org.python.core.PyFunction;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,15 +22,21 @@ public class CommandManager {
 
     private static CommandManager manager;
 
-    private CommandMap commandMap;
-    private HashMap<String, Command> knownCommands;
+    private Method bSyncCommands;
+    private SimpleCommandMap bCommandMap;
+    private HashMap<String, Command> bKnownCommands;
+
     private final List<ScriptCommand> registeredCommands;
 
     private CommandManager() {
+        bSyncCommands = ReflectionUtils.getMethod(Bukkit.getServer().getClass(), "syncCommands");
+        if (bSyncCommands != null)
+            bSyncCommands.setAccessible(true);
         try {
-            commandMap = getCommandMap();
-            knownCommands = getKnownCommands(commandMap);
-        } catch (NoSuchFieldException |IllegalAccessException e) {
+            bCommandMap = getCommandMap();
+            bKnownCommands = getKnownCommands(bCommandMap);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing command manager:");
             e.printStackTrace();
         }
 
@@ -37,78 +45,99 @@ public class CommandManager {
 
     public void shutdown() {
         for (ScriptCommand command : registeredCommands) {
-            command.unregister(commandMap);
-            knownCommands.remove(command.getName());
+            command.unregister(bCommandMap, bKnownCommands);
         }
+        registeredCommands.clear();
     }
 
-    public void registerCommand(PyFunction function, String name) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
-        ScriptCommand command = new ScriptCommand(script, function, name);
-        boolean registered = commandMap.register(script.getName(), command);
-        if (registered)
-            registeredCommands.add(command);
-        else
-            PySpigot.get().getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command " + name + " for script " + script.getName());
+    public ScriptCommand registerCommand(String name, PyFunction commandFunction) {
+        return registerCommand(name, "/" + name, "", new ArrayList<>(), null, null, commandFunction, null);
     }
 
-    public void registerCommand(PyFunction function, String name, String description, String usageMessage, List<String> aliases) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
-        ScriptCommand command = new ScriptCommand(script, function, name, description, usageMessage, aliases);
-        boolean registered = commandMap.register(script.getName(), command);
-        if (registered)
-            registeredCommands.add(command);
-        else
-            throw new UnsupportedOperationException("Used fallback prefix (script name) when registering command " + name);
+    public ScriptCommand registerCommand(String name, PyFunction commandFunction, PyFunction tabFunction) {
+        return registerCommand(name, "/" + name, "", new ArrayList<>(), null, null, commandFunction, tabFunction);
+    }
+
+    public ScriptCommand registerCommand(String name, String description, String usage, PyFunction commandFunction) {
+        return registerCommand(name, usage, description, new ArrayList<>(), null, null, commandFunction, null);
+    }
+
+    public ScriptCommand registerCommand(String name, String description, String usage, PyFunction commandFunction, PyFunction tabFunction) {
+        return registerCommand(name, usage, description, new ArrayList<>(), null, null, commandFunction, tabFunction);
+    }
+
+    public ScriptCommand registerCommand(String name, String description, String usage, List<String> aliases, PyFunction commandFunction) {
+        return registerCommand(name, usage, description, aliases, null, null, commandFunction, null);
+    }
+
+    public ScriptCommand registerCommand(String name, String description, String usage, List<String> aliases, PyFunction commandFunction, PyFunction tabFunction) {
+        return registerCommand(name, usage, description, aliases, null, null, commandFunction, tabFunction);
+    }
+
+    public ScriptCommand registerCommand(String name, String description, String usage, List<String> aliases, String permission, String permissionMessage, PyFunction commandFunction, PyFunction tabFunction) {
+        Script script = ScriptManager.get().getScript(((PyBaseCode) commandFunction.__code__).co_filename);
+        ScriptCommand command = getCommand(name);
+        if (command == null) {
+            ScriptCommand newCommand = new ScriptCommand(script, commandFunction, tabFunction, name, description, script.getName(), usage, aliases, permission, permissionMessage);
+            newCommand.register(bCommandMap);
+            registeredCommands.add(newCommand);
+            syncCommands();
+            return newCommand;
+        } else
+            throw new UnsupportedOperationException("Command with the name " + name + " is already registered!");
     }
 
     public void unregisterCommand(String name) {
         ScriptCommand command = getCommand(name);
-        if (command != null) {
-            deregisterCommand(command);
-        } else
-            throw new NullPointerException("Command " + name + " not found");
+        unregisterCommand(command);
+    }
+
+    public void unregisterCommand(ScriptCommand command) {
+        if (registeredCommands.contains(command)) {
+            command.unregister(bCommandMap, bKnownCommands);
+            registeredCommands.remove(command);
+            syncCommands();
+        }
     }
 
     public void stopScript(Script script) {
-        for (ScriptCommand command : getCommands(script)) {
-            deregisterCommand(command);
+        List<ScriptCommand> toRemove = new ArrayList<>();
+        for (ScriptCommand command : registeredCommands) {
+            if (command.getScript().equals(script))
+                toRemove.add(command);
         }
+        toRemove.forEach(this::unregisterCommand);
     }
 
     public ScriptCommand getCommand(String name) {
         for (ScriptCommand command : registeredCommands) {
-            if (command.getName().equals(name))
+            if (command.getName().equalsIgnoreCase(name))
                 return command;
         }
         return null;
     }
 
-    public List<ScriptCommand> getCommands(Script script) {
-        List<ScriptCommand> toReturn = new ArrayList<>();
-        for (ScriptCommand command : registeredCommands) {
-            if (command.getScript().equals(script))
-                toReturn.add(command);
-        }
-        return toReturn;
-    }
-
-    private CommandMap getCommandMap() throws NoSuchFieldException, IllegalAccessException {
+    private SimpleCommandMap getCommandMap() throws NoSuchFieldException, IllegalAccessException {
         Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
         field.setAccessible(true);
-        return (CommandMap) field.get(Bukkit.getServer());
+        return (SimpleCommandMap) field.get(Bukkit.getServer());
     }
 
-    private HashMap<String, Command> getKnownCommands(CommandMap commandMap) throws NoSuchFieldException, IllegalAccessException {
+    @SuppressWarnings("unchecked")
+    private HashMap<String, Command> getKnownCommands(SimpleCommandMap commandMap) throws NoSuchFieldException, IllegalAccessException {
         Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
         field.setAccessible(true);
         return (HashMap<String, Command>) field.get(commandMap);
     }
 
-    private void deregisterCommand(ScriptCommand command) {
-        command.unregister(commandMap);
-        knownCommands.remove(command.getName());
-        registeredCommands.remove(command);
+    private void syncCommands() {
+        if (bSyncCommands != null) {
+            try {
+                bSyncCommands.invoke(Bukkit.getServer());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static CommandManager get() {
