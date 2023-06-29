@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'PySpigot'
-copyright = '2021, magicmq'
+copyright = '2023, magicmq'
 author = 'magicmq'
 
 # The full version, including alpha/beta/rc tags

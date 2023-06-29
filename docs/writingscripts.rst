@@ -5,38 +5,57 @@ Scripts
 
 This page contains all information related to writing scripts.
 
-.. note:: This tutorial *does not* explain how to use the Bukkit/Spigot API or how to use
-
-There are a few guidelines that must be followed when writing PySpigot scripts. Please make sure to adhere to these guidelines at all times:
-
-* Scripts must by Python scripts and end in .py. Files that do not end in .py will not load.
-* Scripts must be placed in the ``scripts`` folder
-* Do not assign variables with the name ``listener``, ``command``, ``scheduler``, ``config``, ``bukkit``, or ``global``. These variables are inserted to the local namespace automatically at runtime and correspond to the managers that you will use to register listeners, tasks, etc.
-
-Basic Syntax
-############
-
-The basic syntax is identical to that of Python 2. Jython does not support Python 3, so Python 2 syntax needs to be used for the time being. It is not known when Jython will update to Python 3. For most cases, the Python 2 syntax will be the exact same as that of Python 3.
+.. note:: This tutorial provides an overview of PySpigot only, and does not cover in detail the Bukkit/Spigot API or writing Python code. Any questions concerning Python syntax or writing Python code in general should be redirected to the appropriate forum, as this tutorial will not provide an intoroduction to writing basic Python code.
 
 Any questions concerning Python syntax or writing Python code in general should be redirected to the appropriate forum, as this tutorial will not provide an intoroduction to writing basic Python code.
 
 Additionally, this tutorial will not explain how to use the Bukkit/Spigot API. Please see `Spigot's Website <https://www.spigotmc.org/>`__ and the `Spigot Javadocs <https://hub.spigotmc.org/javadocs/spigot/index.html?overview-summary.html>`__ for complete information on this.
 
+There are a few guidelines that must be followed when writing PySpigot scripts. Please make sure to adhere to these guidelines at all times:
+
+* Under the hood, PySpigot utilizes Jython, a Java implementation of Python. Currently, Jython implements Python 2 only, so Python 2 syntax should be used when writing PySpigot scripts.
+* Scripts must be written in Python syntax and script files should in .py. Files that do not end in .py will not be loaded.
+* Scripts are placed in the ``scripts`` folder under the PySpigot plugin folder.
+* Avoid using the variable names ``global`` and ``logger``. These variable names are assigned automatically at runtime. More information on these below.
+* Scripts are functionally isolated from one another. With the exception of the ``global`` variable (see the `Global Variables`_ section below), nothing is shared across scripts.
+* To make use of any of the managers that PySpigot provides (such as registering listeners, tasks, etc.), they must be imported into your script. See the section below on Making Use of PySpigot's Managers for details.
+
+A Note About Jython
+###################
+
+Under the hood, PySpigot utilizes Jython, a Java implementation of Python. The PySpigot jar file is quite large in comparison to other Spigot plugins because Jython (as well as its dependencies) are bundled into PySpigot.
+
+Jython is written such that scripts are compiled and interpreted entirely in Java. This means that scripts have native access to the entire Java class path at runtime, making it very easy to work with the Spigot API and other aspects of the server. Consider the following example:
+
+.. code-blod:: python
+
+    from org.bukkit import Bukkit
+    from org.bukkit import Location
+
+    teleport_location = Location(Bukkit.getWorld('world'), 0, 64, 0)
+    online_players = Bukkit.getOnlinePlayers()
+    for player in online_players:
+        player.teleport(teleport_location)
+
+As you can see from the above code block, working with Java classes/objects is intuitive. Should you have any trouble interfacing with Java, Jython has fairly well-written documentation you can check out `here <https://jython.readthedocs.io/en/latest/>`__.
+
+Currently, the latest version of Jython implements Python 2. Thus, for now, PySpigot scripts are written in Python 2. While some may see this as a drawback, Python 2 is usually sufficient for the vast majority of use cases of PySpigot, and I have not yet found any case where a Python 3 feature was required for script functionality. The developers of Jython intend on implementing Python 3 in a future release of Jython, but the expected timeframe of this update is unclear. Work is ongoing on the `Jython GitHub repository <https://github.com/jython/jython>`__.
+
+For more information about Jython, visit `jython.org <https://www.jython.org/>`__.
+
 Basic Script Information
 ########################
 
-All PySpigot scripts are designed to be *self-contained* files. This means that each script should, at most, consist of one file only. This does not mean that scripts cannot interact with each other, but PySpigot is designed to treat each .py file in the ``scripts`` folder as a separate script.
+All PySpigot scripts are designed to be *self-contained*, single files. This means that each script will, at most, consist of one file only. Additionally, scripts are *isolated* from one another, meaning they do not share variables, functions, or scope. Scripts are capable of interacting with one another in various ways (more detail on this below), but think of each .py file in the ``scipts`` folder as an individual entity, executed in its own environment.
 
-PySpigot scripts should be placed into the ``scripts`` folder in PySpigot's main plugin folder.
-
-PySpigot scripts should also have a ``.py`` extension. Any files in the ``scripts`` folder that does not end in ``.py`` will not be parsed and loaded.
+PySpigot scripts are placed in the ``scripts`` folder in PySpigot's main plugin folder. PySpigot will attempt to load any file in the ``scripts`` folder that ends in the ``.py`` extension. Any files in the ``scripts`` folder that do not end in ``.py`` will not be loaded.
 
 Script Loading
 ***************
 
 PySpigot loads and runs all scripts in the scripts folder automatically and in alphabetical order. This means that if a script depends on another script, then you should name it such that it falls after the script it depends on alphabetically (so it loads after the script it depends on).
 
-There is only one config option related to loading scripts:
+There is one config option related to loading scripts:
 
 * ``script-load-delay``: This is the delay, in ticks, that PySpigot will wait **after server loading is completed** to load scripts. For example, if the value is 20, then PySpigot will wait 20 ticks (or 1 second) after the server finishes loading to load scripts.
 
@@ -45,157 +64,56 @@ Of course, scripts can also be manually loaded using /pyspigot load <scriptname>
 Script Errors and Crashes
 *************************
 
-If a script happens to generate an unhandled error or exception while it is running, the script will be automatically unloaded so as not to cause any further issues. Additionally, any information related to the error will be printed to the console.
+If a script happens to generate an unhandled error or exception during its execution, the script will be automatically unloaded. Additionally, any information related to the error will be printed to the server console.
 
-If the error originated in a script's code (and not Java code), then a traceback will be provided along with the message indicating that a script produced an error. If the error originated in Java code, then a stack trace will be provided along with the error message.
+If the error originated in a script's Python code (and not Java code), then a Python traceback will be printed to the console, along with a message indicating which script produced the error. If the error originated in Java code, then a Java stack trace will be provided along a message indicating which script produced the error.
 
-Event Listeners
-###############
+.. _pyspigotmanagers:
 
-With PySpigot, you have the ability to register event listeners. Like Bukkit's listener system, when an event fires, its respective function in your script will be called.
+PySpigot's Managers
+*******************
 
-.. note:: This is not a comprehensive guide to events in Bukkit. For a more complete guide to commands, see Spigot's tutorial on using the event API: https://www.spigotmc.org/wiki/using-the-event-api/. Note that much of this information will not be useful because it pertains to Java, but the background information is nevertheless helpful.
+PySpigot provides a variety of managers to more easily work with parts of the Bukkit/Spigot API. For instructions on importing these into your script, see below. PySpigot managers currently include:
 
-Listener Code Example
-*********************
+* ListenerManager, for registering event listeners. This is accessed as ``listener`` under PySpigot, or imported individually as ``dev.magicmq.pyspigot.managers.listener.ListenerManager``.
+* CommandManager, for registering and working with commands. This is accessed as ``commmand`` under PySpigot, or imported individually as ``dev.magicmq.pyspigot.managers.command.CommandManager``
+* TaskManager, for registering a variety of repeating, delayed, and asynchronous tasks. This is accessed as ``scheduler`` under PySpigot, or imported individually as ``dev.magicmq.pyspigot.managers.task.TaskManager``
+* ConfigManager, for working with configuration files. This is accessed as ``config`` under PySpigot, or imported individually as ``dev.magicmq.pyspigot.managers.config.ConfigManager``
+* ProtocolManager, to work with ProtocolLib (this will only load if ProtocolLib is present on your server). This is accessed as ``protocol`` under PySpigot, or imported individually as ``dev.magicmq.pyspigot.managers.protocol.ProtocolManager``
 
-Let's look at the following code that defines and registers an event listener:
+.. note:: ProtocolManager is an *optional* manager. This manager is only accessible if the ProtocolLib plugin is present on the server when the PySpigot plugin is enabled. You will receive an error if you attempt to use the ProtocolManager when ProtocolLib is not present on the server.
 
-.. code-block:: python
-    :linenos:
+To utilize these managers, they must be imported into your script. This can be done in two ways:
 
-    from org.bukkit.event.player import AsyncPlayerChatEvent
+* Import all managers at once using the PySpigot class. This is the preferred way to import managers as less code is required:
 
-    def player_chat(event):
-        print('Player sent a chat! Their message was: ' + event.getMessage())
+  .. code-block:: python
 
-    listener.registerEvent(player_chat, AsyncPlayerChatEvent)
+      from dev.magicmq.pyspigot import PySpigot as ps
 
-First, on line 1, there is an appropriate import statement for Bukkit's ``AsyncPlayerChatEvent``. All events that you wish to listen to *must* be imported!
+      ps.listener.<function>
+      ps.command.<function>
+      ps.scheduler.<function>
+      ps.config.<function>
+      ps.protocol.<function>
 
-On line 3, we define a function called ``player_chat`` that takes an event as a parameter (an AsyncPlayerChatEvent in this case). This is the function that will be called when an AsyncPlayerChatEvent occurs. On line 5, we print a simple message to the console that contains the message that was sent in chat.
+  In the above code, PySpigot is imported as ps. Managers are called using their simplified name, ``listener`` for ListenerManager, ``command`` for CommandManager, ``scheduler`` for TaskManager, ``config`` for ConfigManager, and ``protocol`` for ProtocolManager.
 
-All event listeners must be registered with PySpigot's listener manager. Fortunately, the listener manager is loaded into the local namespace at runtime as a variable called ``listener``, so you do not need to access it manually. Event listeners are registered using ``listener.registerEvent(function, event)`` The ``registerEvent`` function takes two arguments:
+* Import each manager individually:
 
-* The first argument accepts the function that should be called when the event fires.
-* The second argument accepts the event that should be listened for.
+  .. code-block:: python
 
-Therefore, on line 6, we call the listener manager to register our event, passing the function we defined on line 5, ``player_chat``, and the event we want to listen for, ``AsyncPlayerChatEvent``.
+      from dev.magicmq.pyspigot.managers.listener import ListenerManager as listener
+      from dev.magicmq.pyspigot.managers.command import CommandManager as command
+      from dev.magicmq.pyspigot.managers.task import TaskManager as scheduler
+      from dev.magicmq.pyspigot.managers.config import ConfigManager as config
+      from dev.magicmq.pyspigot.managers.protocol import ProtocolManager as protocol
 
-For complete documentation on available listeners and functions/methods available to use from each, see the `Spigot Javadocs <https://hub.spigotmc.org/javadocs/spigot/index.html?overview-summary.html>`__.
+      listener.get().<function>
+      command.get().<function>
+      ...
 
-To summarize:
-
-* All events that you wish to use should be imported using Python's import syntax.
-* All event listeners should be defined as functions in your script that accept a single parameter (the parameter name can be whatever you like).
-* All event listeners must be registered with PySpigot's listener manager using ``listener.registerEvent(function, event)``.
-
-Listener Manager Usage
-**********************
-
-There are five functions available for you to use in your script in the listener manager if you would like greater control over events or need more advanced event handling:
-
-* ``listener.registerListener(function, event)``: Explained above, takes the function to call when event fires as well as the event to listen to.
-* ``listener.registerListener(function, event, priority)``: Same as above, except also allows you to define an event priority (how early/late your event listener should fire relative to other listeners for the same event). The priority is a string and
-   * Event priorities are the same as the priorities found in Bukkit's `EventPriority class <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/EventPriority.html>`__.
-* ``listener.registerListener(function, event, ignoreCancelled)``: Allows you to "ignore" the event if it has been cancelled. This means that the event will not fire in your script if it has been previously cancelled by another event listener.
-   * This will only work with events that are `cancellable <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/Cancellable.html>`__.
-* ``listener.registerListener(function, event, priority, ignoreCancelled)``: Allows you to register an event that is ignored if cancelled *and* that has a priority (a combination of the previous two functions).
-* ``listener.unregisterEvent(function)``: Allows you to unregister an event listener from your script. Takes the function you want to unregister as an argument.
-
-Defining Commands
-#################
-
-PySpigot allows you to define and register new commands from scripts. These commands function in the same way as any command would in-game.
-
-.. note:: This is not a comprehensive guide to commands in Bukkit. For a more complete guide to commands, see Spigot's tutorial on commands: https://www.spigotmc.org/wiki/create-a-simple-command/. Note that much of this information will not be useful because it pertains to Java, but the background information is nevertheless helpful.
-
-Command Code Example
-********************
-
-Let's look at the following code that defines and registers a command:
-
-.. code-block:: python
-    :linenos:
-
-    def kick_command(sender, command, label, args):
-        #Do something...
-        return True
-
-    command.registerCommand(kick_command, 'kickplayer')
-
-On line 1, we define a function called ``kick_command`` that takes four arguments, a sender, command, label, and args. Sender is who executed the command, command is a `command <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/command/Command.html>`__ object. The label is exactly the command that the player typed in (if the command had aliases, then this would be the alias that the command sender used if they did). Finally, args is a string array representing each argument that the command sender typed after the label.
-
-On line 3, we return a boolean value from the function. This is a requirement for all command functions! They must return either true or false.
-
-Like listeners, all commands must be registered with PySpigot's command manager. Fortunately, the command manager is loaded into the local namespace at runtime as a variable called ``command``, so you do not need to access it manually. Commands are registered using ``command.registerCommand(function, name)`` The ``registerCommand`` function takes two arguments:
-
-* The first argument accepts the function that should be called when a player executes the command.
-* The second argument is the name of the command, a string.
-
-Therefore, on line 5, we register the command by calling ``command.registerCommand``, passing it our ``kick_command`` function as well as the string ``kickplayer``, the name the we want our command to be.
-
-To summarize:
-
-* Like listeners, commands are defined as functions in your script. Command functions *must* take four parameters: a sender, command, label, and args (the names of these can be whatever you like).
-* All commands must be registered with PySpigot's command manager using ``command.registerCommand(function, name)``.
-
-Command Manager Usage
-*********************
-
-In addition to the most basic function explained above, the command manager has other methods in case you need greater flexibility or control over commands you define:
-
-* ``command.registerCommand(function, name)``: Explained above, takes the function to call when the command is executed as well as the name of the command to register.
-* ``command.registerCommand(function, name, usage, description, aliases)``: In addition to the same arguments as the above function, this one also takes a usage, description, and aliases. Usage is what to send to the player if the command function returns false (if it did not complete successfully). This is usually something like "/command <args>", where you show someone how to execute the command. Description is a description of what the command does, and aliases is a list of strings that someone could use to execute the command (that isn't the command name itself).
-* ``command.unregisterCommand(function)``: Allows you to unregister a command from your script. Takes the function you want to unregister as an argument.
-
-Tasks
-#####
-
-Through PySpigot, you can interact with Bukkit's task scheduler and schedule/run synchronous and asynchronous tasks. These allow you to run code on a thread other than the main thread as well as run code repeatedly at a fixed interval.
-
-.. note:: This is not a comprehensive guide to scheduling tasks. For a more complete guide to tasks and scheduler programming, see Bukkit's tutorial on using the scheduler: https://bukkit.fandom.com/wiki/Scheduler_Programming. Note that much of this information will not be useful because it pertains to Java, but the background information is nevertheless helpful.
-
-Task Code Example
-*****************
-
-Let's take a look at the following code that defines and starts a task:
-
-.. code-block:: python
-    :linenos:
-
-    def run_task():
-        #Do something...
-
-    task_id = scheduler.scheduleRepeatingTask(run_task, 0, 100)
-
-On line 1, we define a function called ``run_task`` that takes no arguments.
-
-Like listeners, all tasks must be registered and run with PySpigot's task manager. Fortunately, the task manager is loaded into the local namespace at runtime as a variable called ``tasks``, so you do not need to access it manually. There are many different ways to start tasks depending on if we want it to be synchronous, ascynchronous, and/or repeating, but here we want our task to be synchronous and repeating, so we use ``tasks.scheduleRepeatingTask(function, delay, interval)``, which takes three arguments:
-
-* The first argument accepts the function that should be called when the task runs (either once or repeatedly at a fixed interval).
-* The second argument is the delay (in ticks) that the scheduler should wait before starting the task when it is registered.
-* The third argument is the interval (in ticks) that the task should be run.
-
-Therefore, on line 4, we register the task as a synchronous repeating task using ``scheduler.scheduleRepeatingTask``. This will return a task id, which we then store as a variable called ``task_id``. We store this task id in case we want to cancel our task later. Cancelling a task requires the task ID.
-
-To summarize:
-
-* Like listeners, tasks are defined as functions in your script. Task functions do not take any arguments and do not return anything.
-* All tasks must be registered with PySpigot's command manager. To schedule and run a synchronous repeating task, use ``scheduler.scheduleRepeatingTask(function, delay, interval)``.
-
-Task Manager Usage
-******************
-
-In addition to scheduling synchronous repeating tasks, the task manager has many other functions to schedule other types of tasks as well as stop tasks:
-
-* ``scheduler.runTask(function)``: Run a synchronous task as soon as possible. Takes the function to call when the task runs.
-* ``scheduler.runTaskAsync(function)``: Run an asychronous task (a task on a thread other than the main server thread). Takes the function to call when the task runs.
-* ``scheduler.runTaskLater(function, delay)``: Run a synchronous task at some point in the future after the specified delay. Takes the function to call when the task runs and the delay to wait (in ticks) before running the task.
-* ``scheduler.runTaskLaterAsync(function, delay)``: Run an asynchronous task at some point in the future after the specified delay. Takes the function to call when the task runs and the delay to wait (in ticks) before running the task.
-* ``scheduler.scheduleRepeatingTask(function, delay, interval)``: Run a synchronous repeating task that repeats every specified interval. Takes the function to call each time the task runs, the delay to wait (in ticks) before running the task, and the interval (in ticks) at which the task should be run.
-* ``scheduler.scheduleAsyncRepeatingTask(function, delay, interval)``: Run an asynchronous repeating task that repeats every specified interval. Takes the function to call each time the task runs, the delay to wait (in ticks) before running the task, and the interval (in ticks) at which the task should be run.
-* ``scheduler.stopTask(id)``: Stop/Cancel a task. Takes the id of the task to stop.
+  .. note:: If importing a manager individually, ``get`` *must* be used each time the manager is called!
 
 Global Variables
 ################
@@ -213,58 +131,63 @@ Changes to variables inserted into this global set are automatically visible to 
 
 For more advanced usage, see the `JavaDocs for HashMap <https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html>`__ for a complete list of available functions.
 
-Configuration Files
-###################
+Script Logging
+##############
 
-With PySpigot, your scripts can load, access, and save to configuration files. All configuration files that scripts access using the config manager are automatically stored in the ``config`` folder located within PySpigot's plugin folder.
+Each script contains its own logger. Any errors and warnings that result from script execution will be printed to the console along with the script that produced the error and the
 
-.. note:: This is not a comprehensive guide to working with config files. For more complete documentation on available methods/functions, see the Javadocs: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/configuration/MemorySection.html. All methods listed here can be called from within your script.
+There are two types of errors that a script can produce:
 
-Configuration File Code Example
-*******************************
+Python Exceptions
+*****************
 
-Let's take a look at the following code that loads a config, reads a number and string from it, writes to it, then saves it.
+These are exceptions intrinsic to the script's Python code. These exceptions will generate a log entry with a Python traceback indicating the script file and line that caused the exception. Because these exceptions originate in Python code, they should be fairly easy to debug. They will look like this:
 
-.. code-block:: python
+.. image:: python_exception.png
+   :width: 800
+   :alt: An example of what a Python exception looks like in the server console.
+
+The boxed text is the Python traceback.
+
+Java Exceptions
+***************
+
+These exceptions occur when a script calls Java code and the exception occurs somewhere within the Java code (but not from within the script). These exceptions will generate a log entry with a `Java stack trace <https://www.javatpoint.com/java-stack-trace>`__ indicating where the exception occurred. These can be trickier to debug because the cause of the exception is not immediately apparent. Although these are Java stack traces, they also will indicate the script file and line that caused the exception. They will look like this:
+
+.. image:: java_exception.png
+   :width: 800
+   :alt: An example of what a Java exception looks like in the server console.
+
+The boxed text indicates where to find the script file and line that caused the exception. If the exception resulted from code that was called from within a function, the function name will also be given.
+
+Let's take a look at the code that caused the exception in the above image to be thrown:
+
+.. code-blod:: python
     :linenos:
 
-    script_config = config.loadConfig('test.yml')
+    from dev.magicmq.pyspigot import PySpigot as ps
 
-    a_number = config.getInt('test-number')
-    a_string = config.getString('test-string')
+    kick_message = '&cYou have been kicked by %player%'
 
-    script_config.set('test-set', 1337)
-    script_config.save()
+    def test_command(sender, label, args):
+        print('Command issued!')
+        return True
 
-On line 1, we load the config using the config manager. Fortunately, the config manager is loaded into the local namespace at runtime as a variable called ``config``, so you do not need to access it manually. The ``loadConfig`` function takes a string representing the name of the config file to load. If the file does not exist, it will create it automatically.
+    ps.command.registerCommand(kick_command, 'kick_player')
+    ps.command.unregisterCommand('command_does_not_exist')
 
-On lines 3 and 4, we read a number and a string from the config, respectively, by using ``getInt`` and ``getString``.
+On line 10, we attempt to unregister a command, but the command has not been registered, so this is most likely what caused the exception.
 
-Finally, on lines 5 and 6, we first set the value 1337 to a config key called ``test-set``. Then, we save the config with ``script_config.save()``.
+A Note About Exceptions
+***********************
 
-.. warning:: Configuration files are not unique to each script! Any script can access any config file. Make sure that when you load a config, the name of the config file you are loading is the name you want to load. Try to use unique names for each script so that the same config file isn't accidentally loaded/saved on multiple different scripts.
+Because PySpigot is an active project in youth stages of development, you may encounter exceptions that are caused by a bug within PySpigot itself. If you encounter an exception, and your debug efforts have been futile, please `submit an issue on Github <https://github.com/magicmq/PySpigot/issues>`__.
 
-To summrize:
+Script Log Files
+****************
 
-* Scripts can load and save to config files that are automatically stored in PySpigot's plugin folder in the ``configs`` folder.
-* To load a config, use ``config.load(name)``. The ``name`` parameter is the name of the config file you wish to load (including the ``.yml`` extension). If the config file does not exist, it will be created for you automatically. This returns a ``ScriptConfig`` object that is used to access the contents of the config and write to the config.
-* For all available functions/methods to get values from a loaded config, see the `Javadocs <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/configuration/MemorySection.html>`__.
-* To set a value in a config, use ``script_config.set(key, value)``, where ``key`` is the key you wish to write to and ``value`` is the value to write.
-* Finally, to save a config, use ``script_config.save()``.
+By default, scripts log warnings and exceptions to an automatically generated log file. Each script has its own log file, and these can be found in the logs folder within the PySpigot plugin folder. If you would like to disable file logging for scripts, set the ``log-to-file`` value to ``false`` in PySpigot config.yml.
 
-Config Manager Usage
-********************
+You may also change which messages are logged to a script's log file. To do so, edit the ``min-log-level`` value in the config.yml. Use Java's `Logging levels <https://docs.oracle.com/en/java/javase/11/docs/api/java.logging/java/util/logging/Level.html>`__.
 
-The following are methods/functions that you can use from the config manager:
-
-* ``config.loadConfig(name)``: This loads/creates the config, as described above. Takes the name of the file you wish to load or create. Returns a ``ScriptConfig`` object representing the config that was loaded/created.
-* ``config.reloadConfig(config)``: This reloads a config in case there any changes to the file that need to be loaded in. Takes the config (a ``ScriptConfig``) to reload. Returns another ``ScriptConfig`` object representing the config that was reloaded.
-
-ScriptConfig Usage
-******************
-
-Like described above, loading/reloading a config returns a ``ScriptConfig`` object. This object has many methods/functions that you can use:
-
-* ``script_config.set(key, value)``: Set a value in the config at the given key. Takes a key representing the key to write to and value which is the value to write.
-* ``script_config.save()``: This saves the config so that any values you set will be persistent.
-* All methods present `here <https://hub.spigotmc.org/javadocs/spigot/org/bukkit/configuration/MemorySection.html>`__ can also be used.
+You may also change the format of time stamps within script logs files. To do so, edit the ``log-timestamp-format`` value in the config.yml. Use Java's `DateTimeFormatter <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/format/DateTimeFormatter.html>`__.
