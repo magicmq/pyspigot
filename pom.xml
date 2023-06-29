@@ -83,20 +83,24 @@
                     <finalName>${project.name}-${project.version}</finalName>
                     <relocations>
                         <relocation>
+                            <pattern>com.google</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.com.google</shadedPattern>
+                        </relocation>
+                        <relocation>
                             <pattern>io.netty</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.libs.io.netty</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>me.lucko.jarrelocator</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.me.lucko.jarrelocator</shadedPattern>
+                            <pattern>org.apache</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.apache</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.objectweb.asm</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.libs.org.objectweb.asm</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.google</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.com.google</shadedPattern>
+                            <pattern>me.lucko.jarrelocator</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.me.lucko.jarrelocator</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
