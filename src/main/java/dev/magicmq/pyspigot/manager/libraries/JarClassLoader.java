@@ -21,20 +21,37 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 
+/**
+ * Utility class for assisting with loading Jar files into the classpath.
+ */
 public class JarClassLoader extends URLClassLoader {
 
     static {
         ClassLoader.registerAsParallelCapable();
     }
 
+    /**
+     * Initialize a new JarClassLoader using a parent class loader.
+     * @param parentClassLoader The parent class loader to use
+     */
     public JarClassLoader(ClassLoader parentClassLoader) {
         super(new URL[]{}, parentClassLoader);
     }
 
+    /**
+     * Add a new Jar to the classpath.
+     * @param file The Jar file to add to the classpath
+     * @throws MalformedURLException If the file has an invalid URL
+     */
     public void addJarToClasspath(Path file) throws MalformedURLException {
         addURL(file.toUri().toURL());
     }
 
+    /**
+     * Check if a Jar file is in the classpath.
+     * @param file The Jar file to check
+     * @return True if the Jar file is already in the classpath, false if otherwise
+     */
     public boolean isJarInClassPath(Path file) {
         try {
             URL jarURL = file.toUri().toURL();

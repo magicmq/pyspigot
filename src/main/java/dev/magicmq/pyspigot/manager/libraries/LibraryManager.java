@@ -29,6 +29,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
+/**
+ * A manager class to help with dynamically loading Jar files into the classpath at runtime. Most commonly, scripts will not use this directly and PySpigot will be the primary user of this manager.
+ */
 public class LibraryManager {
 
     private static LibraryManager instance;
@@ -69,6 +72,11 @@ public class LibraryManager {
         }
     }
 
+    /**
+     * Load a library into the classpath.
+     * @param fileName The name of the Jar file to load into the classpath
+     * @return A {@link LoadResult} describing the outcome of the load attempt
+     */
     public LoadResult loadLibrary(String fileName) {
         try {
             Path file = Paths.get(PySpigot.get().getDataFolder().getAbsolutePath(), "libs", fileName);
@@ -82,6 +90,10 @@ public class LibraryManager {
         }
     }
 
+    /**
+     * Get the {@link JarClassLoader} for loading Jar files into the classpath.
+     * @return The JarClassLoader
+     */
     public JarClassLoader getClassLoader() {
         return classLoader;
     }
@@ -106,6 +118,10 @@ public class LibraryManager {
         return output.toPath();
     }
 
+    /**
+     * Get the instance of this LibraryManager.
+     * @return The instance
+     */
     public static LibraryManager get() {
         if (instance == null)
             instance = new LibraryManager();

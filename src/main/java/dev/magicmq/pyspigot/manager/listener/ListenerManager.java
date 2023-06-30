@@ -34,6 +34,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manager to interface with Bukkit's event framework. Primarily used by scripts to register and unregister event listeners.
+ */
 public class ListenerManager {
 
     private static ListenerManager manager;

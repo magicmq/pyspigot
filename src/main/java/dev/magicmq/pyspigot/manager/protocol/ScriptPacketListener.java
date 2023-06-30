@@ -26,6 +26,10 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 
+/**
+ * An abstract class designed to represent a basic script packet listener.
+ * @see PacketAdapter
+ */
 public abstract class ScriptPacketListener extends PacketAdapter {
 
     private final Script script;
@@ -33,6 +37,14 @@ public abstract class ScriptPacketListener extends PacketAdapter {
     private final PacketType packetType;
     private final ListenerType listenerType;
 
+    /**
+     *
+     * @param script The script associated with this packet listener
+     * @param function The function to be called when the packet event occurs
+     * @param packetType The packet type to listen for
+     * @param listenerPriority The {@link ListenerPriority} of this listener
+     * @param listenerType The {@link ListenerType} of this listener
+     */
     public ScriptPacketListener(Script script, PyFunction function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {
         super(PySpigot.get(), listenerPriority, packetType);
         this.script = script;
@@ -41,22 +53,42 @@ public abstract class ScriptPacketListener extends PacketAdapter {
         this.listenerType = listenerType;
     }
 
+    /**
+     * Get the script associated with this listener.
+     * @return The script associated with this listener
+     */
     public Script getScript() {
         return script;
     }
 
+    /**
+     * Get the function that should be called when the packet event occurs.
+     * @return The function that should be called
+     */
     public PyFunction getFunction() {
         return function;
     }
 
+    /**
+     * Get the packet type being listener for.
+     * @return The packet type beign listened for
+     */
     public PacketType getPacketType() {
         return packetType;
     }
 
+    /**
+     * The listener type of this listener.
+     * @return The {@link ListenerType} of this listener
+     */
     public ListenerType getListenerType() {
         return listenerType;
     }
 
+    /**
+     * A helper method to call a script's packet listener function when the packet event occurs.
+     * @param event The event that occurred, will be passed to the script's function
+     */
     public void callToScript(PacketEvent event) {
         try {
             function._jcall(new Object[]{event});

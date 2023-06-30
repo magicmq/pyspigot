@@ -16,10 +16,24 @@
 
 package dev.magicmq.pyspigot.manager.protocol;
 
+/**
+ * An enum representing the type of protocol listener that a script has registered.
+ */
 public enum ListenerType {
 
+    /**
+     * A synchronous listner.
+     */
     SYNCHRONOUS,
+
+    /**
+     * An asynchronous listener.
+     */
     ASYNCHRONOUS_LISTENER,
+
+    /**
+     * An asynchronous timeout listener.
+     */
     ASYNCHRONOUS_TIMEOUT
 
 }

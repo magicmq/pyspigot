@@ -22,12 +22,27 @@ import com.comphenix.protocol.events.PacketEvent;
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.python.core.PyFunction;
 
+/**
+ * A listener that listens for packets received by the server from the client.
+ * @see ScriptPacketListener
+ */
 public class PacketReceivingListener extends ScriptPacketListener {
 
+    /**
+     *
+     * @param script The script associated with this packet listener
+     * @param function The function to be called when the packet is received
+     * @param type The packet type to listen for
+     * @param listenerPriority The {@link ListenerPriority} of this listener
+     * @param listenerType The {@link ListenerType} of this listener
+     */
     public PacketReceivingListener(Script script, PyFunction function, PacketType type, ListenerPriority listenerPriority, ListenerType listenerType) {
         super(script, function, type, listenerPriority, listenerType);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onPacketReceiving(PacketEvent event) {
         super.callToScript(event);
