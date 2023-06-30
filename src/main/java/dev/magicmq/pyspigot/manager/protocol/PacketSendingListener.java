@@ -24,8 +24,8 @@ import org.python.core.PyFunction;
 
 public class PacketSendingListener extends ScriptPacketListener {
 
-    public PacketSendingListener(Script script, PyFunction function, PacketType type, ListenerPriority listenerPriority, ListenerType listenerType) {
-        super(script, function, type, listenerPriority, listenerType);
+    public PacketSendingListener(Script script, PyFunction function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {
+        super(script, function, packetType, listenerPriority, listenerType);
     }
 
     @Override

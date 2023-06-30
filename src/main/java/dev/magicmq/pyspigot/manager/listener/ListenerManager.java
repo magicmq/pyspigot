@@ -44,6 +44,18 @@ public class ListenerManager {
         registeredScripts = new ArrayList<>();
     }
 
+    public void registerEvent(PyFunction function, Class<? extends Event> eventClass) {
+        registerEvent(function, eventClass, "NORMAL", false);
+    }
+
+    public void registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
+        registerEvent(function, eventClass, priorityString, false);
+    }
+
+    public void registerEvent(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
+        registerEvent(function, eventClass, "NORMAL", ignoreCancelled);
+    }
+
     public void registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString, boolean ignoreCancelled) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         DummyListener listener = get().getListener(script);
@@ -72,18 +84,6 @@ public class ListenerManager {
 
         listener.addEvent(function, eventClass);
         Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, executor, PySpigot.get(), ignoreCancelled);
-    }
-
-    public void registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
-        registerEvent(function, eventClass, priorityString, false);
-    }
-
-    public void registerEvent(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
-        registerEvent(function, eventClass, "NORMAL", ignoreCancelled);
-    }
-
-    public void registerEvent(PyFunction function, Class<? extends Event> eventClass) {
-        registerEvent(function, eventClass, "NORMAL", false);
     }
 
     public void unregisterEvent(PyFunction function) {
