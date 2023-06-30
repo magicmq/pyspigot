@@ -178,23 +178,38 @@ public class ScriptManager {
 
     /**
      * Handles script errors/exceptions. This method will attempt to determine if the error was a result of a Java exception or a Python error/exception and perform logging tasks.
+     * <p>
+     * <b>Note:</b> This method will always run synchronously. If it is called from an asynchronous context, it will run inside a synchronous task.
      * @param script The script that threw the error
-     * @param exception The exception that was thrown
+     * @param throwable The throwable that was thrown
      * @param message The message associated with the exception
      * @see PyException
      */
-    public void handleScriptException(Script script, PyException exception, String message) {
-        boolean javaException = exception.getCause() != null && !(exception.getCause() instanceof PyException);
-        ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception, javaException ? ScriptExceptionEvent.ExceptionType.JAVA : ScriptExceptionEvent.ExceptionType.PYTHON);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.doReportException()) {
-            if (javaException) {
-                script.getLogger().log(Level.SEVERE, message + ":", exception.getCause());
+    public void handleScriptException(Script script, Throwable throwable, String message) {
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(PySpigot.get(), () -> ScriptManager.this.handleScriptException(script, throwable, message));
+        } else {
+            if (throwable instanceof PyException) {
+                PyException exception = (PyException) throwable;
+                boolean javaException = exception.getCause() != null && !(exception.getCause() instanceof PyException);
+                ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception, javaException ? ScriptExceptionEvent.ExceptionType.JAVA : ScriptExceptionEvent.ExceptionType.PYTHON);
+                Bukkit.getPluginManager().callEvent(event);
+                if (event.doReportException()) {
+                    if (javaException) {
+                        script.getLogger().log(Level.SEVERE, message + ":", exception.getCause());
+                    } else {
+                        if (exception.traceback != null)
+                            script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
+                        else
+                            script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage());
+                    }
+                }
             } else {
-                if (exception.traceback != null)
-                    script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
-                else
-                    script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage());
+                ScriptExceptionEvent event = new ScriptExceptionEvent(script, throwable, ScriptExceptionEvent.ExceptionType.JAVA);
+                Bukkit.getPluginManager().callEvent(event);
+                if (event.doReportException()) {
+                    script.getLogger().log(Level.SEVERE, message + ":", throwable);
+                }
             }
         }
     }
