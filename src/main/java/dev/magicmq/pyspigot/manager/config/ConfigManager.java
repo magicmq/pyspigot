@@ -34,33 +34,18 @@ public class ConfigManager {
             configFolder.mkdir();
     }
 
-    public ScriptConfig loadConfig(String fileName) {
+    public ScriptConfig loadConfig(String fileName) throws IOException, InvalidConfigurationException {
         File configFile = new File(configFolder, fileName);
-        if (!configFile.exists()) {
-            try {
-                configFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
-        try {
-            return ScriptConfig.loadConfig(configFile);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-            return null;
-        }
+        configFile.createNewFile();
+        
+        return ScriptConfig.loadConfig(configFile);
     }
 
-    public ScriptConfig reloadConfig(ScriptConfig config) {
+    public ScriptConfig reloadConfig(ScriptConfig config) throws IOException, InvalidConfigurationException {
         File configFile = new File(configFolder, config.getConfigFile().getName());
 
-        try {
-            return ScriptConfig.loadConfig(configFile);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return ScriptConfig.loadConfig(configFile);
     }
 
     public File getConfigFolder() {
