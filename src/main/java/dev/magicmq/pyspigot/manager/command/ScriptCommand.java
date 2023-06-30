@@ -29,6 +29,11 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a command belonging to a script.
+ * @see TabExecutor
+ * @see org.bukkit.command.defaults.BukkitCommand
+ */
 public class ScriptCommand implements TabExecutor {
 
     private final Script script;
@@ -45,6 +50,18 @@ public class ScriptCommand implements TabExecutor {
 
     private PluginCommand bukkitCommand;
 
+    /**
+     *
+     * @param script The script to which this command belongs
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
+     * @param name The name of the command to register
+     * @param description The description of the command. Use an empty string for no description
+     * @param usage The usage message for the command
+     * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
+     * @param permission The required permission node to use this command. Can be null
+     * @param permissionMessage The message do display if there is insufficient permission to run the command. Can be null
+     */
     public ScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String prefix, String usage, List<String> aliases, String permission, String permissionMessage) {
         this.script = script;
         this.commandFunction = commandFunction;
@@ -101,24 +118,28 @@ public class ScriptCommand implements TabExecutor {
         return null;
     }
 
+    /**
+     * Get the script associated with this command.
+     * @return The script associated with this command
+     */
     public Script getScript() {
         return script;
     }
 
+    /**
+     * Get the name of this command.
+     * @return The name of this command
+     */
     public String getName() {
         return name;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public void register(SimpleCommandMap map) {
+    protected void register(SimpleCommandMap map) {
         map.register(prefix, bukkitCommand);
         bukkitCommand.register(map);
     }
 
-    public void unregister(SimpleCommandMap map, Map<String, Command> knownCommands) {
+    protected void unregister(SimpleCommandMap map, Map<String, Command> knownCommands) {
         bukkitCommand.unregister(map);
         knownCommands.remove(label);
         knownCommands.remove(prefix + ":" + label);

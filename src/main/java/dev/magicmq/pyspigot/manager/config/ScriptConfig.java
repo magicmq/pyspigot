@@ -22,18 +22,34 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * A class representing a script configuration file.
+ * @see YamlConfiguration
+ */
 public class ScriptConfig extends YamlConfiguration {
 
     private File configFile;
 
+    /**
+     *
+     * @param configFile The config file
+     */
     private ScriptConfig(File configFile) {
         this.configFile = configFile;
     }
 
+    /**
+     * Get the file associated with this configuration.
+     * @return The file associated with this configuration
+     */
     public File getConfigFile() {
         return configFile;
     }
 
+    /**
+     * Save the config to its associated file.
+     * @throws IOException If there is an IOException when saving the file
+     */
     public void save() throws IOException {
         this.save(configFile);
     }

@@ -34,6 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
+/**
+ * Manager to interface with Bukkit's command framework. Primarily used by scripts to register and unregister commands.
+ */
 public class CommandManager {
 
     private static CommandManager manager;
@@ -58,30 +61,105 @@ public class CommandManager {
         registeredCommands = new ArrayList<>();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new command.
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param name The name of the command to register
+     * @return A {@link ScriptCommand} representing the command that was registered
+     */
     public ScriptCommand registerCommand(PyFunction commandFunction, String name) {
         return registerCommand(commandFunction, null, name, "/" + name, "", new ArrayList<>(), null, null);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new command.
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command
+     * @param name The name of the command to register
+     * @return A {@link ScriptCommand} representing the command that was registered
+     */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
         return registerCommand(commandFunction, tabFunction, name, "/" + name, "", new ArrayList<>(), null, null);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new command.
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param name The name of the command to register
+     * @param description The description of the command
+     * @param usage The usage message for the command
+     * @return A {@link ScriptCommand} representing the command that was registered
+     */
     public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
         return registerCommand(commandFunction, null, name, usage, description, new ArrayList<>(), null, null);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new command.
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command
+     * @param name The name of the command to register
+     * @param description The description of the command
+     * @param usage The usage message for the command
+     * @return A {@link ScriptCommand} representing the command that was registered
+     */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
         return registerCommand(commandFunction, tabFunction, name, usage, description, new ArrayList<>(), null, null);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new command.
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param name The name of the command to register
+     * @param description The description of the command
+     * @param usage The usage message for the command
+     * @param aliases A List of String containing all the aliases for this command
+     * @return A {@link ScriptCommand} representing the command that was registered
+     */
     public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
         return registerCommand(commandFunction, null, name, usage, description, aliases, null, null);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new command.
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command
+     * @param name The name of the command to register
+     * @param description The description of the command
+     * @param usage The usage message for the command
+     * @param aliases A List of String containing all the aliases for this command
+     * @return A {@link ScriptCommand} representing the command that was registered
+     */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
         return registerCommand(commandFunction, tabFunction, name, usage, description, aliases, null, null);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new command.
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
+     * @param name The name of the command to register
+     * @param description The description of the command. Use an empty string for no description
+     * @param usage The usage message for the command
+     * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
+     * @param permission The required permission node to use this command. Can be null
+     * @param permissionMessage The message do display if there is insufficient permission to run the command. Can be null
+     * @return A {@link ScriptCommand} representing the command that was registered
+     */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) commandFunction.__code__).co_filename);
         ScriptCommand command = getCommand(name);
@@ -95,11 +173,21 @@ public class CommandManager {
             throw new UnsupportedOperationException("Command with the name " + name + " is already registered!");
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Unregister a script's command.
+     * @param name The name of the command to unregister.
+     */
     public void unregisterCommand(String name) {
         ScriptCommand command = getCommand(name);
         unregisterCommand(command);
     }
 
+    /**
+     * Unregister a script's command.
+     * @param command The command to be unregistered
+     */
     public void unregisterCommand(ScriptCommand command) {
         if (registeredCommands.contains(command)) {
             command.unregister(bCommandMap, bKnownCommands);
@@ -108,6 +196,10 @@ public class CommandManager {
         }
     }
 
+    /**
+     * Unregister all commands belonging to a particular script.
+     * @param script The script from which all commands should be unregistered
+     */
     public void unregisterCommands(Script script) {
         List<ScriptCommand> toRemove = new ArrayList<>();
         for (ScriptCommand command : registeredCommands) {
@@ -117,12 +209,31 @@ public class CommandManager {
         toRemove.forEach(this::unregisterCommand);
     }
 
+    /**
+     * Get a script command from its name.
+     * @param name The name of the command to get
+     * @return The command with this name, null if no command was found by the specified name
+     */
     public ScriptCommand getCommand(String name) {
         for (ScriptCommand command : registeredCommands) {
             if (command.getName().equalsIgnoreCase(name))
                 return command;
         }
         return null;
+    }
+
+    /**
+     * Get an immutable list containing all commands belonging to a particular script.
+     * @param script The script to get commands from
+     * @return An immutable list containing all commands belonging to the script. Will return an empty list if no commands belong to the script
+     */
+    public List<ScriptCommand> getCommands(Script script) {
+        List<ScriptCommand> commands = new ArrayList<>();
+        for (ScriptCommand command : registeredCommands) {
+            if (command.getScript().equals(script))
+                commands.add(command);
+        }
+        return commands;
     }
 
     private SimpleCommandMap getCommandMap() throws NoSuchFieldException, IllegalAccessException {
@@ -148,6 +259,10 @@ public class CommandManager {
         }
     }
 
+    /**
+     * Get the instance of this CommandManager
+     * @return The instance
+     */
     public static CommandManager get() {
         if (manager == null)
             manager = new CommandManager();

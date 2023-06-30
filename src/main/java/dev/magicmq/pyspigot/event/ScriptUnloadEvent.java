@@ -19,17 +19,29 @@ package dev.magicmq.pyspigot.event;
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.HandlerList;
 
+/**
+ * Called when a script is unloaded.
+ */
 public class ScriptUnloadEvent extends ScriptEvent {
 
     private static final HandlerList handlers = new HandlerList();
 
     private final boolean error;
 
+    /**
+     *
+     * @param script The script that was unloaded
+     * @param error Whether the script was unloaded due to an error
+     */
     public ScriptUnloadEvent(Script script, boolean error) {
         super(script);
         this.error = error;
     }
 
+    /**
+     * Get if this unload event was due to a script error.
+     * @return True if the script was unloaded due to an error/exception, false if otherwise
+     */
     public boolean isError() {
         return error;
     }

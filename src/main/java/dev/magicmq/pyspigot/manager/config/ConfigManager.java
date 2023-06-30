@@ -22,6 +22,9 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Manager for scripts to interface with configuration files. Primarily used by scripts to load, write to, and save .yml files.
+ */
 public class ConfigManager {
 
     private static ConfigManager manager;
@@ -34,6 +37,13 @@ public class ConfigManager {
             configFolder.mkdir();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Load a config file with the given name.
+     * @param fileName The name of the config file to load
+     * @return A {@link ScriptConfig} representing the config file that was loaded
+     */
     public ScriptConfig loadConfig(String fileName) {
         File configFile = new File(configFolder, fileName);
         if (!configFile.exists()) {
@@ -52,6 +62,13 @@ public class ConfigManager {
         }
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Reload an already loaded ScriptConfig.
+     * @param config The {@link ScriptConfig} to reload
+     * @return A new {@link ScriptConfig} representing the reloaded config file
+     */
     public ScriptConfig reloadConfig(ScriptConfig config) {
         File configFile = new File(configFolder, config.getConfigFile().getName());
 
@@ -63,10 +80,18 @@ public class ConfigManager {
         }
     }
 
+    /**
+     * Get the folder where script config files are stored.
+     * @return The folder where script config files are stored
+     */
     public File getConfigFolder() {
         return configFolder;
     }
 
+    /**
+     * Get the instance of this ConfigManager
+     * @return The instance
+     */
     public static ConfigManager get() {
         if (manager == null)
             manager = new ConfigManager();

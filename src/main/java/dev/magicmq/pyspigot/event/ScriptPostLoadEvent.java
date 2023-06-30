@@ -19,10 +19,19 @@ package dev.magicmq.pyspigot.event;
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.HandlerList;
 
+/**
+ * Called after a script finished loading and has been run.
+ * <p>
+ * This event is only called when a script loads successfully. It can safely be assumed that when this event is called, its associated script is running.
+ */
 public class ScriptPostLoadEvent extends ScriptEvent {
 
     private static final HandlerList handlers = new HandlerList();
 
+    /**
+     *
+     * @param script The script that has loaded and is running
+     */
     public ScriptPostLoadEvent(Script script) {
         super(script);
     }

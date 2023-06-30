@@ -20,15 +20,26 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+/**
+ * Script event superclass. All script events inherit from this class.
+ */
 public class ScriptEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
     private final Script script;
 
+    /**
+     *
+     * @param script The script associated with this event
+     */
     public ScriptEvent(Script script) {
         this.script = script;
     }
 
+    /**
+     * Get the script associated with this event.
+     * @return The script associated with this event
+     */
     public Script getScript() {
         return script;
     }
