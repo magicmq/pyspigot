@@ -23,7 +23,7 @@ import org.python.core.PyException;
 /**
  * Called when a script throws an unhandled error/exception.
  * <p>
- * The exception could be a Java exception or a Python error/exception, depending on its source.
+ * The exception could be a Java exception or a Python error/exception, depending on its source. Use {@link ScriptExceptionEvent#getExceptionType()} to get the type of exception that was thrown.
  * @see PyException
  */
 public class ScriptExceptionEvent extends ScriptEvent {
@@ -54,6 +54,10 @@ public class ScriptExceptionEvent extends ScriptEvent {
         return exception;
     }
 
+    /**
+     * Get the type of exception that was thrown
+     * @return The type of exception that was thrown.
+     */
     public ExceptionType getExceptionType() {
         return exceptionType;
     }
@@ -83,9 +87,24 @@ public class ScriptExceptionEvent extends ScriptEvent {
         return handlers;
     }
 
+    /**
+     * Enum that represents the type of exception that was thrown, PYTHON for python errors/exceptions, JAVA for Java exceptions
+     * <p>
+     * For Java exceptions, use {@link PyException#getCause} to get the underlying Java exception. Will have an associated stack trace.
+     * <p>
+     * For Python exceptions, they may or may not have an associated Python traceback. See {@link PyException#traceback}
+     */
     public enum ExceptionType {
 
-        JAVA, PYTHON
+        /**
+         * A Java exception.
+         */
+        JAVA,
+
+        /**
+         * A Python error/exception.
+         */
+        PYTHON
 
     }
 }

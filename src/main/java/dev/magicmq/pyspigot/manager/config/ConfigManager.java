@@ -43,6 +43,8 @@ public class ConfigManager {
      * Load a config file with the given name.
      * @param fileName The name of the config file to load
      * @return A {@link ScriptConfig} representing the config file that was loaded
+     * @throws IOException If there was an IOException when loading the config
+     * @throws InvalidConfigurationException If there was an InvalidConfigurationException when loading the config
      */
     public ScriptConfig loadConfig(String fileName) throws IOException, InvalidConfigurationException {
         File configFile = new File(configFolder, fileName);
@@ -58,6 +60,8 @@ public class ConfigManager {
      * Reload an already loaded ScriptConfig.
      * @param config The {@link ScriptConfig} to reload
      * @return A new {@link ScriptConfig} representing the reloaded config file
+     * @throws IOException If there was an IOException when reloading the config
+     * @throws InvalidConfigurationException If there was an InvalidConfigurationException when reloading the config
      */
     public ScriptConfig reloadConfig(ScriptConfig config) throws IOException, InvalidConfigurationException {
         File configFile = new File(configFolder, config.getConfigFile().getName());
