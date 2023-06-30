@@ -57,6 +57,7 @@ public class ScriptCommand implements TabExecutor {
      * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
      * @param name The name of the command to register
      * @param description The description of the command. Use an empty string for no description
+     * @param prefix The prefix of the command
      * @param usage The usage message for the command
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null

@@ -231,7 +231,7 @@ public class ScriptManager {
 
     /**
      * Get a set of all script files in the scripts folder.
-     * @return An immutable {@link SortedSet<String>} containing all script files, sorted in alphabetical order
+     * @return An immutable {@link SortedSet} of Strings containing all script files, sorted in alphabetical order
      */
     public SortedSet<String> getAllScripts() {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");

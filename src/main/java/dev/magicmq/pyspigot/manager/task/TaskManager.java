@@ -100,7 +100,8 @@ public class TaskManager {
      * <p>
      * Schedule a new synchronous repeating task.
      * @param function The function that should be called each time the synchronous task executes
-     * @param delay The interval, in ticks, that the synchronous task should be executed
+     * @param delay The delay, in ticks, to wait before beginning this synchronous repeating task
+     * @param interval The interval, in ticks, that the synchronous repeating task should be executed
      * @return An ID representing the synchronous task that was scheduled
      */
     public int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
@@ -117,7 +118,8 @@ public class TaskManager {
      * <p>
      * Schedule a new asynchronous repeating task.
      * @param function The function that should be called each time the asynchronous task executes
-     * @param delay The interval, in ticks, that the asynchronous task should be executed
+     * @param delay The delay, in ticks, to wait before beginning this asynchronous repeating task
+     * @param interval The interval, in ticks, that the asynchronous repeating task should be executed
      * @return An ID representing the asynchronous task that was scheduled
      */
     public int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {

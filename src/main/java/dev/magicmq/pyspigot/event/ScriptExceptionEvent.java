@@ -37,6 +37,7 @@ public class ScriptExceptionEvent extends ScriptEvent {
      *
      * @param script The script that caused the error/exception
      * @param exception The exception that was thrown
+     * @param exceptionType The type of exception that was thrown
      */
     public ScriptExceptionEvent(Script script, PyException exception, ExceptionType exceptionType) {
         super(script);
