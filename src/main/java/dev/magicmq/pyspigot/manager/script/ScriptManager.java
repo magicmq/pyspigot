@@ -145,10 +145,11 @@ public class ScriptManager {
     }
 
     public void handleScriptException(Script script, PyException exception, String message) {
-        ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception);
+        boolean javaException = exception.getCause() != null && !(exception.getCause() instanceof PyException);
+        ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception, javaException ? ScriptExceptionEvent.ExceptionType.JAVA : ScriptExceptionEvent.ExceptionType.PYTHON);
         Bukkit.getPluginManager().callEvent(event);
         if (event.doReportException()) {
-            if (exception.getCause() != null && !(exception.getCause() instanceof PyException)) {
+            if (javaException) {
                 script.getLogger().log(Level.SEVERE, message + ":", exception.getCause());
             } else {
                 if (exception.traceback != null)

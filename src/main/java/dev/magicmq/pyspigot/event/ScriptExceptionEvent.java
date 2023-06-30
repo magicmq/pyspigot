@@ -24,16 +24,22 @@ public class ScriptExceptionEvent extends ScriptEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private final PyException exception;
+    private final ExceptionType exceptionType;
     private boolean reportException;
 
-    public ScriptExceptionEvent(Script script, PyException exception) {
+    public ScriptExceptionEvent(Script script, PyException exception, ExceptionType exceptionType) {
         super(script);
         this.exception = exception;
+        this.exceptionType = exceptionType;
         this.reportException = true;
     }
 
     public PyException getException() {
         return exception;
+    }
+
+    public ExceptionType getExceptionType() {
+        return exceptionType;
     }
 
     public boolean doReportException() {
@@ -51,5 +57,11 @@ public class ScriptExceptionEvent extends ScriptEvent {
 
     public static HandlerList getHandlerList() {
         return handlers;
+    }
+
+    public enum ExceptionType {
+
+        JAVA, PYTHON
+
     }
 }
