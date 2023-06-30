@@ -119,7 +119,7 @@ public class LibraryManager {
     }
 
     /**
-     * Get the instance of this LibraryManager.
+     * Get the singleton instance of this LibraryManager.
      * @return The instance
      */
     public static LibraryManager get() {
@@ -128,11 +128,29 @@ public class LibraryManager {
         return instance;
     }
 
+    /**
+     * An enum representing the outcome of an attempt to load a library.
+     */
     public enum LoadResult {
 
+        /**
+         * The library failed to load because the libs folder does not exist.
+         */
         FAILED_FILE,
+
+        /**
+         * The library failed to load because it is already loaded.
+         */
         FAILED_LOADED,
+
+        /**
+         * The library failed to load because of some unrecoverable error.
+         */
         FAILED_ERROR,
+
+        /**
+         * The library loaded successfully.
+         */
         SUCCESS
 
     }

@@ -29,6 +29,11 @@ import org.python.core.PyFunction;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manager to interface with ProtocolLib's ProtocolManager. Primarily used by scripts to register and unregister packet listeners.
+ * <p>
+ * Do not call this manager unless ProtocolLib is loaded and enabled on the server! It will not work.
+ */
 public class ProtocolManager {
 
     private static ProtocolManager instance;
@@ -43,14 +48,38 @@ public class ProtocolManager {
         listeners = new ArrayList<>();
     }
 
+    /**
+     * Get the current ProtocolLib ProtocolManager.
+     * @return The ProtocolManager
+     * @see com.comphenix.protocol.ProtocolManager
+     */
     public com.comphenix.protocol.ProtocolManager getProtocolManager() {
         return protocolManager;
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new packet listener with default priority.
+     * <p>
+     * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+     * @param function The function that should be called when the packet event occurs
+     * @param type The packet type to listen for
+     */
     public void registerPacketListener(PyFunction function, PacketType type) {
         registerPacketListener(function, type, ListenerPriority.NORMAL);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new packet listener.
+     * <p>
+     * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+     * @param function The function that should be called when the packet event occurs
+     * @param type The packet type to listen for
+     * @param priority The priority of the packet listener relative to other packet listeners
+     */
     public void registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         if (!doesScriptHaveListener(script, type)) {
@@ -66,6 +95,12 @@ public class ProtocolManager {
         }
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Unregister a packet listener.
+     * @param function The function associated with the packet listener to unregister
+     */
     public void unregisterPacketListener(PyFunction function) {
         ScriptPacketListener listener = getListenerFromFunction(function);
         if (listener != null) {
@@ -73,10 +108,18 @@ public class ProtocolManager {
         }
     }
 
+    /**
+     * Get the async protocol manager for working with asynchronous listeners.
+     * @return The {@link AsyncProtocolManager}
+     */
     public AsyncProtocolManager async() {
         return asyncProtocolManager;
     }
 
+    /**
+     * Unregister all packet listeners belonging to a script, including asynchronous listeners.
+     * @param script The script whose packet listeners should be unregistered
+     */
     public void unregisterListeners(Script script) {
         for (ScriptPacketListener listener : getListeners(script)) {
             deregisterListener(listener);
@@ -121,12 +164,22 @@ public class ProtocolManager {
         listeners.remove(listener);
     }
 
+    /**
+     * Get the singleton instance of this ProtocolManager.
+     * @return The instance
+     */
     public static ProtocolManager get() {
         if (instance == null)
             instance = new ProtocolManager();
         return instance;
     }
 
+    /**
+     * Manager to interface with ProtocolLib's AsynchronousManager. Primarily used by scripts to register and unregister packet listeners.
+     * <p>
+     * Do not call this manager unless ProtocolLib is loaded and enabled on the server! It will not work.
+     * @see AsynchronousManager
+     */
     public static class AsyncProtocolManager {
 
         private com.comphenix.protocol.AsynchronousManager asynchronousManager;
@@ -138,14 +191,38 @@ public class ProtocolManager {
             asyncListeners = new ArrayList<>();
         }
 
+        /**
+         * Get the current ProtocolLib AsynchronousManager.
+         * @return The AsynchronousManager
+         * @see AsynchronousManager
+         */
         public AsynchronousManager getAsynchronousManager() {
             return asynchronousManager;
         }
 
+        /**
+         * <strong>WARNING: This should be called from scripts only!</strong>
+         * <p>
+         * Register a new asynchronous packet listener with default priority.
+         * <p>
+         * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+         * @param function The function that should be called when the packet event occurs
+         * @param type The packet type to listen for
+         */
         public void registerAsyncListener(PyFunction function, PacketType type) {
             registerAsyncListener(function, type, ListenerPriority.NORMAL);
         }
 
+        /**
+         * <strong>WARNING: This should be called from scripts only!</strong>
+         * <p>
+         * Register a new asynchronous packet listener.
+         * <p>
+         * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+         * @param function The function that should be called when the packet event occurs
+         * @param type The packet type to listen for
+         * @param priority The priority of the asynchronous packet listener relative to other packet listeners
+         */
         public void registerAsyncListener(PyFunction function, PacketType type, ListenerPriority priority) {
             Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
             if (!doesScriptHaveAsyncListener(script, type)) {
@@ -164,6 +241,12 @@ public class ProtocolManager {
                 throw new UnsupportedOperationException("Script " + script.getName() + " already has an async packet listener for " + type.name() + " registered");
         }
 
+        /**
+         * <strong>WARNING: This should be called from scripts only!</strong>
+         * <p>
+         * Unregister an asynchronous packet listener.
+         * @param function The function associated with the asynchronous packet listener to unregister
+         */
         public void unregisterAsyncListener(PyFunction function) {
             ScriptPacketListener listener = getAsyncListenerFromFunction(function);
             if (listener != null) {
@@ -172,10 +255,30 @@ public class ProtocolManager {
                 throw new NullPointerException("There was no async packet listener found associated with this function!");
         }
 
+        /**
+         * <strong>WARNING: This should be called from scripts only!</strong>
+         * <p>
+         * Register a new asynchronous timeout packet listener with default priority.
+         * <p>
+         * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+         * @param function The function that should be called when the packet event occurs
+         * @param type The packet type to listen for
+         */
         public void registerTimeoutListener(PyFunction function, PacketType type) {
             registerTimeoutListener(function, type, ListenerPriority.NORMAL);
         }
 
+        /**
+         * <strong>WARNING: This should be called from scripts only!</strong>
+         * <p>
+         * Register a new asynchronous timeout packet listener.
+         * <p>
+         * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+         * @param function The function that should be called when the packet event occurs
+         * @param type The packet type to listen for
+         * @param priority The priority of the asynchronous timeout packet listener relative to other asynchronous timeout packet listeners
+         *
+         */
         public void registerTimeoutListener(PyFunction function, PacketType type, ListenerPriority priority) {
             Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
             if (!doesScriptHaveAsyncListener(script, type)) {
@@ -192,6 +295,12 @@ public class ProtocolManager {
                 throw new UnsupportedOperationException("Script " + script.getName() + " already has an async packet listener for " + type.name() + " registered");
         }
 
+        /**
+         * <strong>WARNING: This should be called from scripts only!</strong>
+         * <p>
+         * Unregister an asynchronous timeout packet listener.
+         * @param function The function associated with the asynchronous timeout packet listener to unregister
+         */
         public void unregisterTimeoutListener(PyFunction function) {
             ScriptPacketListener listener = getAsyncListenerFromFunction(function);
             if (listener != null) {

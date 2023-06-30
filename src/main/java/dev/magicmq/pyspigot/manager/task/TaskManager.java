@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Manager to interface with Bukkit's scheduler. Primarily used by scripts to register and unregister tasks.
+ */
 public class TaskManager {
 
     private static TaskManager manager;
@@ -38,30 +41,68 @@ public class TaskManager {
         repeatingTasks = new ArrayList<>();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Schedule a new synchronous task.
+     * @param function The function that should be called when the synchronous task executes
+     * @return An ID representing the synchronous task that was scheduled
+     */
     public int runTask(PyFunction function) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
         return Bukkit.getScheduler().runTask(PySpigot.get(), task).getTaskId();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Schedule a new asynchronous task.
+     * @param function The function that should be called when the asynchronous task executes
+     * @return An ID representing the asynchronous task that was scheduled
+     */
     public int runTaskAsync(PyFunction function) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
         return Bukkit.getScheduler().runTaskAsynchronously(PySpigot.get(), task).getTaskId();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Schedule a new synchronous task to run at a later point in time.
+     * @param function The function that should be called when the synchronous task executes
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the synchronous task
+     * @return An ID representing the synchronous task that was scheduled
+     */
     public int runTaskLater(PyFunction function, long delay) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
         return Bukkit.getScheduler().runTaskLater(PySpigot.get(), task, delay).getTaskId();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Schedule a new asynchronous task to run at a later point in time.
+     * @param function The function that should be called when the asynchronous task executes
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the asynchronous task
+     * @return An ID representing the asynchronous task that was scheduled
+     */
     public int runTaskLaterAsync(PyFunction function, long delay) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
         return Bukkit.getScheduler().runTaskLaterAsynchronously(PySpigot.get(), task, delay).getTaskId();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Schedule a new synchronous repeating task.
+     * @param function The function that should be called each time the synchronous task executes
+     * @param delay The interval, in ticks, that the synchronous task should be executed
+     * @return An ID representing the synchronous task that was scheduled
+     */
     public int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         RepeatingTask task = new RepeatingTask(script, function);
@@ -71,6 +112,14 @@ public class TaskManager {
         return bukkitTask.getTaskId();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Schedule a new asynchronous repeating task.
+     * @param function The function that should be called each time the asynchronous task executes
+     * @param delay The interval, in ticks, that the asynchronous task should be executed
+     * @return An ID representing the asynchronous task that was scheduled
+     */
     public int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         RepeatingTask task = new RepeatingTask(script, function);
@@ -80,6 +129,10 @@ public class TaskManager {
         return bukkitTask.getTaskId();
     }
 
+    /**
+     * Terminate a task with the given task ID.
+     * @param taskId The ID of the task to terminate
+     */
     public void stopTask(int taskId) {
         for (Iterator<RepeatingTask> iterator = repeatingTasks.iterator(); iterator.hasNext();) {
             RepeatingTask next = iterator.next();
@@ -90,6 +143,10 @@ public class TaskManager {
         }
     }
 
+    /**
+     * Terminate all tasks belonging to a script.
+     * @param script The script whose tasks should be terminated
+     */
     public void stopTasks(Script script) {
         for (Iterator<RepeatingTask> iterator = repeatingTasks.iterator(); iterator.hasNext();) {
             RepeatingTask next = iterator.next();
@@ -100,6 +157,10 @@ public class TaskManager {
         }
     }
 
+    /**
+     * Get the singleton instance of this TaskManager.
+     * @return The instance
+     */
     public static TaskManager get() {
         if (manager == null)
             manager = new TaskManager();

@@ -24,6 +24,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.logging.Level;
 
+/**
+ * Helper class to retrieve configuration values from the plugin config.
+ */
 public class PluginConfig {
 
     private static FileConfiguration config;

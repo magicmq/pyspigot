@@ -16,6 +16,9 @@
 
 package dev.magicmq.pyspigot.util;
 
+/**
+ * A utility class for various methods related to Strings.
+ */
 public class StringUtils {
 
     public static String replaceLastOccurrence(String string, String toReplace, String replaceWith) {

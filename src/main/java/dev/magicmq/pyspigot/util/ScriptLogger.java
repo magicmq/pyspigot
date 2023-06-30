@@ -28,12 +28,20 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.logging.*;
 
+/**
+ * A subclass of Logger that represents a script's logger.
+ * @see Logger
+ */
 public class ScriptLogger extends Logger {
 
     private String logFilePath;
     private String logIdentifier;
     private FileHandler handler;
 
+    /**
+     *
+     * @param script The script associated with this logger
+     */
     public ScriptLogger(Script script) {
         super("PySpigot/" + script.getName(), null);
         this.logIdentifier = "[" + "PySpigot/" + script.getName() + "] ";
@@ -44,34 +52,60 @@ public class ScriptLogger extends Logger {
         this.logFilePath = file.getAbsolutePath().replace("\\", "/") + "/plugins/PySpigot/logs/" + script.getLogFileName();
     }
 
+    /**
+     * Initializes the FileHandler to log script log messages to its respective log file.
+     * @throws IOException If there was an IOException when initializing the FileHandler for this logger
+     */
     public void initFileHandler() throws IOException {
         this.handler = new FileHandler(logFilePath, true);
         handler.setFormatter(new ScriptLogFormatter());
         this.addHandler(handler);
     }
 
+    /**
+     * Closes the FileHandler for this logger. Should only be called if script file logging is enabled.
+     */
     public void closeFileHandler() {
         handler.close();
     }
 
+    /**
+     * Adds an identified to the beginning of the Log Message, then calls the superclass to log the LogRecord.
+     * @param record The LogRecord to be published
+     */
     @Override
     public void log(LogRecord record) {
         record.setMessage(logIdentifier + record.getMessage());
         super.log(record);
     }
 
-    //Convenience method added for scipts to print debug information to console
+    /**
+     * A convenience method added for a script to print debug information to console and its log file.
+     * @param logText The message to print
+     */
     public void print(String logText) {
         super.log(Level.INFO, logText);
     }
 
-    //Convenience method added for scipts to print debug information to console
+    /**
+     * A convenience method added for a script to print debug information to console and its log file.
+     * @param logText The message to print
+     */
     public void debug(String logText) {
         super.log(Level.INFO, logText);
     }
 
+    /**
+     * A Formatter to log script messages to their respective log file.
+     * @see Formatter
+     */
     private static class ScriptLogFormatter extends Formatter {
 
+        /**
+         * Formats a LogRecord into an appropriate format for the script's log file.
+         * @param record The log record to be formatted.
+         * @return A String of formatted text that will be logged to the script's log file
+         */
         @Override
         public String format(LogRecord record) {
             StringBuilder builder = new StringBuilder();

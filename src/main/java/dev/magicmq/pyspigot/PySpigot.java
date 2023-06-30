@@ -27,6 +27,9 @@ import dev.magicmq.pyspigot.manager.task.TaskManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+/**
+ * Main class of the plugin.
+ */
 public class PySpigot extends JavaPlugin {
 
     private static PySpigot instance;
@@ -63,15 +66,26 @@ public class PySpigot extends JavaPlugin {
         ScriptManager.get().shutdown();
     }
 
+    /**
+     * Reload the plugin configuration.
+     */
     public void reload() {
         reloadConfig();
         PluginConfig.reload();
     }
 
+    /**
+     * Check if ProtocolLib is available on the server.
+     * @return True if ProtocolLib is loaded and enabled, false if otherwise.
+     */
     public boolean isProtocolLibAvailable() {
         return Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;
     }
 
+    /**
+     * Get the instance of this plugin.
+     * @return The instance
+     */
     public static PySpigot get() {
         return instance;
     }

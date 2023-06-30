@@ -21,6 +21,9 @@ import org.bukkit.Bukkit;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+/**
+ * A utility class to simplify reflection for working with CraftBukkit and NMS classes.
+ */
 public class ReflectionUtils {
 
     private static final String MC_VERSION;

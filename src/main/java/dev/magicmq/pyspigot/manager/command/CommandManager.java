@@ -260,7 +260,7 @@ public class CommandManager {
     }
 
     /**
-     * Get the instance of this CommandManager
+     * Get the singleton instance of this CommandManager
      * @return The instance
      */
     public static CommandManager get() {

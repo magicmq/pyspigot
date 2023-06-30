@@ -21,16 +21,27 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 
+/**
+ * Represents a task defined by a script.
+ */
 public class Task implements Runnable {
 
     private final Script script;
     private final PyFunction function;
 
+    /**
+     *
+     * @param script The script associated with this task
+     * @param function The script function that should be called when the task executes
+     */
     public Task(Script script, PyFunction function) {
         this.script = script;
         this.function = function;
     }
 
+    /**
+     * Called internally when the task executes.
+     */
     @Override
     public void run() {
         try {
@@ -40,6 +51,10 @@ public class Task implements Runnable {
         }
     }
 
+    /**
+     * Get the script associated with this task.
+     * @return The script associated with this task
+     */
     public Script getScript() {
         return script;
     }

@@ -78,7 +78,7 @@ public class ConfigManager {
     }
 
     /**
-     * Get the instance of this ConfigManager
+     * Get the singleton instance of this ConfigManager
      * @return The instance
      */
     public static ConfigManager get() {

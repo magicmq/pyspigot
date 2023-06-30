@@ -19,18 +19,34 @@ package dev.magicmq.pyspigot.manager.task;
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.python.core.PyFunction;
 
+/**
+ * Represents a repeating task defined by a script.
+ */
 public class RepeatingTask extends Task {
 
     private int taskId;
 
+    /**
+     *
+     * @param script The script associated with this repeating task
+     * @param function The script function that should be called every time the repeating task executes
+     */
     public RepeatingTask(Script script, PyFunction function) {
         super(script, function);
     }
 
+    /**
+     * Set the Bukkit task ID associated with this repeating task.
+     * @param taskId The task ID to set
+     */
     public void setTaskId(int taskId) {
         this.taskId = taskId;
     }
 
+    /**
+     * Get the task ID associated with this repeating task.
+     * @return The task ID associated with this repeating task
+     */
     public int getTaskId() {
         return taskId;
     }

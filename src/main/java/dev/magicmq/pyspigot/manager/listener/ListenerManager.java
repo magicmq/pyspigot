@@ -47,18 +47,50 @@ public class ListenerManager {
         registeredScripts = new ArrayList<>();
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new event listener with default priority.
+     * @param function The function that should be called when the event occurs
+     * @param eventClass The type of event to listen to
+     */
     public void registerEvent(PyFunction function, Class<? extends Event> eventClass) {
         registerEvent(function, eventClass, "NORMAL", false);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new event listener.
+     * @param function The function that should be called when the event occurs
+     * @param eventClass The type of event to listen to
+     * @param priorityString The priority of the event relative to other listeners, should be a string of {@link EventPriority}
+     */
     public void registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
         registerEvent(function, eventClass, priorityString, false);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new event listener with default priority.
+     * @param function The function that should be called when the event occurs
+     * @param eventClass The type of event to listen to
+     * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
+     */
     public void registerEvent(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
         registerEvent(function, eventClass, "NORMAL", ignoreCancelled);
     }
 
+    /**
+     * <strong>WARNING: This should be called from scripts only!</strong>
+     * <p>
+     * Register a new event listener.
+     * @param function The function that should be called when the event occurs
+     * @param eventClass The type of event to listen to
+     * @param priorityString The priority of the event relative to other listeners, should be a string of {@link EventPriority}
+     * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
+     */
     public void registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString, boolean ignoreCancelled) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         DummyListener listener = get().getListener(script);
@@ -89,6 +121,10 @@ public class ListenerManager {
         Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, executor, PySpigot.get(), ignoreCancelled);
     }
 
+    /**
+     * Unregister an event listener.
+     * @param function The script call function associated with the event listener to unregister
+     */
     public void unregisterEvent(PyFunction function) {
         String scriptName = ((PyBaseCode) function.__code__).co_filename;
         DummyListener dummyListener = getListener(scriptName);
@@ -99,6 +135,11 @@ public class ListenerManager {
         }
     }
 
+    /**
+     * Get the dummy listener associated with a script.
+     * @param scriptName The name of the script
+     * @return The {@link DummyListener} associated with the script, null if there is none
+     */
     public DummyListener getListener(String scriptName) {
         for (DummyListener listener : registeredScripts) {
             if (listener.getScript().getName().equals(scriptName))
@@ -108,6 +149,11 @@ public class ListenerManager {
         return null;
     }
 
+    /**
+     * Get the dummy listener associated with a script.
+     * @param script The script
+     * @return The {@link DummyListener} associated with the script, null if there is none
+     */
     public DummyListener getListener(Script script) {
         for (DummyListener listener : registeredScripts) {
             if (listener.getScript().equals(script))
@@ -117,6 +163,10 @@ public class ListenerManager {
         return null;
     }
 
+    /**
+     * Unregister all event listeners belonging to a script.
+     * @param script The script whose event listeners should be unregistered
+     */
     public void unregisterEvents(Script script) {
         DummyListener listener = getListener(script);
         if (listener != null) {
@@ -137,6 +187,10 @@ public class ListenerManager {
         }
     }
 
+    /**
+     * Get the singleton instance of this ListenerManager.
+     * @return The instance
+     */
     public static ListenerManager get() {
         if (manager == null)
             manager = new ListenerManager();
