@@ -6,7 +6,7 @@
 # PySpigot
 PySpigot is a [Spigot/Bukkit](https://www.spigotmc.org/) plugin that can load, compile, and run Python scripts. These scripts can make use of Java standard libraries, as well as the Bukkit/Spigot API and APIs of any other loaded plugins.
 
-Python uses [Jython](https://www.jython.org/), a Java implementation of Python that runs entirely on the JVM.
+PySpigot utilizes [Jython](https://www.jython.org/), a Java implementation of Python that runs entirely on the JVM.
 
 ## Features
 
