@@ -50,7 +50,24 @@ public class LibraryManager {
         initLibraries();
     }
 
-    public void initLibraries() {
+    public LoadResult loadLibrary(String fileName) {
+        try {
+            Path file = Paths.get(PySpigot.get().getDataFolder().getAbsolutePath(), "libs", fileName);
+            if (file.toFile().exists())
+                return loadLibrary(file);
+            else
+                return LoadResult.FAILED_FILE;
+        } catch (Throwable throwable) {
+            PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + fileName + "!", throwable);
+            return LoadResult.FAILED_ERROR;
+        }
+    }
+
+    public JarClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    private void initLibraries() {
         SortedSet<File> toLoad = new TreeSet<>();
         if (libsFolder.isDirectory()) {
             toLoad.addAll(Arrays.asList(libsFolder.listFiles()));
@@ -67,23 +84,6 @@ public class LibraryManager {
                 PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + libraryName + "!", throwable);
             }
         }
-    }
-
-    public LoadResult loadLibrary(String fileName) {
-        try {
-            Path file = Paths.get(PySpigot.get().getDataFolder().getAbsolutePath(), "libs", fileName);
-            if (file.toFile().exists())
-                return loadLibrary(file);
-            else
-                return LoadResult.FAILED_FILE;
-        } catch (Throwable throwable) {
-            PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + fileName + "!", throwable);
-            return LoadResult.FAILED_ERROR;
-        }
-    }
-
-    public JarClassLoader getClassLoader() {
-        return classLoader;
     }
 
     private LoadResult loadLibrary(Path file) throws Exception {
