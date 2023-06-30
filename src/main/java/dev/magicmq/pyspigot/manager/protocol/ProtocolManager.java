@@ -55,11 +55,11 @@ public class ProtocolManager {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         if (!doesScriptHaveListener(script, type)) {
             if (type.getSender().toSide().isForClient()) {
-                ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.SYNCHRONOUS);
+                ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.NORMAL);
                 listeners.add(listener);
                 protocolManager.addPacketListener(listener);
             } else if (type.getSender().toSide().isForServer()) {
-                ScriptPacketListener listener = new PacketSendingListener(script, function, type, priority, ListenerType.SYNCHRONOUS);
+                ScriptPacketListener listener = new PacketSendingListener(script, function, type, priority, ListenerType.NORMAL);
                 listeners.add(listener);
                 protocolManager.addPacketListener(listener);
             }
@@ -82,7 +82,7 @@ public class ProtocolManager {
             deregisterListener(listener);
         }
         for (ScriptPacketListener listener : asyncProtocolManager.getListeners(script)) {
-            if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_LISTENER)
+            if (listener.getListenerType() == ListenerType.ASYNCHRONOUS)
                 asyncProtocolManager.deregisterAsyncListener(listener);
             else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
                 asyncProtocolManager.deregisterTimeoutListener(listener);
@@ -150,12 +150,12 @@ public class ProtocolManager {
             Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
             if (!doesScriptHaveAsyncListener(script, type)) {
                 if (type.getSender().toSide().isForClient()) {
-                    ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_LISTENER);
+                    ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
                     asyncListeners.add(listener);
                     AsyncListenerHandler handler = asynchronousManager.registerAsyncHandler(listener);
                     handler.start();
                 } else if (type.getSender().toSide().isForServer()) {
-                    ScriptPacketListener listener = new PacketSendingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_LISTENER);
+                    ScriptPacketListener listener = new PacketSendingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
                     asyncListeners.add(listener);
                     AsyncListenerHandler handler = asynchronousManager.registerAsyncHandler(listener);
                     handler.start();

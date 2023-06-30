@@ -22,14 +22,14 @@ package dev.magicmq.pyspigot.manager.protocol;
 public enum ListenerType {
 
     /**
-     * A synchronous listner.
+     * A normal listner.
      */
-    SYNCHRONOUS,
+    NORMAL,
 
     /**
      * An asynchronous listener.
      */
-    ASYNCHRONOUS_LISTENER,
+    ASYNCHRONOUS,
 
     /**
      * An asynchronous timeout listener.

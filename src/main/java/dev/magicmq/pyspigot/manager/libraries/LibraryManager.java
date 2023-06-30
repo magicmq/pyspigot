@@ -53,25 +53,6 @@ public class LibraryManager {
         initLibraries();
     }
 
-    public void initLibraries() {
-        SortedSet<File> toLoad = new TreeSet<>();
-        if (libsFolder.isDirectory()) {
-            toLoad.addAll(Arrays.asList(libsFolder.listFiles()));
-        }
-
-        for (File library : toLoad) {
-            String libraryName = library.getName();
-            try {
-                long start = System.nanoTime();
-                loadLibrary(library.toPath());
-                long duration = System.nanoTime() - start;
-                PySpigot.get().getLogger().log(Level.INFO, "Loaded library " + libraryName + " in " + (duration / 1000000) + " ms");
-            } catch (Throwable throwable) {
-                PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + libraryName + "!", throwable);
-            }
-        }
-    }
-
     /**
      * Load a library into the classpath.
      * @param fileName The name of the Jar file to load into the classpath
@@ -96,6 +77,25 @@ public class LibraryManager {
      */
     public JarClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    private void initLibraries() {
+        SortedSet<File> toLoad = new TreeSet<>();
+        if (libsFolder.isDirectory()) {
+            toLoad.addAll(Arrays.asList(libsFolder.listFiles()));
+        }
+
+        for (File library : toLoad) {
+            String libraryName = library.getName();
+            try {
+                long start = System.nanoTime();
+                loadLibrary(library.toPath());
+                long duration = System.nanoTime() - start;
+                PySpigot.get().getLogger().log(Level.INFO, "Loaded library " + libraryName + " in " + (duration / 1000000) + " ms");
+            } catch (Throwable throwable) {
+                PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + libraryName + "!", throwable);
+            }
+        }
     }
 
     private LoadResult loadLibrary(Path file) throws Exception {
