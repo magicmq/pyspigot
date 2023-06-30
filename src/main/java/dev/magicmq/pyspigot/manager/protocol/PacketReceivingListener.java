@@ -36,8 +36,8 @@ public class PacketReceivingListener extends ScriptPacketListener {
      * @param listenerPriority The {@link ListenerPriority} of this listener
      * @param listenerType The {@link ListenerType} of this listener
      */
-    public PacketReceivingListener(Script script, PyFunction function, PacketType type, ListenerPriority listenerPriority, ListenerType listenerType) {
-        super(script, function, type, listenerPriority, listenerType);
+    public PacketReceivingListener(Script script, PyFunction function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {
+        super(script, function, packetType, listenerPriority, listenerType);
     }
 
     /**
