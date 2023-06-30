@@ -82,7 +82,7 @@ public class ProtocolManager {
      */
     public void registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
-        if (!doesScriptHaveListener(script, type)) {
+        if (getListener(script, type) == null) {
             if (type.getSender().toSide().isForClient()) {
                 ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.NORMAL);
                 listeners.add(listener);
@@ -92,7 +92,8 @@ public class ProtocolManager {
                 listeners.add(listener);
                 protocolManager.addPacketListener(listener);
             }
-        }
+        } else
+            throw new UnsupportedOperationException("Script " + script.getName() + " already has a packet listener for " + type.name() + " registered");
     }
 
     /**
@@ -109,22 +110,14 @@ public class ProtocolManager {
     }
 
     /**
-     * Get the async protocol manager for working with asynchronous listeners.
-     * @return The {@link AsyncProtocolManager}
-     */
-    public AsyncProtocolManager async() {
-        return asyncProtocolManager;
-    }
-
-    /**
      * Unregister all packet listeners belonging to a script, including asynchronous listeners.
      * @param script The script whose packet listeners should be unregistered
      */
-    public void unregisterListeners(Script script) {
+    public void unregisterPacketListeners(Script script) {
         for (ScriptPacketListener listener : getListeners(script)) {
             deregisterListener(listener);
         }
-        for (ScriptPacketListener listener : asyncProtocolManager.getListeners(script)) {
+        for (ScriptPacketListener listener : asyncProtocolManager.getAsyncListeners(script)) {
             if (listener.getListenerType() == ListenerType.ASYNCHRONOUS)
                 asyncProtocolManager.deregisterAsyncListener(listener);
             else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
@@ -132,7 +125,12 @@ public class ProtocolManager {
         }
     }
 
-    private List<ScriptPacketListener> getListeners(Script script) {
+    /**
+     * Get all packet listeners associated with a script
+     * @param script The script to get packet listeners from
+     * @return A List of {@link ScriptPacketListener} containing all packet listeners associated with this script. Will return an empty list if there are no packet listeners associated with the script
+     */
+    public List<ScriptPacketListener> getListeners(Script script) {
         List<ScriptPacketListener> toReturn = new ArrayList<>();
         for (ScriptPacketListener listener : listeners) {
             if (listener.getScript().equals(script))
@@ -141,14 +139,19 @@ public class ProtocolManager {
         return toReturn;
     }
 
-    private boolean doesScriptHaveListener(Script script, PacketType packetType) {
+    /**
+     * Get the packet listener for a particular packet type associated with a script
+     * @param script The script
+     * @param packetType The packet type
+     * @return The {@link ScriptPacketListener} associated with the script and packet type, null if there is none
+     */
+    public ScriptPacketListener getListener(Script script, PacketType packetType) {
         for (ScriptPacketListener listener : listeners) {
-            if (listener.getScript().equals(script)) {
-                if (listener.getPacketType().equals(packetType))
-                    return true;
+            if (listener.getScript().equals(script) && listener.getPacketType().equals(packetType)) {
+                return listener;
             }
         }
-        return false;
+        return null;
     }
 
     private ScriptPacketListener getListenerFromFunction(PyFunction function) {
@@ -165,19 +168,15 @@ public class ProtocolManager {
     }
 
     /**
-     * Get the singleton instance of this ProtocolManager.
-     * @return The instance
+     * Get the async protocol manager for working with asynchronous listeners.
+     * @return The {@link AsyncProtocolManager}
      */
-    public static ProtocolManager get() {
-        if (instance == null)
-            instance = new ProtocolManager();
-        return instance;
+    public AsyncProtocolManager async() {
+        return asyncProtocolManager;
     }
 
     /**
-     * Manager to interface with ProtocolLib's AsynchronousManager. Primarily used by scripts to register and unregister packet listeners.
-     * <p>
-     * Do not call this manager unless ProtocolLib is loaded and enabled on the server! It will not work.
+     * Manager to interface with ProtocolLib's AsynchronousManager. Primarily used by scripts to register and unregister asynchronous packet listeners.
      * @see AsynchronousManager
      */
     public static class AsyncProtocolManager {
@@ -225,7 +224,7 @@ public class ProtocolManager {
          */
         public void registerAsyncListener(PyFunction function, PacketType type, ListenerPriority priority) {
             Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
-            if (!doesScriptHaveAsyncListener(script, type)) {
+            if (getAsyncListener(script, type) == null) {
                 if (type.getSender().toSide().isForClient()) {
                     ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
                     asyncListeners.add(listener);
@@ -281,7 +280,7 @@ public class ProtocolManager {
          */
         public void registerTimeoutListener(PyFunction function, PacketType type, ListenerPriority priority) {
             Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
-            if (!doesScriptHaveAsyncListener(script, type)) {
+            if (getAsyncListener(script, type) == null) {
                 if (type.getSender().toSide().isForClient()) {
                     ScriptPacketListener listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_TIMEOUT);
                     asyncListeners.add(listener);
@@ -309,7 +308,12 @@ public class ProtocolManager {
                 throw new NullPointerException("There was no async packet listener found associated with this function!");
         }
 
-        private List<ScriptPacketListener> getListeners(Script script) {
+        /**
+         * Get all asynchronous packet listeners associated with a script
+         * @param script The script to get packet listeners from
+         * @return A List of {@link ScriptPacketListener} containing all asynchronous packet listeners associated with this script. Will return an empty list if there are no asynchronous packet listeners associated with the script
+         */
+        public List<ScriptPacketListener> getAsyncListeners(Script script) {
             List<ScriptPacketListener> toReturn = new ArrayList<>();
             for (ScriptPacketListener listener : asyncListeners) {
                 if (listener.getScript().equals(script))
@@ -318,14 +322,19 @@ public class ProtocolManager {
             return toReturn;
         }
 
-        private boolean doesScriptHaveAsyncListener(Script script, PacketType packetType) {
+        /**
+         * Get the asynchronous packet listener for a particular packet type associated with a script
+         * @param script The script
+         * @param packetType The packet type
+         * @return The {@link ScriptPacketListener} associated with the script and packet type, null if there is none
+         */
+        public ScriptPacketListener getAsyncListener(Script script, PacketType packetType) {
             for (ScriptPacketListener listener : asyncListeners) {
-                if (listener.getScript().equals(script)) {
-                    if (listener.getPacketType().equals(packetType))
-                        return true;
+                if (listener.getScript().equals(script) && listener.getPacketType().equals(packetType)) {
+                    return listener;
                 }
             }
-            return false;
+            return null;
         }
 
         private ScriptPacketListener getAsyncListenerFromFunction(PyFunction function) {
@@ -345,5 +354,15 @@ public class ProtocolManager {
             asynchronousManager.unregisterTimeoutHandler(listener);
             asyncListeners.remove(listener);
         }
+    }
+
+    /**
+     * Get the singleton instance of this ProtocolManager.
+     * @return The instance
+     */
+    public static ProtocolManager get() {
+        if (instance == null)
+            instance = new ProtocolManager();
+        return instance;
     }
 }

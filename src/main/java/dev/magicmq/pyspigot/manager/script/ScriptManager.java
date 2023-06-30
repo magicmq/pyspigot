@@ -314,7 +314,7 @@ public class ScriptManager {
         CommandManager.get().unregisterCommands(script);
 
         if (PySpigot.get().isProtocolLibAvailable())
-            ProtocolManager.get().unregisterListeners(script);
+            ProtocolManager.get().unregisterPacketListeners(script);
 
         script.getInterpreter().close();
 
