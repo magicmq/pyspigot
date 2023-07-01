@@ -1,4 +1,4 @@
-# The delay for loading autorun scripts (in ticks) after the plugin loads.
+# The delay for loading scripts (in ticks) after the server finishes loading.
 script-load-delay: 20
 # If true, PySpigot will import the org.bukkit.Bukkit object (wrapper for org.bukkit.Server) into every script so that you do not have to import it yourself.
 auto-import-bukkit: false

@@ -102,7 +102,7 @@ public class ListenerManager {
             registeredListeners.add(listener);
             return listener;
         } else {
-            throw new UnsupportedOperationException("Tried to register an event listener, but " + eventClass.getSimpleName() + " is already registered!");
+            throw new UnsupportedOperationException("Script " + script.getName() + " already has an event listener for " + eventClass.getSimpleName() + " registered");
         }
     }
 
