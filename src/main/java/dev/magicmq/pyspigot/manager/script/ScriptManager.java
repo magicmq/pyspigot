@@ -313,8 +313,10 @@ public class ScriptManager {
         TaskManager.get().stopTasks(script);
         CommandManager.get().unregisterCommands(script);
 
-        if (PySpigot.get().isProtocolLibAvailable())
+        if (PySpigot.get().isProtocolLibAvailable()) {
             ProtocolManager.get().unregisterPacketListeners(script);
+            ProtocolManager.get().async().unregisterAsyncPacketListeners(script);
+        }
 
         script.getInterpreter().close();
 
