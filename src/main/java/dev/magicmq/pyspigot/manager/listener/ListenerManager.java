@@ -147,7 +147,7 @@ public class ListenerManager {
      * Unregister all event listeners belonging to a script.
      * @param script The script whose event listeners should be unregistered
      */
-    public void unregisterEvents(Script script) {
+    public void unregisterListeners(Script script) {
         List<ScriptEventListener> associatedListeners = getListeners(script);
         for (ScriptEventListener eventListener : associatedListeners) {
             unregisterListener(eventListener);

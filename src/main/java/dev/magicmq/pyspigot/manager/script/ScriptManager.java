@@ -309,7 +309,7 @@ public class ScriptManager {
     }
 
     private boolean stopScript(Script script, boolean error) {
-        ListenerManager.get().unregisterEvents(script);
+        ListenerManager.get().unregisterListeners(script);
         TaskManager.get().stopTasks(script);
         CommandManager.get().unregisterCommands(script);
 
