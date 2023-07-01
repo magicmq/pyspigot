@@ -38,9 +38,9 @@ public class ConfigManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Load a config file with the given name.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param fileName The name of the config file to load
      * @return A {@link ScriptConfig} representing the config file that was loaded
      * @throws IOException If there was an IOException when loading the config
@@ -55,9 +55,9 @@ public class ConfigManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Reload an already loaded ScriptConfig.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param config The {@link ScriptConfig} to reload
      * @return A new {@link ScriptConfig} representing the reloaded config file
      * @throws IOException If there was an IOException when reloading the config

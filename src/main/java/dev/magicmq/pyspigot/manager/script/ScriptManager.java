@@ -81,33 +81,6 @@ public class ScriptManager {
         }
     }
 
-    private void loadScripts() {
-        PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
-        int numOfScripts = 0;
-        int errorScripts = 0;
-        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
-        if (scriptsFolder.isDirectory()) {
-            SortedSet<File> toLoad = new TreeSet<>();
-            toLoad.addAll(Arrays.asList(scriptsFolder.listFiles()));
-            for (File script : toLoad) {
-                if (script.getName().endsWith(".py")) {
-                    try {
-                        if (loadScript(script.getName()))
-                            numOfScripts++;
-                        else
-                            errorScripts++;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        errorScripts++;
-                    }
-                }
-            }
-        }
-        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + numOfScripts + " scripts!");
-        if (errorScripts > 0)
-            PySpigot.get().getLogger().log(Level.INFO, errorScripts + " scripts were not loaded due to errros.");
-    }
-
     /**
      * Load a script with the given name.
      * @param name The file name of the script to load. Name should contain the file extension (.py)
@@ -258,6 +231,33 @@ public class ScriptManager {
             }
         }
         return scripts;
+    }
+
+    private void loadScripts() {
+        PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
+        int numOfScripts = 0;
+        int errorScripts = 0;
+        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
+        if (scriptsFolder.isDirectory()) {
+            SortedSet<File> toLoad = new TreeSet<>();
+            toLoad.addAll(Arrays.asList(scriptsFolder.listFiles()));
+            for (File script : toLoad) {
+                if (script.getName().endsWith(".py")) {
+                    try {
+                        if (loadScript(script.getName()))
+                            numOfScripts++;
+                        else
+                            errorScripts++;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        errorScripts++;
+                    }
+                }
+            }
+        }
+        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + numOfScripts + " scripts!");
+        if (errorScripts > 0)
+            PySpigot.get().getLogger().log(Level.INFO, errorScripts + " scripts were not loaded due to errros.");
     }
 
     private PythonInterpreter initNewInterpreter() {

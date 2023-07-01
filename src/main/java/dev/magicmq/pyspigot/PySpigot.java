@@ -34,11 +34,25 @@ public class PySpigot extends JavaPlugin {
 
     private static PySpigot instance;
 
-    //Define static variables for ease of access by scripts
+    /**
+     * Can be used by scripts to access the {@link ListenerManager}.
+     */
     public static ListenerManager listener;
+    /**
+     * Can be used by scripts to access the {@link CommandManager}.
+     */
     public static CommandManager command;
+    /**
+     * Can be used by scripts to access the {@link TaskManager}.
+     */
     public static TaskManager scheduler;
+    /**
+     * Can be used by scripts to access the {@link ConfigManager}.
+     */
     public static ConfigManager config;
+    /**
+     * Can be used by scripts to access the {@link ProtocolManager}.
+     */
     public static ProtocolManager protocol;
 
     @Override

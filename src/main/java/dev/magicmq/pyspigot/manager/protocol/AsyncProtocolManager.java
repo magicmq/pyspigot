@@ -37,11 +37,11 @@ public class AsyncProtocolManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new asynchronous packet listener with default priority.
      * <p>
      * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the packet event occurs
      * @param type The packet type to listen for
      * @return A {@link ScriptPacketListener} representing the asynchronous packet listener that was registered
@@ -51,11 +51,11 @@ public class AsyncProtocolManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new asynchronous packet listener.
      * <p>
      * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the packet event occurs
      * @param type The packet type to listen for
      * @param priority The priority of the asynchronous packet listener relative to other packet listeners
@@ -82,11 +82,11 @@ public class AsyncProtocolManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new asynchronous timeout packet listener with default priority.
      * <p>
      * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the packet event occurs
      * @param type The packet type to listen for
      * @return A {@link ScriptPacketListener} representing the asynchronous timeout packet listener that was registered
@@ -96,11 +96,11 @@ public class AsyncProtocolManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new asynchronous timeout packet listener.
      * <p>
      * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the packet event occurs
      * @param type The packet type to listen for
      * @param priority The priority of the asynchronous timeout packet listener relative to other asynchronous timeout packet listeners
@@ -126,9 +126,9 @@ public class AsyncProtocolManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Unregister an asynchronous packet listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param listener The asynchronous packet listener to unregister
      */
     public void unregisterAsyncPacketListener(ScriptPacketListener listener) {

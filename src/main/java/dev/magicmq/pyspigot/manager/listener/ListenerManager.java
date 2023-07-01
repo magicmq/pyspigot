@@ -45,9 +45,9 @@ public class ListenerManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new event listener with default priority.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the event occurs
      * @param eventClass The type of event to listen to
      * @return The ScriptEventListener that was registered
@@ -57,9 +57,9 @@ public class ListenerManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new event listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the event occurs
      * @param eventClass The type of event to listen to
      * @param priorityString The priority of the event relative to other listeners, should be a string of {@link EventPriority}
@@ -70,9 +70,9 @@ public class ListenerManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new event listener with default priority.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the event occurs
      * @param eventClass The type of event to listen to
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
@@ -83,9 +83,9 @@ public class ListenerManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new event listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the event occurs
      * @param eventClass The type of event to listen to
      * @param priorityString The priority of the event relative to other listeners, should be a string of {@link EventPriority}
@@ -108,6 +108,8 @@ public class ListenerManager {
 
     /**
      * Unregister an event listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param listener The listener to unregister
      */
     public void unregisterListener(ScriptEventListener listener) {

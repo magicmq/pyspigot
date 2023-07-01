@@ -42,9 +42,9 @@ public class TaskManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Schedule a new synchronous task.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the synchronous task executes
      * @return An ID representing the synchronous task that was scheduled
      */
@@ -55,9 +55,9 @@ public class TaskManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Schedule a new asynchronous task.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the asynchronous task executes
      * @return An ID representing the asynchronous task that was scheduled
      */
@@ -68,9 +68,9 @@ public class TaskManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Schedule a new synchronous task to run at a later point in time.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the synchronous task executes
      * @param delay The delay, in ticks, that the scheduler should wait before executing the synchronous task
      * @return An ID representing the synchronous task that was scheduled
@@ -82,9 +82,9 @@ public class TaskManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Schedule a new asynchronous task to run at a later point in time.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the asynchronous task executes
      * @param delay The delay, in ticks, that the scheduler should wait before executing the asynchronous task
      * @return An ID representing the asynchronous task that was scheduled
@@ -96,9 +96,9 @@ public class TaskManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Schedule a new synchronous repeating task.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called each time the synchronous task executes
      * @param delay The delay, in ticks, to wait before beginning this synchronous repeating task
      * @param interval The interval, in ticks, that the synchronous repeating task should be executed
@@ -114,9 +114,9 @@ public class TaskManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Schedule a new asynchronous repeating task.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called each time the asynchronous task executes
      * @param delay The delay, in ticks, to wait before beginning this asynchronous repeating task
      * @param interval The interval, in ticks, that the asynchronous repeating task should be executed

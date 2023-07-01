@@ -64,11 +64,11 @@ public class ProtocolManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new packet listener with default priority.
      * <p>
      * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the packet event occurs
      * @param type The packet type to listen for
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
@@ -78,11 +78,11 @@ public class ProtocolManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new packet listener.
      * <p>
      * This method will automatically register a {@link PacketReceivingListener} or a {@link PacketSendingListener}, depending on if the {@link PacketType} is for the server or client, respectively.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the packet event occurs
      * @param type The packet type to listen for
      * @param priority The priority of the packet listener relative to other packet listeners
@@ -107,9 +107,9 @@ public class ProtocolManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Unregister a packet listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param listener The packet listener to unregister
      */
     public void unregisterPacketListener(ScriptPacketListener listener) {

@@ -62,9 +62,9 @@ public class CommandManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param name The name of the command to register
      * @return A {@link ScriptCommand} representing the command that was registered
@@ -74,9 +74,9 @@ public class CommandManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param tabFunction The tab function that should be called for tab completion of the command
      * @param name The name of the command to register
@@ -87,9 +87,9 @@ public class CommandManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param name The name of the command to register
      * @param description The description of the command
@@ -101,9 +101,9 @@ public class CommandManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param tabFunction The tab function that should be called for tab completion of the command
      * @param name The name of the command to register
@@ -116,9 +116,9 @@ public class CommandManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param name The name of the command to register
      * @param description The description of the command
@@ -131,9 +131,9 @@ public class CommandManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param tabFunction The tab function that should be called for tab completion of the command
      * @param name The name of the command to register
@@ -147,9 +147,9 @@ public class CommandManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
      * @param name The name of the command to register
@@ -174,9 +174,9 @@ public class CommandManager {
     }
 
     /**
-     * <strong>WARNING: This should be called from scripts only!</strong>
-     * <p>
      * Unregister a script's command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param name The name of the command to unregister.
      */
     public void unregisterCommand(String name) {
