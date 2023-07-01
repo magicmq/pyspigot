@@ -31,6 +31,7 @@ import java.util.List;
  * Manager to interface with ProtocolLib's ProtocolManager. Primarily used by scripts to register and unregister packet listeners.
  * <p>
  * Do not call this manager if ProtocolLib is not loaded and enabled on the server! It will not work.
+ * @see com.comphenix.protocol.ProtocolManager
  */
 public class ProtocolManager {
 
@@ -48,8 +49,7 @@ public class ProtocolManager {
 
     /**
      * Get the current ProtocolLib ProtocolManager.
-     * @return The ProtocolManager
-     * @see com.comphenix.protocol.ProtocolManager
+     * @return The {@link com.comphenix.protocol.ProtocolManager}
      */
     public com.comphenix.protocol.ProtocolManager getProtocolManager() {
         return protocolManager;

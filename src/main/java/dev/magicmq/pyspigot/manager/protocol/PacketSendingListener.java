@@ -33,7 +33,7 @@ public class PacketSendingListener extends ScriptPacketListener {
      * @param script The script associated with this packet listener
      * @param function The function to be called when the packet is sent
      * @param packetType The packet type to listen for
-     * @param listenerPriority The {@link ListenerPriority} of this listener
+     * @param listenerPriority The {@link com.comphenix.protocol.events.ListenerPriority} of this listener
      * @param listenerType The {@link ListenerType} of this listener
      */
     public PacketSendingListener(Script script, PyFunction function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {

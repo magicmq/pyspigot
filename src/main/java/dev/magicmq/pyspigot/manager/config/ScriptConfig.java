@@ -24,7 +24,7 @@ import java.io.IOException;
 
 /**
  * A class representing a script configuration file.
- * @see YamlConfiguration
+ * @see org.bukkit.configuration.file.YamlConfiguration
  */
 public class ScriptConfig extends YamlConfiguration {
 

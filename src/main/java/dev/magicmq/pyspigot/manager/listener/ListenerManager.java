@@ -62,7 +62,7 @@ public class ListenerManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the event occurs
      * @param eventClass The type of event to listen to
-     * @param priorityString The priority of the event relative to other listeners, should be a string of {@link EventPriority}
+     * @param priorityString The priority of the event relative to other listeners, should be a string of {@link org.bukkit.event.EventPriority}
      * @return The ScriptEventListener that was registered
      */
     public ScriptEventListener registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
@@ -88,7 +88,7 @@ public class ListenerManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the event occurs
      * @param eventClass The type of event to listen to
-     * @param priorityString The priority of the event relative to other listeners, should be a string of {@link EventPriority}
+     * @param priorityString The priority of the event relative to other listeners, should be a string of {@link org.bukkit.event.EventPriority}
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
      * @return The ScriptEventListener that was registered
      */

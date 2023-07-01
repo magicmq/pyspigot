@@ -28,7 +28,7 @@ import org.python.core.PyFunction;
 
 /**
  * An abstract class designed to represent a basic script packet listener.
- * @see PacketAdapter
+ * @see com.comphenix.protocol.events.PacketAdapter
  */
 public abstract class ScriptPacketListener extends PacketAdapter {
 
@@ -42,7 +42,7 @@ public abstract class ScriptPacketListener extends PacketAdapter {
      * @param script The script associated with this packet listener
      * @param function The function to be called when the packet event occurs
      * @param packetType The packet type to listen for
-     * @param listenerPriority The {@link ListenerPriority} of this listener
+     * @param listenerPriority The {@link com.comphenix.protocol.events.ListenerPriority} of this listener
      * @param listenerType The {@link ListenerType} of this listener
      */
     public ScriptPacketListener(Script script, PyFunction function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {

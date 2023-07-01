@@ -44,8 +44,8 @@ public class Script {
     /**
      *
      * @param name The name of the script. Should contain its extension (.py)
-     * @param interpreter The {@link PythonInterpreter} for this script
-     * @param code The {@link PyCode} for this script
+     * @param interpreter The {@link org.python.util.PythonInterpreter} for this script
+     * @param code The {@link org.python.core.PyCode} for this script
      * @param file The file associated with this script
      */
     public Script(String name, PythonInterpreter interpreter, PyCode code, File file) {
@@ -82,18 +82,16 @@ public class Script {
     }
 
     /**
-     * Get the PythonInterpreter associated wtih this script.
-     * @return The PythonInterpreter associated with this script
-     * @see PythonInterpreter
+     * Get the {@link org.python.util.PythonInterpreter} associated wtih this script.
+     * @return The {@link org.python.util.PythonInterpreter} associated with this script
      */
     public PythonInterpreter getInterpreter() {
         return interpreter;
     }
 
     /**
-     * Get the PyCode associated wtih this script.
-     * @return The PyCode associated with this script
-     * @see PyCode
+     * Get the {@link org.python.core.PyCode} associated wtih this script.
+     * @return The {@link org.python.core.PyCode} associated with this script
      */
     public PyCode getCode() {
         return code;

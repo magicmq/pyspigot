@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Manager to interface with ProtocolLib's AsynchronousManager. Primarily used by scripts to register and unregister asynchronous packet listeners.
- * @see AsynchronousManager
+ * @see com.comphenix.protocol.AsynchronousManager
  */
 public class AsyncProtocolManager {
 
@@ -29,8 +29,7 @@ public class AsyncProtocolManager {
 
     /**
      * Get the current ProtocolLib AsynchronousManager.
-     * @return The AsynchronousManager
-     * @see AsynchronousManager
+     * @return The {@link com.comphenix.protocol.AsynchronousManager}
      */
     public AsynchronousManager getAsynchronousManager() {
         return asynchronousManager;

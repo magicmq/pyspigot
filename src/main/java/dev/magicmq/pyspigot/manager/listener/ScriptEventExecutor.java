@@ -8,7 +8,7 @@ import org.python.core.PyException;
 
 /**
  * Represents an event executor for script event listeners.
- * @see EventExecutor
+ * @see org.bukkit.plugin.EventExecutor
  */
 public class ScriptEventExecutor implements EventExecutor {
 

@@ -31,6 +31,9 @@ import java.util.logging.Level;
 
 /**
  * A manager class to help with dynamically loading Jar files into the classpath at runtime. Most commonly, scripts will not use this directly and PySpigot will be the primary user of this manager.
+ * <p>
+ * Internally, this utilizes the jar-relocator library from lucko.
+ * @see me.lucko.jarrelocator.JarRelocator
  */
 public class LibraryManager {
 

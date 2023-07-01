@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 /**
  * Represents a command belonging to a script.
- * @see TabExecutor
+ * @see org.bukkit.command.TabExecutor
  * @see org.bukkit.command.defaults.BukkitCommand
  */
 public class ScriptCommand implements TabExecutor {

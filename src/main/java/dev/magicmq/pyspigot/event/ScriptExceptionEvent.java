@@ -26,7 +26,7 @@ import org.python.core.PyException;
  * The exception could be a Java exception or a Python error/exception, depending on its source. Use {@link ScriptExceptionEvent#getExceptionType()} to get the type of exception that was thrown.
  * <p>
  * The throwable associated with this event may or may not be a PyException. If {@link #getExceptionType()} returns PYTHON, the throwable will always be a PyException.
- * @see PyException
+ * @see org.python.core.PyException
  */
 public class ScriptExceptionEvent extends ScriptEvent {
 
@@ -51,7 +51,7 @@ public class ScriptExceptionEvent extends ScriptEvent {
     /**
      * Get the throwable that was thrown. This may or may not be a PyException. If {@link #getExceptionType()} returns PYTHON, the throwable will always be a PyException.
      * @return The throwable that was thrown
-     * @see PyException
+     * @see org.python.core.PyException PyException
      */
     public Throwable getException() {
         return throwable;

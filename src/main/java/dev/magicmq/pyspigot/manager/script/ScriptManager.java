@@ -42,6 +42,8 @@ import java.util.stream.Collectors;
  * Master manager class for loading and unloading scripts.
  * <p>
  * Scripts should not access this manager under normal circumstances. Other plugins may use this class to work with scripts.
+ * <p>
+ * Internally, utilizes Jython's {@link org.python.util.PythonInterpreter} to run scripts.
  * @see Script
  */
 public class ScriptManager {
@@ -156,7 +158,7 @@ public class ScriptManager {
      * @param script The script that threw the error
      * @param throwable The throwable that was thrown
      * @param message The message associated with the exception
-     * @see PyException
+     * @see org.python.core.PyException
      */
     public void handleScriptException(Script script, Throwable throwable, String message) {
         if (!Bukkit.isPrimaryThread()) {

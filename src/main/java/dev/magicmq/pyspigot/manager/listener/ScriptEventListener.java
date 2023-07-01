@@ -24,8 +24,7 @@ import org.python.core.PyFunction;
 
 /**
  * A dummy listener object that represents all events a script is currently listening to.
- * @see Listener
- * @see EventExecutor
+ * @see org.bukkit.event.Listener
  */
 public class ScriptEventListener implements Listener {
 
@@ -74,9 +73,8 @@ public class ScriptEventListener implements Listener {
     }
 
     /**
-     * Get the ScriptEventExecutor associated with this script event listener.
-     * @return The ScriptEventExecutor associated with this script event listener
-     * @see ScriptEventExecutor
+     * Get the {@link ScriptEventExecutor} associated with this script event listener.
+     * @return The {@link ScriptEventExecutor} associated with this script event listener
      */
     public ScriptEventExecutor getEventExecutor() {
         return eventExecutor;

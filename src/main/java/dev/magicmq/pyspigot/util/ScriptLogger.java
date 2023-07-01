@@ -96,8 +96,7 @@ public class ScriptLogger extends Logger {
     }
 
     /**
-     * A Formatter to log script messages to their respective log file.
-     * @see Formatter
+     * A {@link Formatter} to log script messages to their respective log file.
      */
     private static class ScriptLogFormatter extends Formatter {
 
