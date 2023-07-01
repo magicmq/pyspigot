@@ -267,10 +267,6 @@ public class ScriptManager {
 
         interpreter.set("global", globalVariables);
 
-        if (PluginConfig.doAutoImportBukkit()) {
-            interpreter.set("bukkit", Bukkit.class);
-        }
-
         return interpreter;
     }
 

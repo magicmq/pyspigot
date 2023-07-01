@@ -47,10 +47,6 @@ public class PluginConfig {
         return config.getLong("script-load-delay", 20L);
     }
 
-    public static boolean doAutoImportBukkit() {
-        return config.getBoolean("auto-import-bukkit", false);
-    }
-
     public static HashMap<String, String> getLibraryRelocations() {
         HashMap<String, String> toReturn = new HashMap<>();
         for (String string : config.getStringList("library-relocations")) {
