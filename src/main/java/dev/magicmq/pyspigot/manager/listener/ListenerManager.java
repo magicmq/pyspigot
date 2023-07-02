@@ -52,8 +52,8 @@ public class ListenerManager {
      * @param eventClass The type of event to listen to
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerEvent(PyFunction function, Class<? extends Event> eventClass) {
-        return registerEvent(function, eventClass, "NORMAL", false);
+    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass) {
+        return registerListener(function, eventClass, "NORMAL", false);
     }
 
     /**
@@ -65,8 +65,8 @@ public class ListenerManager {
      * @param priorityString The priority of the event relative to other listeners, should be a string of {@link org.bukkit.event.EventPriority}
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
-        return registerEvent(function, eventClass, priorityString, false);
+    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
+        return registerListener(function, eventClass, priorityString, false);
     }
 
     /**
@@ -78,8 +78,8 @@ public class ListenerManager {
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerEvent(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
-        return registerEvent(function, eventClass, "NORMAL", ignoreCancelled);
+    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
+        return registerListener(function, eventClass, "NORMAL", ignoreCancelled);
     }
 
     /**
@@ -92,7 +92,7 @@ public class ListenerManager {
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerEvent(PyFunction function, Class<? extends Event> eventClass, String priorityString, boolean ignoreCancelled) {
+    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, String priorityString, boolean ignoreCancelled) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         ScriptEventListener listener = getEventListener(script, eventClass);
         if (listener == null) {
