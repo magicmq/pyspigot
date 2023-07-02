@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.manager.command;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.plugin.Plugin;
 import org.python.core.*;
@@ -91,6 +92,8 @@ public class ScriptCommand implements TabExecutor {
                 script.getLogger().log(Level.SEVERE, "Script command function '" + commandFunction.__name__ + "' should return a boolean!");
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + label + "'");
+            //Mimic Bukkit behavior
+            sender.sendMessage(ChatColor.RED + "An internal error occurred while attempting to perform this command");
         }
         return true;
     }
