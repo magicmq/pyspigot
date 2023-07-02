@@ -112,7 +112,7 @@ public class ListenerManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param listener The listener to unregister
      */
-    public void unregisterListener(ScriptEventListener listener) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void unregisterListener(ScriptEventListener listener) {
         removeFromHandlers(listener);
         registeredListeners.remove(listener);
     }
@@ -149,17 +149,22 @@ public class ListenerManager {
      * Unregister all event listeners belonging to a script.
      * @param script The script whose event listeners should be unregistered
      */
-    public void unregisterListeners(Script script) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void unregisterListeners(Script script) {
         List<ScriptEventListener> associatedListeners = getListeners(script);
         for (ScriptEventListener eventListener : associatedListeners) {
             unregisterListener(eventListener);
         }
     }
 
-    private void removeFromHandlers(ScriptEventListener listener) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Method method = listener.getEvent().getDeclaredMethod("getHandlerList");
-        HandlerList list = (HandlerList) method.invoke(null);
-        list.unregister(listener);
+    private void removeFromHandlers(ScriptEventListener listener) {
+        try {
+            Method method = listener.getEvent().getDeclaredMethod("getHandlerList");
+            HandlerList list = (HandlerList) method.invoke(null);
+            list.unregister(listener);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            //This should not happen, because all events *should* have getHandlerList defined
+            throw new RuntimeException("Unhandled exception when unregistering listener '" + listener.getEvent().getSimpleName() + "'", e);
+        }
     }
 
     /**

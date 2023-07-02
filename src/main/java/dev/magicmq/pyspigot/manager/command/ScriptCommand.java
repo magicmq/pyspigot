@@ -168,9 +168,9 @@ public class ScriptCommand implements TabExecutor {
             bukkitCommand.setPermissionMessage(this.permissionMessage);
             bukkitCommand.setExecutor(this);
             return bukkitCommand;
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            //This should not happen, unless the Bukkit API changes
+            throw new RuntimeException("Unhandled exception when initializing command '" + name + "'", e);
         }
     }
 

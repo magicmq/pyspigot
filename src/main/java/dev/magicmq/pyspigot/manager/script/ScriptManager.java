@@ -163,25 +163,36 @@ public class ScriptManager {
      */
     public void handleScriptException(Script script, PyException exception, String message) {
         if (!Bukkit.isPrimaryThread()) {
-            //This method could be called asynchronously (i.e. from a ProtocolLib listener). We need to run it synchronously to call ScriptExceptionEvent..
+            //This method could be called asynchronously (i.e. from a ProtocolLib listener). We need to run it synchronously to call ScriptExceptionEvent.
             Bukkit.getScheduler().runTask(PySpigot.get(), () -> ScriptManager.this.handleScriptException(script, exception, message));
         } else {
             ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception);
             Bukkit.getPluginManager().callEvent(event);
             if (event.doReportException()) {
+                String toLog = "";
+                toLog += message + ": ";
+
                 if (exception.getCause() != null) {
                     Throwable cause = exception.getCause();
-                    if (exception.traceback != null)
-                        script.getLogger().log(Level.SEVERE, message + ": " + cause + "\n\n" + exception.traceback.dumpStack());
-                    else
-                        script.getLogger().log(Level.SEVERE, message + ": " + cause);
+                    toLog += cause;
+
+                    if (cause.getCause() != null) {
+                        Throwable causeOfCause = cause.getCause();
+                        toLog += "\n" + "Caused by: " + causeOfCause;
+                    }
                 } else {
-                    if (exception.traceback != null)
-                        script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage() + "\n\n" + exception.traceback.dumpStack());
-                    else
-                        script.getLogger().log(Level.SEVERE, message + ": " + exception.getMessage());
+                    toLog += exception.getMessage();
                 }
+
+                if (exception.traceback != null) {
+                    toLog += "\n\n" + exception.traceback.dumpStack();
+                }
+
+                script.getLogger().log(Level.SEVERE, toLog);
             }
+
+            if (PluginConfig.shouldPrintStackTraces())
+                exception.printStackTrace();
         }
     }
 
@@ -295,19 +306,15 @@ public class ScriptManager {
             Bukkit.getPluginManager().callEvent(event);
         } catch (PyException e) {
             handleScriptException(script, e, "Runtime error");
-            unloadScript(script, true);
             script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
+            unloadScript(script, true);
             return false;
         }
         return true;
     }
 
     private boolean stopScript(Script script, boolean error) {
-        try {
-            ListenerManager.get().unregisterListeners(script);
-        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            script.getLogger().log(Level.SEVERE, "Error when unregistering listeners for script '" + script.getName() + "'", e);
-        }
+        ListenerManager.get().unregisterListeners(script);
         TaskManager.get().stopTasks(script);
         CommandManager.get().unregisterCommands(script);
 

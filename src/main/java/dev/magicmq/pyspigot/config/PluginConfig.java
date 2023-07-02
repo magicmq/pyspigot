@@ -68,6 +68,10 @@ public class PluginConfig {
         return logTimestamp;
     }
 
+    public static boolean shouldPrintStackTraces() {
+        return config.getBoolean("debug-options.print-stack-traces", false);
+    }
+
     public static String getMessage(String key, boolean withPrefix) {
         return ChatColor.translateAlternateColorCodes('&', (withPrefix ? config.getString("messages.plugin-prefix") : "") + config.getString("messages." + key));
     }

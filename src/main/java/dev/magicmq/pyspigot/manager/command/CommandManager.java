@@ -254,7 +254,8 @@ public class CommandManager {
             try {
                 bSyncCommands.invoke(Bukkit.getServer());
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                //This should not happen
+                throw new RuntimeException("Unhandled exception when syncing commands", e);
             }
         }
     }
