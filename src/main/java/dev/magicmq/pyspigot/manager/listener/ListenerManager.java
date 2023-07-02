@@ -112,7 +112,7 @@ public class ListenerManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param listener The listener to unregister
      */
-    public void unregisterListener(ScriptEventListener listener) {
+    public void unregisterListener(ScriptEventListener listener) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         removeFromHandlers(listener);
         registeredListeners.remove(listener);
     }
@@ -149,21 +149,17 @@ public class ListenerManager {
      * Unregister all event listeners belonging to a script.
      * @param script The script whose event listeners should be unregistered
      */
-    public void unregisterListeners(Script script) {
+    public void unregisterListeners(Script script) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         List<ScriptEventListener> associatedListeners = getListeners(script);
         for (ScriptEventListener eventListener : associatedListeners) {
             unregisterListener(eventListener);
         }
     }
 
-    private void removeFromHandlers(ScriptEventListener listener) {
-        try {
-            Method method = listener.getEvent().getDeclaredMethod("getHandlerList");
-            HandlerList list = (HandlerList) method.invoke(null);
-            list.unregister(listener);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            ScriptManager.get().handleScriptException(listener.getScript(), e, "Error when unregistering event listener");
-        }
+    private void removeFromHandlers(ScriptEventListener listener) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Method method = listener.getEvent().getDeclaredMethod("getHandlerList");
+        HandlerList list = (HandlerList) method.invoke(null);
+        list.unregister(listener);
     }
 
     /**

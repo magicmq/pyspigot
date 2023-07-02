@@ -21,6 +21,7 @@ import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.config.ConfigManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
+import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
@@ -90,7 +91,7 @@ public class PySpigot extends JavaPlugin {
 
     /**
      * Check if ProtocolLib is available on the server.
-     * @return True if ProtocolLib is loaded and enabled, false if otherwise.
+     * @return True if ProtocolLib is loaded and enabled, false if otherwise
      */
     public boolean isProtocolLibAvailable() {
         return Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;

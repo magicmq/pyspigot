@@ -74,11 +74,19 @@ public class Script {
     }
 
     /**
+     * Get the simple name (without the file extension, .py) associated with this script.
+     * @return The simple name associated with this script. Will contain only the file name, without the extension (.py)
+     */
+    public String getSimpleName() {
+        return name.substring(0, name.length() - 3);
+    }
+
+    /**
      * Get the log file name for this script.
      * @return The log file name for this script. Will contain its extension (.log)
      */
     public String getLogFileName() {
-        return name.substring(0, name.length() - 3) + ".log";
+        return getSimpleName() + ".log";
     }
 
     /**

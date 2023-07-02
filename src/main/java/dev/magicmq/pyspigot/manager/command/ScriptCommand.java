@@ -83,13 +83,14 @@ public class ScriptCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         try {
-            PyObject result = commandFunction._jcall(new Object[]{sender, label, args});
+            PyObject[] parameters = Py.javas2pys(sender, label, args);
+            PyObject result = commandFunction.__call__(parameters[0], parameters[1], parameters[2]);
             if (result instanceof PyBoolean)
                 return ((PyBoolean) result).getBooleanValue();
             else
                 script.getLogger().log(Level.SEVERE, "Script command function '" + commandFunction.__name__ + "' should return a boolean!");
-        } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when executing command");
+        } catch (PyException exception) {
+            ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + label + "'");
         }
         return true;
     }
@@ -98,7 +99,8 @@ public class ScriptCommand implements TabExecutor {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
         if (tabFunction != null) {
             try {
-                PyObject result = tabFunction._jcall(new Object[]{sender, alias, args});
+                PyObject[] parameters = Py.javas2pys(sender, alias, args);
+                PyObject result = tabFunction.__call__(parameters[0], parameters[1], parameters[2]);
                 if (result instanceof PyList) {
                     PyList pyList = (PyList) result;
                     ArrayList<String> toReturn = new ArrayList<>();
@@ -112,8 +114,8 @@ public class ScriptCommand implements TabExecutor {
                     }
                     return toReturn;
                 }
-            } catch (PyException e) {
-                ScriptManager.get().handleScriptException(script, e, "Error when tab completing command");
+            } catch (PyException exception) {
+                ScriptManager.get().handleScriptException(script, exception,  "Unhandled exception when tab completing command '" + label + "'");
             }
         }
         return null;

@@ -4,7 +4,9 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.EventExecutor;
+import org.python.core.Py;
 import org.python.core.PyException;
+import org.python.core.PyObject;
 
 /**
  * Represents an event executor for script event listeners.
@@ -29,12 +31,10 @@ public class ScriptEventExecutor implements EventExecutor {
      */
     public void execute(Listener listener, Event event) {
         try {
-            scriptEventListener.getListenerFunction()._jcall(new Object[]{event});
-        } catch (PyException e) {
-            ScriptManager.get().handleScriptException(scriptEventListener.getScript(), e, "Error when executing event listener");
-        } catch (Throwable t) {
-            //Bukkit API catches Throwables thrown by event listeners. We need to override this for correct script error/exception handling.
-            ScriptManager.get().handleScriptException(scriptEventListener.getScript(), t, "Could not pass event " + event.getEventName() + " to script");
+            PyObject parameter = Py.java2py(event);
+            scriptEventListener.getListenerFunction().__call__(parameter);
+        } catch (PyException exception) {
+            ScriptManager.get().handleScriptException(scriptEventListener.getScript(), exception, "Error when executing event listener");
         }
     }
 }

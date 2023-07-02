@@ -23,8 +23,10 @@ import com.comphenix.protocol.events.PacketEvent;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
+import org.python.core.PyObject;
 
 /**
  * An abstract class designed to represent a basic script packet listener.
@@ -91,9 +93,10 @@ public abstract class ScriptPacketListener extends PacketAdapter {
      */
     public void callToScript(PacketEvent event) {
         try {
-            function._jcall(new Object[]{event});
-        } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when calling packet listener");
+            PyObject parameter = Py.java2py(event);
+            function.__call__(parameter);
+        } catch (PyException exception) {
+            ScriptManager.get().handleScriptException(script, exception, "Error when calling packet listener");
         }
     }
 }

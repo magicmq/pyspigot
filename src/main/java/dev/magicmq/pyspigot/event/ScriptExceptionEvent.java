@@ -23,46 +23,31 @@ import org.python.core.PyException;
 /**
  * Called when a script throws an unhandled error/exception.
  * <p>
- * The exception could be a Java exception or a Python error/exception, depending on its source. Use {@link ScriptExceptionEvent#getExceptionType()} to get the type of exception that was thrown.
- * <p>
- * The throwable associated with this event may or may not be a PyException. If {@link #getExceptionType()} returns PYTHON, the throwable will always be a PyException.
- * @see org.python.core.PyException
+ * The exception will be a {@link org.python.core.PyException}, which will include Java exceptions thrown by calls to Java code from scripts. Use {@link org.python.core.PyException#getCause} to determine if there was an underlying Java exception.
  */
 public class ScriptExceptionEvent extends ScriptEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    private final Throwable throwable;
-    private final ExceptionType exceptionType;
+    private final PyException exception;
     private boolean reportException;
 
     /**
      *
      * @param script The script that caused the error/exception
-     * @param throwable The exception that was thrown
-     * @param exceptionType The type of exception that was thrown
+     * @param exception The {@link org.python.core.PyException} that was thrown
      */
-    public ScriptExceptionEvent(Script script, Throwable throwable, ExceptionType exceptionType) {
+    public ScriptExceptionEvent(Script script, PyException exception) {
         super(script);
-        this.throwable = throwable;
-        this.exceptionType = exceptionType;
+        this.exception = exception;
         this.reportException = true;
     }
 
     /**
-     * Get the throwable that was thrown. This may or may not be a PyException. If {@link #getExceptionType()} returns PYTHON, the throwable will always be a PyException.
-     * @return The throwable that was thrown
-     * @see org.python.core.PyException PyException
+     * Get the {@link org.python.core.PyException} that was thrown.
+     * @return The {@link org.python.core.PyException} that was thrown
      */
-    public Throwable getException() {
-        return throwable;
-    }
-
-    /**
-     * Get the type of exception that was thrown
-     * @return The type of exception that was thrown.
-     */
-    public ExceptionType getExceptionType() {
-        return exceptionType;
+    public PyException getException() {
+        return exception;
     }
 
     /**
@@ -88,26 +73,5 @@ public class ScriptExceptionEvent extends ScriptEvent {
 
     public static HandlerList getHandlerList() {
         return handlers;
-    }
-
-    /**
-     * Enum that represents the type of exception that was thrown, PYTHON for python errors/exceptions, JAVA for Java exceptions
-     * <p>
-     * For Java exceptions, use {@link PyException#getCause} to get the underlying Java exception. Will have an associated stack trace.
-     * <p>
-     * For Python exceptions, they may or may not have an associated Python traceback. See {@link PyException#traceback}
-     */
-    public enum ExceptionType {
-
-        /**
-         * A Java exception.
-         */
-        JAVA,
-
-        /**
-         * A Python error/exception.
-         */
-        PYTHON
-
     }
 }
