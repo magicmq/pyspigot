@@ -323,6 +323,10 @@ public class ScriptManager {
             ProtocolManager.get().async().unregisterAsyncPacketListeners(script);
         }
 
+        if (PySpigot.get().isPlaceholderApiAvailable()) {
+            PlaceholderManager.get().unregisterPlaceholder(script);
+        }
+
         script.getInterpreter().close();
 
         if (!error) {

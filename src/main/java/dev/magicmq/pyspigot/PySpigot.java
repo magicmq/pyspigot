@@ -55,6 +55,10 @@ public class PySpigot extends JavaPlugin {
      * Can be used by scripts to access the {@link ProtocolManager}.
      */
     public static ProtocolManager protocol;
+    /**
+     * Can be used by scripts to access the {@link PlaceholderManager}.
+     */
+    public static PlaceholderManager placeholder;
 
     @Override
     public void onEnable() {
@@ -74,6 +78,9 @@ public class PySpigot extends JavaPlugin {
 
         if (isProtocolLibAvailable())
             protocol = ProtocolManager.get();
+
+        if (isPlaceholderApiAvailable())
+            placeholder = PlaceholderManager.get();
     }
 
     @Override
@@ -95,6 +102,14 @@ public class PySpigot extends JavaPlugin {
      */
     public boolean isProtocolLibAvailable() {
         return Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;
+    }
+
+    /**
+     * Check if PlacehodlerAPI is available on the server.
+     * @return True if PlaceholderAPI is loaded and enabled, false if otherwise
+     */
+    public boolean isPlaceholderApiAvailable() {
+        return Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
     }
 
     /**
