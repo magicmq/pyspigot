@@ -53,7 +53,7 @@ public class ListenerManager {
      * @return The ScriptEventListener that was registered
      */
     public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass) {
-        return registerListener(function, eventClass, "NORMAL", false);
+        return registerListener(function, eventClass, EventPriority.NORMAL, false);
     }
 
     /**
@@ -62,11 +62,11 @@ public class ListenerManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the event occurs
      * @param eventClass The type of event to listen to
-     * @param priorityString The priority of the event relative to other listeners, should be a string of {@link org.bukkit.event.EventPriority}
+     * @param priority The priority of the event relative to other listeners
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, String priorityString) {
-        return registerListener(function, eventClass, priorityString, false);
+    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority) {
+        return registerListener(function, eventClass, priority, false);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ListenerManager {
      * @return The ScriptEventListener that was registered
      */
     public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
-        return registerListener(function, eventClass, "NORMAL", ignoreCancelled);
+        return registerListener(function, eventClass, EventPriority.NORMAL, ignoreCancelled);
     }
 
     /**
@@ -88,16 +88,15 @@ public class ListenerManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the event occurs
      * @param eventClass The type of event to listen to
-     * @param priorityString The priority of the event relative to other listeners, should be a string of {@link org.bukkit.event.EventPriority}
+     * @param priority The priority of the event relative to other listeners
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, String priorityString, boolean ignoreCancelled) {
+    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         ScriptEventListener listener = getEventListener(script, eventClass);
         if (listener == null) {
             listener = new ScriptEventListener(script, function, eventClass);
-            EventPriority priority = EventPriority.valueOf(priorityString);
             Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, listener.getEventExecutor(), PySpigot.get(), ignoreCancelled);
             registeredListeners.add(listener);
             return listener;
