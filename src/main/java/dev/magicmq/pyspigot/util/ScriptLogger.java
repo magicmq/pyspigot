@@ -46,7 +46,7 @@ public class ScriptLogger extends Logger {
         super("PySpigot/" + script.getName(), null);
         this.logIdentifier = "[" + "PySpigot/" + script.getName() + "] ";
         this.setParent(PySpigot.get().getLogger());
-        this.setLevel(Level.ALL);
+        this.setLevel(PluginConfig.getLogLevel());
 
         File file = new File("");
         this.logFilePath = file.getAbsolutePath().replace("\\", "/") + "/plugins/PySpigot/logs/" + script.getLogFileName();
