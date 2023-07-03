@@ -51,7 +51,7 @@ public class PlaceholderManager {
             registeredPlaceholders.add(placeholder);
             return placeholder;
         } else
-            throw new UnsupportedOperationException("Script already has a placeholder expansion registered!");
+            throw new RuntimeException("Script already has a placeholder expansion registered");
     }
 
     /**

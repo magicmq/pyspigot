@@ -170,7 +170,7 @@ public class CommandManager {
             syncCommands();
             return newCommand;
         } else
-            throw new UnsupportedOperationException("Command with the name " + name + " is already registered!");
+            throw new RuntimeException("Command '" + name + "' is already registered");
     }
 
     /**

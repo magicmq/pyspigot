@@ -103,7 +103,7 @@ public class ProtocolManager {
             }
             return listener;
         } else
-            throw new UnsupportedOperationException("Script " + script.getName() + " already has a packet listener for " + type.name() + " registered");
+            throw new RuntimeException("Script already has a packet listener for '" + type.name() + "' registered");
     }
 
     /**

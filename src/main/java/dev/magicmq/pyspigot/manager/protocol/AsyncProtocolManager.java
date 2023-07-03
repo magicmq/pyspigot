@@ -77,7 +77,7 @@ public class AsyncProtocolManager {
             }
             return listener;
         } else
-            throw new UnsupportedOperationException("Script " + script.getName() + " already has an async packet listener for " + type.name() + " registered");
+            throw new RuntimeException("Script already has an async packet listener for '" + type.name() + "' registered");
     }
 
     /**
@@ -121,7 +121,7 @@ public class AsyncProtocolManager {
             }
             return listener;
         } else
-            throw new UnsupportedOperationException("Script " + script.getName() + " already has an async packet listener for " + type.name() + " registered");
+            throw new RuntimeException("Script already has an async packet listener for '" + type.name() + "' registered");
     }
 
     /**
