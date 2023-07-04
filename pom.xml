@@ -184,6 +184,13 @@
         </plugins>
     </build>
 
+    <scm>
+        <connection>scm:git:https://github.com/magicmq/PySpigot.git</connection>
+        <url>https://github.com/magicmq/PySpigot</url>
+        <developerConnection>scm:git:https://github.com/magicmq/PySpigot.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <distributionManagement>
         <snapshotRepository>
             <id>sonatype-snapshots</id>
