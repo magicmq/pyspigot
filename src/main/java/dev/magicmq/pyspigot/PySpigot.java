@@ -26,7 +26,12 @@ import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.logging.Level;
 
 /**
  * Main class of the plugin.
@@ -81,6 +86,13 @@ public class PySpigot extends JavaPlugin {
 
         if (isPlaceholderApiAvailable())
             placeholder = PlaceholderManager.get();
+
+        try {
+            checkReflection();
+        } catch (NoSuchMethodException | NoSuchFieldException e) {
+            getLogger().log(Level.SEVERE, "Error when accessing CraftBukkit (Are you on a supported MC version?), PySpigot will not work correctly.");
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
     }
 
     @Override
@@ -110,6 +122,13 @@ public class PySpigot extends JavaPlugin {
      */
     public boolean isPlaceholderApiAvailable() {
         return Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+    }
+
+    private void checkReflection() throws NoSuchMethodException, NoSuchFieldException {
+        //Check reflection for commands
+        PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+        Bukkit.getServer().getClass().getDeclaredField("commandMap");
+        SimpleCommandMap.class.getDeclaredField("knownCommands");
     }
 
     /**

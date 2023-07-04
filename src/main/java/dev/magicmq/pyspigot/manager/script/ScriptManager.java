@@ -29,6 +29,7 @@ import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
 import org.python.core.*;
 import org.python.util.PythonInterpreter;
 
@@ -56,6 +57,8 @@ public class ScriptManager {
     private final List<Script> scripts;
     private final HashMap<String, PyObject> globalVariables;
 
+    private final BukkitTask startScriptTask;
+
     private ScriptManager() {
         this.systemState = new PySystemState();
         systemState.setClassLoader(LibraryManager.get().getClassLoader());
@@ -71,13 +74,15 @@ public class ScriptManager {
         if (!logs.exists())
             logs.mkdir();
 
-        Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getLoadScriptDelay());
+        startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getLoadScriptDelay());
     }
 
     /**
      * Called on plugin unload or server shutdown. Gracefully stops and unloads all loaded and running scripts.
      */
     public void shutdown() {
+        startScriptTask.cancel();
+
         for (Script script : scripts) {
             ScriptUnloadEvent event = new ScriptUnloadEvent(script, false);
             Bukkit.getPluginManager().callEvent(event);
