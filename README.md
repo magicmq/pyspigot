@@ -11,14 +11,19 @@ PySpigot utilizes [Jython](https://www.jython.org/), a Java implementation of Py
 ## Features
 
 PySpigot has many features, including:
-* Ability to load and run scripts via commands in console and in-game
-* Ability to stop, reload, and unload scripts via commands in console and in-game
-* Ability to write functions and variables to a global environment so that scripts can access variables/functions from each other  
-* Ability to autorun scripts at server start
-* Register Bukkit commands easily with PySpigot's command manager
-* Register event listeners with PySpigot's listener manager
-* Schedule and run synchronous/asynchronous tasks with PySpigot's task manager
-* Easily load and read from/write to config files with PySpigot's config manager
+- Load scripts on server start and via commands
+- Stop, reload, and unload server scripts via commands
+- Register event listeners
+- Register commands
+- Schedule tasks (synchronous and asynchronous)
+- Work with config files
+- Register ProtocolLib packet listeners
+- Register PlaceholderAPI placeholder expansions
+- Comprehensive logging of errors and exceptions on a per-script basis, to file
+- Load Java libraries you'd like to work with at runtime
+- Write scripts in Python syntax
+- Scripts have complete access to the Bukkit/Spigot API, as well as APIs of other plugins, so anything is possible.
+- And more!
 
 ## Using PySpigot
 
