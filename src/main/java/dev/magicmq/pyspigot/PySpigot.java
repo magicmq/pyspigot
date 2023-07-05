@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.command.PySpigotCommand;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.config.ConfigManager;
+import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
@@ -98,6 +99,8 @@ public class PySpigot extends JavaPlugin {
     @Override
     public void onDisable() {
         ScriptManager.get().shutdown();
+
+        LibraryManager.get().shutdown();
     }
 
     /**
