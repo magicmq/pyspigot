@@ -26,12 +26,17 @@ import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimpleBarChart;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -94,6 +99,9 @@ public class PySpigot extends JavaPlugin {
             getLogger().log(Level.SEVERE, "Error when accessing CraftBukkit (Are you on a supported MC version?), PySpigot will not work correctly.");
             Bukkit.getPluginManager().disablePlugin(this);
         }
+
+        if (PluginConfig.getMetricsEnabled())
+            setupMetrics();
     }
 
     @Override
@@ -132,6 +140,33 @@ public class PySpigot extends JavaPlugin {
         PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
         Bukkit.getServer().getClass().getDeclaredField("commandMap");
         SimpleCommandMap.class.getDeclaredField("knownCommands");
+    }
+
+    private void setupMetrics() {
+        final Metrics metrics = new Metrics(this, 18991);
+
+        boolean isSpigot = true;
+        try {
+            Class.forName("org.spigotmc.SpigotConfig");
+        } catch (ClassNotFoundException ignored) {
+            isSpigot = false;
+        }
+        boolean finalIsSpigot = isSpigot;
+        metrics.addCustomChart(new SimplePie("using_spigot", () -> finalIsSpigot ? "yes" : "no"));
+
+        int allScripts = ScriptManager.get().getAllScripts().size();
+        metrics.addCustomChart(new SimpleBarChart("all_scripts", () -> {
+            Map<String, Integer> map = new HashMap<>();
+            map.put(allScripts + " Scripts", 1);
+            return map;
+        }));
+
+        int loadedScripts = ScriptManager.get().getLoadedScripts().size();
+        metrics.addCustomChart(new SimpleBarChart("loaded_scripts", () -> {
+            Map<String, Integer> map = new HashMap<>();
+            map.put(loadedScripts + " Scripts", 1);
+            return map;
+        }));
     }
 
     /**

@@ -43,6 +43,10 @@ public class PluginConfig {
         logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format", "MMM dd yyyy HH:mm:ss"));
     }
 
+    public static boolean getMetricsEnabled() {
+        return config.getBoolean("metrics-enabled", true);
+    }
+
     public static long getLoadScriptDelay() {
         return config.getLong("script-load-delay", 20L);
     }
