@@ -21,6 +21,7 @@ import dev.magicmq.pyspigot.config.PluginConfig;
 import me.lucko.jarrelocator.JarRelocator;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -54,6 +55,14 @@ public class LibraryManager {
         classLoader = new JarClassLoader(this.getClass().getClassLoader());
         initializer = Executors.newSingleThreadExecutor();
         initLibraries();
+    }
+
+    public void shutdown() {
+        try {
+            classLoader.close();
+        } catch (IOException e) {
+            PySpigot.get().getLogger().log(Level.SEVERE, "Exception when closing JarClassLoader", e);
+        }
     }
 
     /**
