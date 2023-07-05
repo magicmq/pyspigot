@@ -43,9 +43,9 @@ PySpigot has many features, including:
 
 ## Using PySpigot
 
-For complete documentation on writing/loading/running scripts, using PySpigot's provided managers, and using the plugin in general, see PySpigot's documentation.
+For complete documentation on writing/loading/running scripts, using PySpigot's provided managers, and using the plugin in general, see [PySpigot's documentation](https://pyspigot-docs.magicmq.dev/).
 
-For Java developers, PySpigot has an API! See the Javadocs for complete documentation of API available to you.
+For Java developers, PySpigot has an API! See the [Javadocs](https://javadocs.magicmq.dev/pyspigot) for complete documentation of API available for you to use.
 
 ## Adding PySpigot as a Dependency
 
