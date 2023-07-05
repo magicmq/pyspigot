@@ -24,6 +24,7 @@ import org.bukkit.command.CommandSender;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @SubCommandMeta(
@@ -62,7 +63,7 @@ public class ReloadCommand implements SubCommand {
     @Override
     public List<String> onTabComplete(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            return ScriptManager.get().getLoadedScripts();
+            return new ArrayList<>(ScriptManager.get().getLoadedScriptNames());
         } else {
             return null;
         }

@@ -54,7 +54,7 @@ public class ScriptManager {
     private static ScriptManager manager;
 
     private PySystemState systemState;
-    private final List<Script> scripts;
+    private final Set<Script> scripts;
     private final HashMap<String, PyObject> globalVariables;
 
     private final BukkitTask startScriptTask;
@@ -63,7 +63,7 @@ public class ScriptManager {
         this.systemState = new PySystemState();
         systemState.setClassLoader(LibraryManager.get().getClassLoader());
 
-        this.scripts = new ArrayList<>();
+        this.scripts = new HashSet<>();
         this.globalVariables = new HashMap<>();
 
         File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
@@ -225,10 +225,18 @@ public class ScriptManager {
 
     /**
      * Get all loaded scripts.
-     * @return An immutable list containing all loaded and running scripts
+     * @return An immutable set containing all loaded and running scripts
      */
-    public List<String> getLoadedScripts() {
-        return scripts.stream().map(Script::getName).collect(Collectors.toList());
+    public Set<Script> getLoadedScripts() {
+        return new HashSet<>(scripts);
+    }
+
+    /**
+     * Get the names of all loaded scripts.
+     * @return An immutable list containing the names of all loaded and running scripts
+     */
+    public Set<String> getLoadedScriptNames() {
+        return scripts.stream().map(Script::getName).collect(Collectors.toSet());
     }
 
     /**

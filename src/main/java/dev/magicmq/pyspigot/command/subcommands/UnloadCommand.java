@@ -22,6 +22,7 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SubCommandMeta(
@@ -52,7 +53,7 @@ public class UnloadCommand implements SubCommand {
     @Override
     public List<String> onTabComplete(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            return ScriptManager.get().getLoadedScripts();
+            return new ArrayList<>(ScriptManager.get().getLoadedScriptNames());
         } else {
             return null;
         }
