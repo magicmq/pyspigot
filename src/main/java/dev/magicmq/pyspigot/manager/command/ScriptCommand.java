@@ -169,7 +169,7 @@ public class ScriptCommand implements TabExecutor {
             bukkitCommand.setExecutor(this);
             return bukkitCommand;
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            //This should not happen, unless the Bukkit API changes
+            //This should not happen, reflection checks done on plugin enable
             throw new RuntimeException("Unhandled exception when initializing command '" + name + "'", e);
         }
     }
