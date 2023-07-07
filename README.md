@@ -43,6 +43,10 @@ PySpigot has many features, including:
 
 ## Using PySpigot
 
+You can download the latest version of PySpigot from the [releases](https://github.com/magicmq/pyspigot/releases/) page, or from [Spigot](https://www.spigotmc.org/resources/pyspigot.111006/). Drop it into your plugins folder, and you're ready to begin writing scripts.
+
+PySpigot also has an official Discord server for support, updates, and announcements. Click [here](https://discord.gg/f2u7nzRwuk) to join.
+
 For complete documentation on writing/loading/running scripts, using PySpigot's provided managers, and using the plugin in general, see [PySpigot's documentation](https://pyspigot-docs.magicmq.dev/).
 
 For Java developers, PySpigot has an API! See the [Javadocs](https://javadocs.magicmq.dev/pyspigot) for complete documentation of API available for you to use.
