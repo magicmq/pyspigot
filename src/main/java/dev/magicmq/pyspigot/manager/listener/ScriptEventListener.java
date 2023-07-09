@@ -19,7 +19,6 @@ package dev.magicmq.pyspigot.manager.listener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.EventExecutor;
 import org.python.core.PyFunction;
 
 /**

@@ -20,12 +20,10 @@ import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
 import org.python.core.PyBaseCode;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
