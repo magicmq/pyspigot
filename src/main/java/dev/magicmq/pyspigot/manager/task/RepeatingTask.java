@@ -17,14 +17,14 @@
 package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.python.core.PyException;
 import org.python.core.PyFunction;
 
 /**
  * Represents a repeating task defined by a script.
  */
 public class RepeatingTask extends Task {
-
-    private int taskId;
 
     /**
      *
@@ -36,19 +36,14 @@ public class RepeatingTask extends Task {
     }
 
     /**
-     * Set the Bukkit task ID associated with this repeating task.
-     * @param taskId The task ID to set
+     * {@inheritDoc}
      */
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
+    @Override
+    public void run() {
+        try {
+            function.__call__();
+        } catch (PyException e) {
+            ScriptManager.get().handleScriptException(script, e, "Error when executing task");
+        }
     }
-
-    /**
-     * Get the task ID associated with this repeating task.
-     * @return The task ID associated with this repeating task
-     */
-    public int getTaskId() {
-        return taskId;
-    }
-
 }

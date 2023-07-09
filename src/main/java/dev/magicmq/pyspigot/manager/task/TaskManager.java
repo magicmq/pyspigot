@@ -35,10 +35,10 @@ public class TaskManager {
 
     private static TaskManager manager;
 
-    private final List<RepeatingTask> repeatingTasks;
+    private final List<Task> activeTasks;
 
     private TaskManager() {
-        repeatingTasks = new ArrayList<>();
+        activeTasks = new ArrayList<>();
     }
 
     /**
@@ -51,7 +51,9 @@ public class TaskManager {
     public int runTask(PyFunction function) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
-        return Bukkit.getScheduler().runTask(PySpigot.get(), task).getTaskId();
+        activeTasks.add(task);
+        task.runTask(PySpigot.get());
+        return task.getTaskId();
     }
 
     /**
@@ -64,7 +66,9 @@ public class TaskManager {
     public int runTaskAsync(PyFunction function) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
-        return Bukkit.getScheduler().runTaskAsynchronously(PySpigot.get(), task).getTaskId();
+        activeTasks.add(task);
+        task.runTaskAsynchronously(PySpigot.get());
+        return task.getTaskId();
     }
 
     /**
@@ -78,7 +82,9 @@ public class TaskManager {
     public int runTaskLater(PyFunction function, long delay) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
-        return Bukkit.getScheduler().runTaskLater(PySpigot.get(), task, delay).getTaskId();
+        activeTasks.add(task);
+        task.runTaskLater(PySpigot.get(), delay);
+        return task.getTaskId();
     }
 
     /**
@@ -92,7 +98,9 @@ public class TaskManager {
     public int runTaskLaterAsync(PyFunction function, long delay) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
         Task task = new Task(script, function);
-        return Bukkit.getScheduler().runTaskLaterAsynchronously(PySpigot.get(), task, delay).getTaskId();
+        activeTasks.add(task);
+        task.runTaskLaterAsynchronously(PySpigot.get(), delay);
+        return task.getTaskId();
     }
 
     /**
@@ -106,11 +114,10 @@ public class TaskManager {
      */
     public int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
-        RepeatingTask task = new RepeatingTask(script, function);
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(PySpigot.get(), task, delay, interval);
-        task.setTaskId(bukkitTask.getTaskId());
-        repeatingTasks.add(task);
-        return bukkitTask.getTaskId();
+        Task task = new RepeatingTask(script, function);
+        activeTasks.add(task);
+        task.runTaskTimer(PySpigot.get(), delay, interval);
+        return task.getTaskId();
     }
 
     /**
@@ -124,11 +131,10 @@ public class TaskManager {
      */
     public int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {
         Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
-        RepeatingTask task = new RepeatingTask(script, function);
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(PySpigot.get(), task, delay, interval);
-        task.setTaskId(bukkitTask.getTaskId());
-        repeatingTasks.add(task);
-        return bukkitTask.getTaskId();
+        Task task = new RepeatingTask(script, function);
+        activeTasks.add(task);
+        task.runTaskTimerAsynchronously(PySpigot.get(), delay, interval);
+        return task.getTaskId();
     }
 
     /**
@@ -136,27 +142,61 @@ public class TaskManager {
      * @param taskId The ID of the task to terminate
      */
     public void stopTask(int taskId) {
-        for (Iterator<RepeatingTask> iterator = repeatingTasks.iterator(); iterator.hasNext();) {
-            RepeatingTask next = iterator.next();
-            if (next.getTaskId() == taskId) {
-                Bukkit.getScheduler().cancelTask(next.getTaskId());
-                iterator.remove();
-            }
-        }
+        Task task = getTask(taskId);
+        stopTask(task);
     }
 
     /**
-     * Terminate all tasks belonging to a script.
-     * @param script The script whose tasks should be terminated
+     * Terminate a scheduled task.
+     * @param task The scheduled task to terminate
+     */
+    public void stopTask(Task task) {
+        task.cancel();
+        activeTasks.remove(task);
+    }
+
+    /**
+     * Terminate all scheduled tasks belonging to a script.
+     * @param script The script whose scheduled tasks should be terminated
      */
     public void stopTasks(Script script) {
-        for (Iterator<RepeatingTask> iterator = repeatingTasks.iterator(); iterator.hasNext();) {
-            RepeatingTask next = iterator.next();
-            if (next.getScript().equals(script)) {
-                Bukkit.getScheduler().cancelTask(next.getTaskId());
-                iterator.remove();
-            }
+        List<Task> associatedTasks = getTasks(script);
+        associatedTasks.forEach(this::stopTask);
+    }
+
+    /**
+     * Get a scheduled task from its ID.
+     * @param taskId The task ID
+     * @return The scheduled task associated with the task ID, null if no task was found with the given ID
+     */
+    public Task getTask(int taskId) {
+        for (Task task : activeTasks) {
+            if (task.getTaskId() == taskId)
+                return task;
         }
+        return null;
+    }
+
+    /**
+     * Get all scheduled tasks associated with a script.
+     * @param script The script whose scheduled tasks should be gotten
+     * @return An immutable list containing all scheduled tasks associated with the script. Returns an empty list if the script has no scheduled tasks
+     */
+    public List<Task> getTasks(Script script) {
+        List<Task> toReturn = new ArrayList<>();
+        for (Task task : activeTasks) {
+            if (task.getScript().equals(script))
+                toReturn.add(task);
+        }
+        return toReturn;
+    }
+
+    protected void taskFinished(Task task) {
+        if (!Bukkit.isPrimaryThread()) {
+            //This could be called from an asynchronous context (from an asynchronous task, for example), so we need to run it sync to avoid issues
+            Bukkit.getScheduler().runTask(PySpigot.get(), () -> TaskManager.this.taskFinished(task));
+        } else
+            activeTasks.remove(task);
     }
 
     /**

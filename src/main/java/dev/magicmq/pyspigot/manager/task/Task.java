@@ -18,16 +18,17 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 
 /**
  * Represents a task defined by a script.
  */
-public class Task implements Runnable {
+public class Task extends BukkitRunnable {
 
-    private final Script script;
-    private final PyFunction function;
+    protected final Script script;
+    protected final PyFunction function;
 
     /**
      *
@@ -48,6 +49,8 @@ public class Task implements Runnable {
             function.__call__();
         } catch (PyException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when executing task");
+        } finally {
+            TaskManager.get().taskFinished(this);
         }
     }
 
