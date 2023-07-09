@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.command.PySpigotCommand;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.config.ConfigManager;
+import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
@@ -78,6 +79,10 @@ public class PySpigot extends JavaPlugin {
      */
     public static ConfigManager config;
     /**
+     * Can be used by scripts to access the {@link DatabaseManager}
+     */
+    public static DatabaseManager database;
+    /**
      * Can be used by scripts to access the {@link ProtocolManager}.
      */
     public static ProtocolManager protocol;
@@ -122,6 +127,7 @@ public class PySpigot extends JavaPlugin {
         command = CommandManager.get();
         scheduler = TaskManager.get();
         config = ConfigManager.get();
+        database = DatabaseManager.get();
 
         if (isProtocolLibAvailable())
             protocol = ProtocolManager.get();

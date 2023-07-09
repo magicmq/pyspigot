@@ -22,6 +22,7 @@ import dev.magicmq.pyspigot.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
+import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
@@ -374,6 +375,7 @@ public class ScriptManager {
         ListenerManager.get().unregisterListeners(script);
         TaskManager.get().stopTasks(script);
         CommandManager.get().unregisterCommands(script);
+        DatabaseManager.get().closeDatabases(script);
 
         if (PySpigot.get().isProtocolLibAvailable()) {
             ProtocolManager.get().unregisterPacketListeners(script);
