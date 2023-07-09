@@ -157,12 +157,29 @@ public class ListenerManager {
 
     private void removeFromHandlers(ScriptEventListener listener) {
         try {
-            Method method = listener.getEvent().getDeclaredMethod("getHandlerList");
+            Method method = getRegistrationClass(listener.getEvent()).getDeclaredMethod("getHandlerList");
+            method.setAccessible(true);
             HandlerList list = (HandlerList) method.invoke(null);
             list.unregister(listener);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             //This should not happen, because all events *should* have getHandlerList defined
             throw new RuntimeException("Unhandled exception when unregistering listener '" + listener.getEvent().getSimpleName() + "'", e);
+        }
+    }
+
+    //Copied from org.bukkit.plugin.SimplePluginManager#getRegistrationClass. Resolves getHandlerList for events, including those where getHandlerList is defined in a superclass (such as BlockBreakEvent)
+    private Class<? extends Event> getRegistrationClass(Class<? extends Event> clazz) {
+        try {
+            clazz.getDeclaredMethod("getHandlerList");
+            return clazz;
+        } catch (NoSuchMethodException e) {
+            if (clazz.getSuperclass() != null
+                    && !clazz.getSuperclass().equals(Event.class)
+                    && Event.class.isAssignableFrom(clazz.getSuperclass())) {
+                return getRegistrationClass(clazz.getSuperclass().asSubclass(Event.class));
+            } else {
+                throw new RuntimeException("Unable to find handler list for event " + clazz.getName() + ". Static getHandlerList method required!");
+            }
         }
     }
 
