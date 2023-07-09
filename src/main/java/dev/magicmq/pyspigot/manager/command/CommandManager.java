@@ -202,12 +202,8 @@ public class CommandManager {
      * @param script The script from which all commands should be unregistered
      */
     public void unregisterCommands(Script script) {
-        List<ScriptCommand> toRemove = new ArrayList<>();
-        for (ScriptCommand command : registeredCommands) {
-            if (command.getScript().equals(script))
-                toRemove.add(command);
-        }
-        toRemove.forEach(this::unregisterCommand);
+        List<ScriptCommand> associatedCommands = getCommands(script);
+        associatedCommands.forEach(this::unregisterCommand);
     }
 
     /**
