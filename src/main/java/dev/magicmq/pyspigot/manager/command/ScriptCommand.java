@@ -27,6 +27,7 @@ import org.python.core.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -114,7 +115,7 @@ public class ScriptCommand implements TabExecutor {
                             toReturn.add((String) object);
                         else {
                             script.getLogger().log(Level.SEVERE, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str!");
-                            return null;
+                            return Collections.emptyList();
                         }
                     }
                     return toReturn;
@@ -123,7 +124,7 @@ public class ScriptCommand implements TabExecutor {
                 ScriptManager.get().handleScriptException(script, exception,  "Unhandled exception when tab completing command '" + label + "'");
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**
