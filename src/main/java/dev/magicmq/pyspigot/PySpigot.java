@@ -32,6 +32,7 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -140,6 +141,7 @@ public class PySpigot extends JavaPlugin {
         PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
         Bukkit.getServer().getClass().getDeclaredField("commandMap");
         SimpleCommandMap.class.getDeclaredField("knownCommands");
+        IndexHelpTopic.class.getDeclaredField("allTopics");
     }
 
     private void setupMetrics() {

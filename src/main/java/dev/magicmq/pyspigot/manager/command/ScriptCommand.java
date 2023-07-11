@@ -19,17 +19,18 @@ package dev.magicmq.pyspigot.manager.command;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.CommandAliasHelpTopic;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
+import org.bukkit.help.*;
 import org.bukkit.plugin.Plugin;
 import org.python.core.*;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,7 @@ public class ScriptCommand implements TabExecutor {
     private String permissionMessage;
 
     private PluginCommand bukkitCommand;
+    private List<HelpTopic> helps;
 
     /**
      *
@@ -82,6 +84,7 @@ public class ScriptCommand implements TabExecutor {
         this.permissionMessage = permissionMessage;
 
         this.bukkitCommand = initBukkitCommand();
+        initHelp();
     }
 
     @Override
@@ -156,6 +159,8 @@ public class ScriptCommand implements TabExecutor {
             knownCommands.remove(alias);
             knownCommands.remove(prefix + ":" + alias);
         }
+
+        removeHelp();
     }
 
     private PluginCommand initBukkitCommand() {
@@ -177,5 +182,49 @@ public class ScriptCommand implements TabExecutor {
         }
     }
 
+    private void initHelp() {
+        helps = new ArrayList<>();
+        HelpMap helpMap = Bukkit.getHelpMap();
+        HelpTopic helpTopic = new GenericCommandHelpTopic(bukkitCommand);
+        helpMap.addTopic(helpTopic);
+        helps.add(helpTopic);
 
+        HelpTopic aliases = helpMap.getHelpTopic("Aliases");
+        if (aliases instanceof IndexHelpTopic) {
+            aliases.getFullText(Bukkit.getConsoleSender());
+            try {
+                Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
+                topics.setAccessible(true);
+                List<HelpTopic> aliasTopics = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
+                for (String alias : this.aliases) {
+                    HelpTopic toAdd = new CommandAliasHelpTopic("/" + alias, "/" + label, helpMap);
+                    aliasTopics.add(toAdd);
+                    helps.add(toAdd);
+                }
+                aliasTopics.sort(HelpTopicComparator.helpTopicComparatorInstance());
+                topics.set(aliases, aliasTopics);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                //This should not happen, reflection checks done on plugin enable
+                throw new RuntimeException("Unhandled exception when initializing command '" + name + "'", e);
+            }
+        }
+    }
+
+    private void removeHelp() {
+        Bukkit.getHelpMap().getHelpTopics().removeAll(helps);
+
+        HelpTopic aliases = Bukkit.getHelpMap().getHelpTopic("Aliases");
+        if (aliases instanceof IndexHelpTopic) {
+            try {
+                Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
+                topics.setAccessible(true);
+                List<HelpTopic> aliasTopics = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
+                aliasTopics.removeAll(helps);
+                topics.set(aliases, aliasTopics);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                //This should not happen, reflection checks done on plugin enable
+                throw new RuntimeException("Unhandled exception when unregistering command '" + name + "'", e);
+            }
+        }
+    }
 }
