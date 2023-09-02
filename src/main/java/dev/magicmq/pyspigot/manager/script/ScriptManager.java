@@ -96,8 +96,10 @@ public class ScriptManager {
      * @throws IOException If there was an IOException related to loading the script file
      */
     public boolean loadScript(String name) throws IOException {
-        if (getScript(name) != null)
-            throw new IllegalArgumentException("Attempted to load script " + name + ", but there is already a loaded script with this name. Script names must be unique.");
+        if (getScript(name) != null) {
+            PySpigot.get().getLogger().log(Level.SEVERE, "Attempted to load script " + name + ", but there is already a loaded script with this name. Script names must be unique.");
+            return false;
+        }
 
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         File scriptFile = new File(scriptsFolder, name);
