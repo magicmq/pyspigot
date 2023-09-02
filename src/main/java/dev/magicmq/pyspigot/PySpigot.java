@@ -82,6 +82,13 @@ public class PySpigot extends JavaPlugin {
 
         getCommand("pyspigot").setExecutor(new PySpigotCommand());
 
+        try {
+            checkReflection();
+        } catch (NoSuchMethodException | NoSuchFieldException e) {
+            getLogger().log(Level.SEVERE, "Error when accessing CraftBukkit (Are you on a supported MC version?), PySpigot will not work correctly.");
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
+
         ScriptManager.get();
         listener = ListenerManager.get();
         command = CommandManager.get();
@@ -93,13 +100,6 @@ public class PySpigot extends JavaPlugin {
 
         if (isPlaceholderApiAvailable())
             placeholder = PlaceholderManager.get();
-
-        try {
-            checkReflection();
-        } catch (NoSuchMethodException | NoSuchFieldException e) {
-            getLogger().log(Level.SEVERE, "Error when accessing CraftBukkit (Are you on a supported MC version?), PySpigot will not work correctly.");
-            Bukkit.getPluginManager().disablePlugin(this);
-        }
 
         if (PluginConfig.getMetricsEnabled())
             setupMetrics();
