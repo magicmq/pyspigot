@@ -9,6 +9,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+/**
+ * Main listener of the plugin. Used only for notifying if using an outdated version of the plugin on server join.
+ */
 public class PluginListener implements Listener {
 
     @EventHandler
