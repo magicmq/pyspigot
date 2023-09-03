@@ -16,12 +16,47 @@
 
 package dev.magicmq.pyspigot.util;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
- * A utility class for various methods related to Strings.
+ * A utility class for various methods/classes related to Strings.
  */
 public class StringUtils {
 
     public static String replaceLastOccurrence(String string, String toReplace, String replaceWith) {
         return string.replaceFirst("(?s)" + toReplace + "(?!.*?" + toReplace + ")", replaceWith);
+    }
+
+    public static class Version implements Comparable<Version> {
+
+        private String version;
+
+        public Version(String version) {
+            if (version.contains("SNAPSHOT"))
+                version = version.substring(0, version.indexOf("-"));
+            this.version = version;
+        }
+
+        public final String getVersion() {
+            return version;
+        }
+
+        @Override
+        public int compareTo(@NotNull StringUtils.Version that) {
+            String[] thisParts = this.getVersion().split("\\.");
+            String[] thatParts = that.getVersion().split("\\.");
+            int length = Math.max(thisParts.length, thatParts.length);
+            for(int i = 0; i < length; i++) {
+                int thisPart = i < thisParts.length ?
+                        Integer.parseInt(thisParts[i]) : 0;
+                int thatPart = i < thatParts.length ?
+                        Integer.parseInt(thatParts[i]) : 0;
+                if(thisPart < thatPart)
+                    return -1;
+                if(thisPart > thatPart)
+                    return 1;
+            }
+            return 0;
+        }
     }
 }

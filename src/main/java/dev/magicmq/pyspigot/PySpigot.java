@@ -26,6 +26,7 @@ import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
+import dev.magicmq.pyspigot.util.StringUtils;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
@@ -36,8 +37,13 @@ import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -76,11 +82,21 @@ public class PySpigot extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        checkVersion((version) -> {
+            StringUtils.Version thisVersion = new StringUtils.Version(getDescription().getVersion());
+            StringUtils.Version latestVersion = new StringUtils.Version(version);
+            if (thisVersion.compareTo(latestVersion) < 0) {
+                getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + version + ". Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
+            }
+        });
+
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
         reloadConfig();
 
         getCommand("pyspigot").setExecutor(new PySpigotCommand());
+
+        Bukkit.getPluginManager().registerEvents(new PluginListener(), this);
 
         try {
             checkReflection();
@@ -134,6 +150,15 @@ public class PySpigot extends JavaPlugin {
      */
     public boolean isPlaceholderApiAvailable() {
         return Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+    }
+
+    protected void checkVersion(Consumer<String> consumer) {
+        try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/~").openStream(); Scanner scanner = new Scanner(is)){
+            if (scanner.hasNext())
+                consumer.accept(scanner.next());
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error when attempting to get latest plugin version from Spigot: " + e.getMessage());
+        }
     }
 
     private void checkReflection() throws NoSuchMethodException, NoSuchFieldException {

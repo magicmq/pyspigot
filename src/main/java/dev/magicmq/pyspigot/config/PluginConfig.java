@@ -79,4 +79,8 @@ public class PluginConfig {
     public static String getMessage(String key, boolean withPrefix) {
         return ChatColor.translateAlternateColorCodes('&', (withPrefix ? config.getString("messages.plugin-prefix") : "") + config.getString("messages." + key));
     }
+
+    public static String getPrefix() {
+        return ChatColor.translateAlternateColorCodes('&', config.getString("messages.plugin-prefix"));
+    }
 }
