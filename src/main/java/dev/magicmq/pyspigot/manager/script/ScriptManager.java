@@ -29,6 +29,9 @@ import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.scheduler.BukkitTask;
 import org.python.core.*;
 import org.python.util.PythonInterpreter;
@@ -52,6 +55,8 @@ public class ScriptManager {
 
     private static ScriptManager manager;
 
+    private FileConfiguration scriptOptions;
+
     private PySystemState systemState;
     private final Set<Script> scripts;
     private final HashMap<String, PyObject> globalVariables;
@@ -59,6 +64,11 @@ public class ScriptManager {
     private final BukkitTask startScriptTask;
 
     private ScriptManager() {
+        File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
+        if (file.exists()) {
+            scriptOptions = YamlConfiguration.loadConfiguration(file);
+        }
+
         this.systemState = new PySystemState();
         systemState.setClassLoader(LibraryManager.get().getClassLoader());
 
