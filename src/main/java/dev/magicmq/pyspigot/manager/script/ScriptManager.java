@@ -265,11 +265,11 @@ public class ScriptManager {
     }
 
     /**
-     * Check if a script with the given name is currently loaded and running.
+     * Check if a script with the given name is currently running.
      * @param name The name of the script to check. Name should contain the script file extension (.py)
-     * @return True if the script is loaded and running, false if otherwise
+     * @return True if the script is running, false if otherwise
      */
-    public boolean isScriptLoaded(String name) {
+    public boolean isScriptRunning(String name) {
         return getScript(name) != null;
     }
 

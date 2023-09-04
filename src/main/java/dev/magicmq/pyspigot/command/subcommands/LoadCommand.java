@@ -39,7 +39,7 @@ public class LoadCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            if (!ScriptManager.get().isScriptLoaded(args[0])) {
+            if (!ScriptManager.get().isScriptRunning(args[0])) {
                 try {
                     Script script = ScriptManager.get().loadScript(args[0]);
                     if (script != null) {

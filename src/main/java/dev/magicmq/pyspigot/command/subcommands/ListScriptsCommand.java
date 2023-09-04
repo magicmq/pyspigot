@@ -73,7 +73,7 @@ public class ListScriptsCommand implements SubCommand {
         toReturn.add(ChatColor.YELLOW + "List of scripts, page " + page + " of " + (pages > 0 ? pages : 1) + " (" + scripts.size() + " total scripts)");
         for (int i = startIndex; i < endIndex; i++) {
             String script = scripts.get(i);
-            if (ScriptManager.get().isScriptLoaded(script))
+            if (ScriptManager.get().isScriptRunning(script))
                 toReturn.add(ChatColor.GREEN + script);
             else
                 toReturn.add(ChatColor.RED + script);
