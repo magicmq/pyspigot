@@ -24,7 +24,7 @@ import org.bukkit.event.HandlerList;
  * <p>
  * This event is only called when a script loads successfully. It can safely be assumed that when this event is called, its associated script is running.
  */
-public class ScriptPostLoadEvent extends ScriptEvent {
+public class ScriptRunEvent extends ScriptEvent {
 
     private static final HandlerList handlers = new HandlerList();
 
@@ -32,7 +32,7 @@ public class ScriptPostLoadEvent extends ScriptEvent {
      *
      * @param script The script that has loaded and is running
      */
-    public ScriptPostLoadEvent(Script script) {
+    public ScriptRunEvent(Script script) {
         super(script);
     }
 

@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.command.subcommands;
 
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
+import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -40,10 +41,14 @@ public class LoadCommand implements SubCommand {
         if (args.length > 0) {
             if (!ScriptManager.get().isScriptLoaded(args[0])) {
                 try {
-                    boolean success = ScriptManager.get().loadScript(args[0]);
-                    if (success)
-                        sender.sendMessage(ChatColor.GREEN + "Successfully loaded script " + args[0]);
-                    else
+                    Script script = ScriptManager.get().loadScript(args[0]);
+                    if (script != null) {
+                        boolean success = ScriptManager.get().runScript(script);
+                        if (success)
+                            sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran script " + args[0]);
+                        else
+                            sender.sendMessage(ChatColor.RED + "There was an error when running script " + args[0] + ". See console for details.");
+                    } else
                         sender.sendMessage(ChatColor.RED + "There was an error when loading script " + args[0] + ". See console for details.");
                 } catch (FileNotFoundException e) {
                     sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name " + args[0]);

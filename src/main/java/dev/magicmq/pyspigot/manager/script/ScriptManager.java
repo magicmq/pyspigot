@@ -20,7 +20,7 @@ import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.event.ScriptLoadEvent;
-import dev.magicmq.pyspigot.event.ScriptPostLoadEvent;
+import dev.magicmq.pyspigot.event.ScriptRunEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
@@ -100,15 +100,15 @@ public class ScriptManager {
     }
 
     /**
-     * Load a script with the given name.
+     * Load a script with the given name. This only loads the script (compiles script code and reads options); it does not run the script.
      * @param name The file name of the script to load. Name should contain the file extension (.py)
-     * @return True if the script was successfully loaded, false if otherwise
+     * @return A script object representing the script that was loaded, or null if there was an error when loading the script
      * @throws IOException If there was an IOException related to loading the script file
      */
-    public boolean loadScript(String name) throws IOException {
+    public Script loadScript(String name) throws IOException {
         if (getScript(name) != null) {
             PySpigot.get().getLogger().log(Level.SEVERE, "Attempted to load script " + name + ", but there is already a loaded script with this name. Script names must be unique.");
-            return false;
+            return null;
         }
 
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
@@ -122,19 +122,66 @@ public class ScriptManager {
                 ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
                 Bukkit.getPluginManager().callEvent(eventLoad);
 
-                this.scripts.add(script);
-
-                return runScript(script);
+                return script;
             } catch (PySyntaxError | PyIndentationError e) {
                 PySpigot.get().getLogger().log(Level.SEVERE, "Error when parsing script " + scriptFile.getName() + ": " + e.getMessage());
                 interpreter.close();
-                return false;
+                return null;
             }
         }
     }
 
     /**
-     * Unload a script with the given name
+     * Run a script. This will also check if the script's dependencies are loaded and running prior to running the script.
+     * @param script The script to run
+     * @return True if the script ran successfully, or false if there was an error at runtime
+     */
+    public boolean runScript(Script script) {
+        List<String> unresolvedDependencies = getUnresolvedDependencies(script);
+        if (unresolvedDependencies.size() > 0) {
+            PySpigot.get().getLogger().log(Level.SEVERE,  "The following dependencies for script '" + script.getName() + "' are not running: " + unresolvedDependencies + ". This script will not load.");
+            return false;
+        }
+
+        try {
+            script.getInterpreter().exec(script.getCode());
+
+            PyObject start = script.getInterpreter().get("start");
+            if (start != null) {
+                if (start instanceof PyFunction)
+                    script.setStartFunction((PyFunction) start);
+                else {
+                    script.getLogger().log(Level.WARNING, "'start' is defined, but it is not a function. Is this a mistake?");
+                }
+            }
+
+            PyObject stop = script.getInterpreter().get("stop");
+            if (stop != null) {
+                if (stop instanceof PyFunction)
+                    script.setStopFunction((PyFunction) stop);
+                else {
+                    script.getLogger().log(Level.WARNING, "'stop' is defined, but it is not a function. Is this a mistake?");
+                }
+            }
+
+            if (script.getStartFunction() != null)
+                script.getStartFunction().__call__();
+
+            ScriptRunEvent event = new ScriptRunEvent(script);
+            Bukkit.getPluginManager().callEvent(event);
+
+            this.scripts.add(script);
+        } catch (PyException e) {
+            handleScriptException(script, e, "Runtime error");
+            script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
+            unloadScript(script, true);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Unload a script with the given name.
      * @param name The name of the script to unload. Name should contain the script file extension (.py)
      * @return True if the script was successfully unloaded, false if otherwise
      */
@@ -167,7 +214,11 @@ public class ScriptManager {
         if (!unloadScript(name))
             return false;
 
-        return loadScript(script.getName());
+        Script newScript = loadScript(name);
+        if (newScript != null)
+            return runScript(newScript);
+        else
+            return false;
     }
 
     /**
@@ -269,8 +320,8 @@ public class ScriptManager {
 
     private void loadScripts() {
         PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
-        int numOfScripts = 0;
-        int errorScripts = 0;
+
+        List<Script> loadedScripts = new ArrayList<>();
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         if (scriptsFolder.isDirectory()) {
             SortedSet<File> toLoad = new TreeSet<>();
@@ -278,20 +329,56 @@ public class ScriptManager {
             for (File script : toLoad) {
                 if (script.getName().endsWith(".py")) {
                     try {
-                        if (loadScript(script.getName()))
-                            numOfScripts++;
-                        else
-                            errorScripts++;
+                        Script loaded = loadScript(script.getName());
+                        if (loaded != null)
+                            loadedScripts.add(loaded);
                     } catch (IOException e) {
-                        PySpigot.get().getLogger().log(Level.SEVERE, "Error when loading script file " + script.getName() + ". Does the file exist?", e);
-                        errorScripts++;
+                        PySpigot.get().getLogger().log(Level.SEVERE, "IOException when reading script file '" + script.getName() + "': " + e.getMessage() + ". Does the file exist?");
                     }
                 }
             }
         }
-        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + numOfScripts + " scripts!");
-        if (errorScripts > 0)
-            PySpigot.get().getLogger().log(Level.INFO, errorScripts + " scripts were not loaded due to errros.");
+
+        checkDependencies(loadedScripts);
+
+        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + loadedScripts.size() + " scripts!");
+
+        runScripts(loadedScripts);
+    }
+
+    private void runScripts(List<Script> scripts) {
+        PySpigot.get().getLogger().log(Level.INFO, "Running scripts...");
+
+        ScriptSorter sorter = new ScriptSorter(scripts);
+        LinkedList<Script> loadOrder = sorter.getOptimalLoadOrder();
+        for (Script script : loadOrder) {
+            runScript(script);
+        }
+    }
+
+    private void checkDependencies(List<Script> scripts) {
+        List<String> scriptNames = scripts.stream().map(Script::getName).collect(Collectors.toList());
+        for (Iterator<Script> scriptIterator = scripts.iterator(); scriptIterator.hasNext();) {
+            Script script = scriptIterator.next();
+            List<String> dependencies = script.getOptions().getDependencies();
+            for (String dependency : dependencies) {
+                if (!scriptNames.contains(dependency)) {
+                    PySpigot.get().getLogger().log(Level.SEVERE, "Script '" + script.getName() + "' has an unknown dependency '" + dependency + "'. This script will not be loaded.");
+                    scriptIterator.remove();
+                    break;
+                }
+            }
+        }
+    }
+
+    private List<String> getUnresolvedDependencies(Script script) {
+        List<String> unresolved = new ArrayList<>();
+        for (String dependency : script.getOptions().getDependencies()) {
+            if (getScript(dependency) == null) {
+                unresolved.add(dependency);
+            }
+        }
+        return unresolved;
     }
 
     private PythonInterpreter initNewInterpreter() {
@@ -300,42 +387,6 @@ public class ScriptManager {
         interpreter.set("global", globalVariables);
 
         return interpreter;
-    }
-
-    private boolean runScript(Script script) {
-        try {
-            script.getInterpreter().exec(script.getCode());
-
-            PyObject start = script.getInterpreter().get("start");
-            if (start != null) {
-                if (start instanceof PyFunction)
-                    script.setStartFunction((PyFunction) start);
-                else {
-                    script.getLogger().log(Level.WARNING, "'start' is defined, but it is not a function. Is this a mistake?");
-                }
-            }
-
-            PyObject stop = script.getInterpreter().get("stop");
-            if (stop != null) {
-                if (stop instanceof PyFunction)
-                    script.setStopFunction((PyFunction) stop);
-                else {
-                    script.getLogger().log(Level.WARNING, "'stop' is defined, but it is not a function. Is this a mistake?");
-                }
-            }
-
-            if (script.getStartFunction() != null)
-                script.getStartFunction().__call__();
-
-            ScriptPostLoadEvent event = new ScriptPostLoadEvent(script);
-            Bukkit.getPluginManager().callEvent(event);
-        } catch (PyException e) {
-            handleScriptException(script, e, "Runtime error");
-            script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
-            unloadScript(script, true);
-            return false;
-        }
-        return true;
     }
 
     private boolean stopScript(Script script, boolean error) {
