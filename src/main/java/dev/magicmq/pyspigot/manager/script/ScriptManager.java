@@ -404,8 +404,6 @@ public class ScriptManager {
             PlaceholderManager.get().unregisterPlaceholder(script);
         }
 
-        script.getInterpreter().close();
-
         if (!error) {
             try {
                 if (script.getStopFunction() != null)
@@ -416,6 +414,7 @@ public class ScriptManager {
             }
         }
 
+        script.getInterpreter().close();
         script.closeLogger();
 
         return true;
