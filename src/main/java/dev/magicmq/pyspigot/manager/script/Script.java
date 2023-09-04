@@ -33,6 +33,7 @@ import java.util.logging.Level;
 public class Script {
 
     private final String name;
+    private final ScriptOptions options;
     private final PythonInterpreter interpreter;
     private final PyCode code;
     private final File file;
@@ -43,13 +44,15 @@ public class Script {
 
     /**
      *
-     * @param name The name of the script. Should contain its extension (.py)
+     * @param name The name of this script. Should contain its extension (.py)
+     * @param options The {@link ScriptOptions} for this script
      * @param interpreter The {@link org.python.util.PythonInterpreter} for this script
      * @param code The {@link org.python.core.PyCode} for this script
      * @param file The file associated with this script
      */
-    public Script(String name, PythonInterpreter interpreter, PyCode code, File file) {
+    public Script(String name, ScriptOptions options, PythonInterpreter interpreter, PyCode code, File file) {
         this.name = name;
+        this.options = options;
         this.interpreter = interpreter;
         this.code = code;
         this.file = file;
@@ -87,6 +90,14 @@ public class Script {
      */
     public String getLogFileName() {
         return getSimpleName() + ".log";
+    }
+
+    /**
+     * Get the {@link ScriptOptions} for this script, which contains various runtime options associated with this script.
+     * @return The {@link ScriptOptions} for this script
+     */
+    public ScriptOptions getOptions() {
+        return options;
     }
 
     /**

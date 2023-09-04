@@ -94,6 +94,8 @@ public class PySpigot extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
 
+        saveResource("script_options.yml", false);
+
         getCommand("pyspigot").setExecutor(new PySpigotCommand());
 
         Bukkit.getPluginManager().registerEvents(new PluginListener(), this);

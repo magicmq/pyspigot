@@ -106,7 +106,8 @@ public class ScriptManager {
         try (FileReader reader = new FileReader(scriptFile)) {
             PythonInterpreter interpreter = initNewInterpreter();
             try {
-                Script script = new Script(scriptFile.getName(), interpreter, interpreter.compile(reader, scriptFile.getName()), scriptFile);
+                ScriptOptions options = getScriptOptions(name);
+                Script script = new Script(scriptFile.getName(), options, interpreter, interpreter.compile(reader, scriptFile.getName()), scriptFile);
 
                 ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
                 Bukkit.getPluginManager().callEvent(eventLoad);
@@ -356,6 +357,19 @@ public class ScriptManager {
         script.closeLogger();
 
         return true;
+    }
+
+    private ScriptOptions getScriptOptions(String name) {
+        ConfigurationSection options = scriptOptions.getConfigurationSection(name);
+        if (options != null) {
+            boolean enabled = options.getBoolean("enabled", true);
+            long loadDelay = options.getLong("load-delay", 20L);
+            List<String> depend = options.getStringList("depend");
+            boolean loggingEnabled = options.getBoolean("logging-enabled", true);
+            Level loggingLevel = Level.parse(options.getString("logging-level", "INFO"));
+            return new ScriptOptions(enabled, loadDelay, depend, loggingEnabled, loggingLevel);
+        } else
+            return new ScriptOptions();
     }
 
     /**
