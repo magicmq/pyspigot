@@ -141,6 +141,7 @@ public class ScriptManager {
         List<String> unresolvedDependencies = getUnresolvedDependencies(script);
         if (unresolvedDependencies.size() > 0) {
             PySpigot.get().getLogger().log(Level.SEVERE,  "The following dependencies for script '" + script.getName() + "' are not running: " + unresolvedDependencies + ". This script will not load.");
+            script.close();
             return false;
         }
 
@@ -364,6 +365,7 @@ public class ScriptManager {
                 if (!scriptNames.contains(dependency)) {
                     PySpigot.get().getLogger().log(Level.SEVERE, "Script '" + script.getName() + "' has an unknown dependency '" + dependency + "'. This script will not be loaded.");
                     scriptIterator.remove();
+                    script.close();
                     break;
                 }
             }
@@ -412,8 +414,7 @@ public class ScriptManager {
             }
         }
 
-        script.getInterpreter().close();
-        script.closeLogger();
+        script.close();
 
         return true;
     }

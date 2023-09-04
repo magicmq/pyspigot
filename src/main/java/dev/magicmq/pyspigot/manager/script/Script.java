@@ -134,15 +134,6 @@ public class Script {
     }
 
     /**
-     * Closes this script's logger's file handler. This method has no effect if file logging is disabled in PySpigot's config file.
-     */
-    public void closeLogger() {
-        if (PluginConfig.doLogToFile()) {
-            logger.closeFileHandler();
-        }
-    }
-
-    /**
      * Get the start function defined in this script, if there is one defined.
      * @return The start function for this script, or null if there is no start function defined in the script
      */
@@ -172,6 +163,15 @@ public class Script {
      */
     public void setStopFunction(PyFunction stopFunction) {
         this.stopFunction = stopFunction;
+    }
+
+    /**
+     * Closes this script's PythonInterpreter and file logger.
+     */
+    public void close() {
+        if (PluginConfig.doLogToFile())
+            logger.closeFileHandler();
+        interpreter.close();
     }
 
     /**
