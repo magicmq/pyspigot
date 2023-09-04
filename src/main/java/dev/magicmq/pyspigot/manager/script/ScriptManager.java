@@ -410,6 +410,7 @@ public class ScriptManager {
                     script.getStopFunction().__call__();
             } catch (PyException e) {
                 handleScriptException(script, e, "Error when executing stop function");
+                script.close();
                 return false;
             }
         }
