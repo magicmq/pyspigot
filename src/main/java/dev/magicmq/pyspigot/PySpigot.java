@@ -105,6 +105,7 @@ public class PySpigot extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
+        LibraryManager.get();
         ScriptManager.get();
         listener = ListenerManager.get();
         command = CommandManager.get();
