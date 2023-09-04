@@ -210,8 +210,6 @@ public class ScriptManager {
      * @throws IOException If there was an IOException related to loading the script file
      */
     public boolean reloadScript(String name) throws IOException {
-        Script script = getScript(name);
-
         if (!unloadScript(name))
             return false;
 
