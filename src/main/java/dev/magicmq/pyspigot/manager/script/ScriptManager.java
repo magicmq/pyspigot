@@ -56,8 +56,6 @@ public class ScriptManager {
 
     private static ScriptManager manager;
 
-    private FileConfiguration scriptOptions;
-
     private PySystemState systemState;
     private final Set<Script> scripts;
     private final HashMap<String, PyObject> globalVariables;
@@ -65,11 +63,6 @@ public class ScriptManager {
     private final BukkitTask startScriptTask;
 
     private ScriptManager() {
-        File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
-        if (file.exists()) {
-            scriptOptions = YamlConfiguration.loadConfiguration(file);
-        }
-
         this.systemState = new PySystemState();
         systemState.setClassLoader(LibraryManager.get().getClassLoader());
 
@@ -117,7 +110,7 @@ public class ScriptManager {
         try (FileReader reader = new FileReader(scriptFile)) {
             PythonInterpreter interpreter = initNewInterpreter();
             try {
-                ScriptOptions options = getScriptOptions(name);
+                ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(name));
                 Script script = new Script(scriptFile.getName(), options, interpreter, interpreter.compile(reader, scriptFile.getName()), scriptFile);
 
                 ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
@@ -423,18 +416,6 @@ public class ScriptManager {
         script.close();
 
         return true;
-    }
-
-    private ScriptOptions getScriptOptions(String name) {
-        ConfigurationSection options = scriptOptions.getConfigurationSection(name);
-        if (options != null) {
-            boolean enabled = options.getBoolean("enabled", true);
-            List<String> depend = options.getStringList("depend");
-            boolean loggingEnabled = options.getBoolean("logging-enabled", true);
-            Level loggingLevel = Level.parse(options.getString("logging-level", "INFO"));
-            return new ScriptOptions(enabled, depend, loggingEnabled, loggingLevel);
-        } else
-            return new ScriptOptions();
     }
 
     /**

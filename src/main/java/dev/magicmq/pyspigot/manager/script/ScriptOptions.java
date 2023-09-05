@@ -1,6 +1,6 @@
 package dev.magicmq.pyspigot.manager.script;
 
-import dev.magicmq.pyspigot.config.PluginConfig;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,24 +17,21 @@ public class ScriptOptions {
     private final Level loggingLevel;
 
     /**
-     * Create a new ScriptOptions with the default values.
+     * Initialize a new ScriptOptions using values from the provided ConfigurationSection. If this constructor is passed a null value for the config parameter, then the default script options will be used.
+     * @param config The configuration section from which script options should be read, or null if the default script options should be used
      */
-    public ScriptOptions() {
-        this(true, new ArrayList<>(), PluginConfig.doLogToFile(), PluginConfig.getLogLevel());
-    }
-
-    /**
-     *
-     * @param enabled Whether this script is enabled
-     * @param depend A list of dependencies that this script relies on
-     * @param loggingEnabled Whether this script's log messages/errors should be logged to file
-     * @param loggingLevel The minimum logging level for this script's logging
-     */
-    public ScriptOptions(boolean enabled, List<String> depend, boolean loggingEnabled, Level loggingLevel) {
-        this.enabled = enabled;
-        this.depend = depend;
-        this.loggingEnabled = loggingEnabled;
-        this.loggingLevel = loggingLevel;
+    public ScriptOptions(ConfigurationSection config) {
+        if (config != null) {
+            this.enabled = config.getBoolean("enabled", true);
+            this.depend = config.getStringList("depend");
+            this.loggingEnabled = config.getBoolean("logging-enabled", true);
+            this.loggingLevel = Level.parse(config.getString("logging-level", "INFO"));
+        } else {
+            this.enabled = true;
+            this.depend = new ArrayList<>();
+            this.loggingEnabled = true;
+            this.loggingLevel = Level.INFO;
+        }
     }
 
     /**

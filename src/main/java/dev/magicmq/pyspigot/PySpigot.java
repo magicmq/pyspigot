@@ -33,10 +33,13 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -78,6 +81,8 @@ public class PySpigot extends JavaPlugin {
      */
     public static PlaceholderManager placeholder;
 
+    private FileConfiguration scriptOptionsConfig;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -95,6 +100,10 @@ public class PySpigot extends JavaPlugin {
         reloadConfig();
 
         saveResource("script_options.yml", false);
+        File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
+        if (file.exists()) {
+            scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
+        }
 
         getCommand("pyspigot").setExecutor(new PySpigotCommand());
 
@@ -137,6 +146,14 @@ public class PySpigot extends JavaPlugin {
     public void reload() {
         reloadConfig();
         PluginConfig.reload();
+    }
+
+    /**
+     * Get the script_options.yml configuration file.
+     * @return The script_options.yml configuration file
+     */
+    public FileConfiguration getScriptOptionsConfig() {
+        return scriptOptionsConfig;
     }
 
     /**
