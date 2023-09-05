@@ -135,14 +135,14 @@ public class ScriptManager {
     /**
      * Run a script. This will also check if the script's dependencies are loaded and running prior to running the script.
      * @param script The script to run
-     * @return True if the script ran successfully, or false if there was an error at runtime
+     * @return True if the script ran successfully, or false if the script was not run, which could be due to missing dependencies, runtime error, or script disabled as per script options
      */
-    public boolean runScript(Script script) {
+    public RunResult runScript(Script script) {
         List<String> unresolvedDependencies = getUnresolvedDependencies(script);
         if (unresolvedDependencies.size() > 0) {
             PySpigot.get().getLogger().log(Level.SEVERE,  "The following dependencies for script '" + script.getName() + "' are not running: " + unresolvedDependencies + ". This script will not load.");
             script.close();
-            return false;
+            return RunResult.FAIL_DEPENDENCY;
         }
 
         try {
@@ -177,9 +177,9 @@ public class ScriptManager {
             handleScriptException(script, e, "Runtime error");
             script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
             unloadScript(script, true);
-            return false;
+            return RunResult.FAIL_ERROR;
         }
-        return true;
+        return RunResult.SUCCESS;
     }
 
     /**
@@ -216,7 +216,7 @@ public class ScriptManager {
 
         Script newScript = loadScript(name);
         if (newScript != null)
-            return runScript(newScript);
+            return runScript(newScript) == RunResult.SUCCESS;
         else
             return false;
     }

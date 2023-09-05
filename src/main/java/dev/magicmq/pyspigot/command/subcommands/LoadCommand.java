@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.command.subcommands;
 
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
+import dev.magicmq.pyspigot.manager.script.RunResult;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.ChatColor;
@@ -43,10 +44,14 @@ public class LoadCommand implements SubCommand {
                 try {
                     Script script = ScriptManager.get().loadScript(args[0]);
                     if (script != null) {
-                        boolean success = ScriptManager.get().runScript(script);
-                        if (success)
+                        RunResult result = ScriptManager.get().runScript(script);
+                        if (result == RunResult.SUCCESS)
                             sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran script " + args[0]);
-                        else
+                        else if (result == RunResult.FAIL_DEPENDENCY)
+                            sender.sendMessage(ChatColor.RED + "Script " + args[0] + " was not run due to missing dependencies. See console for details.");
+                        else if (result == RunResult.FAIL_DISABLED)
+                            sender.sendMessage(ChatColor.RED + "Script " + args[0] + " was not run because it is disabled as per its options in script_options.yml.");
+                        else if (result == RunResult.FAIL_ERROR)
                             sender.sendMessage(ChatColor.RED + "There was an error when running script " + args[0] + ". See console for details.");
                     } else
                         sender.sendMessage(ChatColor.RED + "There was an error when loading script " + args[0] + ". See console for details.");
