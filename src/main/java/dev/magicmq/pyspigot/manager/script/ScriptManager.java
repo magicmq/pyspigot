@@ -145,6 +145,11 @@ public class ScriptManager {
             return RunResult.FAIL_DEPENDENCY;
         }
 
+        if (!script.getOptions().isEnabled()) {
+            script.close();
+            return RunResult.FAIL_DISABLED;
+        }
+
         try {
             script.getInterpreter().exec(script.getCode());
 
