@@ -429,11 +429,10 @@ public class ScriptManager {
         ConfigurationSection options = scriptOptions.getConfigurationSection(name);
         if (options != null) {
             boolean enabled = options.getBoolean("enabled", true);
-            long loadDelay = options.getLong("load-delay", 20L);
             List<String> depend = options.getStringList("depend");
             boolean loggingEnabled = options.getBoolean("logging-enabled", true);
             Level loggingLevel = Level.parse(options.getString("logging-level", "INFO"));
-            return new ScriptOptions(enabled, loadDelay, depend, loggingEnabled, loggingLevel);
+            return new ScriptOptions(enabled, depend, loggingEnabled, loggingLevel);
         } else
             return new ScriptOptions();
     }

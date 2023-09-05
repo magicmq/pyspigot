@@ -10,7 +10,6 @@ import java.util.logging.Level;
 public class ScriptOptions {
 
     private final boolean enabled;
-    private final long loadDelay;
     private final List<String> depend;
     private final boolean loggingEnabled;
     private final Level loggingLevel;
@@ -19,20 +18,18 @@ public class ScriptOptions {
      * Create a new ScriptOptions with the default values.
      */
     public ScriptOptions() {
-        this(true, 20L, new ArrayList<>(), true, Level.INFO);
+        this(true, new ArrayList<>(), true, Level.INFO);
     }
 
     /**
      *
      * @param enabled Whether this script is enabled
-     * @param loadDelay The delay, in ticks, to wait until running this script
      * @param depend A list of dependencies that this script relies on
      * @param loggingEnabled Whether this script's log messages/errors should be logged to file
      * @param loggingLevel The minimum logging level for this script's logging
      */
-    public ScriptOptions(boolean enabled, long loadDelay, List<String> depend, boolean loggingEnabled, Level loggingLevel) {
+    public ScriptOptions(boolean enabled, List<String> depend, boolean loggingEnabled, Level loggingLevel) {
         this.enabled = enabled;
-        this.loadDelay = loadDelay;
         this.depend = depend;
         this.loggingEnabled = loggingEnabled;
         this.loggingLevel = loggingLevel;
@@ -44,14 +41,6 @@ public class ScriptOptions {
      */
     public boolean isEnabled() {
         return enabled;
-    }
-
-    /**
-     * Get the load delay for this script.
-     * @return The load delay, in ticks
-     */
-    public long getLoadDelay() {
-        return loadDelay;
     }
 
     /**
