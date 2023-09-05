@@ -1,5 +1,7 @@
 package dev.magicmq.pyspigot.manager.script;
 
+import dev.magicmq.pyspigot.config.PluginConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,7 +20,7 @@ public class ScriptOptions {
      * Create a new ScriptOptions with the default values.
      */
     public ScriptOptions() {
-        this(true, new ArrayList<>(), true, Level.INFO);
+        this(true, new ArrayList<>(), PluginConfig.doLogToFile(), PluginConfig.getLogLevel());
     }
 
     /**

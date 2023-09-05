@@ -4,9 +4,9 @@ metrics-enabled: true
 script-load-delay: 20
 # List of relocation rules for libraries in the libs folder. Format as <pattern>|<relocated pattern>
 library-relocations: []
-# If true, PySpigot will log script messages to their respective log file
+# If true, PySpigot will log script messages to their respective log file. This value is global, and per-script options in script_options.yml overrides this value.
 log-to-file: true
-# The minimum log level that will be logged to a script's log file. For log level and their order, see https://docs.oracle.com/en/java/javase/11/docs/api/java.logging/java/util/logging/Level.html
+# The minimum log level that will be logged to a script's log file. For log level and their order, see https://docs.oracle.com/en/java/javase/11/docs/api/java.logging/java/util/logging/Level.html. This value is global, and per-script options in script_options.yml overrides this value.
 min-log-level: 'INFO'
 # Date/time format for timestamps in script log files, written in Java's SimpleDateFormat pattern: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/format/DateTimeFormatter.html
 log-timestamp-format: 'MMM dd yyyy HH:mm:ss'

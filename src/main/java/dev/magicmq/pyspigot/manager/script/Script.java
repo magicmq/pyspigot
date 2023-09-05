@@ -58,7 +58,8 @@ public class Script {
         this.file = file;
 
         this.logger = new ScriptLogger(this);
-        if (PluginConfig.doLogToFile()) {
+        this.logger.setLevel(options.getLoggingLevel());
+        if (options.isLoggingEnabled()) {
             try {
                 this.logger.initFileHandler();
             } catch (IOException e) {
@@ -169,7 +170,7 @@ public class Script {
      * Closes this script's PythonInterpreter and file logger.
      */
     public void close() {
-        if (PluginConfig.doLogToFile())
+        if (options.isLoggingEnabled())
             logger.closeFileHandler();
         interpreter.close();
     }
