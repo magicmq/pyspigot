@@ -1,5 +1,6 @@
 package dev.magicmq.pyspigot.manager.script;
 
+import dev.magicmq.pyspigot.config.PluginConfig;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
@@ -24,13 +25,13 @@ public class ScriptOptions {
         if (config != null) {
             this.enabled = config.getBoolean("enabled", true);
             this.depend = config.getStringList("depend");
-            this.loggingEnabled = config.getBoolean("logging-enabled", true);
-            this.loggingLevel = Level.parse(config.getString("logging-level", "INFO"));
+            this.loggingEnabled = config.getBoolean("logging-enabled", PluginConfig.doLogToFile());
+            this.loggingLevel = Level.parse(config.getString("logging-level", PluginConfig.getLogLevel()));
         } else {
             this.enabled = true;
             this.depend = new ArrayList<>();
-            this.loggingEnabled = true;
-            this.loggingLevel = Level.INFO;
+            this.loggingEnabled = PluginConfig.doLogToFile();
+            this.loggingLevel = Level.parse(PluginConfig.getLogLevel());
         }
     }
 

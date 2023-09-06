@@ -22,7 +22,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 /**
  * Helper class to retrieve configuration values from the plugin config.
@@ -64,8 +63,8 @@ public class PluginConfig {
         return config.getBoolean("log-to-file", true);
     }
 
-    public static Level getLogLevel() {
-        return Level.parse(config.getString("min-log-level", "INFO"));
+    public static String getLogLevel() {
+        return config.getString("min-log-level", "INFO");
     }
 
     public static DateTimeFormatter getLogTimestamp() {
