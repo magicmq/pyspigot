@@ -17,7 +17,6 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PySpigot;
-import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.util.ScriptLogger;
 import org.python.core.PyCode;
 import org.python.core.PyFunction;
