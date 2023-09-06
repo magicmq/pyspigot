@@ -20,9 +20,9 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.HandlerList;
 
 /**
- * Called after a script finished loading and has been run.
+ * Called when a script is run (its code is actually executed). This event will only be called if a script successfully loads (code compiles without syntax errors, script passes dependency checking, etc.).
  * <p>
- * This event is only called when a script loads successfully. It can safely be assumed that when this event is called, its associated script is running.
+ * In addition, this event is called immediately <i>after</i> the script's code is run. Thus, it can be assumed that the script that triggered this event is running.
  */
 public class ScriptRunEvent extends ScriptEvent {
 

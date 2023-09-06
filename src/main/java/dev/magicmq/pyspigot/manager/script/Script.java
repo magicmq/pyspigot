@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 /**
- * An object that represents a loaded and running script.
+ * An object that represents a loaded script. Because loading and running a script is done in phases, there may be a brief time when this object represents a loaded <i>but not running </i> script, as this object is instantiated prior to running the script. To check if this script object represents a running script, call {@link ScriptManager#isScriptRunning(String)}.
  */
 public class Script {
 
