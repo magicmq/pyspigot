@@ -143,6 +143,8 @@ public class ScriptManager {
             return RunResult.FAIL_DISABLED;
         }
 
+        this.scripts.add(script);
+
         try {
             script.getInterpreter().exec(script.getCode());
 
@@ -169,8 +171,6 @@ public class ScriptManager {
 
             ScriptRunEvent event = new ScriptRunEvent(script);
             Bukkit.getPluginManager().callEvent(event);
-
-            this.scripts.add(script);
         } catch (PyException e) {
             handleScriptException(script, e, "Runtime error");
             script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
