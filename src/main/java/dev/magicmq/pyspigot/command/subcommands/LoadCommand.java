@@ -62,7 +62,7 @@ public class LoadCommand implements SubCommand {
                     sender.sendMessage(ChatColor.RED + "There was an error when loading script " + args[0] + ". See console for details.");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "There is already a loaded script with the name " + args[0]);
+                sender.sendMessage(ChatColor.RED + "There is already a loaded and running script with the name " + args[0]);
             }
             return true;
         }

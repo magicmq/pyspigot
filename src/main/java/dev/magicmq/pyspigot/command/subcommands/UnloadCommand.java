@@ -43,7 +43,7 @@ public class UnloadCommand implements SubCommand {
                 else
                     sender.sendMessage(ChatColor.RED + "There was an error when unloading script " + args[0] + ". See console for details.");
             } else {
-                sender.sendMessage(ChatColor.RED + "No loaded script found with the name " + args[0]);
+                sender.sendMessage(ChatColor.RED + "No running script found with the name " + args[0]);
             }
             return true;
         }
