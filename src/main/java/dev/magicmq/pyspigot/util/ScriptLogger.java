@@ -35,7 +35,6 @@ import java.util.logging.*;
 public class ScriptLogger extends Logger {
 
     private String logFilePath;
-    private String logIdentifier;
     private FileHandler handler;
 
     /**
@@ -44,7 +43,6 @@ public class ScriptLogger extends Logger {
      */
     public ScriptLogger(Script script) {
         super("PySpigot/" + script.getName(), null);
-        this.logIdentifier = "[" + "PySpigot/" + script.getName() + "] ";
         this.setParent(PySpigot.get().getLogger());
 
         File file = new File("");
@@ -66,16 +64,6 @@ public class ScriptLogger extends Logger {
      */
     public void closeFileHandler() {
         handler.close();
-    }
-
-    /**
-     * Adds an identified to the beginning of the Log Message, then calls the superclass to log the LogRecord.
-     * @param record The LogRecord to be published
-     */
-    @Override
-    public void log(LogRecord record) {
-        record.setMessage(logIdentifier + record.getMessage());
-        super.log(record);
     }
 
     /**
