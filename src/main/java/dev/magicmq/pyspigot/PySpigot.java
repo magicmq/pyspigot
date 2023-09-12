@@ -99,11 +99,11 @@ public class PySpigot extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
 
-        saveResource("script_options.yml", false);
         File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
-        if (file.exists()) {
-            scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
+        if (!file.exists()) {
+            saveResource("script_options.yml", false);
         }
+        scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
 
         getCommand("pyspigot").setExecutor(new PySpigotCommand());
 
