@@ -336,7 +336,7 @@ public class ScriptManager {
 
         checkDependencies(loadedScripts);
 
-        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + loadedScripts.size() + " scripts!");
+        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + loadedScripts.size() + " script(s)!");
 
         runScripts(loadedScripts);
     }
@@ -344,11 +344,15 @@ public class ScriptManager {
     private void runScripts(List<Script> scripts) {
         PySpigot.get().getLogger().log(Level.INFO, "Running scripts...");
 
+        int running = 0;
         ScriptSorter sorter = new ScriptSorter(scripts);
         LinkedList<Script> loadOrder = sorter.getOptimalLoadOrder();
         for (Script script : loadOrder) {
-            runScript(script);
+            if (runScript(script) == RunResult.SUCCESS)
+                running++;
         }
+
+        PySpigot.get().getLogger().log(Level.INFO, running + " script(s) are now running!");
     }
 
     private void checkDependencies(List<Script> scripts) {
