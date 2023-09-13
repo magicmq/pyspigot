@@ -57,6 +57,10 @@ public class PySpigot extends JavaPlugin {
     private static PySpigot instance;
 
     /**
+     * Can be used by scripts to access the {@link ScriptManager}.
+     */
+    public static ScriptManager script;
+    /**
      * Can be used by scripts to access the {@link ListenerManager}.
      */
     public static ListenerManager listener;
@@ -117,7 +121,7 @@ public class PySpigot extends JavaPlugin {
         }
 
         LibraryManager.get();
-        ScriptManager.get();
+        script = ScriptManager.get();
         listener = ListenerManager.get();
         command = CommandManager.get();
         scheduler = TaskManager.get();
