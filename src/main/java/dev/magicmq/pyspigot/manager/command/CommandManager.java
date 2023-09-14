@@ -23,7 +23,6 @@ import dev.magicmq.pyspigot.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
-import org.python.core.PyBaseCode;
 import org.python.core.PyFunction;
 
 import java.lang.reflect.Field;

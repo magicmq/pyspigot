@@ -2,7 +2,6 @@ package dev.magicmq.pyspigot.manager.placeholder;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import org.python.core.PyBaseCode;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;

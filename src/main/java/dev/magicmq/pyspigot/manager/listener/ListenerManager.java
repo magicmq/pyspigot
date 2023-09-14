@@ -23,7 +23,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
-import org.python.core.PyBaseCode;
 import org.python.core.PyFunction;
 
 import java.lang.reflect.InvocationTargetException;

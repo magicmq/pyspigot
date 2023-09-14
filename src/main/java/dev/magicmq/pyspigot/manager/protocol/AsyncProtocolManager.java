@@ -7,7 +7,6 @@ import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.ListenerPriority;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import org.python.core.PyBaseCode;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
