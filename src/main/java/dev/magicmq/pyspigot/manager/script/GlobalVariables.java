@@ -17,7 +17,7 @@ public class GlobalVariables {
     }
 
     /**
-     * Set a global variable. Will override existing values.
+     * Set a global variable. Will override an existing global variable with the same name.
      * @param key The name of the variable to set
      * @param value The value of the variable
      * @return The value that was previously associated with the given key, or null if there was none
@@ -27,7 +27,7 @@ public class GlobalVariables {
     }
 
     /**
-     * Set a global variable with option to override an existing value.
+     * Set a global variable, with the option to override an existing global variable with the same name.
      * @param key The name of the variable to set
      * @param value The value of the variable
      * @param override Whether an existing value should be overridden
