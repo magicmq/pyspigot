@@ -2,6 +2,7 @@ package dev.magicmq.pyspigot.manager.redis;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import io.lettuce.core.ClientOptions;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -23,21 +24,33 @@ public class RedisManager {
     }
 
     /**
-     * Initialize a new {@link ScriptRedisClient} with a connection to a remote redis server with the specified ip, port, and password. The connection to the remote redis server will be opened automatically when the client is created.
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
+     * Initialize a new {@link ScriptRedisClient} with a connection to a remote redis server with the specified ip, port, and password, using the default client options. The connection to the remote redis server will be opened automatically when the client is created.
      * @param ip The IP of the redis server to connect to
      * @param port The port of the redis server to connect to
      * @param password The password for the redis server
      * @return A {@link ScriptRedisClient} representing a client that is connected to the remote redis server
      */
     public ScriptRedisClient openRedisClient(String ip, String port, String password) {
+        return openRedisClient(ip, port, password, null);
+    }
+
+    /**
+     * Initialize a new {@link ScriptRedisClient} with a connection to a remote redis server with the specified ip, port, and password, using the specified {@link io.lettuce.core.ClientOptions}. The connection to the remote redis server will be opened automatically when the client is created.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param ip The IP of the redis server to connect to
+     * @param port The port of the redis server to connect to
+     * @param password The password for the redis server
+     * @param clientOptions The {@link io.lettuce.core.ClientOptions} that should be used for the {@link io.lettuce.core.RedisClient}
+     * @return A {@link ScriptRedisClient} representing a client that is connected to the remote redis server
+     */
+    public ScriptRedisClient openRedisClient(String ip, String port, String password, ClientOptions clientOptions) {
         Script script = ScriptManager.get().getScriptFromCallStack();
         if (script == null)
             throw new RuntimeException("No script found when initializing new redis client");
 
         String uri = URLEncoder.encode("redis://" + password + "@" + ip + ":" + port + "/0", StandardCharsets.UTF_8);
-        ScriptRedisClient client = new ScriptRedisClient(script, uri);
+        ScriptRedisClient client = new ScriptRedisClient(script, uri, clientOptions);
         activeClients.add(client);
         if (!client.open()) {
             script.getLogger().log(Level.SEVERE, "Redis client was not opened!");
