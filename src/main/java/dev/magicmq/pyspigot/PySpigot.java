@@ -25,6 +25,7 @@ import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
+import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.script.GlobalVariables;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
@@ -79,10 +80,6 @@ public class PySpigot extends JavaPlugin {
      */
     public static ConfigManager config;
     /**
-     * Can be used by scripts to access the {@link DatabaseManager}
-     */
-    public static DatabaseManager database;
-    /**
      * Can be used by scripts to access the {@link ProtocolManager}.
      */
     public static ProtocolManager protocol;
@@ -90,6 +87,14 @@ public class PySpigot extends JavaPlugin {
      * Can be used by scripts to access the {@link PlaceholderManager}.
      */
     public static PlaceholderManager placeholder;
+    /**
+     * Can be used by scripts to access the {@link DatabaseManager}
+     */
+    public static DatabaseManager database;
+    /**
+     * Can be used by scripts to access the {@link RedisManager}
+     */
+    public static RedisManager redis;
 
     private FileConfiguration scriptOptionsConfig;
     private Metrics metrics;
@@ -128,6 +133,7 @@ public class PySpigot extends JavaPlugin {
         scheduler = TaskManager.get();
         config = ConfigManager.get();
         database = DatabaseManager.get();
+        redis = RedisManager.get();
 
         if (isProtocolLibAvailable())
             protocol = ProtocolManager.get();

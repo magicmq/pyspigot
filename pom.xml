@@ -187,6 +187,7 @@
                         <link>https://javadoc.io/doc/org.python/jython/latest/</link>
                         <link>https://aadnk.github.io/ProtocolLib/Javadoc/</link>
                         <link>https://javadoc.io/doc/me.lucko/jar-relocator/latest/me/lucko/jarrelocator/</link>
+                        <link>https://javadoc.io/doc/io.lettuce/lettuce-core/latest/</link>
                     </links>
                 </configuration>
                 <executions>

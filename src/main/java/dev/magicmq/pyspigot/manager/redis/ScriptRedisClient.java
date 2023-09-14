@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * A wrapper class that wraps the RedisClient from lettuce for use by scripts.
+ * @see io.lettuce.core.RedisClient
+ */
 public class ScriptRedisClient {
 
     private final Script script;
@@ -20,6 +24,11 @@ public class ScriptRedisClient {
     private List<ScriptPubSubListener> syncListeners;
     private List<ScriptPubSubListener> asyncListeners;
 
+    /**
+     *
+     * @param script The script to which this ScriptRedisClient belongs
+     * @param uri The uri that specifies the ip, port, and password for connection to the remote redis server
+     */
     public ScriptRedisClient(Script script, String uri) {
         this.script = script;
         this.uri = uri;
@@ -28,6 +37,10 @@ public class ScriptRedisClient {
         this.asyncListeners = new ArrayList<>();
     }
 
+    /**
+     * Initialize a new {@link io.lettuce.core.RedisClient} and open a connection to the remote redis server.
+     * @return True if the connection was successfully opened, false if otherwise
+     */
     public boolean open() {
         client = RedisClient.create(uri);
         client.setOptions(ClientOptions.builder()
@@ -41,16 +54,37 @@ public class ScriptRedisClient {
         return connection.isOpen();
     }
 
+    /**
+     * Close the open connection to the remote redis server.
+     * @return True if the connection was successfully closed, false if otherwise
+     */
     public boolean close() {
         connection.close();
         client.shutdown();
         return !connection.isOpen();
     }
 
+    /**
+     * Register a new synchronous listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @see ScriptRedisClient#registerSyncListener(PyFunction, String)
+     * @param function The function that should be called when a message on the specified channel is received
+     * @param channel The channel to listen on
+     * @return A {@link ScriptPubSubListener} representing the listener that was registered
+     */
     public ScriptPubSubListener registerListener(PyFunction function, String channel) {
         return registerSyncListener(function, channel);
     }
 
+    /**
+     * Register a new synchronous listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function that should be called when a message on the specified channel is received
+     * @param channel The channel to listen on
+     * @return A {@link ScriptPubSubListener} representing the listener that was registered
+     */
     public ScriptPubSubListener registerSyncListener(PyFunction function, String channel) {
         ScriptPubSubListener listener = new ScriptPubSubListener(function, channel);
         connection.addListener(listener);
@@ -61,6 +95,14 @@ public class ScriptRedisClient {
         return listener;
     }
 
+    /**
+     * Register a new asynchronous listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function that should be called when a message on the specified channel is received
+     * @param channel The channel to listen on
+     * @return A {@link ScriptPubSubListener} representing the listener that was registered
+     */
     public ScriptPubSubListener registerAsyncListener(PyFunction function, String channel) {
         ScriptPubSubListener listener = new ScriptPubSubListener(function, channel);
         connection.addListener(listener);
@@ -71,6 +113,12 @@ public class ScriptRedisClient {
         return listener;
     }
 
+    /**
+     * Unregister the specified listener.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param listener The listener to unregister
+     */
     public void unregisterListener(ScriptPubSubListener listener) {
         connection.removeListener(listener);
         if (syncListeners.contains(listener)) {
@@ -86,6 +134,12 @@ public class ScriptRedisClient {
         }
     }
 
+    /**
+     * Unregister all listeners (both synchronous and asynchronous) on the given channel
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param channel The channel on which all listeners should be unregistered
+     */
     public void unregisterListeners(String channel) {
         for (Iterator<ScriptPubSubListener> iterator = syncListeners.iterator(); iterator.hasNext();) {
             ScriptPubSubListener listener = iterator.next();
@@ -106,22 +160,48 @@ public class ScriptRedisClient {
         connection.async().unsubscribe(channel);
     }
 
+    /**
+     * Synchronously publish a message to the given channel
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param channel The channel on which the message should be published
+     * @param message The message to publish
+     */
     public void publishSync(String channel, String message) {
         connection.sync().publish(channel, message);
     }
 
+    /**
+     * Asynchronously publish a message to the given channel
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param channel The channel on which the message should be published
+     * @param message The message to publish
+     */
     public void publishAsync(String channel, String message) {
         connection.async().publish(channel, message);
     }
 
+    /**
+     * Get the script associated with this ScriptRedisClient.
+     * @return The script associated with this ScriptRedisClient.
+     */
     public Script getScript() {
         return script;
     }
 
-    public RedisClient getClient() {
+    /**
+     * Get the underlying lettuce {@link io.lettuce.core.RedisClient} for this ScriptRedisClient.
+     * @return The RedisClient associated with this ScriptRedisClient
+     */
+    public RedisClient getRedisClient() {
         return client;
     }
 
+    /**
+     * Get the underlying lettuce {@link io.lettuce.core.pubsub.StatefulRedisPubSubConnection} for this ScriptRedisClient.
+     * @return The StatefulRedisPubSubConnection associated with this ScriptRedisClient
+     */
     public StatefulRedisPubSubConnection<String, String> getConnection() {
         return connection;
     }

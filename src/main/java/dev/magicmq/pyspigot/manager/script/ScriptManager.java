@@ -26,6 +26,7 @@ import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
+import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.ScriptSorter;
 import org.bukkit.Bukkit;
@@ -376,6 +377,7 @@ public class ScriptManager {
         TaskManager.get().stopTasks(script);
         CommandManager.get().unregisterCommands(script);
         DatabaseManager.get().closeDatabases(script);
+        RedisManager.get().closeRedisClients(script);
 
         if (PySpigot.get().isProtocolLibAvailable()) {
             ProtocolManager.get().unregisterPacketListeners(script);
