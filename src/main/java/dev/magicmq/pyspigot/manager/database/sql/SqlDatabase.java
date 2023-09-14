@@ -30,13 +30,6 @@ public class SqlDatabase extends Database {
         this.hikariConfig.addDataSourceProperty("cachePrepStmts", true);
         this.hikariConfig.addDataSourceProperty("prepStmtCacheSize", 250);
         this.hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
-        this.hikariConfig.addDataSourceProperty("useServerPrepStmts", true);
-        this.hikariConfig.addDataSourceProperty("useLocalSessionState", true);
-        this.hikariConfig.addDataSourceProperty("rewriteBatchedStatements", true);
-        this.hikariConfig.addDataSourceProperty("cacheResultSetMetadata", true);
-        this.hikariConfig.addDataSourceProperty("cacheServerConfiguration", true);
-        this.hikariConfig.addDataSourceProperty("elideSetAutoCommit", true);
-        this.hikariConfig.addDataSourceProperty("maintainTimeStats", false);
 
         dbId++;
     }
