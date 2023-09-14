@@ -24,6 +24,7 @@ import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
+import dev.magicmq.pyspigot.manager.script.GlobalVariables;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.StringUtils;
@@ -60,6 +61,10 @@ public class PySpigot extends JavaPlugin {
      * Can be used by scripts to access the {@link ScriptManager}.
      */
     public static ScriptManager script;
+    /**
+     * Can be used by scripts to access the {@link GlobalVariables}
+     */
+    public static GlobalVariables global_vars;
     /**
      * Can be used by scripts to access the {@link ListenerManager}.
      */
@@ -122,6 +127,7 @@ public class PySpigot extends JavaPlugin {
 
         LibraryManager.get();
         script = ScriptManager.get();
+        global_vars = ScriptManager.get().getGlobalVariables();
         listener = ListenerManager.get();
         command = CommandManager.get();
         scheduler = TaskManager.get();

@@ -105,7 +105,8 @@ public class ScriptManager {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
-            PythonInterpreter interpreter = initNewInterpreter();
+            PythonInterpreter interpreter = new PythonInterpreter(null, systemState);
+            interpreter.set("global", globalVariables);
             try {
                 ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(name));
                 Script script = new Script(scriptFile.getName(), options, interpreter, interpreter.compile(reader, scriptFile.getName()), scriptFile);
@@ -327,6 +328,10 @@ public class ScriptManager {
         return scripts;
     }
 
+    public GlobalVariables getGlobalVariables() {
+        return globalVariables;
+    }
+
     private void loadScripts() {
         PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
 
@@ -393,14 +398,6 @@ public class ScriptManager {
             }
         }
         return unresolved;
-    }
-
-    private PythonInterpreter initNewInterpreter() {
-        PythonInterpreter interpreter = new PythonInterpreter(null, systemState);
-
-        interpreter.set("global", globalVariables);
-
-        return interpreter;
     }
 
     private boolean stopScript(Script script, boolean error) {
