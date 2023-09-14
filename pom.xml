@@ -67,6 +67,12 @@
             <version>4.10.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>6.2.6.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -138,6 +144,10 @@
                         <relocation>
                             <pattern>com.mongodb</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.libs.com.mongodb</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.lettuce</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.io.lettuce</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
