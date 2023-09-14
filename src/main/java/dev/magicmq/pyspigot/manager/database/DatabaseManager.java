@@ -5,6 +5,8 @@ import dev.magicmq.pyspigot.manager.database.sql.SqlDatabase;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +26,13 @@ public class DatabaseManager {
             throw new RuntimeException("No script found when opening database");
 
         if (type == DatabaseType.SQL) {
-            String uri = String.format(DatabaseType.SQL.getUri(), host, port, database, username, password);
+            String uri = URLEncoder.encode(String.format(DatabaseType.SQL.getUri(), host, port, database, username, password), StandardCharsets.UTF_8);
             Database db = new SqlDatabase(script, uri);
             db.open();
             activeDatabases.add(db);
             return db;
         } else /*if (type == DatabaseType.MONGO_DB) */ {
-            String uri = String.format(DatabaseType.MONGO_DB.getUri(), username, password, host, port);
+            String uri = URLEncoder.encode(String.format(DatabaseType.MONGO_DB.getUri(), username, password, host, port), StandardCharsets.UTF_8);
             Database db = new MongoDatabase(script, uri);
             db.open();
             activeDatabases.add(db);
