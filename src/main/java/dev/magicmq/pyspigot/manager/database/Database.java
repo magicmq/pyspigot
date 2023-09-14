@@ -4,7 +4,7 @@ import dev.magicmq.pyspigot.manager.script.Script;
 
 public abstract class Database {
 
-    private Script script;
+    private final Script script;
 
     public Database(Script script) {
         this.script = script;
