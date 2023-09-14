@@ -19,6 +19,7 @@ public class ScriptRedisClient {
     private final Script script;
     private final String uri;
 
+    private ClientOptions clientOptions;
     private RedisClient client;
     private StatefulRedisPubSubConnection<String, String> connection;
     private List<ScriptPubSubListener> syncListeners;
@@ -28,11 +29,13 @@ public class ScriptRedisClient {
      *
      * @param script The script to which this ScriptRedisClient belongs
      * @param uri The uri that specifies the ip, port, and password for connection to the remote redis server
+     * @param clientOptions The {@link io.lettuce.core.ClientOptions} that should be used for the RedisClient
      */
-    public ScriptRedisClient(Script script, String uri) {
+    public ScriptRedisClient(Script script, String uri, ClientOptions clientOptions) {
         this.script = script;
         this.uri = uri;
 
+        this.clientOptions = clientOptions;
         this.syncListeners = new ArrayList<>();
         this.asyncListeners = new ArrayList<>();
     }
@@ -43,10 +46,13 @@ public class ScriptRedisClient {
      */
     public boolean open() {
         client = RedisClient.create(uri);
-        client.setOptions(ClientOptions.builder()
-                .autoReconnect(true)
-                .pingBeforeActivateConnection(true)
-                .build());
+        if (clientOptions != null)
+            client.setOptions(clientOptions);
+        else
+            client.setOptions(ClientOptions.builder()
+                    .autoReconnect(true)
+                    .pingBeforeActivateConnection(true)
+                    .build());
         client.getResources().eventBus().get().subscribe(event -> {
             //TODO Log errors
         });
