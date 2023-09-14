@@ -44,7 +44,7 @@ public class PlaceholderManager {
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, String author, String version) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) placeholderFunction.__code__).co_filename);
+        Script script = ScriptManager.get().getScriptFromCallStack();
         if (getPlaceholder(script) == null) {
             ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, author, version);
             placeholder.register();

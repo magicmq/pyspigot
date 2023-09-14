@@ -61,7 +61,7 @@ public class AsyncProtocolManager {
      * @return A {@link ScriptPacketListener} representing the asynchronous packet listener that was registered
      */
     public ScriptPacketListener registerAsyncPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
+        Script script = ScriptManager.get().getScriptFromCallStack();
         if (getAsyncPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
@@ -107,7 +107,7 @@ public class AsyncProtocolManager {
      *
      */
     public ScriptPacketListener registerTimeoutPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
+        Script script = ScriptManager.get().getScriptFromCallStack();
         if (getAsyncPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {

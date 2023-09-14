@@ -93,7 +93,7 @@ public class ListenerManager {
      * @return The ScriptEventListener that was registered
      */
     public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
+        Script script = ScriptManager.get().getScriptFromCallStack();
         ScriptEventListener listener = getEventListener(script, eventClass);
         if (listener == null) {
             listener = new ScriptEventListener(script, function, eventClass);

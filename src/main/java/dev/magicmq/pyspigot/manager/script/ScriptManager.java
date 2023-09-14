@@ -282,6 +282,20 @@ public class ScriptManager {
     }
 
     /**
+     * Attempts to get the script involved in a Java method call by analyzing the call stack.
+     * @return The script associated with the method call, or null if no script was found in th call stack
+     */
+    public Script getScriptFromCallStack() {
+        Optional<StackWalker.StackFrame> callingScript = StackWalker.getInstance().walk(stream -> stream.filter(frame -> frame.getClassName().contains("org.python.pycode") && frame.getMethodName().equals("call_function")).findFirst());
+        if (callingScript.isPresent()) {
+            String scriptName = callingScript.get().getFileName();
+            return getScript(scriptName);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Get all loaded scripts.
      * @return An immutable set containing all loaded and running scripts
      */

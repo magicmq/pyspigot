@@ -162,7 +162,7 @@ public class CommandManager {
      * @return A {@link ScriptCommand} representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) commandFunction.__code__).co_filename);
+        Script script = ScriptManager.get().getScriptFromCallStack();
         ScriptCommand command = getCommand(name);
         if (command == null) {
             ScriptCommand newCommand = new ScriptCommand(script, commandFunction, tabFunction, name, description, script.getName(), usage, aliases, permission, permissionMessage);

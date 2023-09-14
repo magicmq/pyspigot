@@ -89,7 +89,7 @@ public class ProtocolManager {
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
     public ScriptPacketListener registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptManager.get().getScript(((PyBaseCode) function.__code__).co_filename);
+        Script script = ScriptManager.get().getScriptFromCallStack();
         if (getPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
