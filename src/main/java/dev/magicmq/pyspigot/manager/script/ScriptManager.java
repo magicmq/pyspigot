@@ -55,7 +55,7 @@ public class ScriptManager {
 
     private PySystemState systemState;
     private final Set<Script> scripts;
-    private final HashMap<String, PyObject> globalVariables;
+    private final GlobalVariables globalVariables;
 
     private final BukkitTask startScriptTask;
 
@@ -64,7 +64,7 @@ public class ScriptManager {
         systemState.setClassLoader(LibraryManager.get().getClassLoader());
 
         this.scripts = new HashSet<>();
-        this.globalVariables = new HashMap<>();
+        this.globalVariables = new GlobalVariables();
 
         File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
         if (!scripts.exists())
