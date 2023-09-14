@@ -18,10 +18,10 @@ public class DatabaseManager {
         activeDatabases = new ArrayList<>();
     }
 
-    public Database openDatabase(String scriptName, DatabaseType type, String host, String port, String database, String username, String password) {
-        Script script = ScriptManager.get().getScript(scriptName);
+    public Database openDatabase(DatabaseType type, String host, String port, String database, String username, String password) {
+        Script script = ScriptManager.get().getScriptFromCallStack();
         if (script == null)
-            throw new IllegalArgumentException("Script '" + scriptName + "' not found when opening database");
+            throw new RuntimeException("No script found when opening database");
 
         if (type == DatabaseType.SQL) {
             String uri = String.format(DatabaseType.SQL.getUri(), host, port, database, username, password);
