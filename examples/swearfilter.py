@@ -12,4 +12,4 @@ def player_chat(event):
         if word in swear_words:
             event.setCancelled(True)
 
-ps.listener.registerEvent(player_chat, AsyncPlayerChatEvent)
+ps.listener.registerListener(player_chat, AsyncPlayerChatEvent)
