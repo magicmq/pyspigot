@@ -83,7 +83,7 @@ public class CommandManager {
      * @return A {@link ScriptCommand} representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
-        return registerCommand(commandFunction, tabFunction, name, "/" + name, "", new ArrayList<>(), null, null);
+        return registerCommand(commandFunction, tabFunction, name, "", "/" + name, new ArrayList<>(), null, null);
     }
 
     /**
@@ -97,7 +97,7 @@ public class CommandManager {
      * @return A {@link ScriptCommand} representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
-        return registerCommand(commandFunction, null, name, usage, description, new ArrayList<>(), null, null);
+        return registerCommand(commandFunction, null, name, description, usage, new ArrayList<>(), null, null);
     }
 
     /**
@@ -112,7 +112,7 @@ public class CommandManager {
      * @return A {@link ScriptCommand} representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
-        return registerCommand(commandFunction, tabFunction, name, usage, description, new ArrayList<>(), null, null);
+        return registerCommand(commandFunction, tabFunction, name, description, usage, new ArrayList<>(), null, null);
     }
 
     /**
@@ -127,7 +127,7 @@ public class CommandManager {
      * @return A {@link ScriptCommand} representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
-        return registerCommand(commandFunction, null, name, usage, description, aliases, null, null);
+        return registerCommand(commandFunction, null, name, description, usage, aliases, null, null);
     }
 
     /**
@@ -143,7 +143,7 @@ public class CommandManager {
      * @return A {@link ScriptCommand} representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
-        return registerCommand(commandFunction, tabFunction, name, usage, description, aliases, null, null);
+        return registerCommand(commandFunction, tabFunction, name, description, usage, aliases, null, null);
     }
 
     /**
