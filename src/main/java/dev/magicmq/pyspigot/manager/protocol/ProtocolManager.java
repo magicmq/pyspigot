@@ -19,11 +19,16 @@ package dev.magicmq.pyspigot.manager.protocol;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketContainer;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -160,6 +165,89 @@ public class ProtocolManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Create a new packet with the given type. This method will assign sensible default values to all fields within the packet where a non-null value is required.
+     * <p>
+     * This method is the preferred way to create a packet that will later be sent or broadcasted.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param type The type of packet to create
+     * @return A {@link com.comphenix.protocol.events.PacketContainer} representing the packet that was created.
+     */
+    public PacketContainer createPacket(PacketType type) {
+        return protocolManager.createPacket(type, true);
+    }
+
+    /**
+     * Send a packet to a player.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param player The player to send the packet to
+     * @param packet The packet to send
+     */
+    public void sendServerPacket(Player player, PacketContainer packet) {
+        protocolManager.sendServerPacket(player, packet);
+    }
+
+    /**
+     * Broadcast a packet to the entire server. The packet will be sent to all online players.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param packet The packet to broadcast
+     */
+    public void broadcastServerPacket(PacketContainer packet) {
+        protocolManager.broadcastServerPacket(packet);
+    }
+
+    /**
+     * Broadcast a packet to players receiving information about a particular entity. Will also broadcast the packet to the entity, if the entity is a tracker.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @see ProtocolManager#broadcastServerPacket(PacketContainer, Entity, boolean)
+     * @param packet The packet to broadcast
+     * @param entity The entity whose trackers will be informed
+     */
+    public void broadcastServerPacket(PacketContainer packet, Entity entity) {
+        broadcastServerPacket(packet, entity, true);
+    }
+
+    /**
+     * Broadcast a packet to players receiving information about a particular entity.
+     * <p>
+     * Usually, this would be every player in the same world within an observable distance. If the entity is a player, it will be included only if {@code includeTracker} is set to {@code true}.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param packet The packet to broadcast
+     * @param entity The entity whose trackers will be informed
+     * @param includeTracker Whether to also transmit the packet to the entity, if it is a tracker
+     */
+    public void broadcastServerPacket(PacketContainer packet, Entity entity, boolean includeTracker) {
+        protocolManager.broadcastServerPacket(packet, entity, includeTracker);
+    }
+
+    /**
+     * Broadcast a packet to all players within a given max observer distance from an origin location (center point).
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param packet The packet to broadcast
+     * @param origin The origin location (center point) to consider when calculating distance to each observer
+     * @param maxObserverDistance The maximum distance from origin wherein packets will be broadcasted
+     */
+    public void broadcastServerPacket(PacketContainer packet, Location origin, int maxObserverDistance) {
+        protocolManager.broadcastServerPacket(packet, origin, maxObserverDistance);
+    }
+
+    /**
+     * Broadcast a packet to a specified list of players.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param packet The packet to broadcast
+     * @param targetPlayers The list of players to which the packet should be broadcasted
+     */
+    public void broadcastServerPacket(PacketContainer packet, Collection<? extends Player> targetPlayers) {
+        protocolManager.broadcastServerPacket(packet, targetPlayers);
     }
 
     /**
