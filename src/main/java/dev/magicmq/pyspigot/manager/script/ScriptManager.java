@@ -401,6 +401,17 @@ public class ScriptManager {
     }
 
     private boolean stopScript(Script script, boolean error) {
+        boolean gracefulStop = true;
+        if (!error) {
+            try {
+                if (script.getStopFunction() != null)
+                    script.getStopFunction().__call__();
+            } catch (PyException e) {
+                handleScriptException(script, e, "Error when executing stop function");
+                gracefulStop = false;
+            }
+        }
+
         ListenerManager.get().unregisterListeners(script);
         TaskManager.get().stopTasks(script);
         CommandManager.get().unregisterCommands(script);
@@ -414,20 +425,9 @@ public class ScriptManager {
             PlaceholderManager.get().unregisterPlaceholder(script);
         }
 
-        if (!error) {
-            try {
-                if (script.getStopFunction() != null)
-                    script.getStopFunction().__call__();
-            } catch (PyException e) {
-                handleScriptException(script, e, "Error when executing stop function");
-                script.close();
-                return false;
-            }
-        }
-
         script.close();
 
-        return true;
+        return gracefulStop;
     }
 
     /**
