@@ -211,18 +211,14 @@ public class PySpigot extends JavaPlugin {
         boolean finalIsSpigot = isSpigot;
         metrics.addCustomChart(new SimplePie("using_spigot", () -> finalIsSpigot ? "yes" : "no"));
 
-        int allScripts = ScriptManager.get().getAllScripts().size();
-        metrics.addCustomChart(new SimpleBarChart("all_scripts", () -> {
-            Map<String, Integer> map = new HashMap<>();
-            map.put(allScripts + " Scripts", 1);
-            return map;
+        metrics.addCustomChart(new SimplePie("all_scripts", () -> {
+            int allScripts = ScriptManager.get().getAllScripts().size();
+            return "" + allScripts;
         }));
 
-        int loadedScripts = ScriptManager.get().getLoadedScripts().size();
-        metrics.addCustomChart(new SimpleBarChart("loaded_scripts", () -> {
-            Map<String, Integer> map = new HashMap<>();
-            map.put(loadedScripts + " Scripts", 1);
-            return map;
+        metrics.addCustomChart(new SimplePie("loaded_scripts", () -> {
+            int loadedScripts = ScriptManager.get().getLoadedScripts().size();
+            return "" + loadedScripts;
         }));
     }
 
