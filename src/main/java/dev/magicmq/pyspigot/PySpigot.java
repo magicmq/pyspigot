@@ -108,11 +108,7 @@ public class PySpigot extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
 
-        File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
-        if (!file.exists()) {
-            saveResource("script_options.yml", false);
-        }
-        scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
+        reloadScriptOptionsConfig();
 
         getCommand("pyspigot").setExecutor(new PySpigotCommand());
 
@@ -156,6 +152,15 @@ public class PySpigot extends JavaPlugin {
     public void reload() {
         reloadConfig();
         PluginConfig.reload();
+        reloadScriptOptionsConfig();
+    }
+
+    public void reloadScriptOptionsConfig() {
+        File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
+        if (!file.exists()) {
+            saveResource("script_options.yml", false);
+        }
+        scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
     }
 
     /**
