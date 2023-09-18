@@ -53,16 +53,12 @@ public class ScriptManager {
 
     private static ScriptManager manager;
 
-    private PySystemState systemState;
     private final Set<Script> scripts;
     private final GlobalVariables globalVariables;
 
     private final BukkitTask startScriptTask;
 
     private ScriptManager() {
-        this.systemState = new PySystemState();
-        systemState.setClassLoader(LibraryManager.get().getClassLoader());
-
         this.scripts = new HashSet<>();
         this.globalVariables = new GlobalVariables();
 
@@ -105,7 +101,9 @@ public class ScriptManager {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
-            PythonInterpreter interpreter = new PythonInterpreter(null, systemState);
+            PySystemState state = new PySystemState();
+            state.setClassLoader(LibraryManager.get().getClassLoader());
+            PythonInterpreter interpreter = new PythonInterpreter(null, state);
             interpreter.set("global", globalVariables);
             try {
                 ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(name));
