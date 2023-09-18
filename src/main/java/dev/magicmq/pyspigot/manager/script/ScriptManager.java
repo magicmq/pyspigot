@@ -103,10 +103,10 @@ public class ScriptManager {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
-            PythonInterpreter interpreter = new PythonInterpreter();
-            interpreter.set("global", globalVariables);
-
             try {
+                PythonInterpreter interpreter = new PythonInterpreter();
+                interpreter.set("global", globalVariables);
+
                 ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(name));
                 Script script = new Script(scriptFile.getName(), options, interpreter, interpreter.compile(reader, scriptFile.getName()), scriptFile);
 
