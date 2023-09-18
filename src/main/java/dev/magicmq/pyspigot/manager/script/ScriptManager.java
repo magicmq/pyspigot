@@ -101,9 +101,9 @@ public class ScriptManager {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
-            PySystemState state = new PySystemState();
-            state.setClassLoader(LibraryManager.get().getClassLoader());
-            PythonInterpreter interpreter = new PythonInterpreter(null, state);
+            PySystemState systemState = new PySystemState();
+            systemState.setClassLoader(LibraryManager.get().getClassLoader());
+            PythonInterpreter interpreter = new PythonInterpreter(null, systemState);
             interpreter.set("global", globalVariables);
             try {
                 ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(name));

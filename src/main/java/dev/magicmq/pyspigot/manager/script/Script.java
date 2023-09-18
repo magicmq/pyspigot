@@ -172,6 +172,7 @@ public class Script {
         if (options.isLoggingEnabled())
             logger.closeFileHandler();
         interpreter.close();
+        interpreter.getSystemState().close();
     }
 
     /**
