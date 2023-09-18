@@ -166,13 +166,11 @@ public class Script {
     }
 
     /**
-     * Closes this script's PythonInterpreter and file logger.
+     * Closes this script's  file logger.
      */
     public void close() {
         if (options.isLoggingEnabled())
             logger.closeFileHandler();
-        interpreter.close();
-        interpreter.getSystemState().close();
     }
 
     /**

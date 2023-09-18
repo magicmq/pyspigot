@@ -84,6 +84,8 @@ public class ScriptManager {
             Bukkit.getPluginManager().callEvent(event);
             stopScript(script, false);
         }
+
+        Py.getSystemState().close();
     }
 
     /**
@@ -101,10 +103,9 @@ public class ScriptManager {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         File scriptFile = new File(scriptsFolder, name);
         try (FileReader reader = new FileReader(scriptFile)) {
-            PySystemState systemState = new PySystemState();
-            systemState.setClassLoader(LibraryManager.get().getClassLoader());
-            PythonInterpreter interpreter = new PythonInterpreter(null, systemState);
+            PythonInterpreter interpreter = new PythonInterpreter();
             interpreter.set("global", globalVariables);
+
             try {
                 ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(name));
                 Script script = new Script(scriptFile.getName(), options, interpreter, interpreter.compile(reader, scriptFile.getName()), scriptFile);
@@ -115,7 +116,6 @@ public class ScriptManager {
                 return script;
             } catch (PySyntaxError | PyIndentationError e) {
                 PySpigot.get().getLogger().log(Level.SEVERE, "Error when parsing script " + scriptFile.getName() + ": " + e.getMessage());
-                interpreter.close();
                 return null;
             }
         }
