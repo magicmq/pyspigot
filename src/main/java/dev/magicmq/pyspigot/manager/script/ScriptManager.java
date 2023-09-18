@@ -142,8 +142,6 @@ public class ScriptManager {
         this.scripts.add(script);
 
         try {
-            script.getInterpreter().exec(script.getCode());
-
             PyObject start = script.getInterpreter().get("start");
             if (start != null) {
                 if (start instanceof PyFunction)
@@ -161,6 +159,8 @@ public class ScriptManager {
                     script.getLogger().log(Level.WARNING, "'stop' is defined, but it is not a function. Is this a mistake?");
                 }
             }
+
+            script.getInterpreter().exec(script.getCode());
 
             if (script.getStartFunction() != null)
                 script.getStartFunction().__call__();
