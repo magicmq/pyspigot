@@ -381,6 +381,7 @@ public class ScriptManager {
                 if (!scriptNames.contains(dependency)) {
                     PySpigot.get().getLogger().log(Level.SEVERE, "Script '" + script.getName() + "' has an unknown dependency '" + dependency + "'. This script will not be loaded.");
                     scriptIterator.remove();
+                    scriptNames.remove(script.getName());
                     script.close();
                     break;
                 }
