@@ -91,6 +91,7 @@ public class PySpigot extends JavaPlugin {
     public static PlaceholderManager placeholder;
 
     private FileConfiguration scriptOptionsConfig;
+    private Metrics metrics;
 
     @Override
     public void onEnable() {
@@ -144,6 +145,9 @@ public class PySpigot extends JavaPlugin {
         ScriptManager.get().shutdown();
 
         LibraryManager.get().shutdown();
+
+        if (metrics != null)
+            metrics.shutdown();
     }
 
     /**
@@ -205,16 +209,7 @@ public class PySpigot extends JavaPlugin {
     }
 
     private void setupMetrics() {
-        final Metrics metrics = new Metrics(this, 18991);
-
-        boolean isSpigot = true;
-        try {
-            Class.forName("org.spigotmc.SpigotConfig");
-        } catch (ClassNotFoundException ignored) {
-            isSpigot = false;
-        }
-        boolean finalIsSpigot = isSpigot;
-        metrics.addCustomChart(new SimplePie("using_spigot", () -> finalIsSpigot ? "yes" : "no"));
+        metrics = new Metrics(this, 18991);
 
         metrics.addCustomChart(new SimplePie("all_scripts", () -> {
             int allScripts = ScriptManager.get().getAllScripts().size();
