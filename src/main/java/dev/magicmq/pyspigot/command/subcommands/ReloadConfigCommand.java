@@ -34,6 +34,6 @@ public class ReloadConfigCommand implements SubCommand {
     public boolean onCommand(CommandSender sender, String[] args) {
         PySpigot.get().reload();
         sender.sendMessage(ChatColor.GREEN + "Configuration has been reloaded.");
-        return false;
+        return true;
     }
 }
