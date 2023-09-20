@@ -79,11 +79,7 @@ public class ScriptManager {
     public void shutdown() {
         startScriptTask.cancel();
 
-        for (Script script : scripts) {
-            ScriptUnloadEvent event = new ScriptUnloadEvent(script, false);
-            Bukkit.getPluginManager().callEvent(event);
-            stopScript(script, false);
-        }
+        scripts.forEach(script -> this.unloadScript(script, false));
 
         Py.getSystemState().close();
     }
