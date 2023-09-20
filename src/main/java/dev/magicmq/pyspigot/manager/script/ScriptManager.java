@@ -84,6 +84,37 @@ public class ScriptManager {
     }
 
     /**
+     * Loads and runs all scripts contained within the scripts folder. Called on plugin load (I.E. during server start).
+     */
+    public void loadScripts() {
+        PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
+
+        List<Script> loadedScripts = new ArrayList<>();
+        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
+        if (scriptsFolder.isDirectory()) {
+            SortedSet<File> toLoad = new TreeSet<>();
+            toLoad.addAll(Arrays.asList(scriptsFolder.listFiles()));
+            for (File script : toLoad) {
+                if (script.getName().endsWith(".py")) {
+                    try {
+                        Script loaded = loadScript(script.getName());
+                        if (loaded != null)
+                            loadedScripts.add(loaded);
+                    } catch (IOException e) {
+                        PySpigot.get().getLogger().log(Level.SEVERE, "IOException when reading script file '" + script.getName() + "': " + e.getMessage() + ". Does the file exist?");
+                    }
+                }
+            }
+        }
+
+        checkDependencies(loadedScripts);
+
+        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + loadedScripts.size() + " script(s)!");
+
+        runScripts(loadedScripts);
+    }
+
+    /**
      * Load a script with the given name. This only loads the script (compiles script code and reads options); it does not run the script.
      * @param name The file name of the script to load. Name should contain the file extension (.py)
      * @return A script object representing the script that was loaded, or null if there was an error when loading the script
@@ -175,6 +206,21 @@ public class ScriptManager {
             return RunResult.FAIL_ERROR;
         }
         return RunResult.SUCCESS;
+    }
+
+    /**
+     * Unload all currently running scripts.
+     */
+    public void unloadScripts() {
+        for (Script script : scripts) {
+            ScriptUnloadEvent event = new ScriptUnloadEvent(script, false);
+            Bukkit.getPluginManager().callEvent(event);
+            stopScript(script, false);
+
+            if (PluginConfig.doScriptActionLogging())
+                PySpigot.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
+        }
+        scripts.clear();
     }
 
     /**
@@ -336,34 +382,6 @@ public class ScriptManager {
 
     public GlobalVariables getGlobalVariables() {
         return globalVariables;
-    }
-
-    private void loadScripts() {
-        PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
-
-        List<Script> loadedScripts = new ArrayList<>();
-        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
-        if (scriptsFolder.isDirectory()) {
-            SortedSet<File> toLoad = new TreeSet<>();
-            toLoad.addAll(Arrays.asList(scriptsFolder.listFiles()));
-            for (File script : toLoad) {
-                if (script.getName().endsWith(".py")) {
-                    try {
-                        Script loaded = loadScript(script.getName());
-                        if (loaded != null)
-                            loadedScripts.add(loaded);
-                    } catch (IOException e) {
-                        PySpigot.get().getLogger().log(Level.SEVERE, "IOException when reading script file '" + script.getName() + "': " + e.getMessage() + ". Does the file exist?");
-                    }
-                }
-            }
-        }
-
-        checkDependencies(loadedScripts);
-
-        PySpigot.get().getLogger().log(Level.INFO, "Found and loaded " + loadedScripts.size() + " script(s)!");
-
-        runScripts(loadedScripts);
     }
 
     private void runScripts(List<Script> scripts) {
