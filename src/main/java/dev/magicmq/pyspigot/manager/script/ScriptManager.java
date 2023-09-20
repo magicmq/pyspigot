@@ -23,7 +23,6 @@ import dev.magicmq.pyspigot.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.event.ScriptRunEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
-import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
@@ -79,7 +78,7 @@ public class ScriptManager {
     public void shutdown() {
         startScriptTask.cancel();
 
-        scripts.forEach(script -> this.unloadScript(script, false));
+        unloadScripts();
 
         Py.getSystemState().close();
     }
@@ -108,6 +107,9 @@ public class ScriptManager {
 
                 ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
                 Bukkit.getPluginManager().callEvent(eventLoad);
+
+                if (PluginConfig.doScriptActionLogging())
+                    PySpigot.get().getLogger().log(Level.INFO, "Loaded script '" + script.getName() + "'");
 
                 return script;
             } catch (PySyntaxError | PyIndentationError e) {
@@ -161,6 +163,9 @@ public class ScriptManager {
             if (script.getStartFunction() != null)
                 script.getStartFunction().__call__();
 
+            if (PluginConfig.doScriptActionLogging())
+                PySpigot.get().getLogger().log(Level.INFO, "Ran script '" + script.getName() + "'");
+
             ScriptRunEvent event = new ScriptRunEvent(script);
             Bukkit.getPluginManager().callEvent(event);
         } catch (PyException e) {
@@ -190,8 +195,15 @@ public class ScriptManager {
     public boolean unloadScript(Script script, boolean error) {
         ScriptUnloadEvent event = new ScriptUnloadEvent(script, error);
         Bukkit.getPluginManager().callEvent(event);
+
         scripts.remove(script);
-        return stopScript(script, error);
+
+        boolean gracefulStop = stopScript(script, error);
+
+        if (PluginConfig.doScriptActionLogging())
+            PySpigot.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
+
+        return gracefulStop;
     }
 
     /**

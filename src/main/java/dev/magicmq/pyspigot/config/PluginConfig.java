@@ -71,6 +71,10 @@ public class PluginConfig {
         return logTimestamp;
     }
 
+    public static boolean doScriptActionLogging() {
+        return config.getBoolean("script-action-logging", true);
+    }
+
     public static boolean shouldPrintStackTraces() {
         return config.getBoolean("debug-options.print-stack-traces", false);
     }

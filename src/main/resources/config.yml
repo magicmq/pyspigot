@@ -10,6 +10,8 @@ log-to-file: true
 min-log-level: 'INFO'
 # Date/time format for timestamps in script log files, written in Java's SimpleDateFormat pattern: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/format/DateTimeFormatter.html
 log-timestamp-format: 'MMM dd yyyy HH:mm:ss'
+# If true, will print log messages to console every time a script is loaded, run, and unloaded.
+script-action-logging: true
 # Advanced debug options for scripts
 debug-options:
   # If true, will print stack traces for all script-related exceptions to the server console
