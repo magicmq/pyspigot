@@ -26,9 +26,11 @@ import java.util.Set;
  */
 public class GlobalVariables {
 
-    private HashMap<String, Object> variables;
+    private static GlobalVariables instance;
 
-    public GlobalVariables() {
+    private final HashMap<String, Object> variables;
+
+    private GlobalVariables() {
         variables = new HashMap<>();
     }
 
@@ -121,5 +123,11 @@ public class GlobalVariables {
      */
     public void purge() {
         variables.clear();
+    }
+
+    public static GlobalVariables get() {
+        if (instance == null)
+            instance = new GlobalVariables();
+        return instance;
     }
 }

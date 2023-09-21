@@ -53,13 +53,11 @@ public class ScriptManager {
     private static ScriptManager manager;
 
     private final Set<Script> scripts;
-    private final GlobalVariables globalVariables;
 
     private final BukkitTask startScriptTask;
 
     private ScriptManager() {
         this.scripts = new HashSet<>();
-        this.globalVariables = new GlobalVariables();
 
         File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
         if (!scripts.exists())
@@ -378,10 +376,6 @@ public class ScriptManager {
             }
         }
         return scripts;
-    }
-
-    public GlobalVariables getGlobalVariables() {
-        return globalVariables;
     }
 
     private void runScripts(List<Script> scripts) {

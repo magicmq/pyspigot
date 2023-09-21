@@ -124,7 +124,7 @@ public class PySpigot extends JavaPlugin {
 
         LibraryManager.get();
         script = ScriptManager.get();
-        global_vars = ScriptManager.get().getGlobalVariables();
+        global_vars = GlobalVariables.get();
         listener = ListenerManager.get();
         command = CommandManager.get();
         scheduler = TaskManager.get();
