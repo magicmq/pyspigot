@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Bukkit;
 import org.python.core.PyFunction;
 
@@ -46,7 +46,7 @@ public class TaskManager {
      * @return An ID representing the synchronous task that was scheduled
      */
     public int runTask(PyFunction function) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
         activeTasks.add(task);
         task.runTask(PySpigot.get());
@@ -61,7 +61,7 @@ public class TaskManager {
      * @return An ID representing the asynchronous task that was scheduled
      */
     public int runTaskAsync(PyFunction function) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
         activeTasks.add(task);
         task.runTaskAsynchronously(PySpigot.get());
@@ -77,7 +77,7 @@ public class TaskManager {
      * @return An ID representing the synchronous task that was scheduled
      */
     public int runTaskLater(PyFunction function, long delay) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
         activeTasks.add(task);
         task.runTaskLater(PySpigot.get(), delay);
@@ -93,7 +93,7 @@ public class TaskManager {
      * @return An ID representing the asynchronous task that was scheduled
      */
     public int runTaskLaterAsync(PyFunction function, long delay) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
         activeTasks.add(task);
         task.runTaskLaterAsynchronously(PySpigot.get(), delay);
@@ -110,7 +110,7 @@ public class TaskManager {
      * @return An ID representing the synchronous task that was scheduled
      */
     public int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new RepeatingTask(script, function);
         activeTasks.add(task);
         task.runTaskTimer(PySpigot.get(), delay, interval);
@@ -127,7 +127,7 @@ public class TaskManager {
      * @return An ID representing the asynchronous task that was scheduled
      */
     public int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new RepeatingTask(script, function);
         activeTasks.add(task);
         task.runTaskTimerAsynchronously(PySpigot.get(), delay, interval);

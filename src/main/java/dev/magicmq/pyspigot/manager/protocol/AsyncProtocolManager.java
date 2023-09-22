@@ -22,7 +22,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.ListenerPriority;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class AsyncProtocolManager {
      * @return A {@link ScriptPacketListener} representing the asynchronous packet listener that was registered
      */
     public ScriptPacketListener registerAsyncPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         if (getAsyncPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
@@ -122,7 +122,7 @@ public class AsyncProtocolManager {
      *
      */
     public ScriptPacketListener registerTimeoutPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         if (getAsyncPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {

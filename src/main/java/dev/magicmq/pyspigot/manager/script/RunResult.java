@@ -19,23 +19,28 @@ package dev.magicmq.pyspigot.manager.script;
 public enum RunResult {
 
     /**
-     * Returned if the script ran successfully.
+     * Returned if the script loaded successfully.
      */
     SUCCESS,
 
     /**
-     * Returned if the script was not run because it was disabled as per its script options in script_options.yml
+     * Returned if the script was not loaded because it was disabled as per its script options in script_options.yml
      */
     FAIL_DISABLED,
 
     /**
-     * Returned if the script was not run because it has missing dependencies.
+     * Returned if the script was not loaded because it has missing dependencies.
      */
     FAIL_DEPENDENCY,
 
     /**
-     * Returned if the script was run but failed during runtime due to an error.
+     * Returned if the script was loaded but failed during runtime due to an error.
      */
-    FAIL_ERROR
+    FAIL_ERROR,
+
+    /**
+     * Returned if a script is already loaded with the same name.
+     */
+    FAIL_DUPLICATE
 
 }

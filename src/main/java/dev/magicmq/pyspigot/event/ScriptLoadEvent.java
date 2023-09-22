@@ -20,9 +20,7 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.HandlerList;
 
 /**
- * Called when a script is loaded (file is read, code is compiled, dependency checking is performed, file logger is initialized, etc.).
- * <p>
- * This event is called regardless of whether a script successfully loads or fails to load (due to syntax errors, runtime errors, etc.). Thus, do not assume the script that triggered this event is running.
+ * Called when a script is loaded. This event fires at the end of a load operation on a script. The event will not fire for scripts that fail to load. Therefore, it is safe to assume the script within this event is currently running.
  */
 public class ScriptLoadEvent extends ScriptEvent {
 

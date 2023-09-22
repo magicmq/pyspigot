@@ -40,11 +40,10 @@ public class LoadCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            if (!ScriptManager.get().isScriptRunning(args[0])) {
-                try {
-                    Script script = ScriptManager.get().loadScript(args[0]);
-                    if (script != null) {
-                        RunResult result = ScriptManager.get().runScript(script);
+            if (args[0].endsWith(".py")) {
+                if (!ScriptManager.get().isScriptRunning(args[0])) {
+                    try {
+                        RunResult result = ScriptManager.get().loadScript(args[0]);
                         if (result == RunResult.SUCCESS)
                             sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran script '" + args[0] + "'.");
                         else if (result == RunResult.FAIL_DEPENDENCY)
@@ -52,17 +51,18 @@ public class LoadCommand implements SubCommand {
                         else if (result == RunResult.FAIL_DISABLED)
                             sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not run because it is disabled as per its options in script_options.yml.");
                         else if (result == RunResult.FAIL_ERROR)
-                            sender.sendMessage(ChatColor.RED + "There was an error when running script " + args[0] + ". See console for details.");
-                    } else
-                        sender.sendMessage(ChatColor.RED + "There was an error when loading script " + args[0] + ". See console for details.");
-                } catch (FileNotFoundException e) {
-                    sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name " + args[0]);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    sender.sendMessage(ChatColor.RED + "There was an error when loading script " + args[0] + ". See console for details.");
+                            sender.sendMessage(ChatColor.RED + "There was an error when running script '" + args[0] + "'. See console for details.");
+                    } catch (FileNotFoundException e) {
+                        sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        sender.sendMessage(ChatColor.RED + "There was an error when loading script '" + args[0] + "'. See console for details.");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "There is already a loaded and running script with the name '" + args[0] + "'.");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "There is already a loaded and running script with the name " + args[0]);
+                sender.sendMessage(ChatColor.RED + "Script names must end in .py.");
             }
             return true;
         }

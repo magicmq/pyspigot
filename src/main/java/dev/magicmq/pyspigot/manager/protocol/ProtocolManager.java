@@ -21,7 +21,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -93,7 +93,7 @@ public class ProtocolManager {
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
     public ScriptPacketListener registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         if (getPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {

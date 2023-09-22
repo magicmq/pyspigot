@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.manager.listener;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -92,7 +92,7 @@ public class ListenerManager {
      * @return The ScriptEventListener that was registered
      */
     public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         ScriptEventListener listener = getEventListener(script, eventClass);
         if (listener == null) {
             listener = new ScriptEventListener(script, function, eventClass);

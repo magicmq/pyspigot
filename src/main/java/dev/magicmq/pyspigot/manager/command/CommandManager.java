@@ -18,8 +18,8 @@ package dev.magicmq.pyspigot.manager.command;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ReflectionUtils;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
@@ -161,7 +161,7 @@ public class CommandManager {
      * @return A {@link ScriptCommand} representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         ScriptCommand command = getCommand(name);
         if (command == null) {
             ScriptCommand newCommand = new ScriptCommand(script, commandFunction, tabFunction, name, description, script.getName(), usage, aliases, permission, permissionMessage);
