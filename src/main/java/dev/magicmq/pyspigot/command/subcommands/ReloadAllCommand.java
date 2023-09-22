@@ -36,7 +36,7 @@ public class ReloadAllCommand implements SubCommand {
         ScriptManager.get().unloadScripts();
         PySpigot.get().reload();
         ScriptManager.get().loadScripts();
-        sender.sendMessage(ChatColor.GREEN + "All scripts and plugin config have been reloaded.");
+        sender.sendMessage(ChatColor.GREEN + "All scripts, plugin config, and script_options.yml have been reloaded.");
         return true;
     }
 }

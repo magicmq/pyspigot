@@ -46,11 +46,11 @@ public class LoadCommand implements SubCommand {
                     if (script != null) {
                         RunResult result = ScriptManager.get().runScript(script);
                         if (result == RunResult.SUCCESS)
-                            sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran script " + args[0]);
+                            sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran script '" + args[0] + "'.");
                         else if (result == RunResult.FAIL_DEPENDENCY)
-                            sender.sendMessage(ChatColor.RED + "Script " + args[0] + " was not run due to missing dependencies. See console for details.");
+                            sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not run due to missing dependencies. See console for details.");
                         else if (result == RunResult.FAIL_DISABLED)
-                            sender.sendMessage(ChatColor.RED + "Script " + args[0] + " was not run because it is disabled as per its options in script_options.yml.");
+                            sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not run because it is disabled as per its options in script_options.yml.");
                         else if (result == RunResult.FAIL_ERROR)
                             sender.sendMessage(ChatColor.RED + "There was an error when running script " + args[0] + ". See console for details.");
                     } else

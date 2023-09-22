@@ -39,11 +39,11 @@ public class UnloadCommand implements SubCommand {
             if (ScriptManager.get().isScriptRunning(args[0])) {
                 boolean success = ScriptManager.get().unloadScript(args[0]);
                 if (success)
-                    sender.sendMessage(ChatColor.GREEN + "Successfully unloaded script " + args[0]);
+                    sender.sendMessage(ChatColor.GREEN + "Successfully unloaded script '" + args[0] + "'.");
                 else
-                    sender.sendMessage(ChatColor.RED + "There was an error when unloading script " + args[0] + ". See console for details.");
+                    sender.sendMessage(ChatColor.RED + "There was an error when unloading script '" + args[0] + "'. See console for details.");
             } else {
-                sender.sendMessage(ChatColor.RED + "No running script found with the name " + args[0]);
+                sender.sendMessage(ChatColor.RED + "No running script found with the name '" + args[0] + "'.");
             }
             return true;
         }
