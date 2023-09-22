@@ -24,10 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,26 +33,25 @@ import java.util.logging.Level;
 /**
  * A manager class to help with dynamically loading Jar files into the classpath at runtime. Most commonly, scripts will not use this directly and PySpigot will be the primary user of this manager.
  * <p>
- * Internally, this utilizes the jar-relocator library from lucko.
+ * Internally, this utilizes the jar-relocator library from lucko to dynamically load Jar files at runtime.
  * @see me.lucko.jarrelocator.JarRelocator
  */
 public class LibraryManager {
 
     private static LibraryManager instance;
 
+    private JarClassLoader classLoader;
+
     private File libsFolder;
     private HashMap<String, String> relocations;
-    private JarClassLoader classLoader;
     private ExecutorService initializer;
 
     private LibraryManager() {
-        libsFolder = new File(PySpigot.get().getDataFolder(), "libs");
-        if (!libsFolder.exists())
-            libsFolder.mkdir();
+        classLoader = new JarClassLoader(PySpigot.get().getPluginClassLoader());
+
+        libsFolder = new File(PySpigot.get().getDataFolder(), "java-libs");
 
         relocations = PluginConfig.getLibraryRelocations();
-
-        classLoader = new JarClassLoader(this.getClass().getClassLoader());
         initializer = Executors.newSingleThreadExecutor();
         initLibraries();
     }

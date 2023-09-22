@@ -33,9 +33,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.python.core.*;
 import org.python.util.PythonInterpreter;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -52,20 +50,14 @@ public class ScriptManager {
 
     private static ScriptManager manager;
 
+    private final File scriptsFolder;
     private final Set<Script> scripts;
 
     private final BukkitTask startScriptTask;
 
     private ScriptManager() {
+        scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         this.scripts = new HashSet<>();
-
-        File scripts = new File(PySpigot.get().getDataFolder(), "scripts");
-        if (!scripts.exists())
-            scripts.mkdir();
-
-        File logs = new File(PySpigot.get().getDataFolder(), "logs");
-        if (!logs.exists())
-            logs.mkdir();
 
         startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getLoadScriptDelay());
     }

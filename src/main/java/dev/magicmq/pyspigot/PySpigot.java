@@ -29,7 +29,6 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.StringUtils;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -44,8 +43,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -96,6 +93,8 @@ public class PySpigot extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        initFolders();
 
         checkVersion((version) -> {
             StringUtils.Version thisVersion = new StringUtils.Version(getDescription().getVersion());
@@ -159,12 +158,12 @@ public class PySpigot extends JavaPlugin {
         reloadScriptOptionsConfig();
     }
 
-    public void reloadScriptOptionsConfig() {
-        File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
-        if (!file.exists()) {
-            saveResource("script_options.yml", false);
-        }
-        scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
+    /**
+     * Get the {@link ClassLoader} for PySpigot.
+     * @return The ClassLoader
+     */
+    public ClassLoader getPluginClassLoader() {
+        return this.getClassLoader();
     }
 
     /**
@@ -200,6 +199,15 @@ public class PySpigot extends JavaPlugin {
         }
     }
 
+    private void initFolders() {
+        String[] folders = new String[]{"java-libs", "python-libs", "scripts", "logs"};
+        for (String folder : folders) {
+            File file = new File(getDataFolder(), folder);
+            if (!file.exists())
+                file.mkdir();
+        }
+    }
+
     private void checkReflection() throws NoSuchMethodException, NoSuchFieldException {
         //Check reflection for commands
         PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
@@ -220,6 +228,14 @@ public class PySpigot extends JavaPlugin {
             int loadedScripts = ScriptManager.get().getLoadedScripts().size();
             return "" + loadedScripts;
         }));
+    }
+
+    public void reloadScriptOptionsConfig() {
+        File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
+        if (!file.exists()) {
+            saveResource("script_options.yml", false);
+        }
+        scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
     }
 
     /**
