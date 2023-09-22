@@ -148,7 +148,6 @@ public class ScriptManager {
 
         //Check if the script is disabled as per its options in script_options.yml
         if (!script.getOptions().isEnabled()) {
-            script.close();
             return RunResult.FAIL_DISABLED;
         }
 
