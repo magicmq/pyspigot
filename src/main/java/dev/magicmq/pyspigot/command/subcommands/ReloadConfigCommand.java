@@ -26,7 +26,7 @@ import org.bukkit.command.CommandSender;
         command = "reloadconfig",
         aliases = {"configreload"},
         permission = "pyspigot.command.reloadconfig",
-        description = "Reload the config (This does not reload scripts!)"
+        description = "Reload the config (This does not reload scripts!). This command has no effect on already loaded scripts."
 )
 public class ReloadConfigCommand implements SubCommand {
 
