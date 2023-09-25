@@ -95,6 +95,7 @@ public class PySpigot extends JavaPlugin {
         instance = this;
 
         initFolders();
+        initHelperLibs();
 
         checkVersion((version) -> {
             StringUtils.Version thisVersion = new StringUtils.Version(getDescription().getVersion());
@@ -205,6 +206,18 @@ public class PySpigot extends JavaPlugin {
             File file = new File(getDataFolder(), folder);
             if (!file.exists())
                 file.mkdir();
+        }
+    }
+
+    private void initHelperLibs() {
+        File pythonLibs = new File(getDataFolder(), "python-libs");
+        if (pythonLibs.exists()) {
+            String[] libs = new String[]{"pyspigot.py", "bukkit.py", "chatcolor.py"};
+            for (String libName : libs) {
+                File lib = new File(pythonLibs, libName);
+                if (!lib.exists())
+                    saveResource(libName, false);
+            }
         }
     }
 
