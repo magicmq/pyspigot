@@ -16,5 +16,7 @@ script-action-logging: true
 debug-options:
   # If true, will print stack traces for all script-related exceptions to the server console
   print-stack-traces: false
+  # If ture, will suppress notifications that the plugin version is outdated
+  suppress-update-messages: false
 messages:
   plugin-prefix: '&8[&6PySpigot&8] &r'

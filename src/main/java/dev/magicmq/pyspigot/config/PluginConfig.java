@@ -79,6 +79,10 @@ public class PluginConfig {
         return config.getBoolean("debug-options.print-stack-traces", false);
     }
 
+    public static boolean shouldSuppressUpdateMessages() {
+        return config.getBoolean("suppress-update-messages", false);
+    }
+
     public static String getMessage(String key, boolean withPrefix) {
         return ChatColor.translateAlternateColorCodes('&', (withPrefix ? config.getString("messages.plugin-prefix") : "") + config.getString("messages." + key));
     }

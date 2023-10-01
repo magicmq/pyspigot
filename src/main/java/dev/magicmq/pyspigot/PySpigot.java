@@ -97,13 +97,15 @@ public class PySpigot extends JavaPlugin {
         initFolders();
         initHelperLibs();
 
-        checkVersion((version) -> {
-            StringUtils.Version thisVersion = new StringUtils.Version(getDescription().getVersion());
-            StringUtils.Version latestVersion = new StringUtils.Version(version);
-            if (thisVersion.compareTo(latestVersion) < 0) {
-                getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + version + ". Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
-            }
-        });
+        if (!PluginConfig.shouldSuppressUpdateMessages()) {
+            checkVersion((version) -> {
+                StringUtils.Version thisVersion = new StringUtils.Version(getDescription().getVersion());
+                StringUtils.Version latestVersion = new StringUtils.Version(version);
+                if (thisVersion.compareTo(latestVersion) < 0) {
+                    getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + version + ". Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
+                }
+            });
+        }
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
