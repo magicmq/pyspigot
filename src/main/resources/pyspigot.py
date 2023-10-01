@@ -18,38 +18,51 @@ from dev.magicmq.pyspigot.manager.script import ScriptManager
 from dev.magicmq.pyspigot.manager.script import GlobalVariables
 from dev.magicmq.pyspigot.manager.listener import ListenerManager
 from dev.magicmq.pyspigot.manager.command import CommandManager
-from dev.magicmq.pyspigot.manager.scheduler import TaskManager
+from dev.magicmq.pyspigot.manager.task import TaskManager
 from dev.magicmq.pyspigot.manager.config import ConfigManager
 from dev.magicmq.pyspigot.manager.protocol import ProtocolManager
 from dev.magicmq.pyspigot.manager.placeholder import PlaceholderManager
 
 def script_manager():
+    """Get the script manager for loading, unloading, and reloading scripts."""
     return ScriptManager.get()
 
 def global_vars():
+    """Get the global variables manager for setting and getting global variables."""
     return GlobalVariables.get()
 
 def listener_manager():
+    """Get the listener manager for registering and unregistering event listeners."""
+    return ListenerManager.get()
+
+def event_manager():
+    """Get the listener manager for registering and unregistering event listeners."""
     return ListenerManager.get()
 
 def command_manager():
+    """Get the command manager for registering and unregistering commands."""
     return CommandManager.get()
 
 def task_manager():
+    """Get the task manager for scheduling and unscheduling tasks (synchronous and asynchronous)."""
     return TaskManager.get()
 
 def scheduler_manager():
+    """Get the task manager for scheduling and unscheduling tasks (synchronous and asynchronous)."""
     return TaskManager.get()
 
 def config_manager():
+    """Get the config manager for writing to and reading from config files."""
     return ConfigManager.get()
 
 def protocol_manager():
+    """Get the protocol manager for working with ProtocolLib (registering/unregistering packet listeners, sending packets, etc.). Note: this function will return None if ProtocolLib is not available on the server."""
     if PySpigot.get().isProtocolLibavailable():
         return ProtocolManager.get()
     else: return None
 
 def placeholder_manager():
+    """get the placeholder manager for registering/unregistering PlaceholderAPI placeholders. Note: this function will return None if PlaceholderAPI is not available on the server."""
     if PySpigot.get().isPlaceholderApiAvailable():
         return PlaceholderManager.get()
     else: return None
