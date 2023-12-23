@@ -214,11 +214,11 @@ public class PySpigot extends JavaPlugin {
     private void initHelperLibs() {
         File pythonLibs = new File(getDataFolder(), "python-libs");
         if (pythonLibs.exists()) {
-            String[] libs = new String[]{"pyspigot.py", "bukkit.py", "chatcolor.py"};
+            String[] libs = new String[]{"python-libs/pyspigot.py"};
             for (String libName : libs) {
                 File lib = new File(pythonLibs, libName);
                 if (!lib.exists())
-                    saveResource(libName, false);
+                    saveResource(libName, true);
             }
         }
     }
