@@ -22,8 +22,6 @@ import me.lucko.jarrelocator.JarRelocator;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -56,6 +54,9 @@ public class LibraryManager {
         initLibraries();
     }
 
+    /**
+     * Closes the class loader for scripts.
+     */
     public void shutdown() {
         try {
             classLoader.close();
@@ -66,18 +67,18 @@ public class LibraryManager {
 
     /**
      * Load a library into the classpath.
-     * @param fileName The name of the Jar file to load into the classpath
+     * @param libName The name of the Jar file to load into the classpath, including the extension (.jar)
      * @return A {@link LoadResult} describing the outcome of the load attempt
      */
-    public LoadResult loadLibrary(String fileName) {
+    public LoadResult loadLibrary(String libName) {
         try {
-            Path file = Paths.get(PySpigot.get().getDataFolder().getAbsolutePath(), "libs", fileName);
-            if (file.toFile().exists())
+            File file = new File(libsFolder, libName);
+            if (file.exists())
                 return loadLibrary(file);
             else
                 return LoadResult.FAILED_FILE;
         } catch (Throwable throwable) {
-            PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + fileName + "!", throwable);
+            PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library '" + libName + "'!", throwable);
             return LoadResult.FAILED_ERROR;
         }
     }
@@ -97,36 +98,36 @@ public class LibraryManager {
         }
 
         for (File library : toLoad) {
-            String libraryName = library.getName();
-            try {
-                long start = System.nanoTime();
-                loadLibrary(library.toPath());
-                long duration = System.nanoTime() - start;
-                PySpigot.get().getLogger().log(Level.INFO, "Loaded library " + libraryName + " in " + (duration / 1000000) + " ms");
-            } catch (Throwable throwable) {
-                PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + libraryName + "!", throwable);
+            String libName = library.getName();
+            if (!libName.endsWith("-relocated.jar")) {
+                try {
+                    long start = System.nanoTime();
+                    LoadResult result = loadLibrary(library);
+                    long duration = System.nanoTime() - start;
+                    if (result == LoadResult.SUCCESS)
+                        PySpigot.get().getLogger().log(Level.INFO, "Loaded library " + libName + " in " + (duration / 1000000) + " ms");
+                } catch (Throwable throwable) {
+                    PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + libName + "!", throwable);
+                }
             }
         }
     }
 
-    private LoadResult loadLibrary(Path file) throws Exception {
+    private LoadResult loadLibrary(File lib) throws Exception {
+        String libNameNoExt = lib.getName().replaceFirst("[.][^.]+$", "");
+        File relocated = new File(libsFolder, libNameNoExt + "-relocated.jar");
+        if (!relocated.exists()) {
+            JarRelocator relocator = new JarRelocator(lib, relocated, relocations);
+            relocator.run();
+        }
         Callable<LoadResult> work = () -> {
-            Path relocated = relocateJar(file);
-
-            if (classLoader.isJarInClassPath(relocated))
+            if (classLoader.isJarInClassPath(relocated.toPath()))
                 return LoadResult.FAILED_LOADED;
 
-            classLoader.addJarToClasspath(relocated);
+            classLoader.addJarToClasspath(relocated.toPath());
             return LoadResult.SUCCESS;
         };
         return initializer.submit(work).get();
-    }
-
-    private Path relocateJar(Path file) throws Exception {
-        File output = new File(file.getFileName().toString());
-        JarRelocator relocator = new JarRelocator(file.toFile(), output, relocations);
-        relocator.run();
-        return output.toPath();
     }
 
     /**
