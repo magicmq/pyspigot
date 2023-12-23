@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.command.subcommands;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
+import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -27,7 +28,7 @@ import org.bukkit.command.CommandSender;
         command = "reloadall",
         aliases = {"reset"},
         permission = "pyspigot.command.reloadall",
-        description = "Perform a complete reload of the plugin, including configs and all scripts."
+        description = "Perform a complete reload of the plugin, including configs, libraries, and all scripts."
 )
 public class ReloadAllCommand implements SubCommand {
 
@@ -35,6 +36,7 @@ public class ReloadAllCommand implements SubCommand {
     public boolean onCommand(CommandSender sender, String[] args) {
         ScriptManager.get().unloadScripts();
         PySpigot.get().reload();
+        LibraryManager.get().reload();
         ScriptManager.get().loadScripts();
         sender.sendMessage(ChatColor.GREEN + "All scripts, plugin config, and script_options.yml have been reloaded.");
         return true;

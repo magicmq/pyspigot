@@ -66,6 +66,13 @@ public class LibraryManager {
     }
 
     /**
+     * Attempts to load all libraries that are not currently loaded. Libraries that are already loaded will be unaffected.
+     */
+    public void reload() {
+        initLibraries();
+    }
+
+    /**
      * Load a library into the classpath.
      * @param libName The name of the Jar file to load into the classpath, including the extension (.jar)
      * @return A {@link LoadResult} describing the outcome of the load attempt
