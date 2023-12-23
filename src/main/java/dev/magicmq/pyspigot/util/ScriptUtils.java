@@ -37,7 +37,7 @@ public class ScriptUtils {
 
     /**
      * Attempts to get the script involved in a Java method call by analyzing the call stack.
-     * @return The script associated with the method call, or null if no script was found in th call stack
+     * @return The script associated with the method call, or null if no script was found in the call stack
      */
     public static Script getScriptFromCallStack() {
         Optional<StackWalker.StackFrame> callingScript = STACK_WALKER.walk(stream -> stream.filter(frame -> frame.getClassName().contains("org.python.pycode") && frame.getMethodName().equals("call_function")).findFirst());
