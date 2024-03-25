@@ -29,6 +29,7 @@ import org.python.core.PyFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -41,14 +42,14 @@ public class ProtocolManager {
 
     private static ProtocolManager instance;
 
-    private com.comphenix.protocol.ProtocolManager protocolManager;
-    private AsyncProtocolManager asyncProtocolManager;
-    private List<ScriptPacketListener> listeners;
+    private final com.comphenix.protocol.ProtocolManager protocolManager;
+    private final AsyncProtocolManager asyncProtocolManager;
+    private final HashMap<Script, List<ScriptPacketListener>> registeredListeners;
 
     private ProtocolManager() {
         protocolManager = ProtocolLibrary.getProtocolManager();
         asyncProtocolManager = new AsyncProtocolManager();
-        listeners = new ArrayList<>();
+        registeredListeners = new HashMap<>();
     }
 
     /**
@@ -98,11 +99,11 @@ public class ProtocolManager {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
                 listener = new PacketReceivingListener(script, function, type, priority, ListenerType.NORMAL);
-                listeners.add(listener);
+                addPacketListener(listener);
                 protocolManager.addPacketListener(listener);
             } else if (type.getSender() == PacketType.Sender.SERVER) {
                 listener = new PacketSendingListener(script, function, type, priority, ListenerType.NORMAL);
-                listeners.add(listener);
+                addPacketListener(listener);
                 protocolManager.addPacketListener(listener);
             }
             return listener;
@@ -118,7 +119,7 @@ public class ProtocolManager {
      */
     public void unregisterPacketListener(ScriptPacketListener listener) {
         protocolManager.removePacketListener(listener);
-        listeners.remove(listener);
+        removePacketListener(listener);
     }
 
     /**
@@ -128,9 +129,12 @@ public class ProtocolManager {
      * @param script The script whose normal packet listeners should be unregistered
      */
     public void unregisterPacketListeners(Script script) {
-        List<ScriptPacketListener> associatedListeners = getPacketListeners(script);
-        for (ScriptPacketListener packetListener : associatedListeners) {
-            unregisterPacketListener(packetListener);
+        List<ScriptPacketListener> scriptPacketListeners = registeredListeners.get(script);
+        if (scriptPacketListeners != null) {
+            for (ScriptPacketListener listener : scriptPacketListeners) {
+                protocolManager.removePacketListener(listener);
+            }
+            registeredListeners.remove(script);
         }
     }
 
@@ -139,15 +143,10 @@ public class ProtocolManager {
      * <p>
      * Use {@link AsyncProtocolManager#getAsyncPacketListeners(Script)} to get a script's asynchronous packet listeners.
      * @param script The script to get normal packet listeners from
-     * @return A List of {@link ScriptPacketListener} containing all normal packet listeners associated with this script. Will return an empty list if there are no normal packet listeners associated with the script
+     * @return A List of {@link ScriptPacketListener} containing all normal packet listeners associated with this script. Will return null if there are no normal packet listeners associated with the script
      */
     public List<ScriptPacketListener> getPacketListeners(Script script) {
-        List<ScriptPacketListener> toReturn = new ArrayList<>();
-        for (ScriptPacketListener listener : listeners) {
-            if (listener.getScript().equals(script))
-                toReturn.add(listener);
-        }
-        return toReturn;
+        return registeredListeners.get(script);
     }
 
     /**
@@ -159,9 +158,11 @@ public class ProtocolManager {
      * @return The {@link ScriptPacketListener} associated with the script and packet type, null if there is none
      */
     public ScriptPacketListener getPacketListener(Script script, PacketType packetType) {
-        for (ScriptPacketListener listener : listeners) {
-            if (listener.getScript().equals(script) && listener.getPacketType().equals(packetType)) {
-                return listener;
+        List<ScriptPacketListener> scriptPacketListeners = registeredListeners.get(script);
+        if (scriptPacketListeners != null) {
+            for (ScriptPacketListener listener : scriptPacketListeners) {
+                if (listener.getPacketType() == packetType)
+                    return listener;
             }
         }
         return null;
@@ -248,6 +249,25 @@ public class ProtocolManager {
      */
     public void broadcastServerPacket(PacketContainer packet, Collection<? extends Player> targetPlayers) {
         protocolManager.broadcastServerPacket(packet, targetPlayers);
+    }
+
+    private void addPacketListener(ScriptPacketListener listener) {
+        Script script = listener.getScript();
+        if (registeredListeners.containsKey(script))
+            registeredListeners.get(script).add(listener);
+        else {
+            List<ScriptPacketListener> scriptPacketListeners = new ArrayList<>();
+            scriptPacketListeners.add(listener);
+            registeredListeners.put(script, scriptPacketListeners);
+        }
+    }
+
+    private void removePacketListener(ScriptPacketListener listener) {
+        Script script = listener.getScript();
+        List<ScriptPacketListener> scriptPacketListeners = registeredListeners.get(script);
+        scriptPacketListeners.remove(listener);
+        if (scriptPacketListeners.isEmpty())
+            registeredListeners.remove(script);
     }
 
     /**

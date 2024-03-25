@@ -26,6 +26,7 @@ import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -34,12 +35,12 @@ import java.util.List;
  */
 public class AsyncProtocolManager {
 
-    private com.comphenix.protocol.AsynchronousManager asynchronousManager;
-    private List<ScriptPacketListener> asyncListeners;
+    private final com.comphenix.protocol.AsynchronousManager asynchronousManager;
+    private final HashMap<Script, List<ScriptPacketListener>> registeredAsyncListeners;
 
     protected AsyncProtocolManager() {
         asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
-        asyncListeners = new ArrayList<>();
+        registeredAsyncListeners = new HashMap<>();
     }
 
     /**
@@ -81,12 +82,12 @@ public class AsyncProtocolManager {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
                 listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
-                asyncListeners.add(listener);
+                addAsyncPacketListener(listener);
                 AsyncListenerHandler handler = asynchronousManager.registerAsyncHandler(listener);
                 handler.start();
             } else if (type.getSender() == PacketType.Sender.SERVER) {
                 listener = new PacketSendingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
-                asyncListeners.add(listener);
+                addAsyncPacketListener(listener);
                 AsyncListenerHandler handler = asynchronousManager.registerAsyncHandler(listener);
                 handler.start();
             }
@@ -127,11 +128,11 @@ public class AsyncProtocolManager {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
                 listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_TIMEOUT);
-                asyncListeners.add(listener);
+                addAsyncPacketListener(listener);
                 asynchronousManager.registerTimeoutHandler(listener);
             } else if (type.getSender() == PacketType.Sender.SERVER) {
                 listener = new PacketSendingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_TIMEOUT);
-                asyncListeners.add(listener);
+                addAsyncPacketListener(listener);
                 asynchronousManager.registerTimeoutHandler(listener);
             }
             return listener;
@@ -148,10 +149,10 @@ public class AsyncProtocolManager {
     public void unregisterAsyncPacketListener(ScriptPacketListener listener) {
         if (listener.getListenerType() == ListenerType.ASYNCHRONOUS) {
             asynchronousManager.unregisterAsyncHandler(listener);
-            asyncListeners.remove(listener);
+            removeAsyncPacketListener(listener);
         } else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT) {
             asynchronousManager.unregisterTimeoutHandler(listener);
-            asyncListeners.remove(listener);
+            removeAsyncPacketListener(listener);
         }
     }
 
@@ -160,24 +161,25 @@ public class AsyncProtocolManager {
      * @param script The script whose asynchronous packet listeners should be unregistered
      */
     public void unregisterAsyncPacketListeners(Script script) {
-        List<ScriptPacketListener> associatedListeners = getAsyncPacketListeners(script);
-        for (ScriptPacketListener packetListener : associatedListeners) {
-            unregisterAsyncPacketListener(packetListener);
+        List<ScriptPacketListener> scriptPacketListeners = registeredAsyncListeners.get(script);
+        if (scriptPacketListeners != null) {
+            for (ScriptPacketListener listener : scriptPacketListeners) {
+                if (listener.getListenerType() == ListenerType.ASYNCHRONOUS)
+                    asynchronousManager.unregisterAsyncHandler(listener);
+                else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
+                    asynchronousManager.unregisterTimeoutHandler(listener);
+            }
+            registeredAsyncListeners.remove(script);
         }
     }
 
     /**
      * Get all asynchronous packet listeners associated with a script
      * @param script The script to get asynchronous packet listeners from
-     * @return A List of {@link ScriptPacketListener} containing all asynchronous packet listeners associated with this script. Will return an empty list if there are no asynchronous packet listeners associated with the script
+     * @return A List of {@link ScriptPacketListener} containing all asynchronous packet listeners associated with this script. Will return null if there are no asynchronous packet listeners associated with the script
      */
     public List<ScriptPacketListener> getAsyncPacketListeners(Script script) {
-        List<ScriptPacketListener> toReturn = new ArrayList<>();
-        for (ScriptPacketListener listener : asyncListeners) {
-            if (listener.getScript().equals(script))
-                toReturn.add(listener);
-        }
-        return toReturn;
+        return registeredAsyncListeners.get(script);
     }
 
     /**
@@ -187,11 +189,32 @@ public class AsyncProtocolManager {
      * @return The {@link ScriptPacketListener} associated with the script and packet type, null if there is none
      */
     public ScriptPacketListener getAsyncPacketListener(Script script, PacketType packetType) {
-        for (ScriptPacketListener listener : asyncListeners) {
-            if (listener.getScript().equals(script) && listener.getPacketType().equals(packetType)) {
-                return listener;
+        List<ScriptPacketListener> scriptAsyncPacketListeners = registeredAsyncListeners.get(script);
+        if (scriptAsyncPacketListeners != null) {
+            for (ScriptPacketListener listener : scriptAsyncPacketListeners) {
+                if (listener.getPacketType() == packetType)
+                    return listener;
             }
         }
         return null;
+    }
+
+    private void addAsyncPacketListener(ScriptPacketListener listener) {
+        Script script = listener.getScript();
+        if (registeredAsyncListeners.containsKey(script))
+            registeredAsyncListeners.get(script).add(listener);
+        else {
+            List<ScriptPacketListener> scriptAsyncPacketListeners = new ArrayList<>();
+            scriptAsyncPacketListeners.add(listener);
+            registeredAsyncListeners.put(script, scriptAsyncPacketListeners);
+        }
+    }
+
+    private void removeAsyncPacketListener(ScriptPacketListener listener) {
+        Script script = listener.getScript();
+        List<ScriptPacketListener> scriptAsyncPacketListeners = registeredAsyncListeners.get(script);
+        scriptAsyncPacketListeners.remove(listener);
+        if (scriptAsyncPacketListeners.isEmpty())
+            registeredAsyncListeners.remove(script);
     }
 }

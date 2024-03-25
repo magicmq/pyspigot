@@ -44,7 +44,7 @@ public class CommandManager {
     private SimpleCommandMap bCommandMap;
     private HashMap<String, Command> bKnownCommands;
 
-    private final List<ScriptCommand> registeredCommands;
+    private final HashMap<Script, List<ScriptCommand>> registeredCommands;
 
     private CommandManager() {
         bSyncCommands = ReflectionUtils.getMethod(Bukkit.getServer().getClass(), "syncCommands");
@@ -58,7 +58,7 @@ public class CommandManager {
             PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing command manager:", e);
         }
 
-        registeredCommands = new ArrayList<>();
+        registeredCommands = new HashMap<>();
     }
 
     /**
@@ -162,11 +162,11 @@ public class CommandManager {
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        ScriptCommand command = getCommand(name);
+        ScriptCommand command = getCommand(script, name);
         if (command == null) {
             ScriptCommand newCommand = new ScriptCommand(script, commandFunction, tabFunction, name, description, script.getName(), usage, aliases, permission, permissionMessage);
             newCommand.register(bCommandMap);
-            registeredCommands.add(newCommand);
+            addCommand(newCommand);
             syncCommands();
             return newCommand;
         } else
@@ -177,23 +177,12 @@ public class CommandManager {
      * Unregister a script's command.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
-     * @param name The name of the command to unregister.
-     */
-    public void unregisterCommand(String name) {
-        ScriptCommand command = getCommand(name);
-        unregisterCommand(command);
-    }
-
-    /**
-     * Unregister a script's command.
      * @param command The command to be unregistered
      */
     public void unregisterCommand(ScriptCommand command) {
-        if (registeredCommands.contains(command)) {
-            command.unregister(bCommandMap, bKnownCommands);
-            registeredCommands.remove(command);
-            syncCommands();
-        }
+        command.unregister(bCommandMap, bKnownCommands);
+        removeCommand(command);
+        syncCommands();
     }
 
     /**
@@ -202,18 +191,28 @@ public class CommandManager {
      */
     public void unregisterCommands(Script script) {
         List<ScriptCommand> associatedCommands = getCommands(script);
-        associatedCommands.forEach(this::unregisterCommand);
+        if (associatedCommands != null) {
+            for (ScriptCommand command : associatedCommands) {
+                command.unregister(bCommandMap, bKnownCommands);
+            }
+            registeredCommands.remove(script);
+            syncCommands();
+        }
     }
 
     /**
-     * Get a script command from its name.
-     * @param name The name of the command to get
-     * @return The command with this name, null if no command was found by the specified name
+     * Get a command associated with a particular script by the command name
+     * @param script The script
+     * @param name The name of the command
+     * @return The command with this name and associated with the script, or null if none was found
      */
-    public ScriptCommand getCommand(String name) {
-        for (ScriptCommand command : registeredCommands) {
-            if (command.getName().equalsIgnoreCase(name))
-                return command;
+    public ScriptCommand getCommand(Script script, String name) {
+        List<ScriptCommand> scriptCommands = registeredCommands.get(script);
+        if (scriptCommands != null) {
+            for (ScriptCommand command : scriptCommands) {
+                if (command.getName().equalsIgnoreCase(name))
+                    return command;
+            }
         }
         return null;
     }
@@ -221,15 +220,33 @@ public class CommandManager {
     /**
      * Get an immutable list containing all commands belonging to a particular script.
      * @param script The script to get commands from
-     * @return An immutable list containing all commands belonging to the script. Will return an empty list if no commands belong to the script
+     * @return An immutable list containing all commands belonging to the script. Will return null if no commands belong to the script
      */
     public List<ScriptCommand> getCommands(Script script) {
-        List<ScriptCommand> commands = new ArrayList<>();
-        for (ScriptCommand command : registeredCommands) {
-            if (command.getScript().equals(script))
-                commands.add(command);
+        List<ScriptCommand> scriptCommands = registeredCommands.get(script);
+        if (scriptCommands != null)
+            return new ArrayList<>(scriptCommands);
+        else
+            return null;
+    }
+
+    private void addCommand(ScriptCommand command) {
+        Script script = command.getScript();
+        if (registeredCommands.containsKey(script))
+            registeredCommands.get(script).add(command);
+        else {
+            List<ScriptCommand> scriptCommands = new ArrayList<>();
+            scriptCommands.add(command);
+            registeredCommands.put(script, scriptCommands);
         }
-        return commands;
+    }
+
+    private void removeCommand(ScriptCommand command) {
+        Script script = command.getScript();
+        List<ScriptCommand> scriptCommands = registeredCommands.get(script);
+        scriptCommands.remove(command);
+        if (scriptCommands.isEmpty())
+            registeredCommands.remove(script);
     }
 
     private SimpleCommandMap getCommandMap() throws NoSuchFieldException, IllegalAccessException {

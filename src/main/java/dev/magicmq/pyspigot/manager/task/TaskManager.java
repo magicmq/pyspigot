@@ -23,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -32,10 +33,10 @@ public class TaskManager {
 
     private static TaskManager manager;
 
-    private final List<Task> activeTasks;
+    private final HashMap<Script, List<Task>> activeTasks;
 
     private TaskManager() {
-        activeTasks = new ArrayList<>();
+        activeTasks = new HashMap<>();
     }
 
     /**
@@ -48,7 +49,7 @@ public class TaskManager {
     public int runTask(PyFunction function) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
-        activeTasks.add(task);
+        addTask(task);
         task.runTask(PySpigot.get());
         return task.getTaskId();
     }
@@ -63,7 +64,7 @@ public class TaskManager {
     public int runTaskAsync(PyFunction function) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
-        activeTasks.add(task);
+        addTask(task);
         task.runTaskAsynchronously(PySpigot.get());
         return task.getTaskId();
     }
@@ -79,7 +80,7 @@ public class TaskManager {
     public int runTaskLater(PyFunction function, long delay) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
-        activeTasks.add(task);
+        addTask(task);
         task.runTaskLater(PySpigot.get(), delay);
         return task.getTaskId();
     }
@@ -95,7 +96,7 @@ public class TaskManager {
     public int runTaskLaterAsync(PyFunction function, long delay) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
-        activeTasks.add(task);
+        addTask(task);
         task.runTaskLaterAsynchronously(PySpigot.get(), delay);
         return task.getTaskId();
     }
@@ -112,7 +113,7 @@ public class TaskManager {
     public int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new RepeatingTask(script, function);
-        activeTasks.add(task);
+        addTask(task);
         task.runTaskTimer(PySpigot.get(), delay, interval);
         return task.getTaskId();
     }
@@ -129,7 +130,7 @@ public class TaskManager {
     public int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new RepeatingTask(script, function);
-        activeTasks.add(task);
+        addTask(task);
         task.runTaskTimerAsynchronously(PySpigot.get(), delay, interval);
         return task.getTaskId();
     }
@@ -149,7 +150,7 @@ public class TaskManager {
      */
     public void stopTask(Task task) {
         task.cancel();
-        activeTasks.remove(task);
+        removeTask(task);
     }
 
     /**
@@ -157,8 +158,13 @@ public class TaskManager {
      * @param script The script whose scheduled tasks should be terminated
      */
     public void stopTasks(Script script) {
-        List<Task> associatedTasks = getTasks(script);
-        associatedTasks.forEach(this::stopTask);
+        List<Task> associatedTasks = activeTasks.get(script);
+        if (associatedTasks != null) {
+            for (Task task : associatedTasks) {
+                task.cancel();
+            }
+            activeTasks.remove(script);
+        }
     }
 
     /**
@@ -167,9 +173,11 @@ public class TaskManager {
      * @return The scheduled task associated with the task ID, null if no task was found with the given ID
      */
     public Task getTask(int taskId) {
-        for (Task task : activeTasks) {
-            if (task.getTaskId() == taskId)
-                return task;
+        for (List<Task> scriptTasks : activeTasks.values()) {
+            for (Task task : scriptTasks) {
+                if (task.getTaskId() == taskId)
+                    return task;
+            }
         }
         return null;
     }
@@ -177,15 +185,14 @@ public class TaskManager {
     /**
      * Get all scheduled tasks associated with a script.
      * @param script The script whose scheduled tasks should be gotten
-     * @return An immutable list containing all scheduled tasks associated with the script. Returns an empty list if the script has no scheduled tasks
+     * @return An immutable list containing all scheduled tasks associated with the script. Returns null if the script has no scheduled tasks
      */
     public List<Task> getTasks(Script script) {
-        List<Task> toReturn = new ArrayList<>();
-        for (Task task : activeTasks) {
-            if (task.getScript().equals(script))
-                toReturn.add(task);
-        }
-        return toReturn;
+        List<Task> scriptTasks = activeTasks.get(script);
+        if (scriptTasks != null)
+            return new ArrayList<>(scriptTasks);
+        else
+            return null;
     }
 
     protected void taskFinished(Task task) {
@@ -193,7 +200,26 @@ public class TaskManager {
             //This could be called from an asynchronous context (from an asynchronous task, for example), so we need to run it sync to avoid issues
             Bukkit.getScheduler().runTask(PySpigot.get(), () -> TaskManager.this.taskFinished(task));
         } else
-            activeTasks.remove(task);
+            removeTask(task);
+    }
+
+    private void addTask(Task task) {
+        Script script = task.getScript();
+        if (activeTasks.containsKey(script))
+            activeTasks.get(script).add(task);
+        else {
+            List<Task> scriptTasks = new ArrayList<>();
+            scriptTasks.add(task);
+            activeTasks.put(script, scriptTasks);
+        }
+    }
+
+    private void removeTask(Task task) {
+        Script script = task.getScript();
+        List<Task> scriptTasks = activeTasks.get(script);
+        scriptTasks.remove(task);
+        if (scriptTasks.isEmpty())
+            activeTasks.remove(script);
     }
 
     /**

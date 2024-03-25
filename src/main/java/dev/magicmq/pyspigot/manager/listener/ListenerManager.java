@@ -28,6 +28,7 @@ import org.python.core.PyFunction;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -37,10 +38,10 @@ public class ListenerManager {
 
     private static ListenerManager manager;
 
-    private final List<ScriptEventListener> registeredListeners;
+    private final HashMap<Script, List<ScriptEventListener>> registeredListeners;
 
     private ListenerManager() {
-        registeredListeners = new ArrayList<>();
+        registeredListeners = new HashMap<>();
     }
 
     /**
@@ -97,7 +98,7 @@ public class ListenerManager {
         if (listener == null) {
             listener = new ScriptEventListener(script, function, eventClass);
             Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, listener.getEventExecutor(), PySpigot.get(), ignoreCancelled);
-            registeredListeners.add(listener);
+            addListener(listener);
             return listener;
         } else {
             throw new RuntimeException("Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
@@ -112,21 +113,20 @@ public class ListenerManager {
      */
     public void unregisterListener(ScriptEventListener listener) {
         removeFromHandlers(listener);
-        registeredListeners.remove(listener);
+        removeListener(listener);
     }
 
     /**
      * Get all event listeners associated with a script
      * @param script The script to get event listeners from
-     * @return A List of {@link ScriptEventListener} containing all events associated with the script. Will return an empty list if there are no event listeners associated with the script
+     * @return An immutable List of {@link ScriptEventListener} containing all events associated with the script. Will return null if there are no event listeners associated with the script
      */
     public List<ScriptEventListener> getListeners(Script script) {
-        List<ScriptEventListener> toReturn = new ArrayList<>();
-        for (ScriptEventListener listener : registeredListeners) {
-            if (listener.getScript().equals(script))
-                toReturn.add(listener);
-        }
-        return toReturn;
+        List<ScriptEventListener> scriptListeners = registeredListeners.get(script);
+        if (scriptListeners != null)
+            return new ArrayList<>(scriptListeners);
+        else
+            return null;
     }
 
     /**
@@ -136,9 +136,12 @@ public class ListenerManager {
      * @return The {@link ScriptEventListener} associated with the script and event, null if there is none
      */
     public ScriptEventListener getEventListener(Script script, Class<? extends Event> eventClass) {
-        for (ScriptEventListener listener : registeredListeners) {
-            if (listener.getScript().equals(script) && listener.getEvent().equals(eventClass))
-                return listener;
+        List<ScriptEventListener> scriptListeners = registeredListeners.get(script);
+        if (scriptListeners != null) {
+            for (ScriptEventListener listener : scriptListeners) {
+                if (listener.getEvent().equals(eventClass))
+                    return listener;
+            }
         }
         return null;
     }
@@ -148,9 +151,12 @@ public class ListenerManager {
      * @param script The script whose event listeners should be unregistered
      */
     public void unregisterListeners(Script script) {
-        List<ScriptEventListener> associatedListeners = getListeners(script);
-        for (ScriptEventListener eventListener : associatedListeners) {
-            unregisterListener(eventListener);
+        List<ScriptEventListener> associatedListeners = registeredListeners.get(script);
+        if (associatedListeners != null) {
+            for (ScriptEventListener eventListener : associatedListeners) {
+                removeFromHandlers(eventListener);
+            }
+            registeredListeners.remove(script);
         }
     }
 
@@ -164,6 +170,25 @@ public class ListenerManager {
             //This should not happen, because all events *should* have getHandlerList defined
             throw new RuntimeException("Unhandled exception when unregistering listener '" + listener.getEvent().getSimpleName() + "'", e);
         }
+    }
+
+    private void addListener(ScriptEventListener listener) {
+        Script script = listener.getScript();
+        if (registeredListeners.containsKey(script))
+            registeredListeners.get(script).add(listener);
+        else {
+            List<ScriptEventListener> scriptListeners = new ArrayList<>();
+            scriptListeners.add(listener);
+            registeredListeners.put(script, scriptListeners);
+        }
+    }
+
+    private void removeListener(ScriptEventListener listener) {
+        Script script = listener.getScript();
+        List<ScriptEventListener> scriptListeners = registeredListeners.get(script);
+        scriptListeners.remove(listener);
+        if (scriptListeners.isEmpty())
+            registeredListeners.remove(script);
     }
 
     //Copied from org.bukkit.plugin.SimplePluginManager#getRegistrationClass. Resolves getHandlerList for events, including those where getHandlerList is defined in a superclass (such as BlockBreakEvent)

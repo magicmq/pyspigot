@@ -20,8 +20,7 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.core.PyFunction;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * Manager to interface with PlaceholderAPI. Primarily used by scripts to register and unregister placeholder expansions.
@@ -32,10 +31,10 @@ public class PlaceholderManager {
 
     private static PlaceholderManager instance;
 
-    private List<ScriptPlaceholder> registeredPlaceholders;
+    private HashMap<Script, ScriptPlaceholder> registeredPlaceholders;
 
     private PlaceholderManager() {
-        registeredPlaceholders = new ArrayList<>();
+        registeredPlaceholders = new HashMap<>();
     }
 
     /**
@@ -60,10 +59,10 @@ public class PlaceholderManager {
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, String author, String version) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        if (getPlaceholder(script) == null) {
+        if (!registeredPlaceholders.containsKey(script)) {
             ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, author, version);
             placeholder.register();
-            registeredPlaceholders.add(placeholder);
+            registeredPlaceholders.put(script, placeholder);
             return placeholder;
         } else
             throw new RuntimeException("Script already has a placeholder expansion registered");
@@ -77,7 +76,7 @@ public class PlaceholderManager {
      */
     public void unregisterPlaceholder(ScriptPlaceholder placeholder) {
         placeholder.unregister();
-        registeredPlaceholders.remove(placeholder);
+        registeredPlaceholders.remove(placeholder.getScript());
     }
 
     /**
@@ -88,7 +87,7 @@ public class PlaceholderManager {
      * @return True if a placeholder was unregistered, false if the script did not have a placeholder registered previously
      */
     public boolean unregisterPlaceholder(Script script) {
-        ScriptPlaceholder placeholder = getPlaceholder(script);
+        ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
         if (placeholder != null) {
             unregisterPlaceholder(placeholder);
             return true;
@@ -102,11 +101,7 @@ public class PlaceholderManager {
      * @return The script's placeholder expansion, null if the script does not have a placeholder expansion registered
      */
     public ScriptPlaceholder getPlaceholder(Script script) {
-        for (ScriptPlaceholder placeholder : registeredPlaceholders) {
-            if (placeholder.getScript().equals(script))
-                return placeholder;
-        }
-        return null;
+        return registeredPlaceholders.get(script);
     }
 
     /**

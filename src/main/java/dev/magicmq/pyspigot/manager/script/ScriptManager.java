@@ -31,7 +31,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.python.core.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -47,13 +49,13 @@ public class ScriptManager {
     private static ScriptManager manager;
 
     private final File scriptsFolder;
-    private final Set<Script> scripts;
+    private final HashMap<String, Script> scripts;
 
     private final BukkitTask startScriptTask;
 
     private ScriptManager() {
         scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
-        this.scripts = new HashSet<>();
+        this.scripts = new HashMap<>();
 
         startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getLoadScriptDelay());
     }
@@ -141,7 +143,7 @@ public class ScriptManager {
      */
     public RunResult loadScript(Script script) throws IOException {
         //Check if another script is already running with the same name
-        if (scripts.contains(script)) {
+        if (scripts.containsKey(script.getName())) {
             PySpigot.get().getLogger().log(Level.SEVERE, "Attempted to load script '" + script.getName() + "', but there is already a loaded script with this name.");
             return RunResult.FAIL_DUPLICATE;
         }
@@ -163,7 +165,7 @@ public class ScriptManager {
             return RunResult.FAIL_DEPENDENCY;
         }
 
-        scripts.add(script);
+        scripts.put(script.getName(), script);
 
         script.prepare();
         try (FileInputStream scriptFileReader = new FileInputStream(script.getFile())) {
@@ -191,7 +193,7 @@ public class ScriptManager {
             unloadScript(script, true);
             return RunResult.FAIL_ERROR;
         } catch (IOException e) {
-            scripts.remove(script);
+            scripts.remove(script.getName());
             script.close();
             throw e;
         }
@@ -201,7 +203,7 @@ public class ScriptManager {
      * Unload all currently loaded scripts.
      */
     public void unloadScripts() {
-        for (Script script : scripts) {
+        for (Script script : scripts.values()) {
             ScriptUnloadEvent event = new ScriptUnloadEvent(script, false);
             Bukkit.getPluginManager().callEvent(event);
             stopScript(script, false);
@@ -231,7 +233,7 @@ public class ScriptManager {
         ScriptUnloadEvent event = new ScriptUnloadEvent(script, error);
         Bukkit.getPluginManager().callEvent(event);
 
-        scripts.remove(script);
+        scripts.remove(script.getName());
 
         boolean gracefulStop = stopScript(script, error);
 
@@ -303,7 +305,7 @@ public class ScriptManager {
      * @return True if the script is running, false if otherwise
      */
     public boolean isScriptRunning(String name) {
-        return getScript(name) != null;
+        return scripts.containsKey(name);
     }
 
     /**
@@ -312,11 +314,7 @@ public class ScriptManager {
      * @return The Script object for the script, null if no script is loaded and running with the given name
      */
     public Script getScript(String name) {
-        for (Script script : scripts) {
-            if (script.getName().equals(name))
-                return script;
-        }
-        return null;
+        return scripts.get(name);
     }
 
     /**
@@ -324,7 +322,7 @@ public class ScriptManager {
      * @return An immutable set containing all loaded and running scripts
      */
     public Set<Script> getLoadedScripts() {
-        return new HashSet<>(scripts);
+        return new HashSet<>(scripts.values());
     }
 
     /**
@@ -332,7 +330,7 @@ public class ScriptManager {
      * @return An immutable list containing the names of all loaded and running scripts
      */
     public Set<String> getLoadedScriptNames() {
-        return scripts.stream().map(Script::getName).collect(Collectors.toSet());
+        return new HashSet<>(scripts.keySet());
     }
 
     /**
