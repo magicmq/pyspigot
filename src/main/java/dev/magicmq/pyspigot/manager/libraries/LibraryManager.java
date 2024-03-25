@@ -41,11 +41,11 @@ public class LibraryManager {
 
     private static LibraryManager instance;
 
-    private JarClassLoader classLoader;
+    private final JarClassLoader classLoader;
 
-    private File libsFolder;
-    private HashMap<String, String> relocations;
-    private ExecutorService initializer;
+    private final File libsFolder;
+    private final HashMap<String, String> relocations;
+    private final ExecutorService initializer;
 
     private LibraryManager() {
         classLoader = new JarClassLoader(PySpigot.get().getPluginClassLoader());

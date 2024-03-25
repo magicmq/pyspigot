@@ -31,7 +31,7 @@ public class PlaceholderManager {
 
     private static PlaceholderManager instance;
 
-    private HashMap<Script, ScriptPlaceholder> registeredPlaceholders;
+    private final HashMap<Script, ScriptPlaceholder> registeredPlaceholders;
 
     private PlaceholderManager() {
         registeredPlaceholders = new HashMap<>();

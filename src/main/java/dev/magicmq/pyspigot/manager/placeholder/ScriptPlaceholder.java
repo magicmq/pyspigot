@@ -30,10 +30,10 @@ import org.python.core.*;
  */
 public class ScriptPlaceholder extends PlaceholderExpansion {
 
-    private Script script;
-    private PyFunction function;
-    private String author;
-    private String version;
+    private final Script script;
+    private final PyFunction function;
+    private final String author;
+    private final String version;
 
     /**
      *

@@ -34,7 +34,7 @@ import java.util.logging.*;
  */
 public class ScriptLogger extends Logger {
 
-    private String logFilePath;
+    private final String logFilePath;
     private FileHandler handler;
 
     /**

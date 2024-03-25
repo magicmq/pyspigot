@@ -30,7 +30,7 @@ import org.python.core.PyObject;
  */
 public class ScriptEventExecutor implements EventExecutor {
 
-    private ScriptEventListener scriptEventListener;
+    private final ScriptEventListener scriptEventListener;
 
     /**
      *

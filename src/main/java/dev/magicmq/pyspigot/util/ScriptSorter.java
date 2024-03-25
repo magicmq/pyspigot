@@ -27,9 +27,9 @@ import java.util.*;
  */
 public class ScriptSorter {
 
-    private HashMap<String, Script> scripts;
-    private Set<Script> visited;
-    private LinkedList<Script> loadOrder;
+    private final HashMap<String, Script> scripts;
+    private final Set<Script> visited;
+    private final LinkedList<Script> loadOrder;
 
     /**
      *

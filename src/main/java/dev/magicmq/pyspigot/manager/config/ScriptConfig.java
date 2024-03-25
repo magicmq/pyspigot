@@ -28,7 +28,7 @@ import java.io.IOException;
  */
 public class ScriptConfig extends YamlConfiguration {
 
-    private File configFile;
+    private final File configFile;
 
     /**
      *

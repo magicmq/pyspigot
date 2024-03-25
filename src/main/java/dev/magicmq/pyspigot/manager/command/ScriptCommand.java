@@ -44,16 +44,16 @@ public class ScriptCommand implements TabExecutor {
     private final Script script;
     private final PyFunction commandFunction;
     private final PyFunction tabFunction;
-    private String name;
-    private String label;
-    private String description;
-    private String prefix;
-    private String usage;
-    private List<String> aliases;
-    private String permission;
-    private String permissionMessage;
+    private final String name;
+    private final String label;
+    private final String description;
+    private final String prefix;
+    private final String usage;
+    private final List<String> aliases;
+    private final String permission;
+    private final String permissionMessage;
 
-    private PluginCommand bukkitCommand;
+    private final PluginCommand bukkitCommand;
     private List<HelpTopic> helps;
 
     /**
