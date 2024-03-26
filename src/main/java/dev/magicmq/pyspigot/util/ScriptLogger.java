@@ -56,6 +56,7 @@ public class ScriptLogger extends Logger {
     public void initFileHandler() throws IOException {
         this.handler = new FileHandler(logFilePath, true);
         handler.setFormatter(new ScriptLogFormatter());
+        handler.setEncoding("UTF-8");
         this.addHandler(handler);
     }
 
