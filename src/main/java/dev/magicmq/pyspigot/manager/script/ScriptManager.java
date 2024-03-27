@@ -169,6 +169,9 @@ public class ScriptManager {
             return RunResult.FAIL_DEPENDENCY;
         }
 
+        if (PluginConfig.doScriptActionLogging())
+            PySpigot.get().getLogger().log(Level.INFO, "Loading script '" + script.getName() + "'");
+
         scripts.put(script.getName(), script);
 
         script.prepare();
