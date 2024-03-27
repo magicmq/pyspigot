@@ -46,7 +46,7 @@ public class PluginConfig {
         return config.getBoolean("metrics-enabled", true);
     }
 
-    public static long getLoadScriptDelay() {
+    public static long getScriptLoadDelay() {
         return config.getLong("script-load-delay", 20L);
     }
 

@@ -51,20 +51,24 @@ public class ScriptManager {
     private final File scriptsFolder;
     private final HashMap<String, Script> scripts;
 
-    private final BukkitTask startScriptTask;
+    private BukkitTask startScriptTask;
 
     private ScriptManager() {
         scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         this.scripts = new HashMap<>();
 
-        startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getLoadScriptDelay());
+        if (PluginConfig.getScriptLoadDelay() > 0L)
+            startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getScriptLoadDelay());
+        else
+            loadScripts();
     }
 
     /**
      * Called on plugin unload or server shutdown. Gracefully stops and unloads all loaded and running scripts.
      */
     public void shutdown() {
-        startScriptTask.cancel();
+        if (startScriptTask != null)
+            startScriptTask.cancel();
 
         unloadScripts();
 
