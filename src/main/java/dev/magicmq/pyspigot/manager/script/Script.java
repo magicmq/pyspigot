@@ -67,9 +67,6 @@ public class Script {
             }
         }
         interpreter.set("logger", logger);
-
-        //TODO Remove soon
-        interpreter.set("global", GlobalVariables.get());
     }
 
     /**
