@@ -34,7 +34,7 @@ public class ScriptUnloadEvent extends ScriptEvent {
      * @param error Whether the script was unloaded due to an error
      */
     public ScriptUnloadEvent(Script script, boolean error) {
-        super(script);
+        super(script, false);
         this.error = error;
     }
 

@@ -272,38 +272,33 @@ public class ScriptManager {
      * @param message The message associated with the exception
      */
     public void handleScriptException(Script script, PyException exception, String message) {
-        if (!Bukkit.isPrimaryThread()) {
-            //This method could be called asynchronously (i.e. from a ProtocolLib listener). We need to run it synchronously to call ScriptExceptionEvent.
-            Bukkit.getScheduler().runTask(PySpigot.get(), () -> ScriptManager.this.handleScriptException(script, exception, message));
-        } else {
-            ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception);
-            Bukkit.getPluginManager().callEvent(event);
-            if (event.doReportException()) {
-                String toLog = "";
-                toLog += message + ": ";
+        ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception, !Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.doReportException()) {
+            String toLog = "";
+            toLog += message + ": ";
 
-                if (exception.getCause() != null) {
-                    Throwable cause = exception.getCause();
-                    toLog += cause;
+            if (exception.getCause() != null) {
+                Throwable cause = exception.getCause();
+                toLog += cause;
 
-                    if (cause.getCause() != null) {
-                        Throwable causeOfCause = cause.getCause();
-                        toLog += "\n" + "Caused by: " + causeOfCause;
-                    }
-                } else {
-                    toLog += exception.getMessage();
+                if (cause.getCause() != null) {
+                    Throwable causeOfCause = cause.getCause();
+                    toLog += "\n" + "Caused by: " + causeOfCause;
                 }
-
-                if (exception.traceback != null) {
-                    toLog += "\n\n" + exception.traceback.dumpStack();
-                }
-
-                script.getLogger().log(Level.SEVERE, toLog);
+            } else {
+                toLog += exception.getMessage();
             }
 
-            if (PluginConfig.shouldPrintStackTraces())
-                exception.printStackTrace();
+            if (exception.traceback != null) {
+                toLog += "\n\n" + exception.traceback.dumpStack();
+            }
+
+            script.getLogger().log(Level.SEVERE, toLog);
         }
+
+        if (PluginConfig.shouldPrintStackTraces())
+            exception.printStackTrace();
     }
 
     /**

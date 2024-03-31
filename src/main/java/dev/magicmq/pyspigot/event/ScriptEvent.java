@@ -31,8 +31,10 @@ public class ScriptEvent extends Event {
     /**
      *
      * @param script The script associated with this event
+     * @param async Whether the event is asynchronous
      */
-    public ScriptEvent(Script script) {
+    public ScriptEvent(Script script, boolean async) {
+        super(async);
         this.script = script;
     }
 

@@ -31,7 +31,7 @@ public class ScriptLoadEvent extends ScriptEvent {
      * @param script The script that was loaded
      */
     public ScriptLoadEvent(Script script) {
-        super(script);
+        super(script, false);
     }
 
     @Override
