@@ -46,7 +46,7 @@ public class TaskManager {
      * @param function The function that should be called when the synchronous task executes
      * @return An ID representing the synchronous task that was scheduled
      */
-    public int runTask(PyFunction function) {
+    public synchronized int runTask(PyFunction function) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
         addTask(task);
@@ -61,7 +61,7 @@ public class TaskManager {
      * @param function The function that should be called when the asynchronous task executes
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public int runTaskAsync(PyFunction function) {
+    public synchronized int runTaskAsync(PyFunction function) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
         addTask(task);
@@ -77,7 +77,7 @@ public class TaskManager {
      * @param delay The delay, in ticks, that the scheduler should wait before executing the synchronous task
      * @return An ID representing the synchronous task that was scheduled
      */
-    public int runTaskLater(PyFunction function, long delay) {
+    public synchronized int runTaskLater(PyFunction function, long delay) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
         addTask(task);
@@ -93,7 +93,7 @@ public class TaskManager {
      * @param delay The delay, in ticks, that the scheduler should wait before executing the asynchronous task
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public int runTaskLaterAsync(PyFunction function, long delay) {
+    public synchronized int runTaskLaterAsync(PyFunction function, long delay) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new Task(script, function);
         addTask(task);
@@ -110,7 +110,7 @@ public class TaskManager {
      * @param interval The interval, in ticks, that the synchronous repeating task should be executed
      * @return An ID representing the synchronous task that was scheduled
      */
-    public int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
+    public synchronized int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new RepeatingTask(script, function);
         addTask(task);
@@ -127,7 +127,7 @@ public class TaskManager {
      * @param interval The interval, in ticks, that the asynchronous repeating task should be executed
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {
+    public synchronized int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {
         Script script = ScriptUtils.getScriptFromCallStack();
         Task task = new RepeatingTask(script, function);
         addTask(task);
@@ -139,7 +139,7 @@ public class TaskManager {
      * Terminate a task with the given task ID.
      * @param taskId The ID of the task to terminate
      */
-    public void stopTask(int taskId) {
+    public synchronized void stopTask(int taskId) {
         Task task = getTask(taskId);
         stopTask(task);
     }
@@ -148,7 +148,7 @@ public class TaskManager {
      * Terminate a scheduled task.
      * @param task The scheduled task to terminate
      */
-    public void stopTask(Task task) {
+    public synchronized void stopTask(Task task) {
         task.cancel();
         removeTask(task);
     }
@@ -157,7 +157,7 @@ public class TaskManager {
      * Terminate all scheduled tasks belonging to a script.
      * @param script The script whose scheduled tasks should be terminated
      */
-    public void stopTasks(Script script) {
+    public synchronized void stopTasks(Script script) {
         List<Task> associatedTasks = activeTasks.get(script);
         if (associatedTasks != null) {
             for (Task task : associatedTasks) {
@@ -172,7 +172,7 @@ public class TaskManager {
      * @param taskId The task ID
      * @return The scheduled task associated with the task ID, null if no task was found with the given ID
      */
-    public Task getTask(int taskId) {
+    public synchronized Task getTask(int taskId) {
         for (List<Task> scriptTasks : activeTasks.values()) {
             for (Task task : scriptTasks) {
                 if (task.getTaskId() == taskId)
@@ -187,7 +187,7 @@ public class TaskManager {
      * @param script The script whose scheduled tasks should be gotten
      * @return An immutable list containing all scheduled tasks associated with the script. Returns null if the script has no scheduled tasks
      */
-    public List<Task> getTasks(Script script) {
+    public synchronized List<Task> getTasks(Script script) {
         List<Task> scriptTasks = activeTasks.get(script);
         if (scriptTasks != null)
             return new ArrayList<>(scriptTasks);
@@ -195,15 +195,11 @@ public class TaskManager {
             return null;
     }
 
-    protected void taskFinished(Task task) {
-        if (!Bukkit.isPrimaryThread()) {
-            //This could be called from an asynchronous context (from an asynchronous task, for example), so we need to run it sync to avoid issues
-            Bukkit.getScheduler().runTask(PySpigot.get(), () -> TaskManager.this.taskFinished(task));
-        } else
-            removeTask(task);
+    protected synchronized void taskFinished(Task task) {
+        removeTask(task);
     }
 
-    private void addTask(Task task) {
+    private synchronized void addTask(Task task) {
         Script script = task.getScript();
         if (activeTasks.containsKey(script))
             activeTasks.get(script).add(task);
@@ -214,7 +210,7 @@ public class TaskManager {
         }
     }
 
-    private void removeTask(Task task) {
+    private synchronized void removeTask(Task task) {
         Script script = task.getScript();
         List<Task> scriptTasks = activeTasks.get(script);
         scriptTasks.remove(task);
