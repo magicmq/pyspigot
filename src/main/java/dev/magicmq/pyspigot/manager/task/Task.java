@@ -48,7 +48,7 @@ public class Task extends BukkitRunnable {
         try {
             function.__call__();
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when executing task");
+            ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + getTaskId());
         } finally {
             TaskManager.get().taskFinished(this);
         }

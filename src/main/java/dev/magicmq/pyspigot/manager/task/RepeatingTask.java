@@ -43,7 +43,7 @@ public class RepeatingTask extends Task {
         try {
             function.__call__();
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when executing task");
+            ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + getTaskId());
         }
     }
 }
