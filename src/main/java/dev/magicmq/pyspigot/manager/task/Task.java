@@ -19,10 +19,9 @@ package dev.magicmq.pyspigot.manager.task;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
+import org.python.core.*;
+
+import java.util.Arrays;
 
 /**
  * Represents a task defined by a script.
@@ -42,7 +41,14 @@ public class Task extends BukkitRunnable {
     public Task(Script script, PyFunction function, Object[] functionArgs) {
         this.script = script;
         this.function = function;
-        this.functionArgs = functionArgs;
+
+        if (functionArgs != null) {
+            int numOfFunctionArgs = ((PyBaseCode) function.__code__).co_argcount;
+            if (numOfFunctionArgs < functionArgs.length)
+                functionArgs = Arrays.copyOf(functionArgs, numOfFunctionArgs);
+            this.functionArgs = functionArgs;
+        } else
+            this.functionArgs = null;
     }
 
     /**
