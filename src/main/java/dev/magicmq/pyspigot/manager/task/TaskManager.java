@@ -44,11 +44,12 @@ public class TaskManager {
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the synchronous task executes
+     * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public synchronized int runTask(PyFunction function) {
+    public synchronized int runTask(PyFunction function, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function);
+        Task task = new Task(script, function, functionArgs);
         addTask(task);
         task.runTask(PySpigot.get());
         return task.getTaskId();
@@ -59,11 +60,12 @@ public class TaskManager {
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the asynchronous task executes
+     * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public synchronized int runTaskAsync(PyFunction function) {
+    public synchronized int runTaskAsync(PyFunction function, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function);
+        Task task = new Task(script, function, functionArgs);
         addTask(task);
         task.runTaskAsynchronously(PySpigot.get());
         return task.getTaskId();
@@ -75,11 +77,12 @@ public class TaskManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the synchronous task executes
      * @param delay The delay, in ticks, that the scheduler should wait before executing the synchronous task
+     * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public synchronized int runTaskLater(PyFunction function, long delay) {
+    public synchronized int runTaskLater(PyFunction function, long delay, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function);
+        Task task = new Task(script, function, functionArgs);
         addTask(task);
         task.runTaskLater(PySpigot.get(), delay);
         return task.getTaskId();
@@ -91,11 +94,12 @@ public class TaskManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the asynchronous task executes
      * @param delay The delay, in ticks, that the scheduler should wait before executing the asynchronous task
+     * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public synchronized int runTaskLaterAsync(PyFunction function, long delay) {
+    public synchronized int runTaskLaterAsync(PyFunction function, long delay, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function);
+        Task task = new Task(script, function, functionArgs);
         addTask(task);
         task.runTaskLaterAsynchronously(PySpigot.get(), delay);
         return task.getTaskId();
@@ -108,11 +112,12 @@ public class TaskManager {
      * @param function The function that should be called each time the synchronous task executes
      * @param delay The delay, in ticks, to wait before beginning this synchronous repeating task
      * @param interval The interval, in ticks, that the synchronous repeating task should be executed
+     * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public synchronized int scheduleRepeatingTask(PyFunction function, long delay, long interval) {
+    public synchronized int scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new RepeatingTask(script, function);
+        Task task = new RepeatingTask(script, function, functionArgs);
         addTask(task);
         task.runTaskTimer(PySpigot.get(), delay, interval);
         return task.getTaskId();
@@ -125,11 +130,12 @@ public class TaskManager {
      * @param function The function that should be called each time the asynchronous task executes
      * @param delay The delay, in ticks, to wait before beginning this asynchronous repeating task
      * @param interval The interval, in ticks, that the asynchronous repeating task should be executed
+     * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public synchronized int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval) {
+    public synchronized int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new RepeatingTask(script, function);
+        Task task = new RepeatingTask(script, function, functionArgs);
         addTask(task);
         task.runTaskTimerAsynchronously(PySpigot.get(), delay, interval);
         return task.getTaskId();

@@ -18,8 +18,10 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
+import org.python.core.PyObject;
 
 /**
  * Represents a repeating task defined by a script.
@@ -30,9 +32,10 @@ public class RepeatingTask extends Task {
      *
      * @param script The script associated with this repeating task
      * @param function The script function that should be called every time the repeating task executes
+     * @param functionArgs Any arguments that should be passed to the function
      */
-    public RepeatingTask(Script script, PyFunction function) {
-        super(script, function);
+    public RepeatingTask(Script script, PyFunction function, Object[] functionArgs) {
+        super(script, function, functionArgs);
     }
 
     /**
@@ -41,7 +44,12 @@ public class RepeatingTask extends Task {
     @Override
     public void run() {
         try {
-            function.__call__();
+            if (functionArgs != null) {
+                PyObject[] pyObjects = Py.javas2pys(functionArgs);
+                function.__call__(pyObjects);
+            } else {
+                function.__call__();
+            }
         } catch (PyException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + getTaskId());
         }

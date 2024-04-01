@@ -19,8 +19,10 @@ package dev.magicmq.pyspigot.manager.task;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
+import org.python.core.PyObject;
 
 /**
  * Represents a task defined by a script.
@@ -29,15 +31,18 @@ public class Task extends BukkitRunnable {
 
     protected final Script script;
     protected final PyFunction function;
+    protected final Object[] functionArgs;
 
     /**
      *
      * @param script The script associated with this task
      * @param function The script function that should be called when the task executes
+     * @param functionArgs Any arguments that should be passed to the function
      */
-    public Task(Script script, PyFunction function) {
+    public Task(Script script, PyFunction function, Object[] functionArgs) {
         this.script = script;
         this.function = function;
+        this.functionArgs = functionArgs;
     }
 
     /**
@@ -46,7 +51,12 @@ public class Task extends BukkitRunnable {
     @Override
     public void run() {
         try {
-            function.__call__();
+            if (functionArgs != null) {
+                PyObject[] pyObjects = Py.javas2pys(functionArgs);
+                function.__call__(pyObjects);
+            } else {
+                function.__call__();
+            }
         } catch (PyException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + getTaskId());
         } finally {
