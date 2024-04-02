@@ -89,7 +89,6 @@ public class PySpigot extends JavaPlugin {
 
     private FileConfiguration scriptOptionsConfig;
     private Metrics metrics;
-
     private BukkitTask versionCheckTask;
     private volatile String spigotVersion;
 
@@ -99,19 +98,6 @@ public class PySpigot extends JavaPlugin {
 
         initFolders();
         initHelperLibs();
-
-        fetchSpigotVersion();
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            if (spigotVersion != null && !PluginConfig.shouldSuppressUpdateMessages()) {
-                StringUtils.Version currentVersion = new StringUtils.Version(getDescription().getVersion());
-                StringUtils.Version latestVersion = new StringUtils.Version(spigotVersion);
-                if (currentVersion.compareTo(latestVersion) < 0) {
-                    getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + spigotVersion + ".");
-                    getLogger().log(Level.WARNING, "Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
-                }
-            }
-        }, 20L);
-        versionCheckTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::fetchSpigotVersion, 864000L, 864000L);
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
@@ -146,6 +132,19 @@ public class PySpigot extends JavaPlugin {
 
         if (PluginConfig.getMetricsEnabled())
             setupMetrics();
+
+        fetchSpigotVersion();
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            if (spigotVersion != null && !PluginConfig.shouldSuppressUpdateMessages()) {
+                StringUtils.Version currentVersion = new StringUtils.Version(getDescription().getVersion());
+                StringUtils.Version latestVersion = new StringUtils.Version(spigotVersion);
+                if (currentVersion.compareTo(latestVersion) < 0) {
+                    getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + spigotVersion + ".");
+                    getLogger().log(Level.WARNING, "Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
+                }
+            }
+        }, 20L);
+        versionCheckTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::fetchSpigotVersion, 864000L, 864000L);
     }
 
     @Override
