@@ -36,13 +36,16 @@ public class PluginListener implements Listener {
         if (!PluginConfig.shouldSuppressUpdateMessages()) {
             Player player = event.getPlayer();
             if (player.hasPermission("pyspigot.admin")) {
-                Bukkit.getScheduler().runTaskLater(PySpigot.get(), () -> PySpigot.get().checkVersion((version) -> {
-                    StringUtils.Version thisVersion = new StringUtils.Version(PySpigot.get().getDescription().getVersion());
-                    StringUtils.Version latestVersion = new StringUtils.Version(version);
-                    if (thisVersion.compareTo(latestVersion) < 0) {
-                        player.spigot().sendMessage(buildMessage(version));
-                    }
-                }), 10L);
+                String latest = PySpigot.get().getSpigotVersion();
+                if (latest != null) {
+                    Bukkit.getScheduler().runTaskLater(PySpigot.get(), () -> {
+                        StringUtils.Version currentVersion = new StringUtils.Version(PySpigot.get().getDescription().getVersion());
+                        StringUtils.Version latestVersion = new StringUtils.Version(latest);
+                        if (currentVersion.compareTo(latestVersion) < 0) {
+                            player.spigot().sendMessage(buildMessage(latest));
+                        }
+                    }, 10L);
+                }
             }
         }
     }
@@ -55,7 +58,7 @@ public class PluginListener implements Listener {
         pluginPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(net.md_5.bungee.api.ChatColor.GOLD + "Click to go to the PySpigot plugin page")));
 
         ComponentBuilder builder = new ComponentBuilder();
-        builder.append("You're running an outdated version of PySpigot. The latest version is " + version + ". ").color(net.md_5.bungee.api.ChatColor.RED).append(pluginPage).reset();
+        builder.append("You're running an outdated version of PySpigot. The latest version is " + version + ". ").color(net.md_5.bungee.api.ChatColor.RED).append(pluginPage);
         return builder.create();
     }
 }

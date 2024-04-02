@@ -38,13 +38,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Scanner;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -90,6 +90,9 @@ public class PySpigot extends JavaPlugin {
     private FileConfiguration scriptOptionsConfig;
     private Metrics metrics;
 
+    private BukkitTask versionCheckTask;
+    private volatile String spigotVersion;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -97,15 +100,18 @@ public class PySpigot extends JavaPlugin {
         initFolders();
         initHelperLibs();
 
-        if (!PluginConfig.shouldSuppressUpdateMessages()) {
-            checkVersion((version) -> {
-                StringUtils.Version thisVersion = new StringUtils.Version(getDescription().getVersion());
-                StringUtils.Version latestVersion = new StringUtils.Version(version);
-                if (thisVersion.compareTo(latestVersion) < 0) {
-                    getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + version + ". Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
+        fetchSpigotVersion();
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            if (spigotVersion != null && !PluginConfig.shouldSuppressUpdateMessages()) {
+                StringUtils.Version currentVersion = new StringUtils.Version(getDescription().getVersion());
+                StringUtils.Version latestVersion = new StringUtils.Version(spigotVersion);
+                if (currentVersion.compareTo(latestVersion) < 0) {
+                    getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + spigotVersion + ".");
+                    getLogger().log(Level.WARNING, "Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
                 }
-            });
-        }
+            }
+        }, 20L);
+        versionCheckTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::fetchSpigotVersion, 864000L, 864000L);
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
@@ -150,6 +156,9 @@ public class PySpigot extends JavaPlugin {
 
         if (metrics != null)
             metrics.shutdown();
+
+        if (versionCheckTask != null)
+            versionCheckTask.cancel();
     }
 
     /**
@@ -193,10 +202,14 @@ public class PySpigot extends JavaPlugin {
         return Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
     }
 
-    protected void checkVersion(Consumer<String> consumer) {
-        try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/~").openStream(); Scanner scanner = new Scanner(is)){
+    protected String getSpigotVersion() {
+        return spigotVersion;
+    }
+
+    private void fetchSpigotVersion() {
+        try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/~").openStream(); Scanner scanner = new Scanner(is)) {
             if (scanner.hasNext())
-                consumer.accept(scanner.next());
+                spigotVersion = scanner.next();
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error when attempting to get latest plugin version from Spigot: " + e.getMessage());
         }
