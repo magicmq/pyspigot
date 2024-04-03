@@ -210,7 +210,8 @@ public class PySpigot extends JavaPlugin {
             if (scanner.hasNext())
                 spigotVersion = scanner.next();
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Error when attempting to get latest plugin version from Spigot: " + e.getMessage());
+            getLogger().log(Level.WARNING, "Error when attempting to get latest plugin version from Spigot:");
+            e.printStackTrace();
         }
     }
 
