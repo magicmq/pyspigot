@@ -16,6 +16,9 @@
 
 package dev.magicmq.pyspigot.manager.script;
 
+/**
+ * An enum class representing various outcomes of running a script, including run failures.
+ */
 public enum RunResult {
 
     /**
