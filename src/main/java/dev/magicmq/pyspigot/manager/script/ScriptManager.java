@@ -128,15 +128,18 @@ public class ScriptManager {
      * Load a script with the given name.
      * @param name The file name of the script to load. Name should contain the file extension (.py)
      * @return A {@link RunResult} describing the outcome of the load operation
-     * @throws IOException If there was an IOException related to loading the script file
+     * @throws FileNotFoundException If a script file was not found in the scripts folder with the given name
+     * @throws IOException If there was another IOException related to loading the script file
      */
     public RunResult loadScript(String name) throws IOException {
         File scriptFile = new File(scriptsFolder, name);
+        if (scriptFile.exists()) {
+            ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(scriptFile.getName()));
+            Script script = new Script(scriptFile.getName(), scriptFile, options);
 
-        ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(scriptFile.getName()));
-        Script script = new Script(scriptFile.getName(), scriptFile, options);
-
-        return loadScript(script);
+            return loadScript(script);
+        } else
+            throw new FileNotFoundException("Script file not found in the scripts folder with the name '" + name + "'");
     }
 
     /**
