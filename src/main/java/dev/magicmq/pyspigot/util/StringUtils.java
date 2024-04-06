@@ -21,7 +21,9 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A utility class for various methods/classes related to Strings.
  */
-public class StringUtils {
+public final class StringUtils {
+
+    private StringUtils() {}
 
     public static String replaceLastOccurrence(String string, String toReplace, String replaceWith) {
         return string.replaceFirst("(?s)" + toReplace + "(?!.*?" + toReplace + ")", replaceWith);

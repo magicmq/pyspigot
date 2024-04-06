@@ -27,13 +27,15 @@ import java.util.Optional;
 /**
  * A collection of utility methods related to scripts.
  */
-public class ScriptUtils {
+public final class ScriptUtils {
 
     private static final StackWalker STACK_WALKER;
 
     static {
         STACK_WALKER = StackWalker.getInstance();
     }
+
+    private ScriptUtils() {}
 
     /**
      * Attempts to get the script involved in a Java method call by analyzing the call stack.

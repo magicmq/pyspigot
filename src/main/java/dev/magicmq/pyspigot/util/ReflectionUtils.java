@@ -24,13 +24,15 @@ import java.lang.reflect.Method;
 /**
  * A utility class to simplify reflection for working with CraftBukkit and NMS classes.
  */
-public class ReflectionUtils {
+public final class ReflectionUtils {
 
     private static final String MC_VERSION;
 
     static {
         MC_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
     }
+
+    private ReflectionUtils() {}
 
     public static Class<?> getNMSClass(String packageName, String className) throws ClassNotFoundException {
         try {
