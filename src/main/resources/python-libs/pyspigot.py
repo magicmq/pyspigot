@@ -27,8 +27,6 @@ from dev.magicmq.pyspigot.manager.listener import ListenerManager
 from dev.magicmq.pyspigot.manager.command import CommandManager
 from dev.magicmq.pyspigot.manager.task import TaskManager
 from dev.magicmq.pyspigot.manager.config import ConfigManager
-from dev.magicmq.pyspigot.manager.protocol import ProtocolManager
-from dev.magicmq.pyspigot.manager.placeholder import PlaceholderManager
 
 def script_manager():
     """Get the script manager for loading, unloading, and reloading scripts."""
@@ -57,12 +55,14 @@ def config_manager():
 def protocol_manager():
     """Get the protocol manager for working with ProtocolLib (registering/unregistering packet listeners, sending packets, etc.). Note: this function will return None if ProtocolLib is not available on the server."""
     if PySpigot.get().isProtocolLibAvailable():
+        from dev.magicmq.pyspigot.manager.protocol import ProtocolManager
         return ProtocolManager.get()
     else: return None
 
 def placeholder_manager():
     """get the placeholder manager for registering/unregistering PlaceholderAPI placeholders. Note: this function will return None if PlaceholderAPI is not available on the server."""
     if PySpigot.get().isPlaceholderApiAvailable():
+        from dev.magicmq.pyspigot.manager.placeholder import PlaceholderManager
         return PlaceholderManager.get()
     else: return None
 
