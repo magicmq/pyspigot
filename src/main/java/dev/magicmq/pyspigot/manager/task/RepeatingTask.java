@@ -28,14 +28,17 @@ import org.python.core.PyObject;
  */
 public class RepeatingTask extends Task {
 
+    private final long interval;
+
     /**
      *
      * @param script The script associated with this repeating task
      * @param function The script function that should be called every time the repeating task executes
      * @param functionArgs Any arguments that should be passed to the function
      */
-    public RepeatingTask(Script script, PyFunction function, Object[] functionArgs) {
-        super(script, function, functionArgs);
+    public RepeatingTask(Script script, PyFunction function, Object[] functionArgs, boolean async, long delay, long interval) {
+        super(script, function, functionArgs, async, delay);
+        this.interval = interval;
     }
 
     /**
@@ -53,5 +56,14 @@ public class RepeatingTask extends Task {
         } catch (PyException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + getTaskId());
         }
+    }
+
+    /**
+     * Prints a representation of this RepeatingTask in string format, including the task ID, if it is async, delay (if applicable), and interval (if applicable)
+     * @return A string representation of the RepeatingTask
+     */
+    @Override
+    public String toString() {
+        return String.format("RepeatingTask[Task ID: %d, Async: %b, Delay: %d, Interval: %d]", getTaskId(), async, (int) delay, (int) interval);
     }
 }

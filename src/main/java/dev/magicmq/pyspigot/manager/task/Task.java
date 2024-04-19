@@ -31,6 +31,8 @@ public class Task extends BukkitRunnable {
     protected final Script script;
     protected final PyFunction function;
     protected final Object[] functionArgs;
+    protected final boolean async;
+    protected final long delay;
 
     /**
      *
@@ -38,7 +40,7 @@ public class Task extends BukkitRunnable {
      * @param function The script function that should be called when the task executes
      * @param functionArgs Any arguments that should be passed to the function
      */
-    public Task(Script script, PyFunction function, Object[] functionArgs) {
+    public Task(Script script, PyFunction function, Object[] functionArgs, boolean async, long delay) {
         this.script = script;
         this.function = function;
 
@@ -49,6 +51,9 @@ public class Task extends BukkitRunnable {
             this.functionArgs = functionArgs;
         } else
             this.functionArgs = null;
+
+        this.async = async;
+        this.delay = delay;
     }
 
     /**
@@ -76,5 +81,14 @@ public class Task extends BukkitRunnable {
      */
     public Script getScript() {
         return script;
+    }
+
+    /**
+     * Prints a representation of this Task in string format, including the task ID, if it is async, and delay (if applicable)
+     * @return A string representation of the Task
+     */
+    @Override
+    public String toString() {
+        return String.format("Task[Task ID: %d, Async: %b, Delay: %d]", getTaskId(), async, (int) delay);
     }
 }

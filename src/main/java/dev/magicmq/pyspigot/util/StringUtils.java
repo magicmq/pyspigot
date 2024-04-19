@@ -18,6 +18,8 @@ package dev.magicmq.pyspigot.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+
 /**
  * A utility class for various methods/classes related to Strings.
  */
@@ -27,6 +29,15 @@ public final class StringUtils {
 
     public static String replaceLastOccurrence(String string, String toReplace, String replaceWith) {
         return string.replaceFirst("(?s)" + toReplace + "(?!.*?" + toReplace + ")", replaceWith);
+    }
+
+    public static String formatDuration(Duration duration) {
+        long days = duration.toDaysPart();
+        long hours = duration.toHoursPart();
+        long minutes = duration.toMinutesPart();
+        long seconds = duration.toSecondsPart();
+
+        return days + "d" + hours + "h" + minutes + "m" + seconds + "s";
     }
 
     public static class Version implements Comparable<Version> {

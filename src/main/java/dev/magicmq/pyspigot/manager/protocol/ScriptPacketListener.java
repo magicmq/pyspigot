@@ -99,4 +99,13 @@ public abstract class ScriptPacketListener extends PacketAdapter {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet listener");
         }
     }
+
+    /**
+     * Prints a representation of this ScriptPacketListener in string format, including the packet type listened to by the listener
+     * @return A string representation of the ScriptPacketListener
+     */
+    @Override
+    public String toString() {
+        return String.format("ScriptPacketListener[Packet Type: %s]", packetType.toString());
+    }
 }

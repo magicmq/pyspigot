@@ -227,4 +227,13 @@ public class ScriptCommand implements TabExecutor {
             }
         }
     }
+
+    /**
+     * Prints a representation of this ScriptCommand in string format, including all variables that pertain to the command (such as name, label, description, etc.)
+     * @return A string representation of the ScriptCommand
+     */
+    @Override
+    public String toString() {
+        return String.format("ScriptCommand[Name: %s, Label: %s, Description: %s, Prefix: %s, Usage: %s, Aliases: %s, Permission: %s, Permission Message: %s]", name, label, description, prefix, usage, aliases, permission, permissionMessage);
+    }
 }

@@ -78,4 +78,13 @@ public class ScriptEventListener implements Listener {
     public ScriptEventExecutor getEventExecutor() {
         return eventExecutor;
     }
+
+    /**
+     * Prints a representation of this ScriptEventListener in string format, including the event being listened to by the listener
+     * @return A string representation of the ScriptEventListener
+     */
+    @Override
+    public String toString() {
+        return String.format("ScriptEventListener[Event: %s]", event.getName());
+    }
 }

@@ -126,6 +126,21 @@ public class ScriptManager {
     }
 
     /**
+     * Get the {@link ScriptOptions} for a particular script.
+     * @param name The name of the script to fetch options for. Name should contain the file extension (.py)
+     * @return A ScriptOptions object representing the options beloinging to the specified script
+     * @throws FileNotFoundException If a script file was not found in the scripts folder with the given name
+     */
+    public ScriptOptions getScriptOptions(String name) throws FileNotFoundException {
+        File scriptFile = new File(scriptsFolder, name);
+        if (scriptFile.exists()) {
+            return new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(scriptFile.getName()));
+        } else
+            throw new FileNotFoundException("Script file not found in the scripts folder with the name '" + name + "'");
+
+    }
+
+    /**
      * Load a script with the given name.
      * @param name The file name of the script to load. Name should contain the file extension (.py)
      * @return A {@link RunResult} describing the outcome of the load operation

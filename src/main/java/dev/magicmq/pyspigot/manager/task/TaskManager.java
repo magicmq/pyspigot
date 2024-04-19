@@ -49,7 +49,7 @@ public class TaskManager {
      */
     public synchronized int runTask(PyFunction function, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function, functionArgs);
+        Task task = new Task(script, function, functionArgs, false, 0);
         addTask(task);
         task.runTask(PySpigot.get());
         return task.getTaskId();
@@ -65,7 +65,7 @@ public class TaskManager {
      */
     public synchronized int runTaskAsync(PyFunction function, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function, functionArgs);
+        Task task = new Task(script, function, functionArgs, true, 0);
         addTask(task);
         task.runTaskAsynchronously(PySpigot.get());
         return task.getTaskId();
@@ -82,7 +82,7 @@ public class TaskManager {
      */
     public synchronized int runTaskLater(PyFunction function, long delay, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function, functionArgs);
+        Task task = new Task(script, function, functionArgs, false, delay);
         addTask(task);
         task.runTaskLater(PySpigot.get(), delay);
         return task.getTaskId();
@@ -99,7 +99,7 @@ public class TaskManager {
      */
     public synchronized int runTaskLaterAsync(PyFunction function, long delay, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function, functionArgs);
+        Task task = new Task(script, function, functionArgs, true, delay);
         addTask(task);
         task.runTaskLaterAsynchronously(PySpigot.get(), delay);
         return task.getTaskId();
@@ -117,7 +117,7 @@ public class TaskManager {
      */
     public synchronized int scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new RepeatingTask(script, function, functionArgs);
+        Task task = new RepeatingTask(script, function, functionArgs, false, delay, interval);
         addTask(task);
         task.runTaskTimer(PySpigot.get(), delay, interval);
         return task.getTaskId();
@@ -135,7 +135,7 @@ public class TaskManager {
      */
     public synchronized int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new RepeatingTask(script, function, functionArgs);
+        Task task = new RepeatingTask(script, function, functionArgs, true, delay, interval);
         addTask(task);
         task.runTaskTimerAsynchronously(PySpigot.get(), delay, interval);
         return task.getTaskId();

@@ -29,7 +29,7 @@ import org.bukkit.entity.Player;
         command = "help",
         permission = "pyspigot.command.help",
         description = "Useful information for PySpigot and how to get help",
-        aliases = {"gethelp", "info", "getinfo"}
+        aliases = {"gethelp"}
 )
 public class HelpCommand implements SubCommand {
 

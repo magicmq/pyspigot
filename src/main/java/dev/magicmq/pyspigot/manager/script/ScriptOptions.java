@@ -82,4 +82,13 @@ public class ScriptOptions {
     public Level getMinLoggingLevel() {
         return minLoggingLevel;
     }
+
+    /**
+     * Prints a representation of this ScriptOptions in string format, including all options as defined in script_options.yml
+     * @return A string representation of the ScriptOptions
+     */
+    @Override
+    public String toString() {
+        return String.format("ScriptOptions[Enabled: %b, Depend: %s, File Logging Enabled: %b, Minimum Logging Level: %s", enabled, depend, fileLoggingEnabled, minLoggingLevel);
+    }
 }

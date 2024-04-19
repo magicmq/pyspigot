@@ -36,6 +36,7 @@ public class Script {
 
     private PythonInterpreter interpreter;
     private ScriptLogger logger;
+    private long loadTime;
 
     /**
      *
@@ -67,6 +68,8 @@ public class Script {
             }
         }
         interpreter.set("logger", logger);
+
+        loadTime = System.currentTimeMillis();
     }
 
     /**
@@ -134,6 +137,14 @@ public class Script {
      */
     public String getLogFileName() {
         return getSimpleName() + ".log";
+    }
+
+    /**
+     * Get the millisecond duration that this script has been loaded
+     * @return The duration that the script has been loaded
+     */
+    public long getUptime() {
+        return System.currentTimeMillis() - loadTime;
     }
 
     /**
