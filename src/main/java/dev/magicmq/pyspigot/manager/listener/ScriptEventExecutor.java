@@ -31,13 +31,16 @@ import org.python.core.PyObject;
 public class ScriptEventExecutor implements EventExecutor {
 
     private final ScriptEventListener scriptEventListener;
+    private final Class<? extends Event> eventClass;
 
     /**
      *
      * @param scriptEventListener The {@link ScriptEventListener} associated with this ScriptEventExecutor
+     * @param eventClass The Bukkit event associated with this ScriptEventExecutor. Should be a {@link Class} of the Bukkit event
      */
-    public ScriptEventExecutor(ScriptEventListener scriptEventListener) {
+    public ScriptEventExecutor(ScriptEventListener scriptEventListener, Class<? extends Event> eventClass) {
         this.scriptEventListener = scriptEventListener;
+        this.eventClass = eventClass;
     }
 
     /**
@@ -46,11 +49,13 @@ public class ScriptEventExecutor implements EventExecutor {
      * @param event The event that occurred
      */
     public void execute(Listener listener, Event event) {
-        try {
-            PyObject parameter = Py.java2py(event);
-            scriptEventListener.getListenerFunction().__call__(parameter);
-        } catch (PyException exception) {
-            ScriptManager.get().handleScriptException(scriptEventListener.getScript(), exception, "Error when executing event listener");
+        if (eventClass.isAssignableFrom(event.getClass())) {
+            try {
+                PyObject parameter = Py.java2py(event);
+                scriptEventListener.getListenerFunction().__call__(parameter);
+            } catch (PyException exception) {
+                ScriptManager.get().handleScriptException(scriptEventListener.getScript(), exception, "Error when executing event listener");
+            }
         }
     }
 }

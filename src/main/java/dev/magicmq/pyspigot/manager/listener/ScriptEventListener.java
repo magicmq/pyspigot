@@ -42,7 +42,7 @@ public class ScriptEventListener implements Listener {
         this.script = script;
         this.listenerFunction = listenerFunction;
         this.event = event;
-        this.eventExecutor = new ScriptEventExecutor(this);
+        this.eventExecutor = new ScriptEventExecutor(this, event);
     }
 
     /**
