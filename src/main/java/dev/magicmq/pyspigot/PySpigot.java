@@ -264,7 +264,7 @@ public class PySpigot extends JavaPlugin {
         metrics = new Metrics(this, 18991);
 
         metrics.addCustomChart(new SimplePie("all_scripts", () -> {
-            int allScripts = ScriptManager.get().getAllScripts().size();
+            int allScripts = ScriptManager.get().getAllScriptNames().size();
             return "" + allScripts;
         }));
 

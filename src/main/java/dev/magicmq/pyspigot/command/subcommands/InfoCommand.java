@@ -121,7 +121,7 @@ public class InfoCommand implements SubCommand {
     @Override
     public List<String> onTabComplete(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            return new ArrayList<>(ScriptManager.get().getAllScripts());
+            return new ArrayList<>(ScriptManager.get().getAllScriptNames());
         } else {
             return null;
         }

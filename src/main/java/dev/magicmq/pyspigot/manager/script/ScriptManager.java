@@ -345,7 +345,7 @@ public class ScriptManager {
      * Get a set of all script files in the scripts folder.
      * @return An immutable {@link java.util.SortedSet} of Strings containing all script files, sorted in alphabetical order
      */
-    public SortedSet<String> getAllScripts() {
+    public SortedSet<String> getAllScriptNames() {
         File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         SortedSet<String> scripts = new TreeSet<>();
         if (scriptsFolder.isDirectory()) {

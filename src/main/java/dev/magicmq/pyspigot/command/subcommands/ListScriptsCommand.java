@@ -55,7 +55,7 @@ public class ListScriptsCommand implements SubCommand {
     }
 
     private List<String> getPage(int page) {
-        List<String> scripts = new ArrayList<>(ScriptManager.get().getAllScripts());
+        List<String> scripts = new ArrayList<>(ScriptManager.get().getAllScriptNames());
         int totalEntries = scripts.size();
         int pages = totalEntries / ENTRIES_PER_PAGE;
         int startIndex, endIndex;
