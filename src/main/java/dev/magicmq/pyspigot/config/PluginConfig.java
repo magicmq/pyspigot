@@ -80,7 +80,11 @@ public class PluginConfig {
     }
 
     public static boolean shouldSuppressUpdateMessages() {
-        return config.getBoolean("suppress-update-messages", false);
+        return config.getBoolean("debug-options.suppress-update-messages", false);
+    }
+
+    public static boolean shouldUpdatePySpigotLib() {
+        return config.getBoolean("debug-options.auto-pyspigot-lib-update-enabled", true);
     }
 
     public static String getMessage(String key, boolean withPrefix) {

@@ -40,10 +40,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Scanner;
 import java.util.logging.Level;
 
@@ -97,7 +96,7 @@ public class PySpigot extends JavaPlugin {
         instance = this;
 
         initFolders();
-        initHelperLibs();
+        initHelperLib();
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
@@ -224,14 +223,31 @@ public class PySpigot extends JavaPlugin {
         }
     }
 
-    private void initHelperLibs() {
+    private void initHelperLib() {
+        if (!PluginConfig.shouldUpdatePySpigotLib()) {
+            return;
+        }
+
         File pythonLibs = new File(getDataFolder(), "python-libs");
         if (pythonLibs.exists()) {
-            String[] libs = new String[]{"python-libs/pyspigot.py"};
-            for (String libName : libs) {
-                File lib = new File(pythonLibs, libName);
-                if (!lib.exists())
-                    saveResource(libName, true);
+            File libFile = new File(pythonLibs, "pyspigot.py");
+            if (!libFile.exists()) {
+                saveResource("python-libs/pyspigot.py", true);
+            } else {
+                try {
+                    FileInputStream savedFile = new FileInputStream(libFile);
+
+                    URL url = getClassLoader().getResource("python-libs/pyspigot.py");
+                    URLConnection connection = url.openConnection();
+                    connection.setUseCaches(false);
+                    InputStream jarFile = connection.getInputStream();
+
+                    if (!checkFilesEqual(savedFile, jarFile)) {
+                        saveResource("python-libs/pyspigot.py", true);
+                    }
+                } catch (IOException e) {
+                    getLogger().log(Level.SEVERE, "Error when initializing library files: ", e);
+                }
             }
         }
     }
@@ -258,12 +274,26 @@ public class PySpigot extends JavaPlugin {
         }));
     }
 
-    public void reloadScriptOptionsConfig() {
+    private void reloadScriptOptionsConfig() {
         File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
         if (!file.exists()) {
             saveResource("script_options.yml", false);
         }
         scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
+    }
+
+    private boolean checkFilesEqual(InputStream is1, InputStream is2) {
+        try (BufferedInputStream bis1 = new BufferedInputStream(is1); BufferedInputStream bis2 = new BufferedInputStream(is2)) {
+            int ch;
+            while ((ch = bis1.read()) != -1) {
+                if (ch != bis2.read())
+                    return false;
+            }
+            return bis2.read() == -1;
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error when initializing library files: ", e);
+            return false;
+        }
     }
 
     /**
