@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.command.subcommands;
 
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
+import dev.magicmq.pyspigot.manager.script.RunResult;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -38,22 +39,33 @@ public class ReloadCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            if (ScriptManager.get().isScriptRunning(args[0])) {
-                try {
-                    boolean success = ScriptManager.get().reloadScript(args[0]);
-                    if (success) {
-                        sender.sendMessage(ChatColor.GREEN + "Successfully reloaded script '" + args[0] + "'.");
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "There was an error when reloading script '" + args[0] + "'. See console for details.");
+            if (args[0].endsWith(".py")) {
+                if (ScriptManager.get().isScriptRunning(args[0])) {
+                    boolean success = ScriptManager.get().unloadScript(args[0]);
+                    if (!success) {
+                        sender.sendMessage(ChatColor.RED + "There was an error when unloading script '" + args[0] + "'. See console for details.");
+                        return true;
                     }
+                }
+
+                try {
+                    RunResult result = ScriptManager.get().loadScript(args[0]);
+                    if (result == RunResult.SUCCESS)
+                        sender.sendMessage(ChatColor.GREEN + "Successfully reloaded and script '" + args[0] + "'.");
+                    else if (result == RunResult.FAIL_DEPENDENCY)
+                        sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not reloaded due to missing dependencies. See console for details.");
+                    else if (result == RunResult.FAIL_DISABLED)
+                        sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not reloaded because it is disabled as per its options in script_options.yml.");
+                    else if (result == RunResult.FAIL_ERROR)
+                        sender.sendMessage(ChatColor.RED + "There was an error when reloading script '" + args[0] + "'. See console for details.");
                 } catch (FileNotFoundException e) {
-                    sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "' to reload from");
+                    sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
                 } catch (IOException e) {
                     e.printStackTrace();
                     sender.sendMessage(ChatColor.RED + "There was an error when reloading script '" + args[0] + "'. See console for details.");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "No running script found with the name '" + args[0] + "'.");
+                sender.sendMessage(ChatColor.RED + "Script names must end in .py.");
             }
             return true;
         }
@@ -63,7 +75,7 @@ public class ReloadCommand implements SubCommand {
     @Override
     public List<String> onTabComplete(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            return new ArrayList<>(ScriptManager.get().getLoadedScriptNames());
+            return new ArrayList<>(ScriptManager.get().getAllScripts());
         } else {
             return null;
         }

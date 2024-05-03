@@ -270,19 +270,6 @@ public class ScriptManager {
     }
 
     /**
-     * Reload a currently loaded script.
-     * @param name The name of the script to reload. Name should contain the script file extension (.py)
-     * @return True if the script was successfully reloaded, false if otherwise
-     * @throws IOException If there was an IOException related to loading the script file
-     */
-    public boolean reloadScript(String name) throws IOException {
-        if (!unloadScript(name))
-            return false;
-
-        return loadScript(name) == RunResult.SUCCESS;
-    }
-
-    /**
      * Handles script errors/exceptions, particularly for script logging purposes. Will also attempt to get the traceback of the {@link org.python.core.PyException} that was thrown and print it (if it exists).
      * <p>
      * <b>Note:</b> This method will always run synchronously. If it is called from an asynchronous context, it will run inside a synchronous task.
