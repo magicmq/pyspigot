@@ -36,14 +36,18 @@ public class UnloadCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            if (ScriptManager.get().isScriptRunning(args[0])) {
-                boolean success = ScriptManager.get().unloadScript(args[0]);
-                if (success)
-                    sender.sendMessage(ChatColor.GREEN + "Successfully unloaded script '" + args[0] + "'.");
-                else
-                    sender.sendMessage(ChatColor.RED + "There was an error when unloading script '" + args[0] + "'. See console for details.");
+            if (args[0].endsWith(".py")) {
+                if (ScriptManager.get().isScriptRunning(args[0])) {
+                    boolean success = ScriptManager.get().unloadScript(args[0]);
+                    if (success)
+                        sender.sendMessage(ChatColor.GREEN + "Successfully unloaded script '" + args[0] + "'.");
+                    else
+                        sender.sendMessage(ChatColor.RED + "There was an error when unloading script '" + args[0] + "'. See console for details.");
+                } else {
+                    sender.sendMessage(ChatColor.RED + "No running script found with the name '" + args[0] + "'.");
+                }
             } else {
-                sender.sendMessage(ChatColor.RED + "No running script found with the name '" + args[0] + "'.");
+                sender.sendMessage(ChatColor.RED + "Script names must end in .py.");
             }
             return true;
         }
