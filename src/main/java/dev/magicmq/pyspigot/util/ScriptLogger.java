@@ -64,7 +64,8 @@ public class ScriptLogger extends Logger {
      * Closes the FileHandler for this logger. Should only be called if script file logging is enabled.
      */
     public void closeFileHandler() {
-        handler.close();
+        if (handler != null)
+            handler.close();
     }
 
     /**
