@@ -43,9 +43,9 @@ def save_inventory():
         inventory_config.set(key, None)
 
     items = inventory.getContents()
-    for item in items:
+    for index, item in enumerate(items):
         if item is not None and item.getType() is not Material.AIR:
-            inventory_config.set(int(items.index(item)), item)
+            inventory_config.set(str(index), item)
 
     inventory_config.save()
 
