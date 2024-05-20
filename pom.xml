@@ -8,7 +8,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
     </properties>
 
     <repositories>
@@ -158,7 +158,6 @@
                         <link>https://aadnk.github.io/ProtocolLib/Javadoc/</link>
                         <link>https://javadoc.io/doc/me.lucko/jar-relocator/latest/me/lucko/jarrelocator/</link>
                     </links>
-                    <additionalJOption>--no-module-directories</additionalJOption>
                 </configuration>
                 <executions>
                     <execution>
