@@ -219,7 +219,7 @@ public class PySpigot extends JavaPlugin {
         for (String folder : folders) {
             File file = new File(getDataFolder(), folder);
             if (!file.exists())
-                file.mkdir();
+                file.mkdirs();
         }
     }
 
