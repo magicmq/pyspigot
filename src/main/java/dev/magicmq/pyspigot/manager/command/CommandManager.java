@@ -164,10 +164,12 @@ public class CommandManager {
         Script script = ScriptUtils.getScriptFromCallStack();
         ScriptCommand command = getCommand(script, name);
         if (command == null) {
-            ScriptCommand newCommand = new ScriptCommand(script, commandFunction, tabFunction, name, description, script.getName(), usage, aliases, permission, permissionMessage);
-            newCommand.register(bCommandMap);
+            ScriptCommand newCommand = new ScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission, permissionMessage);
+            if (!addCommandToBukkit(newCommand))
+                script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");
+            syncBukkitCommands();
+            newCommand.initHelp();
             addCommand(newCommand);
-            syncCommands();
             return newCommand;
         } else
             throw new RuntimeException("Command '" + name + "' is already registered");
@@ -180,9 +182,10 @@ public class CommandManager {
      * @param command The command to be unregistered
      */
     public void unregisterCommand(ScriptCommand command) {
-        command.unregister(bCommandMap, bKnownCommands);
+        removeCommandFromBukkit(command);
+        command.removeHelp();
+        syncBukkitCommands();
         removeCommand(command);
-        syncCommands();
     }
 
     /**
@@ -193,10 +196,11 @@ public class CommandManager {
         List<ScriptCommand> associatedCommands = getCommands(script);
         if (associatedCommands != null) {
             for (ScriptCommand command : associatedCommands) {
-                command.unregister(bCommandMap, bKnownCommands);
+                removeCommandFromBukkit(command);
+                command.removeHelp();
             }
             registeredCommands.remove(script);
-            syncCommands();
+            syncBukkitCommands();
         }
     }
 
@@ -230,6 +234,28 @@ public class CommandManager {
             return null;
     }
 
+    private boolean addCommandToBukkit(ScriptCommand command) {
+        return bCommandMap.register(command.getScript().getName(), command.getBukkitCommand());
+    }
+
+    private void removeCommandFromBukkit(ScriptCommand command) {
+        command.getBukkitCommand().unregister(bCommandMap);
+        bKnownCommands.remove(command.getBukkitCommand().getLabel());
+        for (String alias : command.getBukkitCommand().getAliases())
+            bKnownCommands.remove(alias);
+    }
+
+    private void syncBukkitCommands() {
+        if (bSyncCommands != null) {
+            try {
+                bSyncCommands.invoke(Bukkit.getServer());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                //This should not happen
+                throw new RuntimeException("Unhandled exception when syncing commands", e);
+            }
+        }
+    }
+
     private void addCommand(ScriptCommand command) {
         Script script = command.getScript();
         if (registeredCommands.containsKey(script))
@@ -260,17 +286,6 @@ public class CommandManager {
         Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
         field.setAccessible(true);
         return (HashMap<String, Command>) field.get(commandMap);
-    }
-
-    private void syncCommands() {
-        if (bSyncCommands != null) {
-            try {
-                bSyncCommands.invoke(Bukkit.getServer());
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                //This should not happen
-                throw new RuntimeException("Unhandled exception when syncing commands", e);
-            }
-        }
     }
 
     /**

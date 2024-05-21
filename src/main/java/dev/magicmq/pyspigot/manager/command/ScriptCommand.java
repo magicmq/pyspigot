@@ -45,15 +45,8 @@ public class ScriptCommand implements TabExecutor {
     private final PyFunction commandFunction;
     private final PyFunction tabFunction;
     private final String name;
-    private final String label;
-    private final String description;
-    private final String prefix;
-    private final String usage;
-    private final List<String> aliases;
-    private final String permission;
-    private final String permissionMessage;
-
     private final PluginCommand bukkitCommand;
+
     private List<HelpTopic> helps;
 
     /**
@@ -63,28 +56,33 @@ public class ScriptCommand implements TabExecutor {
      * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
      * @param name The name of the command to register
      * @param description The description of the command. Use an empty string for no description
-     * @param prefix The prefix of the command
      * @param usage The usage message for the command
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null
      * @param permissionMessage The message do display if there is insufficient permission to run the command. Can be null
      */
-    public ScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String prefix, String usage, List<String> aliases, String permission, String permissionMessage) {
+    public ScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
         this.script = script;
         this.commandFunction = commandFunction;
         this.tabFunction = tabFunction;
         this.name = name;
-        this.label = name.toLowerCase();
-        this.description = description;
-        this.prefix = prefix;
-        this.usage = usage;
-        this.aliases = aliases.stream().map(String::toLowerCase).collect(Collectors.toList());
-        aliases.removeIf(label::equalsIgnoreCase);
-        this.permission = permission;
-        this.permissionMessage = permissionMessage;
 
-        this.bukkitCommand = initBukkitCommand();
-        initHelp();
+        try {
+            final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+            constructor.setAccessible(true);
+            final PluginCommand bukkitCommand = constructor.newInstance(name, PySpigot.get());
+            bukkitCommand.setLabel(name.toLowerCase());
+            bukkitCommand.setDescription(description);
+            bukkitCommand.setUsage(usage);
+            bukkitCommand.setAliases(aliases);
+            bukkitCommand.setPermission(permission);
+            bukkitCommand.setPermissionMessage(permissionMessage);
+            bukkitCommand.setExecutor(this);
+            this.bukkitCommand = bukkitCommand;
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            //This should not happen, reflection checks done on plugin enable
+            throw new RuntimeException("Unhandled exception when initializing command '" + name + "'", e);
+        }
     }
 
     @Override
@@ -124,7 +122,7 @@ public class ScriptCommand implements TabExecutor {
                     return toReturn;
                 }
             } catch (PyException exception) {
-                ScriptManager.get().handleScriptException(script, exception,  "Unhandled exception when tab completing command '" + label + "'");
+                ScriptManager.get().handleScriptException(script, exception,  "Unhandled exception when tab completing command '" + bukkitCommand.getLabel() + "'");
             }
         }
         return Collections.emptyList();
@@ -146,43 +144,15 @@ public class ScriptCommand implements TabExecutor {
         return name;
     }
 
-    protected void register(SimpleCommandMap map) {
-        map.register(prefix, bukkitCommand);
-        bukkitCommand.register(map);
+    /**
+     * Get the {@link org.bukkit.command.PluginCommand} that underlies this ScriptCommand
+     * @return The underlying PluginCommand
+     */
+    public PluginCommand getBukkitCommand() {
+        return bukkitCommand;
     }
 
-    protected void unregister(SimpleCommandMap map, Map<String, Command> knownCommands) {
-        bukkitCommand.unregister(map);
-        knownCommands.remove(label);
-        knownCommands.remove(prefix + ":" + label);
-        for (String alias : aliases) {
-            knownCommands.remove(alias);
-            knownCommands.remove(prefix + ":" + alias);
-        }
-
-        removeHelp();
-    }
-
-    private PluginCommand initBukkitCommand() {
-        try {
-            final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
-            constructor.setAccessible(true);
-            final PluginCommand bukkitCommand = constructor.newInstance(name, PySpigot.get());
-            bukkitCommand.setLabel(this.label);
-            bukkitCommand.setDescription(this.description);
-            bukkitCommand.setUsage(this.usage);
-            bukkitCommand.setAliases(this.aliases);
-            bukkitCommand.setPermission(this.permission);
-            bukkitCommand.setPermissionMessage(this.permissionMessage);
-            bukkitCommand.setExecutor(this);
-            return bukkitCommand;
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            //This should not happen, reflection checks done on plugin enable
-            throw new RuntimeException("Unhandled exception when initializing command '" + name + "'", e);
-        }
-    }
-
-    private void initHelp() {
+    protected void initHelp() {
         helps = new ArrayList<>();
         HelpMap helpMap = Bukkit.getHelpMap();
         HelpTopic helpTopic = new GenericCommandHelpTopic(bukkitCommand);
@@ -196,8 +166,8 @@ public class ScriptCommand implements TabExecutor {
                 Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
                 topics.setAccessible(true);
                 List<HelpTopic> aliasTopics = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
-                for (String alias : this.aliases) {
-                    HelpTopic toAdd = new CommandAliasHelpTopic("/" + alias, "/" + label, helpMap);
+                for (String alias : bukkitCommand.getAliases()) {
+                    HelpTopic toAdd = new CommandAliasHelpTopic("/" + alias, "/" + bukkitCommand.getLabel(), helpMap);
                     aliasTopics.add(toAdd);
                     helps.add(toAdd);
                 }
@@ -210,7 +180,7 @@ public class ScriptCommand implements TabExecutor {
         }
     }
 
-    private void removeHelp() {
+    protected void removeHelp() {
         Bukkit.getHelpMap().getHelpTopics().removeAll(helps);
 
         HelpTopic aliases = Bukkit.getHelpMap().getHelpTopic("Aliases");
@@ -234,6 +204,13 @@ public class ScriptCommand implements TabExecutor {
      */
     @Override
     public String toString() {
-        return String.format("ScriptCommand[Name: %s, Label: %s, Description: %s, Prefix: %s, Usage: %s, Aliases: %s, Permission: %s, Permission Message: %s]", name, label, description, prefix, usage, aliases, permission, permissionMessage);
+        return String.format("ScriptCommand[Name: %s, Label: %s, Description: %s, Usage: %s, Aliases: %s, Permission: %s, Permission Message: %s]",
+                name,
+                bukkitCommand.getLabel(),
+                bukkitCommand.getDescription(),
+                bukkitCommand.getUsage(),
+                bukkitCommand.getAliases(),
+                bukkitCommand.getPermission(),
+                bukkitCommand.getPermissionMessage());
     }
 }
