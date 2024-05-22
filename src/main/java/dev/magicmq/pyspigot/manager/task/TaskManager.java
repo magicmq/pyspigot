@@ -19,7 +19,6 @@ package dev.magicmq.pyspigot.manager.task;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
-import org.bukkit.Bukkit;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
