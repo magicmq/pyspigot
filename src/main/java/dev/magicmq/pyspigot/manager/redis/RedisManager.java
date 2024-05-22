@@ -1,7 +1,7 @@
 package dev.magicmq.pyspigot.manager.redis;
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import io.lettuce.core.ClientOptions;
 
 import java.net.URLEncoder;
@@ -45,7 +45,7 @@ public class RedisManager {
      * @return A {@link ScriptRedisClient} representing a client that is connected to the remote redis server
      */
     public ScriptRedisClient openRedisClient(String ip, String port, String password, ClientOptions clientOptions) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         if (script == null)
             throw new RuntimeException("No script found when initializing new redis client");
 

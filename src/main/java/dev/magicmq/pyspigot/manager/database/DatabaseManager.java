@@ -3,7 +3,7 @@ package dev.magicmq.pyspigot.manager.database;
 import dev.magicmq.pyspigot.manager.database.mongo.MongoDatabase;
 import dev.magicmq.pyspigot.manager.database.sql.SqlDatabase;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +21,7 @@ public class DatabaseManager {
     }
 
     public Database openDatabase(DatabaseType type, String host, String port, String database, String username, String password) {
-        Script script = ScriptManager.get().getScriptFromCallStack();
+        Script script = ScriptUtils.getScriptFromCallStack();
         if (script == null)
             throw new RuntimeException("No script found when opening database");
 
