@@ -205,7 +205,7 @@ public class PySpigot extends JavaPlugin {
     }
 
     private void fetchSpigotVersion() {
-        try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/~").openStream(); Scanner scanner = new Scanner(is)) {
+        try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/").openStream(); Scanner scanner = new Scanner(is)) {
             if (scanner.hasNext())
                 spigotVersion = scanner.next();
         } catch (IOException e) {
