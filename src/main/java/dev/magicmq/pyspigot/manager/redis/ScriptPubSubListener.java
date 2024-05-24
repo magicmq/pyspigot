@@ -73,4 +73,13 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
     public String getChannel() {
         return channel;
     }
+
+    /**
+     * Prints a representation of this ScriptPubSubListener in string format, including the channel being listened to.
+     * @return A string representation of the ScriptPubSubListener
+     */
+    @Override
+    public String toString() {
+        return String.format("ScriptPubSubListener[Channel: %s]", channel);
+    }
 }

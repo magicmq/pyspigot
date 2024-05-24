@@ -7,6 +7,7 @@ import io.lettuce.core.ClientOptions;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -17,10 +18,10 @@ public class RedisManager {
 
     private static RedisManager instance;
 
-    private List<ScriptRedisClient> activeClients;
+    private final HashMap<Script, List<ScriptRedisClient>> activeClients;
 
     private RedisManager() {
-        activeClients = new ArrayList<>();
+        activeClients = new HashMap<>();
     }
 
     /**
@@ -46,17 +47,16 @@ public class RedisManager {
      */
     public ScriptRedisClient openRedisClient(String ip, String port, String password, ClientOptions clientOptions) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        if (script == null)
-            throw new RuntimeException("No script found when initializing new redis client");
 
         String uri = URLEncoder.encode("redis://" + password + "@" + ip + ":" + port + "/0", StandardCharsets.UTF_8);
         ScriptRedisClient client = new ScriptRedisClient(script, uri, clientOptions);
-        activeClients.add(client);
+
         if (!client.open()) {
             script.getLogger().log(Level.SEVERE, "Redis client was not opened!");
-            activeClients.remove(client);
             return null;
         }
+
+        addClient(client);
         return client;
     }
 
@@ -68,7 +68,7 @@ public class RedisManager {
      * @return True if the client was appropriately closed, false if otherwise
      */
     public boolean closeRedisClient(ScriptRedisClient client) {
-        activeClients.remove(client);
+        removeClient(client);
         return client.close();
     }
 
@@ -78,15 +78,15 @@ public class RedisManager {
      * @return True if all clients were appropriately closed, false if one or more clients were not closed or if the script had no open ScriptRedisClient
      */
     public boolean closeRedisClients(Script script) {
-        List<ScriptRedisClient> openClients = getRedisClients(script);
-        if (openClients.size() == 0)
-            return false;
-
-        boolean closed = true;
-        for (ScriptRedisClient client : openClients) {
-            closed = closeRedisClient(client);
+        boolean toReturn = false;
+        List<ScriptRedisClient> scriptClients = activeClients.get(script);
+        if (scriptClients != null) {
+            for (ScriptRedisClient client : scriptClients) {
+                toReturn = client.close();
+            }
+            activeClients.remove(script);
         }
-        return closed;
+        return toReturn;
     }
 
     /**
@@ -95,12 +95,30 @@ public class RedisManager {
      * @return A List of {@link ScriptRedisClient} containing all clients associated with the script. Will return an empty list if there are no clients associated with the script
      */
     public List<ScriptRedisClient> getRedisClients(Script script) {
-        List<ScriptRedisClient> toReturn = new ArrayList<>();
-        for (ScriptRedisClient client : activeClients) {
-            if (client.getScript().equals(script))
-                toReturn.add(client);
+        List<ScriptRedisClient> scriptClients = activeClients.get(script);
+        if (scriptClients != null)
+            return new ArrayList<>(scriptClients);
+        else
+            return null;
+    }
+
+    private void addClient(ScriptRedisClient client) {
+        Script script = client.getScript();
+        if (activeClients.containsKey(script))
+            activeClients.get(script).add(client);
+        else {
+            List<ScriptRedisClient> scriptClients = new ArrayList<>();
+            scriptClients.add(client);
+            activeClients.put(script, scriptClients);
         }
-        return toReturn;
+    }
+
+    private void removeClient(ScriptRedisClient client) {
+        Script script = client.getScript();
+        List<ScriptRedisClient> scriptClients = activeClients.get(script);
+        scriptClients.remove(client);
+        if (scriptClients.isEmpty())
+            activeClients.remove(script);
     }
 
     /**

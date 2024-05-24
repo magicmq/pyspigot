@@ -18,12 +18,12 @@ public class ScriptRedisClient {
 
     private final Script script;
     private final String uri;
+    private final ClientOptions clientOptions;
+    private final List<ScriptPubSubListener> syncListeners;
+    private final List<ScriptPubSubListener> asyncListeners;
 
-    private ClientOptions clientOptions;
     private RedisClient client;
     private StatefulRedisPubSubConnection<String, String> connection;
-    private List<ScriptPubSubListener> syncListeners;
-    private List<ScriptPubSubListener> asyncListeners;
 
     /**
      *
@@ -202,6 +202,15 @@ public class ScriptRedisClient {
      */
     public RedisClient getRedisClient() {
         return client;
+    }
+
+    /**
+     * Prints a representation of this ScriptRedisClient in string format, including listeners
+     * @return A string representation of the ScriptPubSubListener
+     */
+    @Override
+    public String toString() {
+        return String.format("ScriptRedisClient[Connection: %s, Sync Listeners: %s, Async Listeners: %s]", connection.toString(), syncListeners, asyncListeners);
     }
 
     /**
