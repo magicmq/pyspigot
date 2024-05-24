@@ -9,6 +9,8 @@ from dev.magicmq.pyspigot.manager.listener import ListenerManager
 from dev.magicmq.pyspigot.manager.command import CommandManager
 from dev.magicmq.pyspigot.manager.task import TaskManager
 from dev.magicmq.pyspigot.manager.config import ConfigManager
+from dev.magicmq.pyspigot.manager.database import DatabaseManager
+from dev.magicmq.pyspigot.manager.redis import RedisManager
 
 def script_manager():
     """Get the script manager for loading, unloading, and reloading scripts."""
@@ -42,11 +44,19 @@ def protocol_manager():
     else: return None
 
 def placeholder_manager():
-    """get the placeholder manager for registering/unregistering PlaceholderAPI placeholders. Note: this function will return None if PlaceholderAPI is not available on the server."""
+    """Get the placeholder manager for registering/unregistering PlaceholderAPI placeholders. Note: this function will return None if PlaceholderAPI is not available on the server."""
     if PySpigot.get().isPlaceholderApiAvailable():
         from dev.magicmq.pyspigot.manager.placeholder import PlaceholderManager
         return PlaceholderManager.get()
     else: return None
+
+def database_manager():
+    """Get the database manager for connecting to and interacting with databases."""
+    return DatabaseManager.get()
+
+def redis_manager():
+    """Get the redis manager for connecting to and interacting with redis servers."""
+    return RedisManager.get()
 
 # Convenience variables for ease of access
 
@@ -86,3 +96,7 @@ placeholder = placeholder_manager()
 placeholder_api = placeholder_manager()
 placeholders = placeholder_manager()
 plm = placeholder_manager()
+
+database = database_manager()
+
+redis = redis_manager()
