@@ -20,12 +20,16 @@ import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
+import dev.magicmq.pyspigot.manager.database.Database;
+import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.listener.ScriptEventListener;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.placeholder.ScriptPlaceholder;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.protocol.ScriptPacketListener;
+import dev.magicmq.pyspigot.manager.redis.RedisManager;
+import dev.magicmq.pyspigot.manager.redis.ScriptRedisClient;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.Task;
@@ -95,6 +99,18 @@ public class InfoCommand implements SubCommand {
                     if (scriptTasks != null)
                         scriptTasks.forEach(task -> tasksInfo.add(task.toString()));
                     builder.append(ChatColor.GOLD + "Running tasks: " + ChatColor.RESET + tasksInfo + "\n");
+
+                    List<Database> scriptDatabases = DatabaseManager.get().getDatabases(script);
+                    List<String> databasesInfo = new ArrayList<>();
+                    if (scriptDatabases != null)
+                        scriptDatabases.forEach(database -> databasesInfo.add(database.toString()));
+                    builder.append(ChatColor.GOLD + "Database connections: " + ChatColor.RESET + databasesInfo + "\n");
+
+                    List<ScriptRedisClient> scriptRedisClients = RedisManager.get().getRedisClients(script);
+                    List<String> redisInfo = new ArrayList<>();
+                    if (scriptRedisClients != null)
+                        scriptRedisClients.forEach(redisClient -> redisInfo.add(redisClient.toString()));
+                    builder.append(ChatColor.GOLD + "Redis clients: " + ChatColor.RESET + redisInfo + "\n");
 
                     builder.append(ChatColor.GOLD + "Script options: " + ChatColor.RESET + script.getOptions().toString());
 
