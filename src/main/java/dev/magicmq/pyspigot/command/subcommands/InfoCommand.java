@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.command.subcommands;
 
+import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
@@ -76,23 +77,27 @@ public class InfoCommand implements SubCommand {
                         registeredListeners.forEach(listener -> eventsListening.add(listener.toString()));
                     builder.append(ChatColor.GOLD + "Listening to events: " + ChatColor.RESET + eventsListening + "\n");
 
-                    ScriptPlaceholder placeholder = PlaceholderManager.get().getPlaceholder(script);
-                    if (placeholder != null)
-                        builder.append(ChatColor.GOLD + "Registered placeholder: " + ChatColor.RESET + placeholder + "\n");
-                    else
-                        builder.append(ChatColor.GOLD + "Registered placeholder: " + ChatColor.RESET + "None" + "\n");
+                    if (PySpigot.get().isPlaceholderApiAvailable()) {
+                        ScriptPlaceholder placeholder = PlaceholderManager.get().getPlaceholder(script);
+                        if (placeholder != null)
+                            builder.append(ChatColor.GOLD + "Registered placeholder: " + ChatColor.RESET + placeholder + "\n");
+                        else
+                            builder.append(ChatColor.GOLD + "Registered placeholder: " + ChatColor.RESET + "None" + "\n");
+                    }
 
-                    List<ScriptPacketListener> registeredPacketListeners = ProtocolManager.get().getPacketListeners(script);
-                    List<String> packetTypes = new ArrayList<>();
-                    if (registeredPacketListeners != null)
-                        registeredPacketListeners.forEach(listener -> packetTypes.add(listener.toString()));
-                    builder.append(ChatColor.GOLD + "Listening to packet types: " + ChatColor.RESET + packetTypes + "\n");
+                    if (PySpigot.get().isProtocolLibAvailable()) {
+                        List<ScriptPacketListener> registeredPacketListeners = ProtocolManager.get().getPacketListeners(script);
+                        List<String> packetTypes = new ArrayList<>();
+                        if (registeredPacketListeners != null)
+                            registeredPacketListeners.forEach(listener -> packetTypes.add(listener.toString()));
+                        builder.append(ChatColor.GOLD + "Listening to packet types: " + ChatColor.RESET + packetTypes + "\n");
 
-                    List<ScriptPacketListener> registeredPacketListenersAsync = ProtocolManager.get().async().getAsyncPacketListeners(script);
-                    List<String> packetTypesAsync = new ArrayList<>();
-                    if (registeredPacketListenersAsync != null)
-                        registeredPacketListenersAsync.forEach(listener -> packetTypesAsync.add(listener.toString()));
-                    builder.append(ChatColor.GOLD + "Listening to packet types (async): " + ChatColor.RESET + packetTypesAsync + "\n");
+                        List<ScriptPacketListener> registeredPacketListenersAsync = ProtocolManager.get().async().getAsyncPacketListeners(script);
+                        List<String> packetTypesAsync = new ArrayList<>();
+                        if (registeredPacketListenersAsync != null)
+                            registeredPacketListenersAsync.forEach(listener -> packetTypesAsync.add(listener.toString()));
+                        builder.append(ChatColor.GOLD + "Listening to packet types (async): " + ChatColor.RESET + packetTypesAsync + "\n");
+                    }
 
                     List<Task> scriptTasks = TaskManager.get().getTasks(script);
                     List<String> tasksInfo = new ArrayList<>();
