@@ -100,7 +100,7 @@ public class InfoCommand implements SubCommand {
                         scriptTasks.forEach(task -> tasksInfo.add(task.toString()));
                     builder.append(ChatColor.GOLD + "Running tasks: " + ChatColor.RESET + tasksInfo + "\n");
 
-                    List<Database> scriptDatabases = DatabaseManager.get().getDatabases(script);
+                    List<Database> scriptDatabases = DatabaseManager.get().getConnections(script);
                     List<String> databasesInfo = new ArrayList<>();
                     if (scriptDatabases != null)
                         scriptDatabases.forEach(database -> databasesInfo.add(database.toString()));

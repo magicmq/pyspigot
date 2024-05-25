@@ -20,9 +20,12 @@ import java.util.*;
 
 /**
  * Represents an open connection to a Mongo Database.
+ * <p>
+ * <b>Note:</b> Methods in this class should be called from scripts only!
  */
 public class MongoDatabase extends Database {
 
+    private final MongoClientSettings clientSettings;
     private final String uri;
 
     private MongoClient mongoClient;
@@ -31,10 +34,12 @@ public class MongoDatabase extends Database {
      *
      * @param script The script associated with this MongoDatabase
      * @param uri The connection URI for this MongoDatabase
+     * @param clientSettings The client settings for the MongoDatabase connection
      */
-    public MongoDatabase(Script script, String uri) {
+    public MongoDatabase(Script script, String uri, MongoClientSettings clientSettings) {
         super(script);
         this.uri = uri;
+        this.clientSettings = clientSettings;
     }
 
     /**
@@ -42,10 +47,7 @@ public class MongoDatabase extends Database {
      */
     @Override
     public boolean open() {
-        MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(uri))
-                .build();
-        mongoClient = MongoClients.create(settings);
+        mongoClient = MongoClients.create(clientSettings);
         return true;
     }
 
