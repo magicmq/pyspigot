@@ -39,6 +39,8 @@ public class Task extends BukkitRunnable {
      * @param script The script associated with this task
      * @param function The script function that should be called when the task executes
      * @param functionArgs Any arguments that should be passed to the function
+     * @param async True if the task is asynchronous, false if otherwise
+     * @param delay The delay, in ticks, to wait until running the task
      */
     public Task(Script script, PyFunction function, Object[] functionArgs, boolean async, long delay) {
         this.script = script;

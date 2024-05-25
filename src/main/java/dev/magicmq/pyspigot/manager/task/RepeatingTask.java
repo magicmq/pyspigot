@@ -35,6 +35,9 @@ public class RepeatingTask extends Task {
      * @param script The script associated with this repeating task
      * @param function The script function that should be called every time the repeating task executes
      * @param functionArgs Any arguments that should be passed to the function
+     * @param async True if the task is asynchronous, false if otherwise
+     * @param delay The delay, in ticks, to wait until running the task
+     * @param interval The interval, in ticks, between each repeat of the task
      */
     public RepeatingTask(Script script, PyFunction function, Object[] functionArgs, boolean async, long delay, long interval) {
         super(script, function, functionArgs, async, delay);
