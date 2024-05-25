@@ -72,7 +72,7 @@ public class SqlDatabase extends Database {
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param sql The select statement
-     * @return A {@link java.util.Map} containing the data returned from the selection
+     * @return A {@link java.util.Map} containing the data returned from the selection. Functionally identical to a python dict, where keys are column names and values are column data, with preserved order
      * @throws SQLException If there was an exception when selecting from the database
      */
     public Map<String, List<Object>> select(String sql) throws SQLException {
@@ -85,7 +85,7 @@ public class SqlDatabase extends Database {
      * <b>Note:</b> This should be called from scripts only!
      * @param sql The select statement
      * @param values The values that should be inserted into the select statement
-     * @return A {@link java.util.Map} containing the data returned from the selection
+     * @return A {@link java.util.Map} containing the data returned from the selection. Functionally identical to a python dict, where keys are column names and values are column data, with preserved order
      * @throws SQLException If there was an exception when selecting from the database
      */
     public Map<String, List<Object>> select(String sql, Object[] values) throws SQLException {
@@ -102,7 +102,7 @@ public class SqlDatabase extends Database {
                 Map<String, List<Object>> results = new HashMap<>();
                 while (result.next()) {
                     for (int i = 0; i < result.getMetaData().getColumnCount(); i++) {
-                        String colName = result.getMetaData().getColumnName(i);
+                        String colName = result.getMetaData().getColumnName(i + 1);
                         results.computeIfAbsent(colName, s -> new ArrayList<>());
                         results.get(colName).add(result.getObject(colName));
                     }
@@ -119,7 +119,7 @@ public class SqlDatabase extends Database {
      * <b>Note:</b> This should be called from scripts only!
      * @param sql The update statement
      * @return The number of rows that were affected by the update statement
-     * @throws SQLException If there was an exception when selecting from the database
+     * @throws SQLException If there was an exception when updating the database
      */
     public int update(String sql) throws SQLException {
         return update(sql, null);
@@ -130,9 +130,9 @@ public class SqlDatabase extends Database {
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param sql The update statement
-     * @param values The values that should be inserted into the select statement
+     * @param values The values that should be inserted into the update statement
      * @return The number of rows that were affected by the update statement
-     * @throws SQLException If there was an exception when selecting from the database
+     * @throws SQLException If there was an exception when updating the database
      */
     public int update(String sql, Object[] values) throws SQLException {
         try (Connection connection = hikariDataSource.getConnection()) {

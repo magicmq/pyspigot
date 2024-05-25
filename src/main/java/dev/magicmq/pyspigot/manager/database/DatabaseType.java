@@ -11,14 +11,12 @@ public enum DatabaseType {
     /**
      * An SQL database type.
      */
-    //Host, port, database, user, password
-    SQL(SqlDatabase.class, "jdbc:mysql://%s:%s/%s?user=%s&password=%s"),
+    SQL(SqlDatabase.class, /*Host, port, database, user, password*/ "jdbc:mysql://%s:%s/%s?user=%s&password=%s"),
 
     /**
      * A MongoDB database type.
      */
-    //User, password, host, port
-    MONGO_DB(MongoDatabase.class, "mongodb://%s:%s@%s:%s");
+    MONGO_DB(MongoDatabase.class, /*User, password, host, port*/ "mongodb://%s:%s@%s:%s");
 
     private final Class<? extends Database> dbClass;
     private final String uri;

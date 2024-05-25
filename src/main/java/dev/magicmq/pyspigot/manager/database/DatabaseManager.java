@@ -72,7 +72,7 @@ public class DatabaseManager {
      */
     public SqlDatabase connectSql(String host, String port, String database, String username, String password, HikariConfig hikariConfig) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        String uri = URLEncoder.encode(String.format(DatabaseType.SQL.getUri(), host, port, database, username, password), StandardCharsets.UTF_8);
+        String uri = String.format(DatabaseType.SQL.getUri(), host, port, database, username, password);
         hikariConfig.setJdbcUrl(uri);
         SqlDatabase connection = new SqlDatabase(script, uri, hikariConfig);
 
