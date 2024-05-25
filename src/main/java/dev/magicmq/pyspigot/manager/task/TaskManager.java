@@ -141,6 +141,41 @@ public class TaskManager {
     }
 
     /**
+     * Schedule a new asynchronous task with a synchronous callback. Data returned from the initially called function (asynchronous portion) is automatically passed to the synchronous callback function as a function argument.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function that should be called when the asynchronous task executes
+     * @param callback The function that should be called for the synchronous callback once the asynchronous portion of the task finishes
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return An ID representing the asynchronous task that was scheduled
+     */
+    public synchronized int runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        Task task = new SyncCallbackTask(script, function, callback, functionArgs, 0);
+        addTask(task);
+        task.runTaskAsynchronously(PySpigot.get());
+        return task.getTaskId();
+    }
+
+    /**
+     * Schedule a new asynchronous task with a synchronous callback to run at a later point in time. Data returned from the initially called function (asynchronous portion) is automatically passed to the synchronous callback function as a function argument.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function that should be called when the asynchronous task executes
+     * @param callback The function that should be called for the synchronous callback once the asynchronous portion of the task finishes
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the asynchronous task
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return An ID representing the asynchronous task that was scheduled
+     */
+    public synchronized int runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        Task task = new SyncCallbackTask(script, function, callback, functionArgs, delay);
+        addTask(task);
+        task.runTaskLaterAsynchronously(PySpigot.get(), delay);
+        return task.getTaskId();
+    }
+
+    /**
      * Terminate a task with the given task ID.
      * @param taskId The ID of the task to terminate
      */
