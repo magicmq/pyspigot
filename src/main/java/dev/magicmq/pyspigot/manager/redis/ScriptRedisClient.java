@@ -9,6 +9,7 @@ import org.python.core.PyFunction;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * A wrapper class that wraps the RedisClient from lettuce for use by scripts.
@@ -54,7 +55,8 @@ public class ScriptRedisClient {
                     .pingBeforeActivateConnection(true)
                     .build());
         client.getResources().eventBus().get().subscribe(event -> {
-            //TODO Log errors
+            String logMessage = "Error captured on redis event bus: " + event.getClass().getName();
+            script.getLogger().log(Level.SEVERE, logMessage);
         });
         connection = client.connectPubSub();
         return connection.isOpen();
@@ -65,9 +67,25 @@ public class ScriptRedisClient {
      * @return True if the connection was successfully closed, false if otherwise
      */
     public boolean close() {
-        connection.close();
-        client.shutdown();
+        connection.closeAsync();
+        client.shutdownAsync();
         return !connection.isOpen();
+    }
+
+    /**
+     * Get the underlying lettuce {@link io.lettuce.core.RedisClient} for this ScriptRedisClient.
+     * @return The RedisClient associated with this ScriptRedisClient
+     */
+    public RedisClient getRedisClient() {
+        return client;
+    }
+
+    /**
+     * Get the underlying lettuce {@link io.lettuce.core.pubsub.StatefulRedisPubSubConnection} for this ScriptRedisClient.
+     * @return The StatefulRedisPubSubConnection associated with this ScriptRedisClient
+     */
+    public StatefulRedisPubSubConnection<String, String> getConnection() {
+        return connection;
     }
 
     /**
@@ -197,28 +215,12 @@ public class ScriptRedisClient {
     }
 
     /**
-     * Get the underlying lettuce {@link io.lettuce.core.RedisClient} for this ScriptRedisClient.
-     * @return The RedisClient associated with this ScriptRedisClient
-     */
-    public RedisClient getRedisClient() {
-        return client;
-    }
-
-    /**
      * Prints a representation of this ScriptRedisClient in string format, including listeners
      * @return A string representation of the ScriptPubSubListener
      */
     @Override
     public String toString() {
         return String.format("ScriptRedisClient[Connection: %s, Sync Listeners: %s, Async Listeners: %s]", connection.toString(), syncListeners, asyncListeners);
-    }
-
-    /**
-     * Get the underlying lettuce {@link io.lettuce.core.pubsub.StatefulRedisPubSubConnection} for this ScriptRedisClient.
-     * @return The StatefulRedisPubSubConnection associated with this ScriptRedisClient
-     */
-    public StatefulRedisPubSubConnection<String, String> getConnection() {
-        return connection;
     }
 
     private boolean stillListening(String channel, boolean sync) {

@@ -25,6 +25,14 @@ public class RedisManager {
     }
 
     /**
+     * Get a new client options builder for use when opening a new script redis client.
+     * @return A {@link io.lettuce.core.ClientOptions.Builder} object used to build ClientOptions for the RedisClient
+     */
+    public ClientOptions.Builder newClientOptions() {
+        return ClientOptions.builder();
+    }
+
+    /**
      * Initialize a new {@link ScriptRedisClient} with a connection to a remote redis server with the specified ip, port, and password, using the default client options. The connection to the remote redis server will be opened automatically when the client is created.
      * @param ip The IP of the redis server to connect to
      * @param port The port of the redis server to connect to
