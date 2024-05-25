@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * Represents an open connection to a Mongo Database.
  * <p>
- * <b>Note:</b> Methods in this class should be called from scripts only!
+ * <b>Note:</b> Most methods in this class should be called from scripts only!
  */
 public class MongoDatabase extends Database {
 

@@ -30,6 +30,8 @@ public class DatabaseManager {
 
     /**
      * Get a new {@link com.zaxxer.hikari.HikariConfig} for specifying configuration options.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @return A new HikariConfig
      */
     public HikariConfig newHikariConfig() {
@@ -38,6 +40,8 @@ public class DatabaseManager {
 
     /**
      * Open a new connection with an SQL database, using the default configuration options.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the SQL database
      * @param port The port of the SQL database
      * @param database The name of the SQL database
@@ -56,6 +60,8 @@ public class DatabaseManager {
 
     /**
      * Open a new connection with an SQL database, using the specified configuration options.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the SQL database
      * @param port The port of the SQL database
      * @param database The name of the SQL database
@@ -81,6 +87,8 @@ public class DatabaseManager {
 
     /**
      * Get a new {@link com.mongodb.MongoClientSettings.Builder} for specifying client settings.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @return A new MongoClientSettings builder
      */
     public MongoClientSettings.Builder newMongoClientSettings() {
@@ -89,6 +97,8 @@ public class DatabaseManager {
 
     /**
      * Open a new connection with a Mongo database, using the default client settings.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the Mongo database
      * @param port The port of the Mongo database
      * @param username The username of the Mongo database
@@ -102,6 +112,8 @@ public class DatabaseManager {
 
     /**
      * Open a new connection with a Mongo database, using the specified client settings.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the Mongo database
      * @param port The port of the Mongo database
      * @param username The username of the Mongo database
@@ -128,6 +140,8 @@ public class DatabaseManager {
 
     /**
      * Disconnect from the provided database connection. Should be called when no longer using the database connection.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param connection The database connection to disconnect from
      * @return True if the disconnection was successful, false if otherwise
      */
