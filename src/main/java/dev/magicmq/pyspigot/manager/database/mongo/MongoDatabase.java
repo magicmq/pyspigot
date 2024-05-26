@@ -1,11 +1,8 @@
 package dev.magicmq.pyspigot.manager.database.mongo;
 
-import com.mongodb.ConnectionString;
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
+import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
@@ -26,19 +23,16 @@ import java.util.*;
 public class MongoDatabase extends Database {
 
     private final MongoClientSettings clientSettings;
-    private final String uri;
 
     private MongoClient mongoClient;
 
     /**
      *
      * @param script The script associated with this MongoDatabase
-     * @param uri The connection URI for this MongoDatabase
      * @param clientSettings The client settings for the MongoDatabase connection
      */
-    public MongoDatabase(Script script, String uri, MongoClientSettings clientSettings) {
+    public MongoDatabase(Script script, MongoClientSettings clientSettings) {
         super(script);
-        this.uri = uri;
         this.clientSettings = clientSettings;
     }
 
@@ -87,10 +81,44 @@ public class MongoDatabase extends Database {
         return new FindOneAndUpdateOptions();
     }
 
+    //Init BasicDBObject methods
+
+    /**
+     * Create a new empty {@link com.mongodb.BasicDBObject}.
+     * @return The BasicDBObject
+     */
+    public BasicDBObject createObject() {
+        return new BasicDBObject();
+    }
+
+    /**
+     * Create a new {@link com.mongodb.BasicDBObject} out of the provided json.
+     * @return The BasicDBObject
+     */
+    public BasicDBObject createObject(String json) {
+        return BasicDBObject.parse(json);
+    }
+
+    /**
+     * Create a new {@link com.mongodb.BasicDBObject} with the provided key and value.
+     * @return The BasicDBObject
+     */
+    public BasicDBObject createObject(String key, Object value) {
+        return new BasicDBObject(key, value);
+    }
+
     //Init Document methods
 
     /**
-     * Create a {@link org.bson.Document}.
+     * Create an empty {@link org.bson.Document}.
+     * @return The document
+     */
+    public Document createDocument() {
+        return new Document();
+    }
+
+    /**
+     * Create a {@link org.bson.Document} out of the provided json.
      * @param json A JSON representation of the document
      * @return The document
      */
@@ -99,7 +127,7 @@ public class MongoDatabase extends Database {
     }
 
     /**
-     * Create a {@link org.bson.Document}.
+     * Create a {@link org.bson.Document} with the provided key and value.
      * @param key The key
      * @param value The value
      * @return The document
@@ -117,6 +145,22 @@ public class MongoDatabase extends Database {
      */
     public com.mongodb.client.MongoDatabase getDatabase(String database) {
         return mongoClient.getDatabase(database);
+    }
+
+    /**
+     * Get all database names.
+     * @return An iterable list of type {@link com.mongodb.client.MongoIterable<String>} containing all database names
+     */
+    public MongoIterable<String> getDatabaseNames() {
+        return mongoClient.listDatabaseNames();
+    }
+
+    /**
+     * Get all databases.
+     * @return An iterable list of type {@link com.mongodb.client.MongoIterable<Document>} containing all databases
+     */
+    public MongoIterable<Document> getDatabases() {
+        return mongoClient.listDatabases();
     }
 
     /**
@@ -166,11 +210,31 @@ public class MongoDatabase extends Database {
      * Get a collection from a database.
      * @param database The name of the database to fetch from
      * @param collection The name of the collection to get
-     * @return A {@link com.mongodb.client.MongoCollection} containing {@link org.bson.Document} representing the collection
+     * @return A {@link com.mongodb.client.MongoCollection<Document>} containing {@link org.bson.Document} representing the collection
      */
     public MongoCollection<Document> getCollection(String database, String collection) {
         return getDatabase(database)
                 .getCollection(collection);
+    }
+
+    /**
+     * Get all collection names within a database.
+     * @param database The database to get collections names from
+     * @return An iterable list of type {@link com.mongodb.client.ListCollectionNamesIterable} containing all collection names
+     */
+    public ListCollectionNamesIterable getCollectionNames(String database) {
+        return getDatabase(database)
+                .listCollectionNames();
+    }
+
+    /**
+     * Get all collections within a database.
+     * @param database The database to get collections from
+     * @return An iterable list of type {@link com.mongodb.client.ListCollectionsIterable<Document>} containing all collections
+     */
+    public ListCollectionsIterable<Document> getCollections(String database) {
+        return getDatabase(database)
+                .listCollections();
     }
 
     /**
@@ -239,7 +303,7 @@ public class MongoDatabase extends Database {
      * Get all documents within a collection.
      * @param database The name of the database to fetch from
      * @param collection The name of the collection to fetch from
-     * @return An iterable list of type {@link com.mongodb.client.FindIterable} containing all documents within the collection
+     * @return An iterable list of type {@link com.mongodb.client.FindIterable<Document>} containing all documents within the collection
      */
     public FindIterable<Document> getDocuments(String database, String collection) {
         return getDatabase(database)
@@ -252,7 +316,7 @@ public class MongoDatabase extends Database {
      * @param database The name of the database to fetch from
      * @param collection The name of the collection to fetch from
      * @param filter A {@link org.bson.conversions.Bson} object representing a filter to filter documents within the collection
-     * @return An iterable list of type {@link com.mongodb.client.FindIterable} containing all documents within the collection that matched the provided filter
+     * @return An iterable list of type {@link com.mongodb.client.FindIterable<Document>} containing all documents within the collection that matched the provided filter
      */
     public FindIterable<Document> getDocuments(String database, String collection, Bson filter) {
         return getDatabase(database)
@@ -481,6 +545,6 @@ public class MongoDatabase extends Database {
      */
     @Override
     public String toString() {
-        return String.format("MongoDatabase[URI: %s, MongoClient: %s]", uri, mongoClient.toString());
+        return String.format("MongoDatabase[ID: %d, MongoClient: %s]", getDatabaseId(), mongoClient.toString());
     }
 }

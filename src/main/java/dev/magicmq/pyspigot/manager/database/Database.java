@@ -7,7 +7,10 @@ import dev.magicmq.pyspigot.manager.script.Script;
  */
 public abstract class Database {
 
+    private static int dbIdIncrement;
+
     private final Script script;
+    private final int databaseId;
 
     /**
      *
@@ -15,6 +18,7 @@ public abstract class Database {
      */
     public Database(Script script) {
         this.script = script;
+        this.databaseId = dbIdIncrement++;
     }
 
     /**
@@ -35,6 +39,14 @@ public abstract class Database {
      */
     public Script getScript() {
         return script;
+    }
+
+    /**
+     * Get the ID of this database connection.
+     * @return The ID
+     */
+    public int getDatabaseId() {
+        return databaseId;
     }
 
     /**

@@ -16,7 +16,12 @@ public enum DatabaseType {
     /**
      * A MongoDB database type.
      */
-    MONGO_DB(MongoDatabase.class, /*User, password, host, port*/ "mongodb://%s:%s@%s:%s");
+    MONGO_DB(MongoDatabase.class, /*User, password, host, port*/ "mongodb://%s:%s@%s:%s"),
+
+    /**
+     * A MongoDB database type without authentication.
+     */
+    MONGO_DB_NO_AUTH(MongoDatabase.class, "mongodb://%s:%s");
 
     private final Class<? extends Database> dbClass;
     private final String uri;

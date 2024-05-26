@@ -8,12 +8,9 @@ import dev.magicmq.pyspigot.manager.database.sql.SqlDatabase;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Manager that allows connection to and interact with a variety of database types. Primarily used by scripts to interact with external databases, such as SQL and MongoDB.
@@ -71,17 +68,54 @@ public class DatabaseManager {
      * @return An {@link SqlDatabase} object representing an open connection to the database
      */
     public SqlDatabase connectSql(String host, String port, String database, String username, String password, HikariConfig hikariConfig) {
-        Script script = ScriptUtils.getScriptFromCallStack();
         String uri = String.format(DatabaseType.SQL.getUri(), host, port, database, username, password);
+        return connectSql(uri, hikariConfig);
+    }
+
+    /**
+     * Open a new connection with an SQL database, using the provided connection URI.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param uri The connection string to define the connection, including options
+     * @return An {@link SqlDatabase} object representing an open connection to the database
+     */
+    public SqlDatabase connectSql(String uri) {
+        HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(uri);
-        SqlDatabase connection = new SqlDatabase(script, uri, hikariConfig);
+
+        return connectSql(hikariConfig);
+    }
+
+    /**
+     * Open a new connection with an SQL database, using the provided connection URI and configuration options.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param uri The connection string to define the connection, including options
+     * @param hikariConfig A {@link com.zaxxer.hikari.HikariConfig} object representing the configuration options for the connection
+     * @return An {@link SqlDatabase} object representing an open connection to the database
+     */
+    public SqlDatabase connectSql(String uri, HikariConfig hikariConfig) {
+        hikariConfig.setJdbcUrl(uri);
+        return connectSql(hikariConfig);
+    }
+
+    /**
+     * Open a new connection with an SQL database, using the provided configuration.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param hikariConfig The configuration for the connection
+     * @return An {@link SqlDatabase} object representing an open connection to the database
+     */
+    public SqlDatabase connectSql(HikariConfig hikariConfig) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+
+        SqlDatabase connection = new SqlDatabase(script, hikariConfig);
 
         if (connection.open()) {
             addConnection(connection);
             return connection;
         } else {
-            script.getLogger().log(Level.SEVERE, "Failed to open a connection to the SQL database. URI: " + uri);
-            return null;
+            throw new RuntimeException("Failed to open a connection to the SQL database.");
         }
     }
 
@@ -111,7 +145,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with a Mongo database, using the specified client settings.
+     * Open a new connection with a Mongo database, using the provided client settings.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the Mongo database
@@ -122,19 +156,61 @@ public class DatabaseManager {
      * @return An {@link MongoDatabase} object representing an open connection to the database
      */
     public MongoDatabase connectMongo(String host, String port, String username, String password, MongoClientSettings clientSettings) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        String uri = URLEncoder.encode(String.format(DatabaseType.MONGO_DB.getUri(), username, password, host, port), StandardCharsets.UTF_8);
+        String uri;
+        if (username == null)
+            uri = String.format(DatabaseType.MONGO_DB_NO_AUTH.getUri(), host, port);
+        else
+            uri = String.format(DatabaseType.MONGO_DB.getUri(), username, password, host, port);
+
+        return connectMongo(uri, clientSettings);
+    }
+
+    /**
+     * Open a new connection with a Mongo database, using the provided connection string URI.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param uri The connection string to define the connection, including options
+     * @return An {@link MongoDatabase} object representing an open connection to the database
+     */
+    public MongoDatabase connectMongo(String uri) {
+        MongoClientSettings clientSettings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(uri))
+                .build();
+        return connectMongo(clientSettings);
+    }
+
+    /**
+     * Open a new connection with a Mongo database, using the provided connection string URI and client settings.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param uri The connection string to define the connection, including options
+     * @param clientSettings A {@link com.mongodb.MongoClientSettings} object representing the client settings for the connection
+     * @return An {@link MongoDatabase} object representing an open connection to the database
+     */
+    public MongoDatabase connectMongo(String uri, MongoClientSettings clientSettings) {
         MongoClientSettings newClientSettings = MongoClientSettings.builder(clientSettings)
                 .applyConnectionString(new ConnectionString(uri))
                 .build();
-        MongoDatabase connection = new MongoDatabase(script, uri, newClientSettings);
+        return connectMongo(newClientSettings);
+    }
+
+    /**
+     * Open a new connection with a Mongo database, using the provided client settings.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param clientSettings The client settings for the connection
+     * @return An {@link MongoDatabase} object representing an open connection to the database
+     */
+    public MongoDatabase connectMongo(MongoClientSettings clientSettings) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+
+        MongoDatabase connection = new MongoDatabase(script, clientSettings);
 
         if (connection.open()) {
             addConnection(connection);
             return connection;
         } else {
-            script.getLogger().log(Level.SEVERE, "Failed to open a connection to the Mongo database. URI: " + uri);
-            return null;
+            throw new RuntimeException("Failed to open a connection to the Mongo database.");
         }
     }
 

@@ -19,25 +19,18 @@ import java.util.Map;
  */
 public class SqlDatabase extends Database {
 
-    private static int dbId = 0;
-
     private final HikariConfig hikariConfig;
-    private final int databaseId;
-    private final String uri;
 
     private HikariDataSource hikariDataSource;
 
     /**
      *
      * @param script The script associated with this SQLDatabase
-     * @param uri The connection URI for this SQLDatabase
      * @param hikariConfig The configuration options for the SQLDatabase connection
      */
-    public SqlDatabase(Script script, String uri, HikariConfig hikariConfig) {
+    public SqlDatabase(Script script, HikariConfig hikariConfig) {
         super(script);
         this.hikariConfig = hikariConfig;
-        this.databaseId = dbId++;
-        this.uri = uri;
     }
 
     /**
@@ -45,7 +38,7 @@ public class SqlDatabase extends Database {
      */
     @Override
     public boolean open() {
-        hikariConfig.setPoolName(getScript().getName() + "-" + databaseId + "-hikari");
+        hikariConfig.setPoolName(getScript().getName() + "-" + getDatabaseId());
         hikariDataSource = new HikariDataSource(hikariConfig);
         return hikariDataSource.isRunning() && !hikariDataSource.isClosed();
     }
@@ -154,6 +147,6 @@ public class SqlDatabase extends Database {
      */
     @Override
     public String toString() {
-        return String.format("SqlDatabase[ID: %d, URI: %s, HikariDataSource: %s]", databaseId, uri, hikariDataSource.toString());
+        return String.format("SqlDatabase[ID: %d, HikariDataSource: %s]", getDatabaseId(), hikariDataSource.toString());
     }
 }
