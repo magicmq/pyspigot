@@ -17,7 +17,8 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PySpigot;
-import dev.magicmq.pyspigot.util.ScriptLogger;
+import dev.magicmq.pyspigot.util.logging.PrintStreamWrapper;
+import dev.magicmq.pyspigot.util.logging.ScriptLogger;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.util.PythonInterpreter;
 
@@ -55,8 +56,8 @@ public class Script {
      */
     public void prepare() {
         this.interpreter = new PythonInterpreter(null, ScriptUtils.initPySystemState());
-        this.interpreter.setOut(System.out);
-        this.interpreter.setErr(System.err);
+        this.interpreter.setOut(new PrintStreamWrapper(System.out, this, Level.INFO, "[STDOUT]"));
+        this.interpreter.setErr(new PrintStreamWrapper(System.err, this, Level.SEVERE, "[STDERR]"));
 
         this.logger = new ScriptLogger(this);
         this.logger.setLevel(options.getMinLoggingLevel());

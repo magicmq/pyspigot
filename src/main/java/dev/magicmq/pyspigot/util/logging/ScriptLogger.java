@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package dev.magicmq.pyspigot.util;
+package dev.magicmq.pyspigot.util.logging;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
