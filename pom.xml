@@ -73,6 +73,12 @@
             <version>6.3.2.RELEASE</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -126,20 +132,20 @@
                             <shadedPattern>dev.magicmq.pyspigot.libs.org.apache</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>org.objectweb.asm</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.org.objectweb.asm</shadedPattern>
+                            <pattern>org.objectweb</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.objectweb</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>me.lucko.jarrelocator</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.me.lucko.jarrelocator</shadedPattern>
+                            <pattern>me.lucko</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.me.lucko</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>dev.magicmq</shadedPattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.bstats</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.zaxxer.hikari</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.com.zaxxer.hikari</shadedPattern>
+                            <pattern>com.zaxxer</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.com.zaxxer</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.mongodb</pattern>
@@ -148,6 +154,38 @@
                         <relocation>
                             <pattern>io.lettuce</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.libs.io.lettuce</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.kenai</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.com.kenai</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.xhaus</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.com.xhaus</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.ziclix</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.com.ziclix</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.bson</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.bson</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.fusesource</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.fusesource</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.reactivestreams</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.reactivestreams</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.w3c</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.w3c</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>reactor</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.reactor</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
