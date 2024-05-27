@@ -114,9 +114,8 @@ public class DatabaseManager {
         if (connection.open()) {
             addConnection(connection);
             return connection;
-        } else {
+        } else
             throw new RuntimeException("Failed to open a connection to the SQL database.");
-        }
     }
 
     /**
@@ -209,9 +208,8 @@ public class DatabaseManager {
         if (connection.open()) {
             addConnection(connection);
             return connection;
-        } else {
+        } else
             throw new RuntimeException("Failed to open a connection to the Mongo database.");
-        }
     }
 
     /**
