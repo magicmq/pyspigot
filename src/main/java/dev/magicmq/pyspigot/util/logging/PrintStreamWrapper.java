@@ -21,6 +21,7 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 /**
@@ -54,7 +55,9 @@ public class PrintStreamWrapper extends PrintStream {
      */
     @Override
     public void write(byte[] buf, int off, int len) {
-        String string = new String(buf, StandardCharsets.UTF_8);
+        byte[] toLog = Arrays.copyOfRange(buf, 0, len);
+        String string = new String(toLog, StandardCharsets.UTF_8);
+        string = string.replaceAll("\\R$", "");
         script.getLogger().log(level, prefix + " " + string);
     }
 
