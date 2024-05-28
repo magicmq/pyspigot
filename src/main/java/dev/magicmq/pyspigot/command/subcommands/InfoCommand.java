@@ -30,7 +30,7 @@ import dev.magicmq.pyspigot.manager.placeholder.ScriptPlaceholder;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.protocol.ScriptPacketListener;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
-import dev.magicmq.pyspigot.manager.redis.ScriptRedisClient;
+import dev.magicmq.pyspigot.manager.redis.client.ScriptRedisClient;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.task.Task;

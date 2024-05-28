@@ -1,88 +1,81 @@
-package dev.magicmq.pyspigot.manager.redis;
+/*
+ *    Copyright 2023 magicmq
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 
+package dev.magicmq.pyspigot.manager.redis.client;
+
+import dev.magicmq.pyspigot.manager.redis.ScriptPubSubListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import io.lettuce.core.ClientOptions;
-import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
- * A wrapper class that wraps the RedisClient from lettuce for use by scripts.
- * @see io.lettuce.core.RedisClient
+ * Extension of the {@link ScriptRedisClient} that provides pub/sub messaging capabilities.
+ * @see io.lettuce.core.pubsub.StatefulRedisPubSubConnection
  */
-public class ScriptRedisClient {
+public class RedisPubSubClient extends ScriptRedisClient {
 
-    private final Script script;
-    private final String uri;
-    private final ClientOptions clientOptions;
     private final List<ScriptPubSubListener> syncListeners;
     private final List<ScriptPubSubListener> asyncListeners;
 
-    private RedisClient client;
     private StatefulRedisPubSubConnection<String, String> connection;
 
     /**
      *
-     * @param script The script to which this ScriptRedisClient belongs
-     * @param uri The uri that specifies the ip, port, and password for connection to the remote redis server
+     * @param script The script to which this RedisPubSubClient belongs
+     * @param redisURI The URI that specifies the connection details to the server
      * @param clientOptions The {@link io.lettuce.core.ClientOptions} that should be used for the RedisClient
      */
-    public ScriptRedisClient(Script script, String uri, ClientOptions clientOptions) {
-        this.script = script;
-        this.uri = uri;
-
-        this.clientOptions = clientOptions;
+    public RedisPubSubClient(Script script, RedisURI redisURI, ClientOptions clientOptions) {
+        super(script, redisURI, clientOptions);
         this.syncListeners = new ArrayList<>();
         this.asyncListeners = new ArrayList<>();
     }
 
     /**
-     * Initialize a new {@link io.lettuce.core.RedisClient} and open a connection to the remote redis server.
+     * {@inheritDoc}
      * @return True if the connection was successfully opened, false if otherwise
      */
+    @Override
     public boolean open() {
-        client = RedisClient.create(uri);
-        if (clientOptions != null)
-            client.setOptions(clientOptions);
-        else
-            client.setOptions(ClientOptions.builder()
-                    .autoReconnect(true)
-                    .pingBeforeActivateConnection(true)
-                    .build());
-        client.getResources().eventBus().get().subscribe(event -> {
-            String logMessage = "Error captured on redis event bus: " + event.getClass().getName();
-            script.getLogger().log(Level.SEVERE, logMessage);
-        });
+        super.open();
         connection = client.connectPubSub();
         return connection.isOpen();
     }
 
     /**
-     * Close the open connection to the remote redis server.
+     * {@inheritDoc}
      * @return True if the connection was successfully closed, false if otherwise
      */
+    @Override
     public boolean close() {
         connection.closeAsync();
-        client.shutdownAsync();
+        super.close();
         return !connection.isOpen();
     }
 
     /**
-     * Get the underlying lettuce {@link io.lettuce.core.RedisClient} for this ScriptRedisClient.
-     * @return The RedisClient associated with this ScriptRedisClient
-     */
-    public RedisClient getRedisClient() {
-        return client;
-    }
-
-    /**
-     * Get the underlying lettuce {@link io.lettuce.core.pubsub.StatefulRedisPubSubConnection} for this ScriptRedisClient.
-     * @return The StatefulRedisPubSubConnection associated with this ScriptRedisClient
+     * Get the underlying connection for this RedisPubSubClient.
+     * @return The connection associated with this RedisPubSubClient
      */
     public StatefulRedisPubSubConnection<String, String> getConnection() {
         return connection;
@@ -92,7 +85,7 @@ public class ScriptRedisClient {
      * Register a new synchronous listener.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
-     * @see ScriptRedisClient#registerSyncListener(PyFunction, String)
+     * @see RedisPubSubClient#registerSyncListener(PyFunction, String)
      * @param function The function that should be called when a message on the specified channel is received
      * @param channel The channel to listen on
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
@@ -190,9 +183,10 @@ public class ScriptRedisClient {
      * <b>Note:</b> This should be called from scripts only!
      * @param channel The channel on which the message should be published
      * @param message The message to publish
+     * @return The number of clients that received the message
      */
-    public void publishSync(String channel, String message) {
-        connection.sync().publish(channel, message);
+    public Long publishSync(String channel, String message) {
+        return connection.sync().publish(channel, message);
     }
 
     /**
@@ -202,25 +196,17 @@ public class ScriptRedisClient {
      * @param channel The channel on which the message should be published
      * @param message The message to publish
      */
-    public void publishAsync(String channel, String message) {
-        connection.async().publish(channel, message);
+    public RedisFuture<Long> publishAsync(String channel, String message) {
+        return connection.async().publish(channel, message);
     }
 
     /**
-     * Get the script associated with this ScriptRedisClient.
-     * @return The script associated with this ScriptRedisClient.
-     */
-    public Script getScript() {
-        return script;
-    }
-
-    /**
-     * Prints a representation of this ScriptRedisClient in string format, including listeners
-     * @return A string representation of the ScriptPubSubListener
+     * Prints a representation of this RedisPubSubClient in string format, including listeners
+     * @return A string representation of the RedisPubSubClient
      */
     @Override
     public String toString() {
-        return String.format("ScriptRedisClient[Connection: %s, Sync Listeners: %s, Async Listeners: %s]", connection.toString(), syncListeners, asyncListeners);
+        return String.format("RedisPubSubClient[ID: %d, Connection: %s, Sync Listeners: %s, Async Listeners: %s]", getClientId(), connection.toString(), syncListeners, asyncListeners);
     }
 
     private boolean stillListening(String channel, boolean sync) {
