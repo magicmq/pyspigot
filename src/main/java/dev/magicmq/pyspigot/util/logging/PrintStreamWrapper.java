@@ -48,14 +48,14 @@ public class PrintStreamWrapper extends PrintStream {
     }
 
     /**
-     * Captures writes to the PrintStream, converts the bytes into readable text, and logs the text to the script's logger
+     * Captures writes to the PrintStream, converts the bytes into readable text (truncating according to the specified length and offset), and logs the text to the script's logger. This method also strips carriage returns/new line characters from the end of the text, because the script logger already inserts a new line when logging.
      * @param buf A byte array
      * @param off Offset from which to start taking bytes
      * @param len Number of bytes to write
      */
     @Override
     public void write(byte[] buf, int off, int len) {
-        byte[] toLog = Arrays.copyOfRange(buf, 0, len);
+        byte[] toLog = Arrays.copyOfRange(buf, off, len);
         String string = new String(toLog, StandardCharsets.UTF_8);
         string = string.replaceAll("\\R$", "");
         script.getLogger().log(level, prefix + " " + string);
