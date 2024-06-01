@@ -22,6 +22,7 @@ import dev.magicmq.pyspigot.manager.redis.client.ScriptRedisClient;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import io.lettuce.core.ClientOptions;
+import io.lettuce.core.RedisConnectionException;
 import io.lettuce.core.RedisURI;
 
 import java.util.ArrayList;
@@ -135,11 +136,14 @@ public class RedisManager {
         else /*if (clientType == ClientType.PUB_SUB)*/
             client = new RedisPubSubClient(script, redisURI, clientOptions);
 
-        if (client.open()) {
+        try {
+            client.open();
             addClient(client);
             return client;
-        } else
-            throw new RuntimeException("Failed to open a connection to the redis server.");
+        } catch (RedisConnectionException e) {
+            client.close();
+            throw e;
+        }
     }
 
     /**
