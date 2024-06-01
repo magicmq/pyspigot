@@ -26,12 +26,17 @@ import dev.magicmq.pyspigot.manager.redis.client.ScriptRedisClient;
 public enum ClientType {
 
     /**
-     * A command client type, used for executing redis commands
+     * A basic client type, used for initiating a standard RedisClient for further custom usage.
+     */
+    BASIC(ScriptRedisClient.class),
+
+    /**
+     * A command client type, used for executing redis commands.
      */
     COMMAND(RedisCommandClient.class),
 
     /**
-     * A pub/sub client type, used for publishing and subscribing to redis messaging
+     * A pub/sub client type, used for publishing and subscribing to redis messaging.
      */
     PUB_SUB(RedisPubSubClient.class);
 

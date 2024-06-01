@@ -134,8 +134,10 @@ public class RedisManager {
         ScriptRedisClient client;
         if (clientType == ClientType.COMMAND)
             client = new RedisCommandClient(script, redisURI, clientOptions);
-        else /*if (clientType == ClientType.PUB_SUB)*/
+        else if (clientType == ClientType.PUB_SUB)
             client = new RedisPubSubClient(script, redisURI, clientOptions);
+        else /*if (clientType == ClientType.BASIC)*/
+            client = new ScriptRedisClient(script, redisURI, clientOptions);
 
         try {
             client.open();
