@@ -75,6 +75,10 @@ public class PluginConfig {
         return config.getBoolean("script-action-logging", true);
     }
 
+    public static boolean doVerboseRedisLogging() {
+        return config.getBoolean("verbose-redis-logging", true);
+    }
+
     public static boolean shouldPrintStackTraces() {
         return config.getBoolean("debug-options.print-stack-traces", false);
     }

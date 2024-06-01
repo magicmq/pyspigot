@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.manager.redis.client;
 
+import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.script.Script;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
@@ -60,8 +61,10 @@ public class ScriptRedisClient {
         client = RedisClient.create(redisURI);
         client.setOptions(clientOptions);
         client.getResources().eventBus().get().subscribe(event -> {
-            String logMessage = "Event captured on redis event bus for client #" + clientId + ": " + event.getClass().getSimpleName();
-            script.getLogger().log(Level.INFO, logMessage);
+            if (PluginConfig.doVerboseRedisLogging() || event.getClass().getSimpleName().equals("ReconnectAttemptEvent") || event.getClass().getSimpleName().equals("ReconnectFailedEvent")) {
+                String logMessage = "Event captured on redis event bus for client #" + clientId + ": " + event.getClass().getSimpleName();
+                script.getLogger().log(Level.INFO, logMessage);
+            }
         });
     }
 

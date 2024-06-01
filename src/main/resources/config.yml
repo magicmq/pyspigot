@@ -12,6 +12,8 @@ min-log-level: 'INFO'
 log-timestamp-format: 'MMM dd yyyy HH:mm:ss'
 # If true, will print log messages to console every time a script is loaded, run, and unloaded.
 script-action-logging: true
+# If true, will log all redis events to the console and to a script's logger. If false, will only log
+verbose-redis-logging: true
 # Advanced debug options for scripts
 debug-options:
   # If true, will print stack traces for all script-related exceptions to the server console
