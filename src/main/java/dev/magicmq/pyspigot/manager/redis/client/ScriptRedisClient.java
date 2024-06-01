@@ -21,6 +21,7 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -54,27 +55,30 @@ public class ScriptRedisClient {
 
     /**
      * Initialize a new {@link io.lettuce.core.RedisClient} and open a connection to the remote redis server.
-     * @return True if the connection was successfully opened, false if otherwise
      */
-    public boolean open() {
+    public void open() {
         client = RedisClient.create(redisURI);
         client.setOptions(clientOptions);
         client.getResources().eventBus().get().subscribe(event -> {
             String logMessage = "Event captured on redis event bus for client #" + clientId + ": " + event.getClass().getSimpleName();
             script.getLogger().log(Level.INFO, logMessage);
         });
-        return true;
     }
 
     /**
-     * Close the open connection to the remote redis server.
-     * @return True if the connection was successfully closed, false if otherwise
+     * Close the open to the remote redis server synchronously, blocking if necessary.
      */
-    public boolean close() {
-        client.shutdownAsync();
-        return true;
+    public void close() {
+        client.shutdown();
     }
 
+    /**
+     * Close the open connection to the remote redis server asynchronously.
+     * @return A {@link CompletableFuture} that completes when the shutdown is finished
+     */
+    public CompletableFuture<Void> closeAsync() {
+        return client.shutdownAsync();
+    }
 
     /**
      * Get the script associated with this redis client.

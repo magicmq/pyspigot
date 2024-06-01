@@ -28,6 +28,7 @@ import io.lettuce.core.RedisURI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Manager to interface with remote redis servers. Used by scripts to subscribe to pub/sub messaging and publish messages.
@@ -147,32 +148,44 @@ public class RedisManager {
     }
 
     /**
-     * Close the specified ScriptRedisClient.
+     * Close the specified ScriptRedisClient synchronously. This method will block until the redis client is closed.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param client The client to close
-     * @return True if the client was appropriately closed, false if otherwise
      */
-    public boolean closeRedisClient(ScriptRedisClient client) {
+    public void closeRedisClient(ScriptRedisClient client) {
         removeClient(client);
-        return client.close();
+        client.close();
+    }
+
+    /**
+     * Close the specified ScriptRedisClient asynchronously, without blocking.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param client The client to close
+     * @return A {@link CompletableFuture} that completes when closing the client is finished
+     */
+    public CompletableFuture<Void> closeRedisClientAsync(ScriptRedisClient client) {
+        removeClient(client);
+        return client.closeAsync();
     }
 
     /**
      * Close all ScriptRedisClients belonging to a script.
      * @param script The script whose ScriptRedisClients should be closed
-     * @return True if all clients were appropriately closed, false if one or more clients were not closed or if the script had no open ScriptRedisClient
+     * @param async Whether the client should be closed asynchronously
      */
-    public boolean closeRedisClients(Script script) {
-        boolean toReturn = false;
+    public void closeRedisClients(Script script, boolean async) {
         List<ScriptRedisClient> scriptClients = activeClients.get(script);
         if (scriptClients != null) {
             for (ScriptRedisClient client : scriptClients) {
-                toReturn = client.close();
+                if (async)
+                    client.closeAsync();
+                else
+                    client.close();
             }
             activeClients.remove(script);
         }
-        return toReturn;
     }
 
     /**

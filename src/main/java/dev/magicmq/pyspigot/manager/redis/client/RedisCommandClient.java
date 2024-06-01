@@ -46,21 +46,9 @@ public class RedisCommandClient extends ScriptRedisClient {
      * @return True if the connection was successfully opened, false if otherwise
      */
     @Override
-    public boolean open() {
+    public void open() {
         super.open();
         connection = client.connect();
-        return connection.isOpen();
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return True if the connection was successfully closed, false if otherwise
-     */
-    @Override
-    public boolean close() {
-        connection.closeAsync();
-        super.close();
-        return !connection.isOpen();
     }
 
     /**

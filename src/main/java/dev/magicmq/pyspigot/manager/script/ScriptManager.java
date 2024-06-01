@@ -377,7 +377,7 @@ public class ScriptManager {
         TaskManager.get().stopTasks(script);
         CommandManager.get().unregisterCommands(script);
         DatabaseManager.get().disconnectAll(script);
-        RedisManager.get().closeRedisClients(script);
+        RedisManager.get().closeRedisClients(script, false);
 
         if (PySpigot.get().isProtocolLibAvailable()) {
             ProtocolManager.get().unregisterPacketListeners(script);
