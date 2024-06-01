@@ -53,7 +53,6 @@ public class RedisPubSubClient extends ScriptRedisClient {
 
     /**
      * {@inheritDoc}
-     * @return True if the connection was successfully opened, false if otherwise
      */
     @Override
     public void open() {
