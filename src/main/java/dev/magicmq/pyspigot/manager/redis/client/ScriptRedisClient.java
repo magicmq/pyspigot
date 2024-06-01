@@ -100,6 +100,22 @@ public class ScriptRedisClient {
     }
 
     /**
+     * Get the {@link io.lettuce.core.RedisURI} of this redis client.
+     * @return The RedisURI
+     */
+    public RedisURI getRedisURI() {
+        return redisURI;
+    }
+
+    /**
+     * Get the {@link io.lettuce.core.ClientOptions} of this redis client.
+     * @return The ClientOptions
+     */
+    public ClientOptions getClientOptions() {
+        return clientOptions;
+    }
+
+    /**
      * Get the underlying lettuce {@link io.lettuce.core.RedisClient} for this ScriptRedisClient.
      * @return The RedisClient associated with this ScriptRedisClient
      */
