@@ -31,16 +31,8 @@ public final class ReflectionUtils {
     private static final String MC_VERSION;
 
     static {
-        Server server = Bukkit.getServer();
-        Class<?> serverClass = server.getClass();
-        Method getMinecraftVersion = getMethod(serverClass, "getMinecraftVersion");
-        try {
-            MC_VERSION = getMinecraftVersion != null ?
-                    (String) getMinecraftVersion.invoke(server) :
-                    serverClass.getPackage().getName().split("\\.")[3];
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        String[] split = Bukkit.getServer().getClass().getPackage().getName().split("\\.");
+        MC_VERSION = split.length >= 4 ? split[3] : "";
     }
 
     private ReflectionUtils() {}
