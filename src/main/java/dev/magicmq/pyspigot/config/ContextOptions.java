@@ -50,11 +50,11 @@ public class ContextOptions {
      * @param config The configuration section from which context options should be read
      */
     public ContextOptions(ConfigurationSection config) {
-        this.allowAllAccess = config.getBoolean("allow-all-access", true);
-        this.allowCreateProcess = config.getBoolean("allow-create-process", true);
-        this.allowCreateThread = config.getBoolean("allow-create-thread", true);
+        this.allowAllAccess = config.getBoolean("allow-all-access");
+        this.allowCreateProcess = config.getBoolean("allow-create-process");
+        this.allowCreateThread = config.getBoolean("allow-create-thread");
 
-        String environment = config.getString("environment-access-policy", "INHERIT").toUpperCase();
+        String environment = config.getString("environment-access-policy").toUpperCase();
         switch (environment) {
             case "INHERIT":
                 this.allowEnvironmentAccess = EnvironmentAccess.INHERIT;
@@ -65,8 +65,8 @@ public class ContextOptions {
             default:
                 throw new IllegalArgumentException("Environment access policy " + environment + " was not found. Available options are INHERIT or NONE.");
         }
-        this.allowExperimentalOptions = config.getBoolean("allow-experimental-options", false);
-        String hostAccess = config.getString("host-access-policy", "ALL").toUpperCase();
+        this.allowExperimentalOptions = config.getBoolean("allow-experimental-options");
+        String hostAccess = config.getString("host-access-policy").toUpperCase();
         switch (hostAccess) {
             case "ALL":
                 this.allowHostAccess = HostAccess.ALL;
@@ -92,7 +92,7 @@ public class ContextOptions {
             default:
                 throw new IllegalArgumentException("Host access policy " + hostAccess + " was not found. Available options are ALL, CONSTRAINED, EXPLICIT, ISOLATED, NONE, SCOPED, or UNTRUSTED.");
         }
-        this.allowInnerContextOptions = config.getBoolean("allow-inner-context-options", true);
+        this.allowInnerContextOptions = config.getBoolean("allow-inner-context-options");
         String ioAccess = config.getString("io-access-policy", "ALL").toUpperCase();
         switch (ioAccess) {
             case "ALL":
@@ -104,8 +104,8 @@ public class ContextOptions {
             default:
                 throw new IllegalArgumentException("IO access policy " + environment + " was not found. Available options are ALL or NONE.");
         }
-        this.allowNativeAccess = config.getBoolean("allow-native-access", true);
-        this.allowValueSharing = config.getBoolean("allow-value-sharing", true);
+        this.allowNativeAccess = config.getBoolean("allow-native-access");
+        this.allowValueSharing = config.getBoolean("allow-value-sharing");
         this.arguments = config.getStringList("arguments").toArray(new String[0]);
         this.environmentVariables = new HashMap<>();
         for (String environmentVariable : config.getStringList("environment-variables")) {
@@ -117,7 +117,7 @@ public class ContextOptions {
             String[] parts = option.split(",");
             this.options.put(parts[0], parts[1]);
         }
-        this.sandboxPolicy = SandboxPolicy.valueOf(config.getString("sandbox-policy", "TRUSTED"));
+        this.sandboxPolicy = SandboxPolicy.valueOf(config.getString("sandbox-policy"));
     }
 
     /**
@@ -145,6 +145,7 @@ public class ContextOptions {
      * @return The builder, with all options set as per this class
      */
     public Context.Builder getAsBuilder() {
+        System.out.println("Allow experimental options when building: " + allowExperimentalOptions);
         Context.Builder builder = Context.newBuilder();
         builder.allowAllAccess(allowAllAccess)
                 .allowCreateProcess(allowCreateProcess)

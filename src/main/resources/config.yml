@@ -17,7 +17,7 @@ verbose-redis-logging: true
 # The options for the underlying GraalVM engine that runs the scripts. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/Engine.Builder.html
 engine-options:
   # Must be set to true if using the 'python.EmulateJython' option for the engine.
-  allow-experimental-options: true
+  allow-experimental-options: false
   # The sandbox policy for scripts. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/SandboxPolicy.html
   sandbox-policy: 'TRUSTED'
   # If true, the engine will use system-defined properties

@@ -37,9 +37,9 @@ public class EngineOptions {
      * @param config The configuration section from which engine options should be read
      */
     public EngineOptions(ConfigurationSection config) {
-        this.allowExperimentalOptions = config.getBoolean("allow-experimental-options", false);
-        this.sandboxPolicy = SandboxPolicy.valueOf(config.getString("sandbox-policy", "TRUSTED"));
-        this.useSystemProperties = config.getBoolean("use-system-properties", true);
+        this.allowExperimentalOptions = config.getBoolean("allow-experimental-options");
+        this.sandboxPolicy = SandboxPolicy.valueOf(config.getString("sandbox-policy"));
+        this.useSystemProperties = config.getBoolean("use-system-properties");
         this.options = new HashMap<>();
         for (String option : config.getStringList("options")) {
             String[] optionParts = option.split(",");
