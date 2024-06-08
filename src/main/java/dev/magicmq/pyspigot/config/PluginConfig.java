@@ -19,6 +19,8 @@ package dev.magicmq.pyspigot.config;
 import dev.magicmq.pyspigot.PySpigot;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -31,6 +33,8 @@ public class PluginConfig {
     private static FileConfiguration config;
 
     private static DateTimeFormatter logTimestamp;
+    private static Engine.Builder engineBuilder;
+    private static Context.Builder contextBuilder;
 
     static {
         reload();
@@ -40,6 +44,18 @@ public class PluginConfig {
         config = PySpigot.get().getConfig();
 
         logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format", "MMM dd yyyy HH:mm:ss"));
+
+        if (config.contains("engine-options")) {
+            engineBuilder = new EngineOptions(config.getConfigurationSection("engine-options")).getAsBuilder();
+        } else {
+            engineBuilder = new EngineOptions().getAsBuilder();
+        }
+
+        if (config.contains("context-options")) {
+            contextBuilder = new ContextOptions(config.getConfigurationSection("context-options")).getAsBuilder();
+        } else {
+            contextBuilder = new ContextOptions().getAsBuilder();
+        }
     }
 
     public static boolean getMetricsEnabled() {
@@ -77,6 +93,14 @@ public class PluginConfig {
 
     public static boolean doVerboseRedisLogging() {
         return config.getBoolean("verbose-redis-logging", true);
+    }
+
+    public static Engine.Builder getEngineBuilder() {
+        return engineBuilder;
+    }
+
+    public static Context.Builder getContextBuilder() {
+        return contextBuilder;
     }
 
     public static boolean shouldPrintStackTraces() {

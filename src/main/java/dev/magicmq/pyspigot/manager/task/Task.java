@@ -19,7 +19,8 @@ package dev.magicmq.pyspigot.manager.task;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.python.core.*;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Value;
 
 import java.util.Arrays;
 
@@ -29,7 +30,7 @@ import java.util.Arrays;
 public class Task extends BukkitRunnable {
 
     protected final Script script;
-    protected final PyFunction function;
+    protected final Value function;
     protected final Object[] functionArgs;
     protected final boolean async;
     protected final long delay;
@@ -42,12 +43,12 @@ public class Task extends BukkitRunnable {
      * @param async True if the task is asynchronous, false if otherwise
      * @param delay The delay, in ticks, to wait until running the task
      */
-    public Task(Script script, PyFunction function, Object[] functionArgs, boolean async, long delay) {
+    public Task(Script script, Value function, Object[] functionArgs, boolean async, long delay) {
         this.script = script;
         this.function = function;
 
         if (functionArgs != null) {
-            int numOfFunctionArgs = ((PyBaseCode) function.__code__).co_argcount;
+            int numOfFunctionArgs = function.getContext().eval("python", "import pyspigot;pyspigot.get_function_args").execute(function).asInt();
             if (numOfFunctionArgs < functionArgs.length)
                 functionArgs = Arrays.copyOf(functionArgs, numOfFunctionArgs);
             this.functionArgs = functionArgs;
@@ -65,12 +66,11 @@ public class Task extends BukkitRunnable {
     public void run() {
         try {
             if (functionArgs != null) {
-                PyObject[] pyObjects = Py.javas2pys(functionArgs);
-                function.__call__(pyObjects);
+                function.executeVoid(functionArgs);
             } else {
-                function.__call__();
+                function.executeVoid();
             }
-        } catch (PyException e) {
+        } catch (PolyglotException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + getTaskId());
         } finally {
             TaskManager.get().taskFinished(this);

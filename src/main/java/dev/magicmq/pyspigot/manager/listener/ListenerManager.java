@@ -18,12 +18,13 @@ package dev.magicmq.pyspigot.manager.listener;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
-import org.python.core.PyFunction;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -52,7 +53,7 @@ public class ListenerManager {
      * @param eventClass The type of event to listen to
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass) {
+    public ScriptEventListener registerListener(Value function, Class<? extends Event> eventClass) {
         return registerListener(function, eventClass, EventPriority.NORMAL, false);
     }
 
@@ -65,7 +66,7 @@ public class ListenerManager {
      * @param priority The priority of the event relative to other listeners
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority) {
+    public ScriptEventListener registerListener(Value function, Class<? extends Event> eventClass, EventPriority priority) {
         return registerListener(function, eventClass, priority, false);
     }
 
@@ -78,7 +79,7 @@ public class ListenerManager {
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
+    public ScriptEventListener registerListener(Value function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
         return registerListener(function, eventClass, EventPriority.NORMAL, ignoreCancelled);
     }
 
@@ -92,10 +93,13 @@ public class ListenerManager {
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
      * @return The ScriptEventListener that was registered
      */
-    public ScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public ScriptEventListener registerListener(Value function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         ScriptEventListener listener = getEventListener(script, eventClass);
         if (listener == null) {
+            if (!function.canExecute())
+                throw new RuntimeException("Event function must be a function (callable)");
+
             listener = new ScriptEventListener(script, function, eventClass);
             Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, listener.getEventExecutor(), PySpigot.get(), ignoreCancelled);
             addListener(listener);

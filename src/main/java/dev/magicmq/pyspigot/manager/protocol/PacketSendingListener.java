@@ -20,7 +20,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketEvent;
 import dev.magicmq.pyspigot.manager.script.Script;
-import org.python.core.PyFunction;
+import org.graalvm.polyglot.Value;
 
 /**
  * A listener that listens for packets sent by the server to the client.
@@ -36,7 +36,7 @@ public class PacketSendingListener extends ScriptPacketListener {
      * @param listenerPriority The {@link com.comphenix.protocol.events.ListenerPriority} of this listener
      * @param listenerType The {@link ListenerType} of this listener
      */
-    public PacketSendingListener(Script script, PyFunction function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {
+    public PacketSendingListener(Script script, Value function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {
         super(script, function, packetType, listenerPriority, listenerType);
     }
 

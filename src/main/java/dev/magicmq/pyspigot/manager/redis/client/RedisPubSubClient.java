@@ -22,7 +22,7 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import org.python.core.PyFunction;
+import org.graalvm.polyglot.Value;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -72,12 +72,12 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * Register a new synchronous listener.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
-     * @see RedisPubSubClient#registerSyncListener(PyFunction, String)
+     * @see RedisPubSubClient#registerSyncListener(Value, String)
      * @param function The function that should be called when a message on the specified channel is received
      * @param channel The channel to listen on
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
      */
-    public ScriptPubSubListener registerListener(PyFunction function, String channel) {
+    public ScriptPubSubListener registerListener(Value function, String channel) {
         return registerSyncListener(function, channel);
     }
 
@@ -89,7 +89,10 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * @param channel The channel to listen on
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
      */
-    public ScriptPubSubListener registerSyncListener(PyFunction function, String channel) {
+    public ScriptPubSubListener registerSyncListener(Value function, String channel) {
+        if (!function.canExecute())
+            throw new RuntimeException("Listener function must be a function (callable)");
+
         ScriptPubSubListener listener = new ScriptPubSubListener(function, channel);
         connection.addListener(listener);
         connection.sync().subscribe(channel);
@@ -107,7 +110,10 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * @param channel The channel to listen on
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
      */
-    public ScriptPubSubListener registerAsyncListener(PyFunction function, String channel) {
+    public ScriptPubSubListener registerAsyncListener(Value function, String channel) {
+        if (!function.canExecute())
+            throw new RuntimeException("Listener function must be a function (callable)");
+
         ScriptPubSubListener listener = new ScriptPubSubListener(function, channel);
         connection.addListener(listener);
         connection.async().subscribe(channel);

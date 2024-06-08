@@ -21,11 +21,12 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.python.core.PyFunction;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +79,7 @@ public class ProtocolManager {
      * @param type The packet type to listen for
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
-    public ScriptPacketListener registerPacketListener(PyFunction function, PacketType type) {
+    public ScriptPacketListener registerPacketListener(Value function, PacketType type) {
         return registerPacketListener(function, type, ListenerPriority.NORMAL);
     }
 
@@ -93,9 +94,12 @@ public class ProtocolManager {
      * @param priority The priority of the packet listener relative to other packet listeners
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
-    public ScriptPacketListener registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public ScriptPacketListener registerPacketListener(Value function, PacketType type, ListenerPriority priority) {
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         if (getPacketListener(script, type) == null) {
+            if (!function.canExecute())
+                throw new RuntimeException("Listener function must be a function (callable)");
+
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
                 listener = new PacketReceivingListener(script, function, type, priority, ListenerType.NORMAL);

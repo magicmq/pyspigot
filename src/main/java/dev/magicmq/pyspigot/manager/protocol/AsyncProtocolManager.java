@@ -22,8 +22,9 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.ListenerPriority;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
-import org.python.core.PyFunction;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class AsyncProtocolManager {
      * @param type The packet type to listen for
      * @return A {@link ScriptPacketListener} representing the asynchronous packet listener that was registered
      */
-    public ScriptPacketListener registerAsyncPacketListener(PyFunction function, PacketType type) {
+    public ScriptPacketListener registerAsyncPacketListener(Value function, PacketType type) {
         return registerAsyncPacketListener(function, type, ListenerPriority.NORMAL);
     }
 
@@ -76,9 +77,12 @@ public class AsyncProtocolManager {
      * @param priority The priority of the asynchronous packet listener relative to other packet listeners
      * @return A {@link ScriptPacketListener} representing the asynchronous packet listener that was registered
      */
-    public ScriptPacketListener registerAsyncPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public ScriptPacketListener registerAsyncPacketListener(Value function, PacketType type, ListenerPriority priority) {
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         if (getAsyncPacketListener(script, type) == null) {
+            if (!function.canExecute())
+                throw new RuntimeException("Listener function must be a function (callable)");
+
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
                 listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
@@ -106,7 +110,7 @@ public class AsyncProtocolManager {
      * @param type The packet type to listen for
      * @return A {@link ScriptPacketListener} representing the asynchronous timeout packet listener that was registered
      */
-    public ScriptPacketListener registerTimeoutPacketListener(PyFunction function, PacketType type) {
+    public ScriptPacketListener registerTimeoutPacketListener(Value function, PacketType type) {
         return registerTimeoutPacketListener(function, type, ListenerPriority.NORMAL);
     }
 
@@ -122,9 +126,12 @@ public class AsyncProtocolManager {
      * @return A {@link ScriptPacketListener} representing the asynchronous timeout packet listener that was registered
      *
      */
-    public ScriptPacketListener registerTimeoutPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public ScriptPacketListener registerTimeoutPacketListener(Value function, PacketType type, ListenerPriority priority) {
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         if (getAsyncPacketListener(script, type) == null) {
+            if (!function.canExecute())
+                throw new RuntimeException("Listener function must be a function (callable)");
+
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
                 listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_TIMEOUT);

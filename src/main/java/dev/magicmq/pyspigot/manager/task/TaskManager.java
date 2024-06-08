@@ -18,8 +18,9 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
-import org.python.core.PyFunction;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,8 +47,11 @@ public class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public synchronized int runTask(PyFunction function, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public synchronized int runTask(Value function, Object... functionArgs) {
+        if (!function.canExecute())
+            throw new RuntimeException("Task function must be a function (callable)");
+
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         Task task = new Task(script, function, functionArgs, false, 0);
         addTask(task);
         task.runTask(PySpigot.get());
@@ -62,8 +66,11 @@ public class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public synchronized int runTaskAsync(PyFunction function, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public synchronized int runTaskAsync(Value function, Object... functionArgs) {
+        if (!function.canExecute())
+            throw new RuntimeException("Task function must be a function (callable)");
+
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         Task task = new Task(script, function, functionArgs, true, 0);
         addTask(task);
         task.runTaskAsynchronously(PySpigot.get());
@@ -79,8 +86,11 @@ public class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public synchronized int runTaskLater(PyFunction function, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public synchronized int runTaskLater(Value function, long delay, Object... functionArgs) {
+        if (!function.canExecute())
+            throw new RuntimeException("Task function must be a function (callable)");
+
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         Task task = new Task(script, function, functionArgs, false, delay);
         addTask(task);
         task.runTaskLater(PySpigot.get(), delay);
@@ -96,8 +106,11 @@ public class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public synchronized int runTaskLaterAsync(PyFunction function, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public synchronized int runTaskLaterAsync(Value function, long delay, Object... functionArgs) {
+        if (!function.canExecute())
+            throw new RuntimeException("Task function must be a function (callable)");
+
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         Task task = new Task(script, function, functionArgs, true, delay);
         addTask(task);
         task.runTaskLaterAsynchronously(PySpigot.get(), delay);
@@ -114,8 +127,11 @@ public class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public synchronized int scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public synchronized int scheduleRepeatingTask(Value function, long delay, long interval, Object... functionArgs) {
+        if (!function.canExecute())
+            throw new RuntimeException("Task function must be a function (callable)");
+
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         Task task = new RepeatingTask(script, function, functionArgs, false, delay, interval);
         addTask(task);
         task.runTaskTimer(PySpigot.get(), delay, interval);
@@ -132,8 +148,11 @@ public class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public synchronized int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public synchronized int scheduleAsyncRepeatingTask(Value function, long delay, long interval, Object... functionArgs) {
+        if (!function.canExecute())
+            throw new RuntimeException("Task function must be a function (callable)");
+
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         Task task = new RepeatingTask(script, function, functionArgs, true, delay, interval);
         addTask(task);
         task.runTaskTimerAsynchronously(PySpigot.get(), delay, interval);
@@ -149,8 +168,11 @@ public class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public synchronized int runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public synchronized int runSyncCallbackTask(Value function, Value callback, Object... functionArgs) {
+        if (!function.canExecute())
+            throw new RuntimeException("Task function must be a function (callable)");
+
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         Task task = new SyncCallbackTask(script, function, callback, functionArgs, 0);
         addTask(task);
         task.runTaskAsynchronously(PySpigot.get());
@@ -167,8 +189,14 @@ public class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public synchronized int runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public synchronized int runSyncCallbackTaskLater(Value function, Value callback, long delay, Object... functionArgs) {
+        if (!function.canExecute())
+            throw new RuntimeException("Task function must be a function (callable)");
+
+        if (!callback.canExecute())
+            throw new RuntimeException("Callback function must be a function (callable)");
+
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         Task task = new SyncCallbackTask(script, function, callback, functionArgs, delay);
         addTask(task);
         task.runTaskLaterAsynchronously(PySpigot.get(), delay);

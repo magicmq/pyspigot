@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.config.ScriptOptions;
 import dev.magicmq.pyspigot.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.event.ScriptUnloadEvent;
@@ -31,10 +32,9 @@ import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.ScriptSorter;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
-import org.python.core.*;
+import org.graalvm.polyglot.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 /**
  * Master manager class for PySpigot. Contains all logic to load, unload, and reload scripts.
  * <p>
- * Internally, utilizes Jython's {@link org.python.util.PythonInterpreter} to run scripts.
+ * Internally, utilizes Graal's Polyglot API via a {@link org.graalvm.polyglot.Context} to run scripts. This manager class also creates an {@link org.graalvm.polyglot.Engine} when the plugin loads that is used to build contexts.
  * @see Script
  */
 public class ScriptManager {
@@ -53,12 +53,16 @@ public class ScriptManager {
 
     private final File scriptsFolder;
     private final HashMap<String, Script> scripts;
+    private final HashMap<Context, Script> scriptContexts;
+    private final Engine engine;
 
     private BukkitTask startScriptTask;
 
     private ScriptManager() {
         scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         this.scripts = new HashMap<>();
+        this.scriptContexts = new HashMap<>();
+        this.engine = PluginConfig.getEngineBuilder().build();
 
         if (PluginConfig.getScriptLoadDelay() > 0L)
             startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getScriptLoadDelay());
@@ -75,7 +79,7 @@ public class ScriptManager {
 
         unloadScripts();
 
-        Py.getSystemState().close();
+        engine.close(true);
     }
 
     /**
@@ -193,15 +197,49 @@ public class ScriptManager {
         if (PluginConfig.doScriptActionLogging())
             PySpigot.get().getLogger().log(Level.INFO, "Loading script '" + script.getName() + "'");
 
+        script.prepare(engine);
+
         scripts.put(script.getName(), script);
+        scriptContexts.put(script.getContext(), script);
 
-        script.prepare();
-        try (FileInputStream scriptFileReader = new FileInputStream(script.getFile())) {
-            script.getInterpreter().execfile(scriptFileReader, script.getName());
+        try {
+            Source source = Source.newBuilder("python", script.getFile()).name(script.getName()).build();
 
-            PyObject start = script.getInterpreter().get("start");
-            if (start instanceof PyFunction)
-                start.__call__();
+            try {
+                script.getContext().parse(source);
+            } catch (PolyglotException e) {
+                if (e.isSyntaxError()) {
+                    handleScriptException(script, e, "Syntax/indentation error");
+                    script.getLogger().log(Level.SEVERE, "Script unloaded due to a syntax/indentation error.");
+                } else {
+                    script.getLogger().log(Level.SEVERE, "Script unloaded due to an error.");
+                }
+
+                unloadScript(script, true);
+                return RunResult.FAIL_ERROR;
+            }
+
+            try {
+                script.getContext().enter();
+
+                script.getContext().eval(source);
+
+                Value start = script.getContext().getBindings("python").getMember("start");
+                if (start != null && start.canExecute())
+                    start.executeVoid();
+
+                script.getContext().leave();
+            } catch (PolyglotException e) {
+                handleScriptException(script, e, "Runtime error");
+                if (e.isGuestException()) {
+                    script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error that originated in the script.");
+                } else {
+                    script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error that originated in Java.");
+                }
+
+                unloadScript(script, true);
+                return RunResult.FAIL_ERROR;
+            }
 
             ScriptLoadEvent eventLoad = new ScriptLoadEvent(script);
             Bukkit.getPluginManager().callEvent(eventLoad);
@@ -210,18 +248,9 @@ public class ScriptManager {
                 PySpigot.get().getLogger().log(Level.INFO, "Loaded script '" + script.getName() + "'");
 
             return RunResult.SUCCESS;
-        } catch (PySyntaxError | PyIndentationError e) {
-            handleScriptException(script, e, "Syntax/indentation error");
-            script.getLogger().log(Level.SEVERE, "Script unloaded due to a syntax/indentation error.");
-            unloadScript(script, true);
-            return RunResult.FAIL_ERROR;
-        } catch (PyException e) {
-            handleScriptException(script, e, "Runtime error");
-            script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
-            unloadScript(script, true);
-            return RunResult.FAIL_ERROR;
         } catch (IOException e) {
             scripts.remove(script.getName());
+            scriptContexts.remove(script.getContext());
             script.close();
             throw e;
         }
@@ -240,6 +269,7 @@ public class ScriptManager {
                 PySpigot.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
         }
         scripts.clear();
+        scriptContexts.clear();
     }
 
     /**
@@ -262,6 +292,7 @@ public class ScriptManager {
         Bukkit.getPluginManager().callEvent(event);
 
         scripts.remove(script.getName());
+        scriptContexts.remove(script.getContext());
 
         boolean gracefulStop = stopScript(script, error);
 
@@ -272,41 +303,32 @@ public class ScriptManager {
     }
 
     /**
-     * Handles script errors/exceptions, particularly for script logging purposes. Will also attempt to get the traceback of the {@link org.python.core.PyException} that was thrown and print it (if it exists).
+     * Handles script errors/exceptions, particularly for script logging purposes. Will also print the python traceback associated with the exception (if the exception originated from a script's code).
      * <p>
-     * <b>Note:</b> This method will always run synchronously. If it is called from an asynchronous context, it will run inside a synchronous task.
+     * <b>Note:</b> This method may run asynchronously, if the exception was thrown in an asynchronous context (I.E. during an asynchronous task).
      * @param script The script that threw the error
-     * @param exception The PyException that was thrown
+     * @param exception The PolyglotException that was thrown
      * @param message The message associated with the exception
      */
-    public void handleScriptException(Script script, PyException exception, String message) {
+    public void handleScriptException(Script script, PolyglotException exception, String message) {
         ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception, !Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
+
+        if (exception.isInterrupted())
+            return;
+
         if (event.doReportException()) {
-            String toLog = "";
-            toLog += message + ": ";
+            script.getLogger().log(Level.SEVERE, message + ": ");
 
-            if (exception.getCause() != null) {
-                Throwable cause = exception.getCause();
-                toLog += cause;
-
-                if (cause.getCause() != null) {
-                    Throwable causeOfCause = cause.getCause();
-                    toLog += "\n" + "Caused by: " + causeOfCause;
-                }
-            } else {
-                toLog += exception.getMessage();
+            if (exception.getGuestObject() != null) {
+                Value guestObject = exception.getGuestObject();
+                script.getContext().eval("python", "import traceback;traceback.print_exception").executeVoid(guestObject);
             }
 
-            if (exception.traceback != null) {
-                toLog += "\n\n" + exception.traceback.dumpStack();
+            if (exception.isHostException()) {
+                script.getLogger().log(Level.SEVERE, exception.getMessage(), exception);
             }
-
-            script.getLogger().log(Level.SEVERE, toLog);
         }
-
-        if (PluginConfig.shouldPrintStackTraces())
-            exception.printStackTrace();
     }
 
     /**
@@ -328,6 +350,15 @@ public class ScriptManager {
     }
 
     /**
+     * Gets a script from its {@link org.graalvm.polyglot.Context}. Primarily used for resolving scripts that call PySpigot methods.
+     * @param context The context that was entered previously (I.E. method call from a script)
+     * @return The script associated with the context
+     */
+    public Script getScript(Context context) {
+        return scriptContexts.get(context);
+    }
+
+    /**
      * Get all loaded scripts.
      * @return An immutable set containing all loaded and running scripts
      */
@@ -341,6 +372,14 @@ public class ScriptManager {
      */
     public Set<String> getLoadedScriptNames() {
         return new HashSet<>(scripts.keySet());
+    }
+
+    /**
+     * Get the engine used for running script contexts. The engine is initialized on plugin load.
+     * @return The engine
+     */
+    public Engine getEngine() {
+        return engine;
     }
 
     /**
@@ -362,14 +401,17 @@ public class ScriptManager {
     private boolean stopScript(Script script, boolean error) {
         boolean gracefulStop = true;
         if (!error) {
-            PyObject stop = script.getInterpreter().get("stop");
-            if (stop instanceof PyFunction) {
-                try {
-                    stop.__call__();
-                } catch (PyException e) {
-                    handleScriptException(script, e, "Error when calling stop function");
-                    gracefulStop = false;
+            try {
+                Value stop = script.getContext().getBindings("python").getMember("stop");
+                if (stop != null && stop.canExecute())
+                    stop.executeVoid();
+            } catch (PolyglotException e) {
+                if (e.isGuestException()) {
+                    script.getLogger().log(Level.SEVERE, "Runtime error occurred that originated in the script when calling stop function.");
+                } else {
+                    script.getLogger().log(Level.SEVERE, "Runtime error occurred that originated in Java when calling stop function.");
                 }
+                gracefulStop = false;
             }
         }
 

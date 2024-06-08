@@ -6,22 +6,13 @@
 # PySpigot
 PySpigot is a [Spigot/Bukkit](https://www.spigotmc.org/) plugin that can load, compile, and run Python scripts. These scripts can make use of Java standard libraries, as well as the Bukkit/Spigot API and APIs of any other loaded plugins.
 
-PySpigot utilizes [Jython](https://www.jython.org/), a Java implementation of Python that runs entirely on the JVM.
+PySpigot utilizes [GraalPython](https://www.graalvm.org/python/) for Java-Python interoperability. More specifically, PySpigot uses a special version of GraalPyython that is designed to be embedded into other Java applications. Click [here](https://www.graalvm.org/latest/reference-manual/python/standalone-applications/) for more information on that. Under the hood, the embedded version of GraalPy uses [Truffle](https://github.com/oracle/graal/tree/master/truffle) and the [Sulong LLVM Runtime](https://github.com/oracle/graal/tree/master/sulong).
 
-## A Note About Jython
+## A Note About GraalPy and Jython
 
-The major drawback of Jython is that it currently only supports Python 2. Work towards a Python 3 implementation is currently ongoing over at [Jython's GitHub repository](https://github.com/jython/jython).
+Prior to version 0.7.0, PySpigot relied on [Jython](https://www.jython.org/) for Java-Python interoperability. I ultimately made the decision to switch to GraalPy because GraalPy offers mostly the same features and similar advantages (over other frameworks) as Jython. Additionally, GraalPy supports Python 3 syntax and libraries, and it is much faster than Jython (although in the embedded context on the standard JVM (not GraalSDK) the difference in speed may be less significant). GraalPy is also being actively maintained and developed by several contributors and has a growing community, which means that bugs will continue to receive updates, new features will be released, and so on.
 
-Regarding different avenues, other Python-Java interop projects support Python 3. One such example is [Py4J](https://www.py4j.org/), which is more akin to a "network bridge" between the Python and Java runtimes rather than a true Python implementation. Although it supports Python 3, Py4J would be incredibly difficult to implement as a scripting engine for Bukkit, as it relies heavily on time-consuming I/O operations and Callbacks, which would make the Minecraft server quite unstable. Additionally, Py4J would require a CPython installation (regular Python) on the same machine, a rather difficult requirement to fulfill when working within a containerized Minecraft instance (such as Pterodactyl, shared hosting providers, etc.).
-
-When I began this project, I looked at using several libraries, Py4J included. I came to the conclusion that, although Jython only supports Python 2, it has several key advantages over other libraries in this specific use case, including:
-
-- It runs entirely on the JVM, making it very easy to interface with Python code from the Java side.
-- It runs entirely on the JVM, which gives all Python code direct access to the entire Java classpath at runtime. Ergo, Python code has full access to Java code and vice versa.
-- It does not require any external Python installation to work. Drag and drop PySpigot into your plugins folder, and you're good to go.
-- And finally, it is reasonably fast (fast enough for Minecraft's standards), given that, again, it runs entirely on the JVM.
-
-Thus, for the foreseeable future, PySpigot will continue to utilize Jython.
+The major drawback of Jython is that it currently only supports Python 2. Work towards a Python 3 implementation is currently ongoing over at [Jython's GitHub repository](https://github.com/jython/jython). It's also quite slow, but in the context of Minecraft (and in the embedded context, as discussed above), this matters less.
 
 ## Features
 

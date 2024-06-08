@@ -19,7 +19,7 @@ package dev.magicmq.pyspigot.manager.listener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
-import org.python.core.PyFunction;
+import org.graalvm.polyglot.Value;
 
 /**
  * A dummy listener object that represents all events a script is currently listening to.
@@ -28,7 +28,7 @@ import org.python.core.PyFunction;
 public class ScriptEventListener implements Listener {
 
     private final Script script;
-    private final PyFunction listenerFunction;
+    private final Value listenerFunction;
     private final Class<? extends Event> event;
     private final ScriptEventExecutor eventExecutor;
 
@@ -38,7 +38,7 @@ public class ScriptEventListener implements Listener {
      * @param listenerFunction The script function that should be called when the event occurs
      * @param event The Bukkit event associated with this listener. Should be a {@link Class} of the Bukkit event
      */
-    public ScriptEventListener(Script script, PyFunction listenerFunction, Class<? extends Event> event) {
+    public ScriptEventListener(Script script, Value listenerFunction, Class<? extends Event> event) {
         this.script = script;
         this.listenerFunction = listenerFunction;
         this.event = event;
@@ -57,7 +57,7 @@ public class ScriptEventListener implements Listener {
      * Get the script function that should be called when the event occurs.
      * @return The script function that should be called when the event occurs
      */
-    public PyFunction getListenerFunction() {
+    public Value getListenerFunction() {
         return listenerFunction;
     }
 

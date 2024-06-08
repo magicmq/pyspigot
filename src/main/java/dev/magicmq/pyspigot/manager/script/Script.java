@@ -17,10 +17,12 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PySpigot;
+import dev.magicmq.pyspigot.config.ScriptOptions;
+import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.util.logging.PrintStreamWrapper;
 import dev.magicmq.pyspigot.util.logging.ScriptLogger;
-import dev.magicmq.pyspigot.util.ScriptUtils;
-import org.python.util.PythonInterpreter;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +37,7 @@ public class Script {
     private final String name;
     private final ScriptOptions options;
 
-    private PythonInterpreter interpreter;
+    private Context context;
     private ScriptLogger logger;
     private long loadTime;
 
@@ -53,11 +55,21 @@ public class Script {
 
     /**
      * Prepares this script for execution by initializing its interpreter and logger. Called just prior to executing the script's code.
+     * @param engine The engine that should be used to build the context that runs the script.
      */
-    public void prepare() {
-        this.interpreter = new PythonInterpreter(null, ScriptUtils.initPySystemState());
-        this.interpreter.setOut(new PrintStreamWrapper(System.out, this, Level.INFO, "[STDOUT]"));
-        this.interpreter.setErr(new PrintStreamWrapper(System.err, this, Level.SEVERE, "[STDERR]"));
+    public void prepare(Engine engine) {
+        Context.Builder builder = options.getContextBuilder();
+
+        builder.hostClassLoader(LibraryManager.get().getClassLoader());
+
+        builder.out(new PrintStreamWrapper(System.out, this, Level.INFO, "[STDOUT]"));
+        builder.err(new PrintStreamWrapper(System.err, this, Level.SEVERE, ""));
+
+        builder.option("python.PythonPath", "./plugins/PySpigot/python-libs/");
+
+        builder.engine(engine);
+
+        this.context = builder.build();
 
         this.logger = new ScriptLogger(this);
         this.logger.setLevel(options.getMinLoggingLevel());
@@ -68,7 +80,7 @@ public class Script {
                 PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing log file for script " + name, e);
             }
         }
-        interpreter.set("logger", logger);
+        context.getBindings("python").putMember("logger", this.logger);
 
         loadTime = System.currentTimeMillis();
     }
@@ -77,7 +89,7 @@ public class Script {
      * Closes this script's file logger and interpreter. Called when a script is unloaded/stopped.
      */
     public void close() {
-        interpreter.close();
+        context.close(true);
 
         if (options.isFileLoggingEnabled())
             logger.closeFileHandler();
@@ -116,11 +128,11 @@ public class Script {
     }
 
     /**
-     * Get the {@link org.python.util.PythonInterpreter} associated wtih this script.
-     * @return The {@link org.python.util.PythonInterpreter} associated with this script
+     * Get the {@link org.graalvm.polyglot.Context} associated wtih this script.
+     * @return The {@link org.graalvm.polyglot.Context} associated with this script
      */
-    public PythonInterpreter getInterpreter() {
-        return interpreter;
+    public Context getContext() {
+        return context;
     }
 
     /**

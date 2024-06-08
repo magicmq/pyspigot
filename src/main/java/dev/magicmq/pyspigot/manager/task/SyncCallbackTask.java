@@ -20,7 +20,8 @@ import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.python.core.*;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Value;
 
 import java.util.logging.Level;
 
@@ -29,7 +30,7 @@ import java.util.logging.Level;
  */
 public class SyncCallbackTask extends Task {
 
-    private final PyFunction callbackFunction;
+    private final Value callbackFunction;
 
     private Callback callback;
 
@@ -40,7 +41,7 @@ public class SyncCallbackTask extends Task {
      * @param callbackFunction The script function that should be called for the synchronous callback
      * @param functionArgs Any arguments that should be passed to the function
      */
-    public SyncCallbackTask(Script script, PyFunction function, PyFunction callbackFunction, Object[] functionArgs, long delay) {
+    public SyncCallbackTask(Script script, Value function, Value callbackFunction, Object[] functionArgs, long delay) {
         super(script, function, functionArgs, true, delay);
         this.callbackFunction = callbackFunction;
     }
@@ -51,12 +52,11 @@ public class SyncCallbackTask extends Task {
     @Override
     public void run() {
         try {
-            PyObject outcome;
+            Value outcome;
             if (functionArgs != null) {
-                PyObject[] pyObjects = Py.javas2pys(functionArgs);
-                outcome = function.__call__(pyObjects);
+                outcome = function.execute(functionArgs);
             } else {
-                outcome = function.__call__();
+                outcome = function.execute();
             }
 
             callback = new Callback(this, outcome);
@@ -69,7 +69,7 @@ public class SyncCallbackTask extends Task {
                     e.printStackTrace();
                 }
             }
-        } catch (PyException e) {
+        } catch (PolyglotException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + getTaskId());
         } finally {
             TaskManager.get().taskFinished(this);
@@ -94,14 +94,14 @@ public class SyncCallbackTask extends Task {
     private static class Callback extends BukkitRunnable {
 
         private final SyncCallbackTask task;
-        private final PyObject outcome;
+        private final Value outcome;
 
         /**
          *
          * @param task The asynchronous portion of the task
          * @param outcome The value(s) returned from the function called during the asynchronous portion of the task
          */
-        private Callback(SyncCallbackTask task, PyObject outcome) {
+        private Callback(SyncCallbackTask task, Value outcome) {
             this.task = task;
             this.outcome = outcome;
         }
@@ -112,11 +112,11 @@ public class SyncCallbackTask extends Task {
         @Override
         public void run() {
             try {
-                if (outcome instanceof PyNone)
-                    task.callbackFunction.__call__();
+                if (outcome.isNull())
+                    task.callbackFunction.executeVoid();
                 else
-                    task.callbackFunction.__call__(outcome);
-            } catch (PyException e) {
+                    task.callbackFunction.executeVoid(outcome);
+            } catch (PolyglotException e) {
                 ScriptManager.get().handleScriptException(task.script, e, "Error when executing task #" + getTaskId());
             } finally {
                 synchronized (task) {

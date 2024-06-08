@@ -18,10 +18,8 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Value;
 
 /**
  * Represents a repeating task defined by a script.
@@ -39,7 +37,7 @@ public class RepeatingTask extends Task {
      * @param delay The delay, in ticks, to wait until running the task
      * @param interval The interval, in ticks, between each repeat of the task
      */
-    public RepeatingTask(Script script, PyFunction function, Object[] functionArgs, boolean async, long delay, long interval) {
+    public RepeatingTask(Script script, Value function, Object[] functionArgs, boolean async, long delay, long interval) {
         super(script, function, functionArgs, async, delay);
         this.interval = interval;
     }
@@ -51,12 +49,11 @@ public class RepeatingTask extends Task {
     public void run() {
         try {
             if (functionArgs != null) {
-                PyObject[] pyObjects = Py.javas2pys(functionArgs);
-                function.__call__(pyObjects);
+                function.executeVoid(functionArgs);
             } else {
-                function.__call__();
+                function.executeVoid();
             }
-        } catch (PyException e) {
+        } catch (PolyglotException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + getTaskId());
         }
     }

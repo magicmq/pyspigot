@@ -18,36 +18,36 @@ package dev.magicmq.pyspigot.event;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.bukkit.event.HandlerList;
-import org.python.core.PyException;
+import org.graalvm.polyglot.PolyglotException;
 
 /**
  * Called when a script throws an unhandled error/exception. This event could be called asynchronously if the exception occurred in an asynchronous context. To check if the event is asynchronous, call {@link org.bukkit.event.Event#isAsynchronous()}
  * <p>
- * The exception will be a {@link org.python.core.PyException}, which will include Java exceptions thrown by calls to Java code from scripts. Use {@link org.python.core.PyException#getCause} to determine if there was an underlying Java exception.
+ * The exception will be a {@link org.graalvm.polyglot.PolyglotException}, which will include both exceptions that originate from script code and exceptions that originate from PySpigot Java code. Use {@link org.graalvm.polyglot.PolyglotException#isHostException()} or {@link org.graalvm.polyglot.PolyglotException#isGuestException()} to determine if the exception originated from a script or from Java.
  */
 public class ScriptExceptionEvent extends ScriptEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    private final PyException exception;
+    private final PolyglotException exception;
     private boolean reportException;
 
     /**
      *
      * @param script The script that caused the error/exception
-     * @param exception The {@link org.python.core.PyException} that was thrown
+     * @param exception The {@link org.graalvm.polyglot.PolyglotException} that was thrown
      * @param async Whether the exception occurred in an asychronous context
      */
-    public ScriptExceptionEvent(Script script, PyException exception, boolean async) {
+    public ScriptExceptionEvent(Script script, PolyglotException exception, boolean async) {
         super(script, async);
         this.exception = exception;
         this.reportException = true;
     }
 
     /**
-     * Get the {@link org.python.core.PyException} that was thrown.
-     * @return The {@link org.python.core.PyException} that was thrown
+     * Get the {@link org.graalvm.polyglot.PolyglotException} that was thrown.
+     * @return The {@link org.graalvm.polyglot.PolyglotException} that was thrown
      */
-    public PyException getException() {
+    public PolyglotException getException() {
         return exception;
     }
 

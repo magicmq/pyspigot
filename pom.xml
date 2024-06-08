@@ -26,9 +26,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.python</groupId>
-            <artifactId>jython-standalone</artifactId>
-            <version>2.7.3</version>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>python-community</artifactId>
+            <version>24.0.0</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.python</groupId>
+            <artifactId>python-embedding</artifactId>
+            <version>24.0.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -120,68 +126,44 @@
                     <finalName>${project.artifactId}-${project.version}</finalName>
                     <relocations>
                         <relocation>
-                            <pattern>com.google</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.com.google</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>io.netty</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.io.netty</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.apache</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.org.apache</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.objectweb</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.org.objectweb</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>me.lucko</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.me.lucko</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.bstats</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.org.bstats</shadedPattern>
+                            <pattern>com.mongodb</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.com.mongodb</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.zaxxer</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.libs.com.zaxxer</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.mongodb</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.com.mongodb</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>io.lettuce</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.libs.io.lettuce</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.kenai</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.com.kenai</shadedPattern>
+                            <pattern>io.netty</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.io.netty</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.xhaus</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.com.xhaus</shadedPattern>
+                            <pattern>me.lucko</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.me.lucko</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.ziclix</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.com.ziclix</shadedPattern>
+                            <pattern>org.bouncycastle</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.bouncycastle</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bson</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.libs.org.bson</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>org.fusesource</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.org.fusesource</shadedPattern>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.objectweb</pattern>
+                            <shadedPattern>dev.magicmq.pyspigot.libs.org.objectweb</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.reactivestreams</pattern>
                             <shadedPattern>dev.magicmq.pyspigot.libs.org.reactivestreams</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.w3c</pattern>
-                            <shadedPattern>dev.magicmq.pyspigot.libs.org.w3c</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>reactor</pattern>
@@ -192,14 +174,15 @@
                         <filter>
                             <artifact>*:*</artifact>
                             <excludes>
-                                <exclude>module-info.class</exclude>
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
-                                <exclude>images/ant_logo_large.gif</exclude>
                             </excludes>
                         </filter>
                     </filters>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                    </transformers>
                 </configuration>
             </plugin>
             <plugin>

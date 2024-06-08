@@ -6,7 +6,8 @@ import com.zaxxer.hikari.HikariConfig;
 import dev.magicmq.pyspigot.manager.database.mongo.MongoDatabase;
 import dev.magicmq.pyspigot.manager.database.sql.SqlDatabase;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.graalvm.polyglot.Context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,7 +108,7 @@ public class DatabaseManager {
      * @return An {@link SqlDatabase} object representing an open connection to the database
      */
     public SqlDatabase connectSql(HikariConfig hikariConfig) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
 
         SqlDatabase connection = new SqlDatabase(script, hikariConfig);
 
@@ -201,7 +202,7 @@ public class DatabaseManager {
      * @return An {@link MongoDatabase} object representing an open connection to the database
      */
     public MongoDatabase connectMongo(MongoClientSettings clientSettings) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
 
         MongoDatabase connection = new MongoDatabase(script, clientSettings);
 

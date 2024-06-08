@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.CommandAliasHelpTopic;
+import dev.magicmq.pyspigot.util.TypeLiterals;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -28,7 +29,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.help.*;
 import org.bukkit.plugin.Plugin;
-import org.python.core.*;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Value;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -47,8 +49,8 @@ import java.util.logging.Level;
 public class ScriptCommand implements TabExecutor {
 
     private final Script script;
-    private final PyFunction commandFunction;
-    private final PyFunction tabFunction;
+    private final Value commandFunction;
+    private final Value tabFunction;
     private final String name;
     private final PluginCommand bukkitCommand;
 
@@ -66,7 +68,7 @@ public class ScriptCommand implements TabExecutor {
      * @param permission The required permission node to use this command. Can be null
      * @param permissionMessage The message do display if there is insufficient permission to run the command. Can be null
      */
-    public ScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
+    public ScriptCommand(Script script, Value commandFunction, Value tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
         this.script = script;
         this.commandFunction = commandFunction;
         this.tabFunction = tabFunction;
@@ -93,13 +95,12 @@ public class ScriptCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         try {
-            PyObject[] parameters = Py.javas2pys(sender, label, args);
-            PyObject result = commandFunction.__call__(parameters[0], parameters[1], parameters[2]);
-            if (result instanceof PyBoolean)
-                return ((PyBoolean) result).getBooleanValue();
+            Value result = commandFunction.execute(sender, label, args);
+            if (result.isBoolean())
+                return result.asBoolean();
             else
-                script.getLogger().log(Level.SEVERE, "Script command function '" + commandFunction.__name__ + "' should return a boolean!");
-        } catch (PyException exception) {
+                script.getLogger().log(Level.SEVERE, "Script command function '" + commandFunction + "' should return a boolean!");
+        } catch (PolyglotException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + label + "'");
             //Mimic Bukkit behavior
             sender.sendMessage(ChatColor.RED + "An internal error occurred while attempting to perform this command");
@@ -111,22 +112,14 @@ public class ScriptCommand implements TabExecutor {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
         if (tabFunction != null) {
             try {
-                PyObject[] parameters = Py.javas2pys(sender, alias, args);
-                PyObject result = tabFunction.__call__(parameters[0], parameters[1], parameters[2]);
-                if (result instanceof PyList) {
-                    PyList pyList = (PyList) result;
-                    ArrayList<String> toReturn = new ArrayList<>();
-                    for (Object object : pyList) {
-                        if (object instanceof String)
-                            toReturn.add((String) object);
-                        else {
-                            script.getLogger().log(Level.SEVERE, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str!");
-                            return Collections.emptyList();
-                        }
-                    }
-                    return toReturn;
+                Value result = tabFunction.execute(sender, alias, args);
+                try {
+                    return result.as(TypeLiterals.STRING_LIST);
+                } catch (ClassCastException e) {
+                    script.getLogger().log(Level.SEVERE, "Script tab complete function '" + tabFunction + "' should return a list of str!");
+                    return Collections.emptyList();
                 }
-            } catch (PyException exception) {
+            } catch (PolyglotException exception) {
                 ScriptManager.get().handleScriptException(script, exception,  "Unhandled exception when tab completing command '" + bukkitCommand.getLabel() + "'");
             }
         }

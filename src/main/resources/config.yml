@@ -14,6 +14,44 @@ log-timestamp-format: 'MMM dd yyyy HH:mm:ss'
 script-action-logging: true
 # If true, will log all redis events to the console and to a script's logger. If false, will only log
 verbose-redis-logging: true
+# The options for the underlying GraalVM engine that runs the scripts. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/Engine.Builder.html
+engine-options:
+  # Must be set to true if using the 'python.EmulateJython' option for the engine.
+  allow-experimental-options: true
+  # The sandbox policy for scripts. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/SandboxPolicy.html
+  sandbox-policy: 'TRUSTED'
+  # If true, the engine will use system-defined properties
+  use-system-properties: true
+  # Miscellaneous options that the engine should use. Defined as <option>,<value>. The option defined here suppresses a trivial warning message displayed on plugin load
+  options:
+    - 'engine.WarnInterpreterOnly,false'
+# The default context options that should be used for scripts. These can be overridden by defining script-specific context options in the script-options.yml file. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/Context.Builder.html
+context-options:
+  # The default value for all privileges
+  allow-all-access: true
+  # If true, allows scripts to execute external processes
+  allow-create-process: true
+  # If true, allows scripts to create new threads
+  allow-create-thread: true
+  # INHERIT allows scripts read access to the process environment, NONE does not allow scripts access to the process environment. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/EnvironmentAccess.html.
+  environment-access-policy: 'INHERIT'
+  # Must be set to true if using the 'python.EmulateJython' option for the context.
+  allow-experimental-options: true
+  # Configures which constructors, methods, and fields of classes are accessible by scripts. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/HostAccess.html.
+  host-access-policy: 'ALL'
+  # Allows a script's context to spawn inner contexts that may change option values set for the outer context.
+  allow-inner-context-options: true
+  # ALL allows scripts to access host I/O, NONE does not allow I/O access. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/io/IOAccess.html.
+  io-access-policy: 'ALL'
+  # Allows scripts to access the native interface.
+  allow-native-access: true
+  # If true, allows for value sharing between scripts.
+  allow-value-sharing: true
+  # Miscellaneous options that the script's context should use. Defined as <option>,<value>. The option defined here emulates Jython for backwards compatibility.
+  options:
+    - 'python.EmulateJython,true'
+  # The sandbox policy for the script's context. For more information, see https://www.graalvm.org/sdk/javadoc/org/graalvm/polyglot/SandboxPolicy.html
+  sandbox-policy: 'TRUSTED'
 # Advanced debug options for scripts
 debug-options:
   # If true, will print stack traces for all script-related exceptions to the server console

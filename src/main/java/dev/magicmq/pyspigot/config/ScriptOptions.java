@@ -14,10 +14,10 @@
  *    limitations under the License.
  */
 
-package dev.magicmq.pyspigot.manager.script;
+package dev.magicmq.pyspigot.config;
 
-import dev.magicmq.pyspigot.config.PluginConfig;
 import org.bukkit.configuration.ConfigurationSection;
+import org.graalvm.polyglot.Context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +32,7 @@ public class ScriptOptions {
     private final List<String> depend;
     private final boolean fileLoggingEnabled;
     private final Level minLoggingLevel;
+    private final Context.Builder contextBuilder;
 
     /**
      * Initialize a new ScriptOptions using values from the provided ConfigurationSection. If this constructor is passed a null value for the config parameter, then the default script options will be used.
@@ -43,11 +44,16 @@ public class ScriptOptions {
             this.depend = config.getStringList("depend");
             this.fileLoggingEnabled = config.getBoolean("file-logging-enabled", PluginConfig.doLogToFile());
             this.minLoggingLevel = Level.parse(config.getString("min-logging-level", PluginConfig.getLogLevel()));
+            if (config.contains("context-options"))
+                this.contextBuilder = new ContextOptions(config.getConfigurationSection("context-options")).getAsBuilder();
+            else
+                this.contextBuilder = PluginConfig.getContextBuilder();
         } else {
             this.enabled = true;
             this.depend = new ArrayList<>();
             this.fileLoggingEnabled = PluginConfig.doLogToFile();
             this.minLoggingLevel = Level.parse(PluginConfig.getLogLevel());
+            this.contextBuilder = PluginConfig.getContextBuilder();
         }
     }
 
@@ -81,6 +87,10 @@ public class ScriptOptions {
      */
     public Level getMinLoggingLevel() {
         return minLoggingLevel;
+    }
+
+    public Context.Builder getContextBuilder() {
+        return contextBuilder;
     }
 
     /**

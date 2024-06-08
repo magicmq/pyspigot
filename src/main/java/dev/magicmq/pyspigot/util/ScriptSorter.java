@@ -16,12 +16,13 @@
 
 package dev.magicmq.pyspigot.util;
 
+import dev.magicmq.pyspigot.config.ScriptOptions;
 import dev.magicmq.pyspigot.manager.script.Script;
 
 import java.util.*;
 
 /**
- * Utility class that places scripts into the proper loading order, taking into account dependencies. This class uses script dependencies as defined in {@link dev.magicmq.pyspigot.manager.script.ScriptOptions}.
+ * Utility class that places scripts into the proper loading order, taking into account dependencies. This class uses script dependencies as defined in {@link ScriptOptions}.
  * <p>
  * Under the hood, utilizes depth-first search algorithm to order scripts.
  */

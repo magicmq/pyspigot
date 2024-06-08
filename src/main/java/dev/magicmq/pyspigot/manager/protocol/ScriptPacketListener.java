@@ -23,10 +23,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Value;
 
 /**
  * An abstract class designed to represent a basic script packet listener.
@@ -35,7 +33,7 @@ import org.python.core.PyObject;
 public abstract class ScriptPacketListener extends PacketAdapter {
 
     private final Script script;
-    private final PyFunction function;
+    private final Value function;
     private final PacketType packetType;
     private final ListenerType listenerType;
 
@@ -47,7 +45,7 @@ public abstract class ScriptPacketListener extends PacketAdapter {
      * @param listenerPriority The {@link com.comphenix.protocol.events.ListenerPriority} of this listener
      * @param listenerType The {@link ListenerType} of this listener
      */
-    public ScriptPacketListener(Script script, PyFunction function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {
+    public ScriptPacketListener(Script script, Value function, PacketType packetType, ListenerPriority listenerPriority, ListenerType listenerType) {
         super(PySpigot.get(), listenerPriority, packetType);
         this.script = script;
         this.function = function;
@@ -67,7 +65,7 @@ public abstract class ScriptPacketListener extends PacketAdapter {
      * Get the function that should be called when the packet event occurs.
      * @return The function that should be called
      */
-    public PyFunction getFunction() {
+    public Value getFunction() {
         return function;
     }
 
@@ -93,9 +91,8 @@ public abstract class ScriptPacketListener extends PacketAdapter {
      */
     public void callToScript(PacketEvent event) {
         try {
-            PyObject parameter = Py.java2py(event);
-            function.__call__(parameter);
-        } catch (PyException exception) {
+            function.executeVoid(event);
+        } catch (PolyglotException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet listener");
         }
     }

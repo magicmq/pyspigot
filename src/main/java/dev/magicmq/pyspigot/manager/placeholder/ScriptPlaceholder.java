@@ -20,7 +20,8 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
-import org.python.core.*;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Value;
 
 /**
  * A class that represents a script placeholder expansion.
@@ -31,7 +32,7 @@ import org.python.core.*;
 public class ScriptPlaceholder extends PlaceholderExpansion {
 
     private final Script script;
-    private final PyFunction function;
+    private final Value function;
     private final String author;
     private final String version;
 
@@ -42,7 +43,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion {
      * @param author The author of this ScriptPlaceholder
      * @param version The version of this ScriptPlaceholder
      */
-    public ScriptPlaceholder(Script script, PyFunction function, String author, String version) {
+    public ScriptPlaceholder(Script script, Value function, String author, String version) {
         this.script = script;
         this.function = function;
         this.author = author;
@@ -104,12 +105,11 @@ public class ScriptPlaceholder extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, String params) {
         try {
-            PyObject[] parameters = Py.javas2pys(player, params);
-            PyObject result = function.__call__(parameters[0], parameters[1]);
-            if (result instanceof PyString) {
-                return ((PyString) result).getString();
+            Value result = function.execute(player, params);
+            if (result.isString()) {
+                return result.asString();
             }
-        } catch (PyException exception) {
+        } catch (PolyglotException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing placeholder '" + getIdentifier() + "'");
         }
         return null;

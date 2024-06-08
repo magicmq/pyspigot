@@ -18,12 +18,13 @@ package dev.magicmq.pyspigot.manager.command;
 
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ReflectionUtils;
-import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
-import org.python.core.PyFunction;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -69,7 +70,7 @@ public class CommandManager {
      * @param name The name of the command to register
      * @return A {@link ScriptCommand} representing the command that was registered
      */
-    public ScriptCommand registerCommand(PyFunction commandFunction, String name) {
+    public ScriptCommand registerCommand(Value commandFunction, String name) {
         return registerCommand(commandFunction, null, name, "/" + name, "", new ArrayList<>(), null, null);
     }
 
@@ -82,7 +83,7 @@ public class CommandManager {
      * @param name The name of the command to register
      * @return A {@link ScriptCommand} representing the command that was registered
      */
-    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
+    public ScriptCommand registerCommand(Value commandFunction, Value tabFunction, String name) {
         return registerCommand(commandFunction, tabFunction, name, "", "/" + name, new ArrayList<>(), null, null);
     }
 
@@ -96,7 +97,7 @@ public class CommandManager {
      * @param usage The usage message for the command
      * @return A {@link ScriptCommand} representing the command that was registered
      */
-    public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
+    public ScriptCommand registerCommand(Value commandFunction, String name, String description, String usage) {
         return registerCommand(commandFunction, null, name, description, usage, new ArrayList<>(), null, null);
     }
 
@@ -111,7 +112,7 @@ public class CommandManager {
      * @param usage The usage message for the command
      * @return A {@link ScriptCommand} representing the command that was registered
      */
-    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
+    public ScriptCommand registerCommand(Value commandFunction, Value tabFunction, String name, String description, String usage) {
         return registerCommand(commandFunction, tabFunction, name, description, usage, new ArrayList<>(), null, null);
     }
 
@@ -126,7 +127,7 @@ public class CommandManager {
      * @param aliases A List of String containing all the aliases for this command
      * @return A {@link ScriptCommand} representing the command that was registered
      */
-    public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
+    public ScriptCommand registerCommand(Value commandFunction, String name, String description, String usage, List<String> aliases) {
         return registerCommand(commandFunction, null, name, description, usage, aliases, null, null);
     }
 
@@ -142,7 +143,7 @@ public class CommandManager {
      * @param aliases A List of String containing all the aliases for this command
      * @return A {@link ScriptCommand} representing the command that was registered
      */
-    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
+    public ScriptCommand registerCommand(Value commandFunction, Value tabFunction, String name, String description, String usage, List<String> aliases) {
         return registerCommand(commandFunction, tabFunction, name, description, usage, aliases, null, null);
     }
 
@@ -160,10 +161,16 @@ public class CommandManager {
      * @param permissionMessage The message do display if there is insufficient permission to run the command. Can be null
      * @return A {@link ScriptCommand} representing the command that was registered
      */
-    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public ScriptCommand registerCommand(Value commandFunction, Value tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         ScriptCommand command = getCommand(script, name);
         if (command == null) {
+            if (!commandFunction.canExecute())
+                throw new RuntimeException("commandFunction must be a function (callable)");
+
+            if (tabFunction != null && !tabFunction.canExecute())
+                throw new RuntimeException("tabFunction must be a function (callable)");
+
             ScriptCommand newCommand = new ScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission, permissionMessage);
             if (!addCommandToBukkit(newCommand))
                 script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");

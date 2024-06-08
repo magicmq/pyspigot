@@ -100,3 +100,8 @@ plm = placeholder_manager()
 database = database_manager()
 
 redis = redis_manager()
+
+# Utility functions used internally by PySpigot
+
+def get_function_args(function):
+    return function.__code__.co_argcount

@@ -17,8 +17,9 @@
 package dev.magicmq.pyspigot.manager.placeholder;
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
-import org.python.core.PyFunction;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 
 import java.util.HashMap;
 
@@ -44,7 +45,7 @@ public class PlaceholderManager {
      * @param placeholderFunction The function that should be called when the placeholder is used
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
-    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction) {
+    public ScriptPlaceholder registerPlaceholder(Value placeholderFunction) {
         return registerPlaceholder(placeholderFunction, "Script Author", "1.0.0");
     }
 
@@ -57,9 +58,12 @@ public class PlaceholderManager {
      * @param version The version of the placeholder
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
-    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, String author, String version) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+    public ScriptPlaceholder registerPlaceholder(Value placeholderFunction, String author, String version) {
+        Script script = ScriptManager.get().getScript(Context.getCurrent());
         if (!registeredPlaceholders.containsKey(script)) {
+            if (!placeholderFunction.canExecute())
+                throw new RuntimeException("placeholderFunction must be a function (callable)");
+
             ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, author, version);
             placeholder.register();
             registeredPlaceholders.put(script, placeholder);
