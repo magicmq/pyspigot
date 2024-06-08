@@ -17,8 +17,10 @@
 package dev.magicmq.pyspigot.util;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -29,7 +31,8 @@ public final class ReflectionUtils {
     private static final String MC_VERSION;
 
     static {
-        MC_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+        String[] split = Bukkit.getServer().getClass().getPackage().getName().split("\\.");
+        MC_VERSION = split.length >= 4 ? split[3] : "";
     }
 
     private ReflectionUtils() {}
@@ -43,11 +46,19 @@ public final class ReflectionUtils {
     }
 
     public static Class<?> getCraftBukkitClass(String className) throws ClassNotFoundException {
-        return Class.forName("org.bukkit.craftbukkit." + MC_VERSION + "." + className);
+        try {
+            return Class.forName("org.bukkit.craftbukkit." + className);
+        } catch (ClassNotFoundException ignored) {
+            return Class.forName("org.bukkit.craftbukkit." + MC_VERSION + "." + className);
+        }
     }
 
     public static Class<?> getCraftBukkitClass(String packageName, String className) throws ClassNotFoundException {
-        return Class.forName("org.bukkit.craftbukkit." + MC_VERSION + "." + packageName + "." + className);
+        try {
+            return Class.forName("org.bukkit.craftbukkit." + packageName + "." + className);
+        } catch (ClassNotFoundException ignored) {
+            return Class.forName("org.bukkit.craftbukkit." + MC_VERSION + "." + packageName + "." + className);
+        }
     }
 
     public static Method getMethod(Class<?> clazz, String methodName) {
