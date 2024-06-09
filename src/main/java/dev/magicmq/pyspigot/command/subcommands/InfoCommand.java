@@ -33,13 +33,13 @@ import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.redis.client.ScriptRedisClient;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import dev.magicmq.pyspigot.manager.task.Task;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import java.io.FileNotFoundException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,14 +121,13 @@ public class InfoCommand implements SubCommand {
 
                     sender.sendMessage(builder.toString());
                 } else {
-                    try {
+                    ScriptOptions options = ScriptManager.get().getScriptOptions(args[0]);
+                    if (options != null) {
                         builder.append(ChatColor.GOLD + "Uptime: " + ChatColor.RESET + "Currently not loaded" + "\n");
 
-                        builder.append(ChatColor.GOLD + "Script options: " + ChatColor.RESET + ScriptManager.get().getScriptOptions(args[0]).toString());
+                        builder.append(ChatColor.GOLD + "Script options: " + ChatColor.RESET + options.toString());
 
                         sender.sendMessage(builder.toString());
-                    } catch (FileNotFoundException e) {
-                        sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
                     }
                 }
             } else {

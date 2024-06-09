@@ -23,7 +23,6 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +50,8 @@ public class LoadCommand implements SubCommand {
                             sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not run because it is disabled as per its options in script_options.yml.");
                         else if (result == RunResult.FAIL_ERROR)
                             sender.sendMessage(ChatColor.RED + "There was an error when running script '" + args[0] + "'. See console for details.");
-                    } catch (FileNotFoundException e) {
-                        sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
+                        else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
+                            sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
                     } catch (IOException e) {
                         e.printStackTrace();
                         sender.sendMessage(ChatColor.RED + "There was an error when loading script '" + args[0] + "'. See console for details.");

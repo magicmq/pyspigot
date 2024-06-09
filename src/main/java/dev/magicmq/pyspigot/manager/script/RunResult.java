@@ -44,6 +44,10 @@ public enum RunResult {
     /**
      * Returned if a script is already loaded with the same name.
      */
-    FAIL_DUPLICATE
+    FAIL_DUPLICATE,
 
+    /**
+     * Returned if a script was not found with the given name.
+     */
+    FAIL_SCRIPT_NOT_FOUND
 }
