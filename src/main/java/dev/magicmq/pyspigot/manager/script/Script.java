@@ -24,6 +24,7 @@ import org.python.util.PythonInterpreter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.logging.Level;
 
 /**
@@ -31,7 +32,7 @@ import java.util.logging.Level;
  */
 public class Script {
 
-    private final File file;
+    private final Path path;
     private final String name;
     private final ScriptOptions options;
 
@@ -40,14 +41,13 @@ public class Script {
     private long loadTime;
 
     /**
-     *
+     * @param path The path that corresponds to the file where the script lives
      * @param name The name of this script. Should contain its extension (.py)
-     * @param file The file where this script lives
      * @param options The {@link ScriptOptions} for this script
      */
-    public Script(String name, File file, ScriptOptions options) {
+    public Script(Path path, String name, ScriptOptions options) {
+        this.path = path;
         this.name = name;
-        this.file = file;
         this.options = options;
     }
 
@@ -88,7 +88,15 @@ public class Script {
      * @return The File associated with this script
      */
     public File getFile() {
-        return file;
+        return path.toFile();
+    }
+
+    /**
+     * Get the path corresponding to the script file.
+     * @return The path
+     */
+    public Path getPath() {
+        return path;
     }
 
     /**

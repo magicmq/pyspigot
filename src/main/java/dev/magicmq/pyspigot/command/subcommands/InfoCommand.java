@@ -40,6 +40,7 @@ import dev.magicmq.pyspigot.util.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,9 @@ public class InfoCommand implements SubCommand {
                 builder.append(ChatColor.GOLD.toString() + ChatColor.BOLD + ChatColor.UNDERLINE + "Information about " + args[0] + "\n");
                 if (ScriptManager.get().isScriptRunning(args[0])) {
                     Script script = ScriptManager.get().getScript(args[0]);
+
+                    Path relativePath = PySpigot.get().getDataFolderPath().relativize(script.getPath());
+                    builder.append(ChatColor.GOLD + "Location: " + ChatColor.RESET + relativePath + "\n");
 
                     Duration uptime = Duration.ofMillis(script.getUptime());
                     builder.append(ChatColor.GOLD + "Uptime: " + ChatColor.RESET + StringUtils.formatDuration(uptime) + "\n");
@@ -121,14 +125,19 @@ public class InfoCommand implements SubCommand {
 
                     sender.sendMessage(builder.toString());
                 } else {
-                    ScriptOptions options = ScriptManager.get().getScriptOptions(args[0]);
+                    Path scriptPath = ScriptManager.get().getScriptPath(args[0]);
+                    ScriptOptions options = ScriptManager.get().getScriptOptions(scriptPath);
                     if (options != null) {
+                        Path relativePath = PySpigot.get().getDataFolderPath().relativize(scriptPath);
+                        builder.append(ChatColor.GOLD + "Location: " + ChatColor.RESET + relativePath + "\n");
+
                         builder.append(ChatColor.GOLD + "Uptime: " + ChatColor.RESET + "Currently not loaded" + "\n");
 
                         builder.append(ChatColor.GOLD + "Script options: " + ChatColor.RESET + options.toString());
 
                         sender.sendMessage(builder.toString());
-                    }
+                    } else
+                        sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
                 }
             } else {
                 sender.sendMessage(ChatColor.RED + "Script names must end in .py.");

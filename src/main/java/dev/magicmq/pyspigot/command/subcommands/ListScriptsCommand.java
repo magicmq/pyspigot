@@ -16,12 +16,14 @@
 
 package dev.magicmq.pyspigot.command.subcommands;
 
+import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +57,7 @@ public class ListScriptsCommand implements SubCommand {
     }
 
     private List<String> getPage(int page) {
-        List<String> scripts = new ArrayList<>(ScriptManager.get().getAllScriptNames());
+        List<Path> scripts = new ArrayList<>(ScriptManager.get().getAllScriptPaths());
         int totalEntries = scripts.size();
         int pages = totalEntries / ENTRIES_PER_PAGE;
         int startIndex, endIndex;
@@ -72,11 +74,12 @@ public class ListScriptsCommand implements SubCommand {
         List<String> toReturn = new ArrayList<>();
         toReturn.add(ChatColor.YELLOW + "List of scripts, page " + page + " of " + (pages > 0 ? pages : 1) + " (" + scripts.size() + " total scripts)");
         for (int i = startIndex; i < endIndex; i++) {
-            String script = scripts.get(i);
-            if (ScriptManager.get().isScriptRunning(script))
-                toReturn.add(ChatColor.GREEN + script);
+            Path script = scripts.get(i);
+            String fileName = script.getFileName().toString();
+            if (ScriptManager.get().isScriptRunning(fileName))
+                toReturn.add(ChatColor.GREEN + fileName + " (" + PySpigot.get().getDataFolderPath().relativize(script) + ")");
             else
-                toReturn.add(ChatColor.RED + script);
+                toReturn.add(ChatColor.RED + fileName + " (" + PySpigot.get().getDataFolderPath().relativize(script) + ")");
         }
         toReturn.add(ChatColor.RED + "Red =" + ChatColor.YELLOW + " script unloaded, " + ChatColor.GREEN + "Green =" + ChatColor.YELLOW + " script loaded");
         return toReturn;

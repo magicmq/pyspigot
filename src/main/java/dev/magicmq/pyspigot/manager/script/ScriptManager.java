@@ -33,13 +33,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.python.core.*;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Master manager class for PySpigot. Contains all logic to load, unload, and reload scripts.
@@ -51,13 +52,13 @@ public class ScriptManager {
 
     private static ScriptManager manager;
 
-    private final File scriptsFolder;
+    private final Path scriptsFolder;
     private final HashMap<String, Script> scripts;
 
     private BukkitTask startScriptTask;
 
     private ScriptManager() {
-        scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
+        scriptsFolder = PySpigot.get().getDataFolderPath().resolve("scripts");
         this.scripts = new HashMap<>();
 
         if (PluginConfig.getScriptLoadDelay() > 0L)
@@ -84,16 +85,21 @@ public class ScriptManager {
     public void loadScripts() {
         PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
 
+        //Init file names and paths, screen duplicate names
+        HashMap<String, Path> scriptFiles = new HashMap<>();
+        for (Path path : getAllScriptPaths()) {
+            String fileName = path.getFileName().toString();
+            Path existing = scriptFiles.putIfAbsent(fileName, path);
+            if (existing != null)
+                PySpigot.get().getLogger().log(Level.WARNING, "Duplicate script file name '" + fileName + "' with path '" + PySpigot.get().getDataFolderPath().relativize(path) + "'. Conflicts with '" + PySpigot.get().getDataFolderPath().relativize(existing) + "'.");
+        }
+
         //Init scripts and parse options
         List<Script> toLoad = new ArrayList<>();
-        if (this.scriptsFolder.isDirectory()) {
-            for (File file : scriptsFolder.listFiles()) {
-                if (file.getName().endsWith(".py")) {
-                    ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(file.getName()));
-                    Script script = new Script(file.getName(), file, options);
-                    toLoad.add(script);
-                }
-            }
+        for (Map.Entry<String, Path> entry : scriptFiles.entrySet()) {
+            ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(entry.getKey()));
+            Script script = new Script(entry.getValue(), entry.getKey(), options);
+            toLoad.add(script);
         }
 
         //Check that all dependencies are available
@@ -103,7 +109,7 @@ public class ScriptManager {
             List<String> dependencies = script.getOptions().getDependencies();
             for (String dependency : dependencies) {
                 if (!scriptNames.contains(dependency)) {
-                    PySpigot.get().getLogger().log(Level.SEVERE, "Script '" + script.getName() + "' has an unknown dependency '" + dependency + "'. This script will not be loaded.");
+                    PySpigot.get().getLogger().log(Level.WARNING, "Script '" + script.getName() + "' has an unknown dependency '" + dependency + "'. This script will not be loaded.");
                     scriptIterator.remove();
                     scriptNames.remove(script.getName());
                     break;
@@ -120,7 +126,7 @@ public class ScriptManager {
             try {
                 loadScript(script);
             } catch (IOException e) {
-                PySpigot.get().getLogger().log(Level.SEVERE, "Error when interacting with script file for script '" + script.getName() + "': " + e.getMessage());
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when loading script '" + script.getName() + "': " + e.getMessage());
             }
         }
 
@@ -128,16 +134,26 @@ public class ScriptManager {
     }
 
     /**
-     * Get the {@link ScriptOptions} for a particular script.
+     * Get the {@link ScriptOptions} for a particular script from the script file name.
      * @param name The name of the script to fetch options for. Name should contain the file extension (.py)
-     * @return A ScriptOptions object representing the options beloinging to the specified script
+     * @return A ScriptOptions object representing the options beloinging to the script, or null if no script file was found that matched the given name
      */
     public ScriptOptions getScriptOptions(String name) {
-        File scriptFile = new File(scriptsFolder, name);
-        if (scriptFile.exists()) {
-            return new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(scriptFile.getName()));
+        Path scriptPath = getScriptPath(name);
+        return getScriptOptions(scriptPath);
+    }
+
+    /**
+     * Get the {@link ScriptOptions} for a particular script from the path pointing to the script file.
+     * @param path The path pointing to the script file to get script options for
+     * @return A ScriptOptions object representing the options beloinging to the script, or null if no script file was found that matched the given path
+     */
+    public ScriptOptions getScriptOptions(Path path) {
+        if (path != null) {
+            return new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(path.getFileName().toString()));
         } else
             return null;
+
     }
 
     /**
@@ -147,10 +163,21 @@ public class ScriptManager {
      * @throws IOException If there was an IOException related to loading the script file
      */
     public RunResult loadScript(String name) throws IOException {
-        File scriptFile = new File(scriptsFolder, name);
-        if (scriptFile.exists()) {
-            ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(scriptFile.getName()));
-            Script script = new Script(scriptFile.getName(), scriptFile, options);
+        Path scriptPath = getScriptPath(name);
+        return loadScript(scriptPath);
+    }
+
+    /**
+     * Load a script with the given path.
+     * @param path The absolute path pointing to the script file to load.
+     * @return A {@link RunResult} describing the outcome of the load operation
+     * @throws IOException If there was an IOException related to loading the script file
+     */
+    public RunResult loadScript(Path path) throws IOException {
+        if (path != null) {
+            String fileName = path.getFileName().toString();
+            ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(fileName));
+            Script script = new Script(path, fileName, options);
 
             return loadScript(script);
         } else
@@ -166,7 +193,7 @@ public class ScriptManager {
     public RunResult loadScript(Script script) throws IOException {
         //Check if another script is already running with the same name
         if (scripts.containsKey(script.getName())) {
-            PySpigot.get().getLogger().log(Level.SEVERE, "Attempted to load script '" + script.getName() + "', but there is already a loaded script with this name.");
+            PySpigot.get().getLogger().log(Level.WARNING, "Attempted to load script '" + script.getName() + "', but there is already a loaded script with this name.");
             return RunResult.FAIL_DUPLICATE;
         }
 
@@ -183,7 +210,7 @@ public class ScriptManager {
             }
         }
         if (!unresolvedDependencies.isEmpty()) {
-            PySpigot.get().getLogger().log(Level.SEVERE,  "The following dependencies for script '" + script.getName() + "' are not loaded: " + unresolvedDependencies + ". This script will not load.");
+            PySpigot.get().getLogger().log(Level.WARNING,  "The following dependencies for script '" + script.getName() + "' are not loaded: " + unresolvedDependencies + ". This script will not load.");
             return RunResult.FAIL_DEPENDENCY;
         }
 
@@ -316,6 +343,19 @@ public class ScriptManager {
     }
 
     /**
+     * Attempts to resolve the absolute path for a script in the scripts folder based on the file name by searching through the scripts folder. Subfolders are also searched. If there are multiple matching files in different subfolders, the first match will be returned.
+     * @param name The name of the script file to search for
+     * @return The absolute path of the matching file, or null if no matching file was found
+     */
+    public Path getScriptPath(String name) {
+        for (Path path : getAllScriptPaths()) {
+            if (path.getFileName().toString().equalsIgnoreCase(name))
+                return path;
+        }
+        return null;
+    }
+
+    /**
      * Get a {@link Script} object for a loaded and running script
      * @param name The name of the script to get. Name should contain the script file extension (.py)
      * @return The Script object for the script, null if no script is loaded and running with the given name
@@ -341,16 +381,39 @@ public class ScriptManager {
     }
 
     /**
-     * Get a set of all script files in the scripts folder.
-     * @return An immutable {@link java.util.SortedSet} of Strings containing all script files, sorted in alphabetical order
+     * Get a set of absolute paths corresponding to all script files in the scripts folder (including in subfolders).
+     * @return An immutable {@link java.util.SortedSet} of Paths representing the absolute paths of all script files
+     */
+    public SortedSet<Path> getAllScriptPaths() {
+        SortedSet<Path> scripts = new TreeSet<>();
+
+        if (Files.exists(scriptsFolder) && Files.isDirectory(scriptsFolder)) {
+            try (Stream<Path> stream = Files.walk(scriptsFolder)) {
+                stream.filter(Files::isRegularFile)
+                        .filter(path -> path.toString().endsWith(".py"))
+                        .forEach(scripts::add);
+            } catch (IOException e) {
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error fetching script files from scripts folder", e);
+            }
+        }
+        return scripts;
+    }
+
+    /**
+     * Get a set of file names corresponding to all script files in the scripts folder (including in subfolders). This only returns the names of the files, and does not include the subfolder.
+     * @return An immutable {@link java.util.SortedSet} of Strings representing the names of all script files (including in subfolders)
      */
     public SortedSet<String> getAllScriptNames() {
-        File scriptsFolder = new File(PySpigot.get().getDataFolder(), "scripts");
         SortedSet<String> scripts = new TreeSet<>();
-        if (scriptsFolder.isDirectory()) {
-            for (File file : scriptsFolder.listFiles()) {
-                if (file.getName().endsWith(".py"))
-                    scripts.add(file.getName());
+
+        if (Files.exists(scriptsFolder) && Files.isDirectory(scriptsFolder)) {
+            try (Stream<Path> stream = Files.walk(scriptsFolder)) {
+                stream.filter(Files::isRegularFile)
+                        .filter(path -> path.toString().endsWith(".py"))
+                        .map(path -> path.getFileName().toString())
+                        .forEach(scripts::add);
+            } catch (IOException e) {
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error fetching script files from scripts folder", e);
             }
         }
         return scripts;

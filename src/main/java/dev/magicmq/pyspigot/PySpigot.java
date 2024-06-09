@@ -45,6 +45,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.logging.Level;
 
@@ -96,6 +98,7 @@ public class PySpigot extends JavaPlugin {
      */
     public static RedisManager redis;
 
+    private Path dataFolderPath;
     private FileConfiguration scriptOptionsConfig;
     private Metrics metrics;
     private BukkitTask versionCheckTask;
@@ -104,6 +107,8 @@ public class PySpigot extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        dataFolderPath = Paths.get(getDataFolder().getAbsolutePath());
 
         initFolders();
         initHelperLib();
@@ -186,6 +191,14 @@ public class PySpigot extends JavaPlugin {
      */
     public ClassLoader getPluginClassLoader() {
         return this.getClassLoader();
+    }
+
+    /**
+     * Get the path of the data folder for PySpigot.
+     * @return A path representing the data folder
+     */
+    public Path getDataFolderPath() {
+        return dataFolderPath;
     }
 
     /**
@@ -276,7 +289,7 @@ public class PySpigot extends JavaPlugin {
         metrics = new Metrics(this, 18991);
 
         metrics.addCustomChart(new SimplePie("all_scripts", () -> {
-            int allScripts = ScriptManager.get().getAllScriptNames().size();
+            int allScripts = ScriptManager.get().getAllScriptPaths().size();
             return "" + allScripts;
         }));
 
