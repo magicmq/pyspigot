@@ -39,15 +39,15 @@ public class PluginConfig {
     public static void reload() {
         config = PySpigot.get().getConfig();
 
-        logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format", "MMM dd yyyy HH:mm:ss"));
+        logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format"));
     }
 
     public static boolean getMetricsEnabled() {
-        return config.getBoolean("metrics-enabled", true);
+        return config.getBoolean("metrics-enabled");
     }
 
     public static long getScriptLoadDelay() {
-        return config.getLong("script-load-delay", 20L);
+        return config.getLong("script-load-delay");
     }
 
     public static HashMap<String, String> getLibraryRelocations() {
@@ -60,11 +60,11 @@ public class PluginConfig {
     }
 
     public static boolean doLogToFile() {
-        return config.getBoolean("log-to-file", true);
+        return config.getBoolean("log-to-file");
     }
 
     public static String getLogLevel() {
-        return config.getString("min-log-level", "INFO");
+        return config.getString("min-log-level");
     }
 
     public static DateTimeFormatter getLogTimestamp() {
@@ -72,23 +72,23 @@ public class PluginConfig {
     }
 
     public static boolean doScriptActionLogging() {
-        return config.getBoolean("script-action-logging", true);
+        return config.getBoolean("script-action-logging");
     }
 
     public static boolean doVerboseRedisLogging() {
-        return config.getBoolean("verbose-redis-logging", true);
+        return config.getBoolean("verbose-redis-logging");
     }
 
     public static boolean shouldPrintStackTraces() {
-        return config.getBoolean("debug-options.print-stack-traces", false);
+        return config.getBoolean("debug-options.print-stack-traces");
     }
 
     public static boolean shouldSuppressUpdateMessages() {
-        return config.getBoolean("debug-options.suppress-update-messages", false);
+        return config.getBoolean("debug-options.suppress-update-messages");
     }
 
     public static boolean shouldUpdatePySpigotLib() {
-        return config.getBoolean("debug-options.auto-pyspigot-lib-update-enabled", true);
+        return config.getBoolean("debug-options.auto-pyspigot-lib-update-enabled");
     }
 
     public static String getMessage(String key, boolean withPrefix) {
