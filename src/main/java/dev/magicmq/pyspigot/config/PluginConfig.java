@@ -33,8 +33,8 @@ public class PluginConfig {
     private static FileConfiguration config;
 
     private static DateTimeFormatter logTimestamp;
-    private static Engine.Builder engineBuilder;
-    private static Context.Builder contextBuilder;
+    private static EngineOptions engineOptions;
+    private static ContextOptions contextOptions;
 
     static {
         reload();
@@ -46,15 +46,15 @@ public class PluginConfig {
         logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format", "MMM dd yyyy HH:mm:ss"));
 
         if (config.contains("engine-options")) {
-            engineBuilder = new EngineOptions(config.getConfigurationSection("engine-options")).getAsBuilder();
+            engineOptions = new EngineOptions(config.getConfigurationSection("engine-options"));
         } else {
-            engineBuilder = new EngineOptions().getAsBuilder();
+            engineOptions = new EngineOptions();
         }
 
         if (config.contains("context-options")) {
-            contextBuilder = new ContextOptions(config.getConfigurationSection("context-options")).getAsBuilder();
+            contextOptions = new ContextOptions(config.getConfigurationSection("context-options"));
         } else {
-            contextBuilder = new ContextOptions().getAsBuilder();
+            contextOptions = new ContextOptions();
         }
     }
 
@@ -96,11 +96,11 @@ public class PluginConfig {
     }
 
     public static Engine.Builder getEngineBuilder() {
-        return engineBuilder;
+        return engineOptions.getAsBuilder();
     }
 
     public static Context.Builder getContextBuilder() {
-        return contextBuilder;
+        return contextOptions.getAsBuilder();
     }
 
     public static boolean shouldPrintStackTraces() {

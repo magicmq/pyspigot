@@ -93,7 +93,7 @@ public class ContextOptions {
                 throw new IllegalArgumentException("Host access policy " + hostAccess + " was not found. Available options are ALL, CONSTRAINED, EXPLICIT, ISOLATED, NONE, SCOPED, or UNTRUSTED.");
         }
         this.allowInnerContextOptions = config.getBoolean("allow-inner-context-options");
-        String ioAccess = config.getString("io-access-policy", "ALL").toUpperCase();
+        String ioAccess = config.getString("io-access-policy").toUpperCase();
         switch (ioAccess) {
             case "ALL":
                 this.allowIOAccess = IOAccess.ALL;
@@ -128,7 +128,7 @@ public class ContextOptions {
         this.allowCreateProcess = true;
         this.allowCreateThread = true;
         this.allowEnvironmentAccess = EnvironmentAccess.INHERIT;
-        this.allowExperimentalOptions = false;
+        this.allowExperimentalOptions = true;
         this.allowHostAccess = HostAccess.ALL;
         this.allowInnerContextOptions = true;
         this.allowIOAccess = IOAccess.ALL;
@@ -137,6 +137,7 @@ public class ContextOptions {
         this.arguments = new String[]{};
         this.environmentVariables = new HashMap<>();
         this.options = new HashMap<>();
+        this.options.put("python.EmulateJython", "true");
         this.sandboxPolicy = SandboxPolicy.TRUSTED;
     }
 
@@ -145,7 +146,6 @@ public class ContextOptions {
      * @return The builder, with all options set as per this class
      */
     public Context.Builder getAsBuilder() {
-        System.out.println("Allow experimental options when building: " + allowExperimentalOptions);
         Context.Builder builder = Context.newBuilder();
         builder.allowAllAccess(allowAllAccess)
                 .allowCreateProcess(allowCreateProcess)

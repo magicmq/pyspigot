@@ -55,6 +55,7 @@ public class EngineOptions {
         this.sandboxPolicy = SandboxPolicy.TRUSTED;
         this.useSystemProperties = true;
         this.options = new HashMap<>();
+        this.options.put("engine.WarnInterpreterOnly", "false");
     }
 
     /**
