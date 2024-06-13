@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * A utility class that contains many {@link org.graalvm.polyglot.TypeLiteral} for type conversion of Polyglot {@link org.graalvm.polyglot.Value} for generic types.
  */
-public class TypeLiterals {
+public final class TypeLiterals {
 
     public static final TypeLiteral<List<String>> STRING_LIST = new TypeLiteral<>() {};
 
