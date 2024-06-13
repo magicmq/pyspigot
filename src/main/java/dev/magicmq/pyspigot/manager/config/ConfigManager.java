@@ -19,8 +19,11 @@ package dev.magicmq.pyspigot.manager.config;
 import dev.magicmq.pyspigot.PySpigot;
 import org.bukkit.configuration.InvalidConfigurationException;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Level;
 
 /**
  * Manager for scripts to interface with configuration files. Primarily used by scripts to load, write to, and save .yml files.
@@ -29,29 +32,47 @@ public class ConfigManager {
 
     private static ConfigManager manager;
 
-    private final File configFolder;
+    private final Path configFolder;
 
     private ConfigManager() {
-        configFolder = new File(PySpigot.get().getDataFolder(), "configs");
-        if (!configFolder.exists())
-            configFolder.mkdir();
+        configFolder = Paths.get(PySpigot.get().getDataFolder().getAbsolutePath(), "configs");
+        if (Files.notExists(configFolder)) {
+            try {
+                Files.createDirectory(configFolder);
+            } catch (IOException exception) {
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when creating configs folder for script config files", exception);
+            }
+        }
     }
 
     /**
-     * Load a config file with the given name.
+     * Check if a config file exists with the given path/name.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
-     * @param fileName The name of the config file to load
-     * @return A {@link ScriptConfig} representing the config file that was loaded
-     * @throws IOException If there was an IOException when loading the config
-     * @throws org.bukkit.configuration.InvalidConfigurationException If there was an InvalidConfigurationException when loading the config
+     * @param filePath The path of the config file to check, can be either the file name alone or a path (containing subfolders)
+     * @return True if the file exists, false if it does not
      */
-    public ScriptConfig loadConfig(String fileName) throws IOException, InvalidConfigurationException {
-        File configFile = new File(configFolder, fileName);
+    public boolean doesConfigExist(String filePath) {
+        Path configFile = configFolder.resolve(filePath);
+        return Files.exists(configFile);
+    }
 
-        configFile.createNewFile();
+    /**
+     * Load a config file with the given path/name. If the config file exists, it will load the existing file. If the config file does not exist, a new file will be created with the given path/name.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param filePath The path of the config file to load, can be either the file name alone or a path (containing subfolders)
+     * @return A {@link ScriptConfig} representing the config file that was loaded
+     * @throws IOException If there was an IOException when attempting to load the config
+     * @throws org.bukkit.configuration.InvalidConfigurationException If there was an error when parsing the loaded file (invalid configuration)
+     */
+    public ScriptConfig loadConfig(String filePath) throws IOException, InvalidConfigurationException {
+        Path configFile = configFolder.resolve(Paths.get(filePath));
 
-        return ScriptConfig.loadConfig(configFile);
+        if (Files.notExists(configFile))
+            Files.createFile(configFile);
+
+        return ScriptConfig.loadConfig(configFile.toFile());
     }
 
     /**
@@ -60,20 +81,33 @@ public class ConfigManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param config The {@link ScriptConfig} to reload
      * @return A new {@link ScriptConfig} representing the reloaded config file
-     * @throws IOException If there was an IOException when reloading the config
-     * @throws org.bukkit.configuration.InvalidConfigurationException If there was an InvalidConfigurationException when reloading the config
+     * @throws IOException If there was an IOException when attempting to reload the config
+     * @throws org.bukkit.configuration.InvalidConfigurationException If there was an error when parsing the loaded file (invalid configuration)
      */
     public ScriptConfig reloadConfig(ScriptConfig config) throws IOException, InvalidConfigurationException {
-        File configFile = new File(configFolder, config.getConfigFile().getName());
+        Path configFile = config.getConfigPath();
 
-        return ScriptConfig.loadConfig(configFile);
+        return ScriptConfig.loadConfig(configFile.toFile());
     }
 
     /**
-     * Get the folder where script config files are stored.
-     * @return The folder where script config files are stored
+     * Delete a config file with the given path/name.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param filePath The path of the config file to delete, can be either the file name alone or a path (containing subfolders)
+     * @return True if the file was deleted, false if the file could not be deleted because it does not exist
+     * @throws IOException If there was an IOException when attempting to delete the file
      */
-    public File getConfigFolder() {
+    public boolean deleteConfig(String filePath) throws IOException {
+        Path configFile = configFolder.resolve(Paths.get(filePath));
+        return Files.deleteIfExists(configFile);
+    }
+
+    /**
+     * Get the path of the folder where script config files are stored.
+     * @return The path of the folder where script config files are stored
+     */
+    public Path getConfigFolder() {
         return configFolder;
     }
 

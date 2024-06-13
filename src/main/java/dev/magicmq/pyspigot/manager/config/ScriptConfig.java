@@ -21,6 +21,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * A class representing a script configuration file.
@@ -44,6 +46,14 @@ public class ScriptConfig extends YamlConfiguration {
      */
     public File getConfigFile() {
         return configFile;
+    }
+
+    /**
+     * Get the absolute path of the file associated with this configuration.
+     * @return The path of the file
+     */
+    public Path getConfigPath() {
+        return Paths.get(configFile.getAbsolutePath());
     }
 
     /**
