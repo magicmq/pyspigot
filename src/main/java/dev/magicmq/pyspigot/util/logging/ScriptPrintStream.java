@@ -27,7 +27,7 @@ import java.util.logging.Level;
 /**
  * A wrapper class that captures print statements and errors/exceptions from scripts and redirects them to the script's logger.
  */
-public class PrintStreamWrapper extends PrintStream {
+public class ScriptPrintStream extends PrintStream {
 
     private final Script script;
     private final Level level;
@@ -40,7 +40,7 @@ public class PrintStreamWrapper extends PrintStream {
      * @param level The logging level, usually Level.INFO for stdout and Level.SEVERE for stderr
      * @param prefix The prefix to include before the log message, usually [STDOUT] for stdout and [STDERR] for stderr
      */
-    public PrintStreamWrapper(OutputStream out, Script script, Level level, String prefix) {
+    public ScriptPrintStream(OutputStream out, Script script, Level level, String prefix) {
         super(out);
         this.script = script;
         this.level = level;

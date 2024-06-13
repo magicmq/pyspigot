@@ -17,14 +17,18 @@
 package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.manager.playground.PlaygroundManager;
 import dev.magicmq.pyspigot.util.StringUtils;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
  * Main listener of the plugin. Used only for notifying if using an outdated version of the plugin on server join.
@@ -47,6 +51,22 @@ public class PluginListener implements Listener {
                     }, 10L);
                 }
             }
+        }
+    }
+
+    @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onChat(AsyncPlayerChatEvent event) {
+        Player player = event.getPlayer();
+        if (PlaygroundManager.get().isInPlayground(player)) {
+            event.setCancelled(true);
+            Bukkit.getScheduler().runTask(PySpigot.get(), () -> PlaygroundManager.get().evaluate(event.getPlayer(), event.getMessage()));
+        }
+    }
+
+    public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (PlaygroundManager.get().isInPlayground(player)) {
+            PlaygroundManager.get().exitPlayground(player);
         }
     }
 

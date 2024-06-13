@@ -19,7 +19,7 @@ package dev.magicmq.pyspigot.manager.script;
 import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.config.ScriptOptions;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
-import dev.magicmq.pyspigot.util.logging.PrintStreamWrapper;
+import dev.magicmq.pyspigot.util.logging.ScriptPrintStream;
 import dev.magicmq.pyspigot.util.logging.ScriptLogger;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -62,8 +62,8 @@ public class Script {
 
         builder.hostClassLoader(LibraryManager.get().getClassLoader());
 
-        builder.out(new PrintStreamWrapper(System.out, this, Level.INFO, "[STDOUT]"));
-        builder.err(new PrintStreamWrapper(System.err, this, Level.SEVERE, ""));
+        builder.out(new ScriptPrintStream(System.out, this, Level.INFO, "[STDOUT]"));
+        builder.err(new ScriptPrintStream(System.err, this, Level.SEVERE, ""));
 
         builder.option("python.PythonPath", "./plugins/PySpigot/python-libs/");
 

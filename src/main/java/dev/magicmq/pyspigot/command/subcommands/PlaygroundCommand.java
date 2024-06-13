@@ -16,31 +16,26 @@
 
 package dev.magicmq.pyspigot.command.subcommands;
 
-import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
-import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.playground.PlaygroundManager;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 @SubCommandMeta(
-        command = "reloadall",
-        aliases = {"reset"},
-        permission = "pyspigot.command.reloadall",
-        description = "Perform a complete reload of the plugin, including configs, libraries, and all scripts."
+        command = "playground",
+        aliases = {"pg", "pground", "editor", "console"},
+        permission = "pyspigot.command.playground",
+        description = "Opens an interactive Python interpreter that can be interacted with via the in-game chat or server console."
 )
-public class ReloadAllCommand implements SubCommand {
+public class PlaygroundCommand implements SubCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, String[] args) {
-        ScriptManager.get().unloadScripts();
-        PlaygroundManager.get().shutdown();
-        PySpigot.get().reload();
-        LibraryManager.get().reload();
-        ScriptManager.get().loadScripts();
-        sender.sendMessage(ChatColor.GREEN + "All scripts, plugin config, and script_options.yml have been reloaded.");
+        if (PlaygroundManager.get().isInPlayground(sender)) {
+            PlaygroundManager.get().exitPlayground(sender);
+        } else {
+            PlaygroundManager.get().enterPlayground(sender);
+        }
         return true;
     }
 }

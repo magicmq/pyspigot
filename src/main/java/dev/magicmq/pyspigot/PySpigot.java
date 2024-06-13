@@ -24,6 +24,7 @@ import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
+import dev.magicmq.pyspigot.manager.playground.PlaygroundManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.script.GlobalVariables;
@@ -161,6 +162,8 @@ public class PySpigot extends JavaPlugin {
     @Override
     public void onDisable() {
         ScriptManager.get().shutdown();
+
+        PlaygroundManager.get().shutdown();
 
         LibraryManager.get().shutdown();
 
