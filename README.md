@@ -6,7 +6,7 @@
 # PySpigot
 PySpigot is a [Spigot/Bukkit](https://www.spigotmc.org/) plugin that can load, compile, and run Python scripts. These scripts can make use of Java standard libraries, as well as the Bukkit/Spigot API and APIs of any other loaded plugins.
 
-PySpigot utilizes [GraalPython](https://www.graalvm.org/python/) for Java-Python interoperability. More specifically, PySpigot uses a special version of GraalPyython that is designed to be embedded into other Java applications. Click [here](https://www.graalvm.org/latest/reference-manual/python/standalone-applications/) for more information on that. Under the hood, the embedded version of GraalPy uses [Truffle](https://github.com/oracle/graal/tree/master/truffle) and the [Sulong LLVM Runtime](https://github.com/oracle/graal/tree/master/sulong).
+PySpigot utilizes [GraalPython](https://www.graalvm.org/python/) for Java-Python interoperability. More specifically, PySpigot uses a special version of GraalPyython that is designed to be embedded into other Java applications called [Polyglot](https://www.graalvm.org/latest/reference-manual/polyglot-programming/). Under the hood, Polyglot uses [Truffle](https://github.com/oracle/graal/tree/master/truffle) and the [Sulong LLVM Runtime](https://github.com/oracle/graal/tree/master/sulong).
 
 ## A Note About GraalPy and Jython
 
