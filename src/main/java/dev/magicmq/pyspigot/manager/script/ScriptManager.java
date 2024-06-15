@@ -221,6 +221,8 @@ public class ScriptManager {
 
         script.prepare();
         try (FileInputStream scriptFileReader = new FileInputStream(script.getFile())) {
+            script.initPermissions();
+
             script.getInterpreter().execfile(scriptFileReader, script.getName());
 
             PyObject start = script.getInterpreter().get("start");
@@ -432,6 +434,8 @@ public class ScriptManager {
                 }
             }
         }
+
+        script.removePermissions();
 
         ListenerManager.get().unregisterListeners(script);
         TaskManager.get().stopTasks(script);

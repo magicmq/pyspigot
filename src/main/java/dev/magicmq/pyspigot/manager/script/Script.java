@@ -20,6 +20,8 @@ import dev.magicmq.pyspigot.PySpigot;
 import dev.magicmq.pyspigot.util.logging.PrintStreamWrapper;
 import dev.magicmq.pyspigot.util.logging.ScriptLogger;
 import dev.magicmq.pyspigot.util.ScriptUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.permissions.Permission;
 import org.python.util.PythonInterpreter;
 
 import java.io.File;
@@ -81,6 +83,22 @@ public class Script {
 
         if (options.isFileLoggingEnabled())
             logger.closeFileHandler();
+    }
+
+    public void initPermissions() {
+        for (Permission permission : options.getPermissions()) {
+            try {
+                Bukkit.getPluginManager().addPermission(permission);
+            } catch (IllegalArgumentException exception) {
+                logger.log(Level.WARNING, "The permission '" + permission.getName() + "' is already defined by another plugin/script.");
+            }
+        }
+    }
+
+    public void removePermissions() {
+        for (Permission permission : options.getPermissions()) {
+            Bukkit.getPluginManager().removePermission(permission);
+        }
     }
 
     /**

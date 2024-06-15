@@ -18,9 +18,13 @@ package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.config.PluginConfig;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -32,6 +36,8 @@ public class ScriptOptions {
     private final List<String> depend;
     private final boolean fileLoggingEnabled;
     private final Level minLoggingLevel;
+    private final PermissionDefault defaultPermission;
+    private final List<Permission> permissions;
 
     /**
      * Initialize a new ScriptOptions using values from the provided ConfigurationSection. If this constructor is passed a null value for the config parameter, then the default script options will be used.
@@ -43,11 +49,15 @@ public class ScriptOptions {
             this.depend = config.getStringList("depend");
             this.fileLoggingEnabled = config.getBoolean("file-logging-enabled", PluginConfig.doLogToFile());
             this.minLoggingLevel = Level.parse(config.getString("min-logging-level", PluginConfig.getLogLevel()));
+            this.defaultPermission = PermissionDefault.getByName(config.getString("default-permission", "OP"));
+            this.permissions = Permission.loadPermissions((Map<?, ?>) config.get("permissions", new HashMap<>()), "Permission node '%s' in script_options.yml for " + config.getName() + " is invalid", defaultPermission);
         } else {
             this.enabled = true;
             this.depend = new ArrayList<>();
             this.fileLoggingEnabled = PluginConfig.doLogToFile();
             this.minLoggingLevel = Level.parse(PluginConfig.getLogLevel());
+            this.defaultPermission = PermissionDefault.OP;
+            this.permissions = new ArrayList<>();
         }
     }
 
@@ -81,6 +91,22 @@ public class ScriptOptions {
      */
     public Level getMinLoggingLevel() {
         return minLoggingLevel;
+    }
+
+    /**
+     * Get the default permissions for permissions defined for this script.
+     * @return The default permission level
+     */
+    public PermissionDefault getDefaultPermission() {
+        return defaultPermission;
+    }
+
+    /**
+     * Get a list of permissions defined for this script.
+     * @return A list of permissions. Will return an empty list if this script has no permissions defined
+     */
+    public List<Permission> getPermissions() {
+        return permissions;
     }
 
     /**
