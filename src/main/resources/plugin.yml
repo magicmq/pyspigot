@@ -3,7 +3,7 @@ version: ${project.version}
 author: magicmq
 main: dev.magicmq.pyspigot.PySpigot
 load: STARTUP
-api-version: '1.16'
+api-version: '1.13'
 softdepend: [ProtocolLib, PlaceholderAPI]
 commands:
   pyspigot:
