@@ -36,9 +36,9 @@ public class ConfigManager {
 
     private ConfigManager() {
         configFolder = Paths.get(PySpigot.get().getDataFolder().getAbsolutePath(), "configs");
-        if (Files.notExists(configFolder)) {
+        if (!Files.exists(configFolder)) {
             try {
-                Files.createDirectory(configFolder);
+                Files.createDirectories(configFolder);
             } catch (IOException exception) {
                 PySpigot.get().getLogger().log(Level.SEVERE, "Error when creating configs folder for script config files", exception);
             }
@@ -69,8 +69,10 @@ public class ConfigManager {
     public ScriptConfig loadConfig(String filePath) throws IOException, InvalidConfigurationException {
         Path configFile = configFolder.resolve(Paths.get(filePath));
 
-        if (Files.notExists(configFile))
+        if (!Files.exists(configFile)) {
+            Files.createDirectories(configFile.getParent());
             Files.createFile(configFile);
+        }
 
         return ScriptConfig.loadConfig(configFile.toFile());
     }
