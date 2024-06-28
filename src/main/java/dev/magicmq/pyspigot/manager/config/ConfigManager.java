@@ -46,7 +46,7 @@ public class ConfigManager {
     }
 
     /**
-     * Check if a config file exists with the given path/name.
+     * Check if a config file exists with the given path/name, relative to the {@code configs} folder.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param filePath The path of the config file to check, can be either the file name alone or a path (containing subfolders)
@@ -58,7 +58,7 @@ public class ConfigManager {
     }
 
     /**
-     * Load a config file with the given path/name. If the config file exists, it will load the existing file. If the config file does not exist, a new file will be created with the given path/name.
+     * Load a config file with the given path/name, relative to the {@code configs} folder. If the config file exists, it will load the existing file. If the config file does not exist, a new file will be created with the given path/name.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param filePath The path of the config file to load, can be either the file name alone or a path (containing subfolders)
@@ -96,7 +96,7 @@ public class ConfigManager {
      * Delete a config file with the given path/name.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
-     * @param filePath The path of the config file to delete, can be either the file name alone or a path (containing subfolders)
+     * @param filePath The path of the config file to delete, relative to the {@code configs} folder. Can be either the file name alone or a path (containing subfolders)
      * @return True if the file was deleted, false if the file could not be deleted because it does not exist
      * @throws IOException If there was an IOException when attempting to delete the file
      */
