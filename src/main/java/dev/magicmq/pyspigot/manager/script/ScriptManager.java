@@ -287,9 +287,9 @@ public class ScriptManager {
         ScriptUnloadEvent event = new ScriptUnloadEvent(script, error);
         Bukkit.getPluginManager().callEvent(event);
 
-        scripts.remove(script.getName());
-
         boolean gracefulStop = stopScript(script, error);
+
+        scripts.remove(script.getName());
 
         if (PluginConfig.doScriptActionLogging())
             PySpigot.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
