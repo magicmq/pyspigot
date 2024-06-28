@@ -32,9 +32,14 @@ public enum RunResult {
     FAIL_DISABLED,
 
     /**
-     * Returned if the script was not loaded because it has missing dependencies.
+     * Returned if the script was not loaded because it has one or more missing script dependencies.
      */
-    FAIL_DEPENDENCY,
+    FAIL_SCRIPT_DEPENDENCY,
+
+    /**
+     * Returned if the script was not loaded because it has one or more missing plugin dependencies.
+     */
+    FAIL_PLUGIN_DEPENDENCY,
 
     /**
      * Returned if the script was loaded but failed during runtime due to an error.

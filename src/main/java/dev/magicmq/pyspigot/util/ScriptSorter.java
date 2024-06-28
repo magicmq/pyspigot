@@ -59,7 +59,7 @@ public class ScriptSorter {
     private void dfs(Script script) {
         visited.add(script);
 
-        for (String dependency : script.getOptions().getDependencies()) {
+        for (String dependency : script.getOptions().getScriptDependencies()) {
             Script scriptDependency = scripts.get(dependency);
             if (!visited.contains(scriptDependency)) {
                 dfs(scriptDependency);

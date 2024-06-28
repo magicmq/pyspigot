@@ -106,10 +106,10 @@ public class ScriptManager {
         List<String> scriptNames = toLoad.stream().map(Script::getName).collect(Collectors.toList());
         for (Iterator<Script> scriptIterator = toLoad.iterator(); scriptIterator.hasNext();) {
             Script script = scriptIterator.next();
-            List<String> dependencies = script.getOptions().getDependencies();
+            List<String> dependencies = script.getOptions().getScriptDependencies();
             for (String dependency : dependencies) {
                 if (!scriptNames.contains(dependency)) {
-                    PySpigot.get().getLogger().log(Level.WARNING, "Script '" + script.getName() + "' has an unknown dependency '" + dependency + "'. This script will not be loaded.");
+                    PySpigot.get().getLogger().log(Level.WARNING, "Script '" + script.getName() + "' has an unknown script dependency '" + dependency + "'. This script will not be loaded.");
                     scriptIterator.remove();
                     scriptNames.remove(script.getName());
                     break;
@@ -202,16 +202,28 @@ public class ScriptManager {
             return RunResult.FAIL_DISABLED;
         }
 
-        //Check if the script's dependencies are all running
-        List<String> unresolvedDependencies = new ArrayList<>();
-        for (String dependency : script.getOptions().getDependencies()) {
-            if (getScript(dependency) == null) {
-                unresolvedDependencies.add(dependency);
+        //Check if the script's plugin depdendencies are all present on the server
+        List<String> unresolvedPluginDependencies = new ArrayList<>();
+        for (String dependency : script.getOptions().getPluginDependencies()) {
+            if (Bukkit.getPluginManager().getPlugin(dependency) == null) {
+                unresolvedPluginDependencies.add(dependency);
             }
         }
-        if (!unresolvedDependencies.isEmpty()) {
-            PySpigot.get().getLogger().log(Level.WARNING,  "The following dependencies for script '" + script.getName() + "' are not loaded: " + unresolvedDependencies + ". This script will not load.");
-            return RunResult.FAIL_DEPENDENCY;
+        if (!unresolvedPluginDependencies.isEmpty()) {
+            PySpigot.get().getLogger().log(Level.WARNING,  "The following plugin dependencies for script '" + script.getName() + "' are missing: " + unresolvedPluginDependencies + ". This script will not be loaded.");
+            return RunResult.FAIL_PLUGIN_DEPENDENCY;
+        }
+
+        //Check if the script's other script dependencies are all running
+        List<String> unresolvedScriptDependencies = new ArrayList<>();
+        for (String dependency : script.getOptions().getScriptDependencies()) {
+            if (getScript(dependency) == null) {
+                unresolvedScriptDependencies.add(dependency);
+            }
+        }
+        if (!unresolvedScriptDependencies.isEmpty()) {
+            PySpigot.get().getLogger().log(Level.WARNING,  "The following script dependencies for script '" + script.getName() + "' are missing: " + unresolvedScriptDependencies + ". This script will not be loaded.");
+            return RunResult.FAIL_SCRIPT_DEPENDENCY;
         }
 
         if (PluginConfig.doScriptActionLogging())

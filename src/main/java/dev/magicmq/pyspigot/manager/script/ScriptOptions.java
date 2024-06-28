@@ -33,7 +33,8 @@ import java.util.logging.Level;
 public class ScriptOptions {
 
     private final boolean enabled;
-    private final List<String> depend;
+    private final List<String> scriptDepend;
+    private final List<String> pluginDepend;
     private final boolean fileLoggingEnabled;
     private final Level minLoggingLevel;
     private final PermissionDefault defaultPermission;
@@ -46,14 +47,16 @@ public class ScriptOptions {
     public ScriptOptions(ConfigurationSection config) {
         if (config != null) {
             this.enabled = config.getBoolean("enabled", true);
-            this.depend = config.getStringList("depend");
+            this.scriptDepend = config.getStringList("depend");
+            this.pluginDepend = config.getStringList("plugin-depend");
             this.fileLoggingEnabled = config.getBoolean("file-logging-enabled", PluginConfig.doLogToFile());
             this.minLoggingLevel = Level.parse(config.getString("min-logging-level", PluginConfig.getLogLevel()));
             this.defaultPermission = PermissionDefault.getByName(config.getString("default-permission", "OP"));
             this.permissions = Permission.loadPermissions((Map<?, ?>) config.get("permissions", new HashMap<>()), "Permission node '%s' in script_options.yml for " + config.getName() + " is invalid", defaultPermission);
         } else {
             this.enabled = true;
-            this.depend = new ArrayList<>();
+            this.scriptDepend = new ArrayList<>();
+            this.pluginDepend = new ArrayList<>();
             this.fileLoggingEnabled = PluginConfig.doLogToFile();
             this.minLoggingLevel = Level.parse(PluginConfig.getLogLevel());
             this.defaultPermission = PermissionDefault.OP;
@@ -70,11 +73,19 @@ public class ScriptOptions {
     }
 
     /**
-     * Get a list of dependencies for this script.
-     * @return A list of dependencies for this script. Will return an empty list if this script has no dependencies
+     * Get a list of script dependencies for this script.
+     * @return A list of script dependencies for this script. Will return an empty list if this script has no script dependencies
      */
-    public List<String> getDependencies() {
-        return depend;
+    public List<String> getScriptDependencies() {
+        return scriptDepend;
+    }
+
+    /**
+     * Get a list of plugin dependencies for this script.
+     * @return A list of plugin dependencies for this script. Will return an empty list if this script has no plugin dependencies
+     */
+    public List<String> getPluginDependencies() {
+        return pluginDepend;
     }
 
     /**
@@ -115,6 +126,6 @@ public class ScriptOptions {
      */
     @Override
     public String toString() {
-        return String.format("ScriptOptions[Enabled: %b, Depend: %s, File Logging Enabled: %b, Minimum Logging Level: %s", enabled, depend, fileLoggingEnabled, minLoggingLevel);
+        return String.format("ScriptOptions[Enabled: %b, Depend: %s, File Logging Enabled: %b, Minimum Logging Level: %s", enabled, scriptDepend, fileLoggingEnabled, minLoggingLevel);
     }
 }
