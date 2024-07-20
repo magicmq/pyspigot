@@ -18,8 +18,8 @@ package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.util.StringUtils;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,9 +55,9 @@ public class PluginListener implements Listener {
         pluginPage.setColor(net.md_5.bungee.api.ChatColor.RED);
         pluginPage.setUnderlined(true);
         pluginPage.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://spigotmc.org/resources/pyspigot.111006/"));
-        pluginPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(net.md_5.bungee.api.ChatColor.GOLD + "Click to go to the PySpigot plugin page")));
+        pluginPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Click to go to the PySpigot plugin page"))));
 
-        ComponentBuilder builder = new ComponentBuilder();
+        ComponentBuilder builder = new ComponentBuilder("");
         builder.append("You're running an outdated version of PySpigot. The latest version is " + version + ". ").color(net.md_5.bungee.api.ChatColor.RED).append(pluginPage);
         return builder.create();
     }
