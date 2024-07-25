@@ -21,7 +21,6 @@ import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -48,27 +47,27 @@ public class HelpCommand implements SubCommand {
         documentation.setColor(ChatColor.AQUA);
         documentation.setUnderlined(true);
         documentation.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://pyspigot-docs.magicmq.dev"));
-        documentation.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GOLD + "Click to go to the documentation for PySpigot")));
+        documentation.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Click to go to the documentation for PySpigot"))));
 
         TextComponent pluginPage = new TextComponent("Spigot Plugin Page");
         pluginPage.setColor(ChatColor.AQUA);
         pluginPage.setUnderlined(true);
         pluginPage.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://spigotmc.org/resources/pyspigot.111006/"));
-        pluginPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GOLD + "Click to go to the PySpigot plugin page")));
+        pluginPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Click to go to the PySpigot plugin page"))));
 
         TextComponent discord = new TextComponent("PySpigot Discord");
         discord.setColor(ChatColor.AQUA);
         discord.setUnderlined(true);
         discord.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/f2u7nzRwuk"));
-        discord.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GOLD + "Click to join the PySpigot Discord server")));
+        discord.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Click to join the PySpigot Discord server"))));
 
         TextComponent github = new TextComponent("PySpigot GitHub Repo");
         github.setColor(ChatColor.AQUA);
         github.setUnderlined(true);
         github.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/magicmq/pyspigot/issues"));
-        github.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GOLD + "Click to go to the PySpigot GitHub Repo")));
+        github.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Click to go to the PySpigot GitHub Repo"))));
 
-        ComponentBuilder builder = new ComponentBuilder();
+        ComponentBuilder builder = new ComponentBuilder("");
         builder
                 .append("\n")
                 .appendLegacy(PluginConfig.getPrefix() + ChatColor.GREEN + "Some helpful links:").append("\n").reset()
