@@ -79,6 +79,10 @@ public class PluginConfig {
         return config.getBoolean("verbose-redis-logging");
     }
 
+    public static boolean doScriptUnloadOnPluginDisable() {
+        return config.getBoolean("script-unload-on-plugin-disable");
+    }
+
     public static boolean shouldPrintStackTraces() {
         return config.getBoolean("debug-options.print-stack-traces");
     }

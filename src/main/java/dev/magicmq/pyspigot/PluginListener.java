@@ -17,6 +17,8 @@
 package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.StringUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
@@ -25,11 +27,28 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.PluginDisableEvent;
+
+import java.util.logging.Level;
 
 /**
- * Main listener of the plugin. Used only for notifying if using an outdated version of the plugin on server join.
+ * Main listener of the plugin. Currently used to listen for plugin disable (to disable scripts that depend on a disabled plugin) and to listen for player join to send PySpigot update messages.
  */
 public class PluginListener implements Listener {
+
+    @EventHandler
+    public void onDisable(PluginDisableEvent event) {
+        if (PluginConfig.doScriptUnloadOnPluginDisable()) {
+            for (Script script : ScriptManager.get().getLoadedScripts()) {
+                for (String depend : script.getOptions().getPluginDependencies()) {
+                    if (event.getPlugin().getName().equals(depend)) {
+                        PySpigot.get().getLogger().log(Level.WARNING, "Unloading script '" + script.getName() + "' because its plugin dependency '" + event.getPlugin().getName() + "' was unloaded.");
+                        ScriptManager.get().unloadScript(script, false);
+                    }
+                }
+            }
+        }
+    }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
