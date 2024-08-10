@@ -16,6 +16,8 @@
 
 package dev.magicmq.pyspigot.manager.listener;
 
+import dev.magicmq.pyspigot.event.ScriptExceptionEvent;
+import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
@@ -50,6 +52,17 @@ public class ScriptEventExecutor implements EventExecutor {
      */
     public void execute(Listener listener, Event event) {
         if (eventClass.isAssignableFrom(event.getClass())) {
+            if (event instanceof ScriptExceptionEvent scriptExceptionEvent) {
+                Script script = scriptExceptionEvent.getScript();
+                if (scriptEventListener.getScript().equals(script)) {
+                    String listenerFunctionName = scriptEventListener.getListenerFunction().__code__.co_name;
+                    String exceptionFunctionName = scriptExceptionEvent.getException().traceback.tb_frame.f_code.co_name;
+                    if (listenerFunctionName.equals(exceptionFunctionName)) {
+                        return;
+                    }
+                }
+            }
+
             try {
                 PyObject parameter = Py.java2py(event);
                 scriptEventListener.getListenerFunction().__call__(parameter);
