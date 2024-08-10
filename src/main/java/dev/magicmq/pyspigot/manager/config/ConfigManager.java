@@ -35,7 +35,7 @@ public class ConfigManager {
     private final Path configFolder;
 
     private ConfigManager() {
-        configFolder = Paths.get(PySpigot.get().getDataFolder().getAbsolutePath(), "configs");
+        configFolder = PySpigot.get().getDataFolderPath().resolve("configs");
         if (!Files.exists(configFolder)) {
             try {
                 Files.createDirectories(configFolder);
