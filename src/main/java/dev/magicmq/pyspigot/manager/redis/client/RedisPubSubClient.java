@@ -172,6 +172,18 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * @param message The message to publish
      * @return The number of clients that received the message
      */
+    public Long publish(String channel, String message) {
+        return publishSync(channel, message);
+    }
+
+    /**
+     * Synchronously publish a message to the given channel
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param channel The channel on which the message should be published
+     * @param message The message to publish
+     * @return The number of clients that received the message
+     */
     public Long publishSync(String channel, String message) {
         return connection.sync().publish(channel, message);
     }
