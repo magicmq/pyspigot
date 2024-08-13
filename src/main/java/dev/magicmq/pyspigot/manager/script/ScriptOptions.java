@@ -53,21 +53,30 @@ public class ScriptOptions {
      */
     public ScriptOptions(ConfigurationSection config) {
         if (config != null) {
-            this.enabled = config.getBoolean("enabled", true);
-            this.scriptDepend = config.getStringList("depend");
-            this.pluginDepend = config.getStringList("plugin-depend");
-            this.fileLoggingEnabled = config.getBoolean("file-logging-enabled", PluginConfig.doLogToFile());
-            this.minLoggingLevel = Level.parse(config.getString("min-logging-level", PluginConfig.getLogLevel()));
-            this.permissionDefault = PermissionDefault.getByName(config.getString("permission-default", "op"));
-            this.permissions = Permission.loadPermissions((Map<?, ?>) config.get("permissions", new HashMap<>()), "Permission node '%s' in script_options.yml for '" + config.getName() + "' is invalid", permissionDefault);
+            this.enabled = config.getBoolean("enabled", PluginConfig.scriptOptionEnabled());
+            if (config.contains("depend"))
+                this.scriptDepend = config.getStringList("depend");
+            else
+                this.scriptDepend = PluginConfig.scriptOptionDepend();
+            if (config.contains("plugin-depend"))
+                this.pluginDepend = config.getStringList("plugin-depend");
+            else
+                this.pluginDepend = PluginConfig.scriptOptionPluginDepend();
+            this.fileLoggingEnabled = config.getBoolean("file-logging-enabled", PluginConfig.scriptOptionFileLoggingEnabled());
+            this.minLoggingLevel = Level.parse(config.getString("min-logging-level", PluginConfig.scriptOptionMinLoggingLevel()));
+            this.permissionDefault = PermissionDefault.getByName(config.getString("permission-default", PluginConfig.scriptOptionPermissionDefault()));
+            if (config.contains("permissions"))
+                this.permissions = Permission.loadPermissions((Map<?, ?>) config.get("permissions", new HashMap<>()), "Permission node '%s' in script_options.yml for '" + config.getName() + "' is invalid", permissionDefault);
+            else
+                this.permissions = Permission.loadPermissions(PluginConfig.scriptOptionPermissions(), "Permission node '%s' in script_options.yml for '" + config.getName() + "' is invalid", permissionDefault);
         } else {
-            this.enabled = true;
-            this.scriptDepend = new ArrayList<>();
-            this.pluginDepend = new ArrayList<>();
-            this.fileLoggingEnabled = PluginConfig.doLogToFile();
-            this.minLoggingLevel = Level.parse(PluginConfig.getLogLevel());
-            this.permissionDefault = PermissionDefault.OP;
-            this.permissions = new ArrayList<>();
+            this.enabled = PluginConfig.scriptOptionEnabled();
+            this.scriptDepend = PluginConfig.scriptOptionDepend();
+            this.pluginDepend = PluginConfig.scriptOptionPluginDepend();
+            this.fileLoggingEnabled = PluginConfig.scriptOptionFileLoggingEnabled();
+            this.minLoggingLevel = Level.parse(PluginConfig.scriptOptionMinLoggingLevel());
+            this.permissionDefault = PermissionDefault.getByName(PluginConfig.scriptOptionPermissionDefault());
+            this.permissions = Permission.loadPermissions(PluginConfig.scriptOptionPermissions(), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
         }
     }
 

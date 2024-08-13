@@ -22,6 +22,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class to retrieve configuration values from the plugin config.
@@ -59,14 +61,6 @@ public class PluginConfig {
         return toReturn;
     }
 
-    public static boolean doLogToFile() {
-        return config.getBoolean("log-to-file");
-    }
-
-    public static String getLogLevel() {
-        return config.getString("min-log-level");
-    }
-
     public static DateTimeFormatter getLogTimestamp() {
         return logTimestamp;
     }
@@ -81,6 +75,34 @@ public class PluginConfig {
 
     public static boolean doScriptUnloadOnPluginDisable() {
         return config.getBoolean("script-unload-on-plugin-disable");
+    }
+
+    public static boolean scriptOptionEnabled() {
+        return config.getBoolean("script-option-defaults.enabled");
+    }
+
+    public static List<String> scriptOptionDepend() {
+        return config.getStringList("script-option-defaults.depend");
+    }
+
+    public static List<String> scriptOptionPluginDepend() {
+        return config.getStringList("script-option-defaults.plugin-depend");
+    }
+
+    public static boolean scriptOptionFileLoggingEnabled() {
+        return config.getBoolean("script-option-defaults.file-logging-enabled");
+    }
+
+    public static String scriptOptionMinLoggingLevel() {
+        return config.getString("script-option-defaults.min-logging-level");
+    }
+
+    public static String scriptOptionPermissionDefault() {
+        return config.getString("script-option-defaults.permission-default");
+    }
+
+    public static Map<?, ?> scriptOptionPermissions() {
+        return (Map<?, ?>) config.get("permissions", new HashMap<>());
     }
 
     public static boolean shouldPrintStackTraces() {

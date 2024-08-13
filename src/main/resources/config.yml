@@ -4,10 +4,6 @@ metrics-enabled: true
 script-load-delay: 20
 # List of relocation rules for libraries in the libs folder. Format as <pattern>|<relocated pattern>
 library-relocations: []
-# If true, PySpigot will log script messages to their respective log file. This value is global, and per-script options in script_options.yml overrides this value.
-log-to-file: true
-# The minimum log level that will be logged to a script's log file. For log level and their order, see https://docs.oracle.com/en/java/javase/11/docs/api/java.logging/java/util/logging/Level.html. This value is global, and per-script options in script_options.yml overrides this value.
-min-log-level: 'INFO'
 # Date/time format for timestamps in script log files, written in Java's SimpleDateFormat pattern: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/format/DateTimeFormatter.html
 log-timestamp-format: 'MMM dd yyyy HH:mm:ss'
 # If true, will print log messages to console every time a script is loaded, run, and unloaded.
@@ -16,6 +12,22 @@ script-action-logging: true
 verbose-redis-logging: true
 # If true, scripts will be automatically unloaded if a plugin the script depends on is unloaded. This is especially useful to ensure script shutdown tasks that require a depending plugin complete successfully (prior to the plugin being unloaded).
 script-unload-on-plugin-disable: true
+# Default values for script options. If one or more options are not defined in the script_options.yml for the script, then PySpigot will fall back to these values.
+script-option-defaults:
+  # Whether the script is enabled
+  enabled: true
+  # A list of other scripts the script depends on
+  depend: []
+  # A list of plugins the script depends on
+  plugin-depend: []
+  # Whether script log messages should be logged to its respective log file
+  file-logging-enabled: true
+  # The minimum level to log to the console and to the script's log file
+  min-logging-level: 'INFO'
+  # The default permission level for permissions
+  permission-default: 'op'
+  # The permissions defined by the script, supports usage of replacer for script name by using %script%
+  permissions:
 # Advanced debug options for scripts
 debug-options:
   # If true, will print stack traces for all script-related exceptions to the server console
