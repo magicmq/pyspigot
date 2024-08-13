@@ -97,7 +97,11 @@ public class ScriptManager {
         //Init scripts and parse options
         List<Script> toLoad = new ArrayList<>();
         for (Map.Entry<String, Path> entry : scriptFiles.entrySet()) {
-            ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(entry.getKey()));
+            ScriptOptions options;
+            if (PySpigot.get().getScriptOptionsConfig().contains(entry.getKey()))
+                options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(entry.getKey()));
+            else
+                options = new ScriptOptions();
             Script script = new Script(entry.getValue(), entry.getKey(), options);
             toLoad.add(script);
         }
@@ -150,10 +154,13 @@ public class ScriptManager {
      */
     public ScriptOptions getScriptOptions(Path path) {
         if (path != null) {
-            return new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(path.getFileName().toString()));
+            String fileName = path.getFileName().toString();
+            if (PySpigot.get().getScriptOptionsConfig().contains(fileName))
+                return new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(fileName));
+            else
+                return new ScriptOptions();
         } else
             return null;
-
     }
 
     /**
@@ -176,7 +183,11 @@ public class ScriptManager {
     public RunResult loadScript(Path path) throws IOException {
         if (path != null) {
             String fileName = path.getFileName().toString();
-            ScriptOptions options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(fileName));
+            ScriptOptions options;
+            if (PySpigot.get().getScriptOptionsConfig().contains(fileName))
+                options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(fileName));
+            else
+                options = new ScriptOptions();
             Script script = new Script(path, fileName, options);
 
             return loadScript(script);

@@ -127,12 +127,12 @@ public class RedisPubSubClient extends ScriptRedisClient {
         connection.removeListener(listener);
         if (syncListeners.contains(listener)) {
             syncListeners.remove(listener);
-            if (!stillListening(listener.getChannel(), true)) {
+            if (!isListening(listener.getChannel(), true)) {
                 connection.sync().unsubscribe(listener.getChannel());
             }
         } else if (asyncListeners.contains(listener)) {
             asyncListeners.remove(listener);
-            if (!stillListening(listener.getChannel(), false)) {
+            if (!isListening(listener.getChannel(), false)) {
                 connection.async().unsubscribe(listener.getChannel());
             }
         }
@@ -208,7 +208,7 @@ public class RedisPubSubClient extends ScriptRedisClient {
         return String.format("RedisPubSubClient[ID: %d, Connection: %s, Sync Listeners: %s, Async Listeners: %s]", getClientId(), connection.toString(), syncListeners, asyncListeners);
     }
 
-    private boolean stillListening(String channel, boolean sync) {
+    private boolean isListening(String channel, boolean sync) {
         for (ScriptPubSubListener listener : sync ? syncListeners : asyncListeners) {
             if (listener.getChannel().equals(channel))
                 return true;

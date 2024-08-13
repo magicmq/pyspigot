@@ -41,6 +41,13 @@ public class ScriptOptions {
     private final List<Permission> permissions;
 
     /**
+     * Initialize a new ScriptOptions with the default values.
+     */
+    public ScriptOptions() {
+        this(null);
+    }
+
+    /**
      * Initialize a new ScriptOptions using values from the provided ConfigurationSection. If this constructor is passed a null value for the config parameter, then the default script options will be used.
      * @param config The configuration section from which script options should be read, or null if the default script options should be used
      */
