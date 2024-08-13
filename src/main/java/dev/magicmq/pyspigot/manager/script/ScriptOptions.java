@@ -37,7 +37,7 @@ public class ScriptOptions {
     private final List<String> pluginDepend;
     private final boolean fileLoggingEnabled;
     private final Level minLoggingLevel;
-    private final PermissionDefault defaultPermission;
+    private final PermissionDefault permissionDefault;
     private final List<Permission> permissions;
 
     /**
@@ -58,15 +58,15 @@ public class ScriptOptions {
             this.pluginDepend = config.getStringList("plugin-depend");
             this.fileLoggingEnabled = config.getBoolean("file-logging-enabled", PluginConfig.doLogToFile());
             this.minLoggingLevel = Level.parse(config.getString("min-logging-level", PluginConfig.getLogLevel()));
-            this.defaultPermission = PermissionDefault.getByName(config.getString("default-permission", "OP"));
-            this.permissions = Permission.loadPermissions((Map<?, ?>) config.get("permissions", new HashMap<>()), "Permission node '%s' in script_options.yml for " + config.getName() + " is invalid", defaultPermission);
+            this.permissionDefault = PermissionDefault.getByName(config.getString("permission-default", "op"));
+            this.permissions = Permission.loadPermissions((Map<?, ?>) config.get("permissions", new HashMap<>()), "Permission node '%s' in script_options.yml for '" + config.getName() + "' is invalid", permissionDefault);
         } else {
             this.enabled = true;
             this.scriptDepend = new ArrayList<>();
             this.pluginDepend = new ArrayList<>();
             this.fileLoggingEnabled = PluginConfig.doLogToFile();
             this.minLoggingLevel = Level.parse(PluginConfig.getLogLevel());
-            this.defaultPermission = PermissionDefault.OP;
+            this.permissionDefault = PermissionDefault.OP;
             this.permissions = new ArrayList<>();
         }
     }
@@ -115,8 +115,8 @@ public class ScriptOptions {
      * Get the default permissions for permissions defined for this script.
      * @return The default permission level
      */
-    public PermissionDefault getDefaultPermission() {
-        return defaultPermission;
+    public PermissionDefault getPermissionDefault() {
+        return permissionDefault;
     }
 
     /**
@@ -133,6 +133,6 @@ public class ScriptOptions {
      */
     @Override
     public String toString() {
-        return String.format("ScriptOptions[Enabled: %b, Depend: %s, File Logging Enabled: %b, Minimum Logging Level: %s", enabled, scriptDepend, fileLoggingEnabled, minLoggingLevel);
+        return String.format("ScriptOptions[Enabled: %b, Depend: %s, File Logging Enabled: %b, Minimum Logging Level: %s, Permission Default: %s, Permissions: %s", enabled, scriptDepend, fileLoggingEnabled, minLoggingLevel, permissionDefault, permissions);
     }
 }
