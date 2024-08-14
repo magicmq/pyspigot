@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -171,6 +172,9 @@ public class ScriptOptionsConfig {
     }
 
     private static Map<?, ?> asMap(Object object) throws InvalidConfigurationException {
+        if (object == null)
+            return new HashMap<>();
+
         if (object instanceof Map)
             return (Map<?, ?>) object;
         throw new InvalidConfigurationException("Malformed configuration, is " + object + " but should be a map.");
