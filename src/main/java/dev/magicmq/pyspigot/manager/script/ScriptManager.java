@@ -29,6 +29,7 @@ import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.scheduler.BukkitTask;
 import org.python.core.*;
 
@@ -96,10 +97,12 @@ public class ScriptManager {
         SortedSet<Script> toLoad = new TreeSet<>();
         for (Map.Entry<String, Path> entry : scriptFiles.entrySet()) {
             ScriptOptions options;
-            if (PySpigot.get().getScriptOptionsConfig().contains(entry.getKey()))
-                options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(entry.getKey()));
-            else
+            try {
+                options = new ScriptOptions(entry.getKey());
+            } catch (InvalidConfigurationException e) {
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + entry.getKey() + "', the default values will be used.", e);
                 options = new ScriptOptions();
+            }
             Script script = new Script(entry.getValue(), entry.getKey(), options);
             toLoad.add(script);
         }
@@ -134,10 +137,14 @@ public class ScriptManager {
     public ScriptOptions getScriptOptions(Path path) {
         if (path != null) {
             String fileName = path.getFileName().toString();
-            if (PySpigot.get().getScriptOptionsConfig().contains(fileName))
-                return new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(fileName));
-            else
-                return new ScriptOptions();
+            ScriptOptions options;
+            try {
+                options = new ScriptOptions(fileName);
+            } catch (InvalidConfigurationException e) {
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used.", e);
+                options = new ScriptOptions();
+            }
+            return options;
         } else
             return null;
     }
@@ -163,10 +170,12 @@ public class ScriptManager {
         if (path != null) {
             String fileName = path.getFileName().toString();
             ScriptOptions options;
-            if (PySpigot.get().getScriptOptionsConfig().contains(fileName))
-                options = new ScriptOptions(PySpigot.get().getScriptOptionsConfig().getConfigurationSection(fileName));
-            else
+            try {
+                options = new ScriptOptions(fileName);
+            } catch (InvalidConfigurationException e) {
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used.", e);
                 options = new ScriptOptions();
+            }
             Script script = new Script(path, fileName, options);
 
             return loadScript(script);

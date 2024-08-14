@@ -26,8 +26,6 @@ script-option-defaults:
   min-logging-level: 'INFO'
   # The default permission level for permissions
   permission-default: 'op'
-  # The permissions defined by the script, supports usage of replacer for script name by using %script%
-  permissions:
 # Advanced debug options for scripts
 debug-options:
   # If true, will print stack traces for all script-related exceptions to the server console

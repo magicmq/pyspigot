@@ -17,14 +17,13 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.config.PluginConfig;
-import org.bukkit.configuration.ConfigurationSection;
+import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -44,28 +43,28 @@ public class ScriptOptions {
      * Initialize a new ScriptOptions with the default values.
      */
     public ScriptOptions() {
-        this(null);
+        this.enabled = PluginConfig.scriptOptionEnabled();
+        this.loadPriority = PluginConfig.scriptOptionLoadPriority();
+        this.pluginDepend = PluginConfig.scriptOptionPluginDepend();
+        this.fileLoggingEnabled = PluginConfig.scriptOptionFileLoggingEnabled();
+        this.minLoggingLevel = Level.parse(PluginConfig.scriptOptionMinLoggingLevel());
+        this.permissionDefault = PermissionDefault.getByName(PluginConfig.scriptOptionPermissionDefault());
+        this.permissions = Permission.loadPermissions(PluginConfig.scriptOptionPermissions(), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
     }
 
     /**
-     * Initialize a new ScriptOptions using values from the provided ConfigurationSection. If this constructor is passed a null value for the config parameter, then the default script options will be used.
-     * @param config The configuration section from which script options should be read, or null if the default script options should be used
+     * Initialize a new ScriptOptions using the appropriate values in the script_options.yml file, using the script name to search for the values.
+     * @param scriptName The name of the script whose script options should be initialized
      */
-    public ScriptOptions(ConfigurationSection config) {
-        if (config != null) {
-            this.enabled = config.getBoolean("enabled", PluginConfig.scriptOptionEnabled());
-            this.loadPriority = config.getInt("load-priority", PluginConfig.scriptOptionLoadPriority());
-            if (config.contains("plugin-depend"))
-                this.pluginDepend = config.getStringList("plugin-depend");
-            else
-                this.pluginDepend = PluginConfig.scriptOptionPluginDepend();
-            this.fileLoggingEnabled = config.getBoolean("file-logging-enabled", PluginConfig.scriptOptionFileLoggingEnabled());
-            this.minLoggingLevel = Level.parse(config.getString("min-logging-level", PluginConfig.scriptOptionMinLoggingLevel()));
-            this.permissionDefault = PermissionDefault.getByName(config.getString("permission-default", PluginConfig.scriptOptionPermissionDefault()));
-            if (config.contains("permissions"))
-                this.permissions = Permission.loadPermissions((Map<?, ?>) config.get("permissions", new HashMap<>()), "Permission node '%s' in script_options.yml for '" + config.getName() + "' is invalid", permissionDefault);
-            else
-                this.permissions = Permission.loadPermissions(PluginConfig.scriptOptionPermissions(), "Permission node '%s' in script_options.yml for '" + config.getName() + "' is invalid", permissionDefault);
+    public ScriptOptions(String scriptName) throws InvalidConfigurationException {
+        if (ScriptOptionsConfig.contains(scriptName)) {
+            this.enabled = ScriptOptionsConfig.getEnabled(scriptName, PluginConfig.scriptOptionEnabled());
+            this.loadPriority = ScriptOptionsConfig.getLoadPriority(scriptName, PluginConfig.scriptOptionLoadPriority());
+            this.pluginDepend = ScriptOptionsConfig.getPluginDepend(scriptName, PluginConfig.scriptOptionPluginDepend());
+            this.fileLoggingEnabled = ScriptOptionsConfig.getFileLoggingEnabled(scriptName, PluginConfig.scriptOptionFileLoggingEnabled());
+            this.minLoggingLevel = Level.parse(ScriptOptionsConfig.getMinLoggingLevel(scriptName, PluginConfig.scriptOptionMinLoggingLevel()));
+            this.permissionDefault = PermissionDefault.getByName(ScriptOptionsConfig.getPermissionDefault(scriptName, PluginConfig.scriptOptionPermissionDefault()));
+            this.permissions = Permission.loadPermissions(ScriptOptionsConfig.getPermissions(scriptName, PluginConfig.scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
         } else {
             this.enabled = PluginConfig.scriptOptionEnabled();
             this.loadPriority = PluginConfig.scriptOptionLoadPriority();
@@ -139,6 +138,14 @@ public class ScriptOptions {
      */
     @Override
     public String toString() {
-        return String.format("ScriptOptions[Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s, Permission Default: %s, Permissions: %s", enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel, permissionDefault, permissions);
+        return String.format("ScriptOptions[Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s, Permission Default: %s, Permissions: %s", enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel, permissionDefault, printPermissions());
+    }
+
+    private List<String> printPermissions() {
+        List<String> toReturn = new ArrayList<>();
+        for (Permission permission : permissions) {
+            toReturn.add(String.format("Permission[Name: %s, Description: %s, Default: %s, Children: %s]", permission.getName(), permission.getDescription(), permission.getDefault(), permission.getChildren()));
+        }
+        return toReturn;
     }
 }

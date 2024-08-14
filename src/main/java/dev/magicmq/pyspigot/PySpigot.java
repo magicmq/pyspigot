@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.command.PySpigotCommand;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.config.ConfigManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
@@ -35,8 +36,6 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -99,7 +98,6 @@ public class PySpigot extends JavaPlugin {
     public static RedisManager redis;
 
     private Path dataFolderPath;
-    private FileConfiguration scriptOptionsConfig;
     private Metrics metrics;
     private BukkitTask versionCheckTask;
     private volatile String spigotVersion;
@@ -116,8 +114,6 @@ public class PySpigot extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
         reloadConfig();
-
-        reloadScriptOptionsConfig();
 
         getCommand("pyspigot").setExecutor(new PySpigotCommand());
 
@@ -182,7 +178,7 @@ public class PySpigot extends JavaPlugin {
     public void reload() {
         reloadConfig();
         PluginConfig.reload();
-        reloadScriptOptionsConfig();
+        ScriptOptionsConfig.reload();
     }
 
     /**
@@ -199,14 +195,6 @@ public class PySpigot extends JavaPlugin {
      */
     public Path getDataFolderPath() {
         return dataFolderPath;
-    }
-
-    /**
-     * Get the script_options.yml configuration file.
-     * @return The script_options.yml configuration file
-     */
-    public FileConfiguration getScriptOptionsConfig() {
-        return scriptOptionsConfig;
     }
 
     /**
@@ -297,14 +285,6 @@ public class PySpigot extends JavaPlugin {
             int loadedScripts = ScriptManager.get().getLoadedScripts().size();
             return "" + loadedScripts;
         }));
-    }
-
-    private void reloadScriptOptionsConfig() {
-        File file = new File(PySpigot.get().getDataFolder(), "script_options.yml");
-        if (!file.exists()) {
-            saveResource("script_options.yml", false);
-        }
-        scriptOptionsConfig = YamlConfiguration.loadConfiguration(file);
     }
 
     private boolean checkFilesEqual(InputStream is1, InputStream is2) {

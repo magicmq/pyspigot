@@ -102,7 +102,7 @@ public class PluginConfig {
     }
 
     public static Map<?, ?> scriptOptionPermissions() {
-        return (Map<?, ?>) config.get("permissions", new HashMap<>());
+        return new HashMap<>();
     }
 
     public static boolean shouldPrintStackTraces() {
