@@ -100,7 +100,7 @@ public class ScriptManager {
             try {
                 options = new ScriptOptions(entry.getKey());
             } catch (InvalidConfigurationException e) {
-                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + entry.getKey() + "', the default values will be used.", e);
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + entry.getKey() + "', the default values will be used for this script.", e);
                 options = new ScriptOptions();
             }
             Script script = new Script(entry.getValue(), entry.getKey(), options);
@@ -141,7 +141,7 @@ public class ScriptManager {
             try {
                 options = new ScriptOptions(fileName);
             } catch (InvalidConfigurationException e) {
-                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used.", e);
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used for this script.", e);
                 options = new ScriptOptions();
             }
             return options;
@@ -173,7 +173,7 @@ public class ScriptManager {
             try {
                 options = new ScriptOptions(fileName);
             } catch (InvalidConfigurationException e) {
-                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used.", e);
+                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used for this script.", e);
                 options = new ScriptOptions();
             }
             Script script = new Script(path, fileName, options);
