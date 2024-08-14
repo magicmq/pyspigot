@@ -32,7 +32,7 @@ import java.util.logging.Level;
 /**
  * An object that represents a loaded script. Because this object is instantiated some time before the script is actually executed (in order to fetch its options and order scripts to load according to dependencies), there may be a brief time when this object represents a loaded <i>but not running </i> script. To check if this script object represents a running script, call {@link ScriptManager#isScriptRunning(String)}.
  */
-public class Script {
+public class Script implements Comparable<Script> {
 
     private final Path path;
     private final String name;
@@ -172,6 +172,23 @@ public class Script {
      */
     public long getUptime() {
         return System.currentTimeMillis() - loadTime;
+    }
+
+    /**
+     * Compares this script to another script, using load order as the primary comparison. If the load order of this script is higher than other, then this script will be considered "less" than other (I.E. sorted earlier in a set than the other script). If the load order of this script is lower than other, then this script will be considered "greater" than the other script (I.E. sorted later in a set than other).
+     * <p>
+     * If the load priority of this script is equal to other, then a comparison is performed based on the name of the two scripts (alphabetical).
+     * @param other The other script to be compared
+     * @return 1 if this script is greater than other, -1 if this script is less than other, and 0 if the two scripts are equal
+     */
+    @Override
+    public int compareTo(Script other) {
+        //Normally, would compare this to other, however we need descending order (higher numbers first), so reverse the comparison
+        int compare = Integer.compare(other.options.getLoadPriority(), this.options.getLoadPriority());
+        if (compare == 0) {
+            return this.name.compareTo(other.name);
+        } else
+            return compare;
     }
 
     /**

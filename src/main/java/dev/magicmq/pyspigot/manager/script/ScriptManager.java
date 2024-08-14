@@ -28,7 +28,6 @@ import dev.magicmq.pyspigot.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
-import dev.magicmq.pyspigot.util.ScriptSorter;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.python.core.*;
@@ -39,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -53,13 +51,13 @@ public class ScriptManager {
     private static ScriptManager manager;
 
     private final Path scriptsFolder;
-    private final HashMap<String, Script> scripts;
+    private final LinkedHashMap<String, Script> scripts;
 
     private BukkitTask startScriptTask;
 
     private ScriptManager() {
         scriptsFolder = PySpigot.get().getDataFolderPath().resolve("scripts");
-        this.scripts = new HashMap<>();
+        this.scripts = new LinkedHashMap<>();
 
         if (PluginConfig.getScriptLoadDelay() > 0L)
             startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PluginConfig.getScriptLoadDelay());
@@ -80,7 +78,7 @@ public class ScriptManager {
     }
 
     /**
-     * Loads and runs all scripts contained within the scripts folder. Called on plugin load (I.E. during server start).
+     * Loads and runs all scripts contained within the scripts folder. Called on plugin load (I.E. during server start). Loads in the appropriate load order (see {@link Script#compareTo(Script)}).
      */
     public void loadScripts() {
         PySpigot.get().getLogger().log(Level.INFO, "Loading scripts...");
@@ -95,7 +93,7 @@ public class ScriptManager {
         }
 
         //Init scripts and parse options
-        List<Script> toLoad = new ArrayList<>();
+        SortedSet<Script> toLoad = new TreeSet<>();
         for (Map.Entry<String, Path> entry : scriptFiles.entrySet()) {
             ScriptOptions options;
             if (PySpigot.get().getScriptOptionsConfig().contains(entry.getKey()))
@@ -106,27 +104,8 @@ public class ScriptManager {
             toLoad.add(script);
         }
 
-        //Check that all dependencies are available
-        List<String> scriptNames = toLoad.stream().map(Script::getName).collect(Collectors.toList());
-        for (Iterator<Script> scriptIterator = toLoad.iterator(); scriptIterator.hasNext();) {
-            Script script = scriptIterator.next();
-            List<String> dependencies = script.getOptions().getScriptDependencies();
-            for (String dependency : dependencies) {
-                if (!scriptNames.contains(dependency)) {
-                    PySpigot.get().getLogger().log(Level.WARNING, "Script '" + script.getName() + "' has an unknown script dependency '" + dependency + "'. This script will not be loaded.");
-                    scriptIterator.remove();
-                    scriptNames.remove(script.getName());
-                    break;
-                }
-            }
-        }
-
-        //Sort scripts with respect to dependencies
-        ScriptSorter sorter = new ScriptSorter(toLoad);
-        LinkedList<Script> sorted = sorter.getOptimalLoadOrder();
-
-        //Run scripts in the proper load order
-        for (Script script : sorted) {
+        //Run scripts in order with respect to load priority
+        for (Script script : toLoad) {
             try {
                 loadScript(script);
             } catch (IOException e) {
@@ -225,18 +204,6 @@ public class ScriptManager {
             return RunResult.FAIL_PLUGIN_DEPENDENCY;
         }
 
-        //Check if the script's other script dependencies are all running
-        List<String> unresolvedScriptDependencies = new ArrayList<>();
-        for (String dependency : script.getOptions().getScriptDependencies()) {
-            if (getScript(dependency) == null) {
-                unresolvedScriptDependencies.add(dependency);
-            }
-        }
-        if (!unresolvedScriptDependencies.isEmpty()) {
-            PySpigot.get().getLogger().log(Level.WARNING,  "The following script dependencies for script '" + script.getName() + "' are missing: " + unresolvedScriptDependencies + ". This script will not be loaded.");
-            return RunResult.FAIL_SCRIPT_DEPENDENCY;
-        }
-
         if (PluginConfig.doScriptActionLogging())
             PySpigot.get().getLogger().log(Level.INFO, "Loading script '" + script.getName() + "'");
 
@@ -277,10 +244,12 @@ public class ScriptManager {
     }
 
     /**
-     * Unload all currently loaded scripts.
+     * Unload all currently loaded scripts. Unloads in the reverse order that they were loaded (I.E. the opposite of the load order).
      */
     public void unloadScripts() {
-        for (Script script : scripts.values()) {
+        List<Script> toUnload = new ArrayList<>(scripts.values());
+        Collections.reverse(toUnload);
+        for (Script script : toUnload) {
             ScriptUnloadEvent event = new ScriptUnloadEvent(script, false);
             Bukkit.getPluginManager().callEvent(event);
             stopScript(script, false);

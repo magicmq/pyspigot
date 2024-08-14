@@ -81,8 +81,8 @@ public class PluginConfig {
         return config.getBoolean("script-option-defaults.enabled");
     }
 
-    public static List<String> scriptOptionDepend() {
-        return config.getStringList("script-option-defaults.depend");
+    public static int scriptOptionLoadPriority() {
+        return config.getInt("script-option-defaults.load-priority");
     }
 
     public static List<String> scriptOptionPluginDepend() {

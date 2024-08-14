@@ -17,7 +17,7 @@ script-option-defaults:
   # Whether the script is enabled
   enabled: true
   # A list of other scripts the script depends on
-  depend: []
+  load-priority: 1
   # A list of plugins the script depends on
   plugin-depend: []
   # Whether script log messages should be logged to its respective log file

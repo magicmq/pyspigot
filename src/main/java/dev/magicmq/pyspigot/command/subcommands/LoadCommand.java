@@ -44,8 +44,6 @@ public class LoadCommand implements SubCommand {
                         RunResult result = ScriptManager.get().loadScript(args[0]);
                         if (result == RunResult.SUCCESS)
                             sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran script '" + args[0] + "'.");
-                        else if (result == RunResult.FAIL_SCRIPT_DEPENDENCY)
-                            sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not run due to missing script dependencies. See console for details.");
                         else if (result == RunResult.FAIL_PLUGIN_DEPENDENCY)
                             sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not run due to missing plugin dependencies. See console for details.");
                         else if (result == RunResult.FAIL_DISABLED)

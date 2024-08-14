@@ -33,7 +33,7 @@ import java.util.logging.Level;
 public class ScriptOptions {
 
     private final boolean enabled;
-    private final List<String> scriptDepend;
+    private final int loadPriority;
     private final List<String> pluginDepend;
     private final boolean fileLoggingEnabled;
     private final Level minLoggingLevel;
@@ -54,10 +54,7 @@ public class ScriptOptions {
     public ScriptOptions(ConfigurationSection config) {
         if (config != null) {
             this.enabled = config.getBoolean("enabled", PluginConfig.scriptOptionEnabled());
-            if (config.contains("depend"))
-                this.scriptDepend = config.getStringList("depend");
-            else
-                this.scriptDepend = PluginConfig.scriptOptionDepend();
+            this.loadPriority = config.getInt("load-priority", PluginConfig.scriptOptionLoadPriority());
             if (config.contains("plugin-depend"))
                 this.pluginDepend = config.getStringList("plugin-depend");
             else
@@ -71,7 +68,7 @@ public class ScriptOptions {
                 this.permissions = Permission.loadPermissions(PluginConfig.scriptOptionPermissions(), "Permission node '%s' in script_options.yml for '" + config.getName() + "' is invalid", permissionDefault);
         } else {
             this.enabled = PluginConfig.scriptOptionEnabled();
-            this.scriptDepend = PluginConfig.scriptOptionDepend();
+            this.loadPriority = PluginConfig.scriptOptionLoadPriority();
             this.pluginDepend = PluginConfig.scriptOptionPluginDepend();
             this.fileLoggingEnabled = PluginConfig.scriptOptionFileLoggingEnabled();
             this.minLoggingLevel = Level.parse(PluginConfig.scriptOptionMinLoggingLevel());
@@ -89,11 +86,11 @@ public class ScriptOptions {
     }
 
     /**
-     * Get a list of script dependencies for this script.
-     * @return A list of script dependencies for this script. Will return an empty list if this script has no script dependencies
+     * Get the load priority for this script. Scripts with greater load priority will load before scripts with lower load priority.
+     * @return The script's load priority
      */
-    public List<String> getScriptDependencies() {
-        return scriptDepend;
+    public int getLoadPriority() {
+        return loadPriority;
     }
 
     /**
@@ -142,6 +139,6 @@ public class ScriptOptions {
      */
     @Override
     public String toString() {
-        return String.format("ScriptOptions[Enabled: %b, Depend: %s, File Logging Enabled: %b, Minimum Logging Level: %s, Permission Default: %s, Permissions: %s", enabled, scriptDepend, fileLoggingEnabled, minLoggingLevel, permissionDefault, permissions);
+        return String.format("ScriptOptions[Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s, Permission Default: %s, Permissions: %s", enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel, permissionDefault, permissions);
     }
 }
