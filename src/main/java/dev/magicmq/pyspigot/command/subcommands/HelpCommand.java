@@ -26,9 +26,9 @@ import org.bukkit.entity.Player;
 
 @SubCommandMeta(
         command = "help",
+        aliases = {"gethelp"},
         permission = "pyspigot.command.help",
-        description = "Useful information for PySpigot and how to get help",
-        aliases = {"gethelp"}
+        description = "Useful information for PySpigot and how to get help"
 )
 public class HelpCommand implements SubCommand {
 

@@ -29,9 +29,9 @@ import java.util.List;
 
 @SubCommandMeta(
         command = "listscripts",
+        aliases = {"list", "scriptslist", "ls"},
         permission = "pyspigot.command.listscripts",
         description = "List all scripts",
-        aliases = {"list", "scriptslist", "ls"},
         usage = "[page]"
 )
 public class ListScriptsCommand implements SubCommand {

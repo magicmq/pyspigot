@@ -26,7 +26,7 @@ import org.bukkit.command.CommandSender;
 
 @SubCommandMeta(
         command = "reloadall",
-        aliases = {"reset"},
+        aliases = {"resetall"},
         permission = "pyspigot.command.reloadall",
         description = "Perform a complete reload of the plugin, including configs, libraries, and all scripts."
 )

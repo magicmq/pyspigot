@@ -47,9 +47,9 @@ import java.util.List;
 
 @SubCommandMeta(
         command = "info",
+        aliases = {"scriptinfo"},
         permission = "pyspigot.command.info",
         description = "Print information about a script, including uptime, registered listeners, commands, and more info",
-        aliases = {"scriptinfo"},
         usage = "<scriptname>"
 )
 public class InfoCommand implements SubCommand {

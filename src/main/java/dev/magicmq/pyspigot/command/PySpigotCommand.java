@@ -156,7 +156,7 @@ public class PySpigotCommand implements TabExecutor {
         subCommands.forEach(subCommand -> {
             SubCommandMeta subCommandMeta = subCommand.getClass().getAnnotation(SubCommandMeta.class);
             if (sender.hasPermission(subCommandMeta.permission()) || subCommandMeta.permission().equals("")) {
-                if ((subCommandMeta.playerOnly() && sender instanceof Player) || !subCommandMeta.playerOnly()) {
+                if (!subCommandMeta.playerOnly() || sender instanceof Player) {
                     sender.sendMessage(HELP_CMD_FORMAT
                             .replace("%maincommand%", label)
                             .replace("%subcommand%", subCommandMeta.usage().equals("") ? subCommandMeta.command() : subCommandMeta.command() + " " + subCommandMeta.usage())

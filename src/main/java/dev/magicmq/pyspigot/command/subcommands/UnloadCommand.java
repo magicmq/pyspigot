@@ -27,6 +27,7 @@ import java.util.List;
 
 @SubCommandMeta(
         command = "unload",
+        aliases = {"stop"},
         permission = "pyspigot.command.unload",
         description = "Unload a script with the specified name",
         usage = "<scriptname>"

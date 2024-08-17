@@ -29,6 +29,7 @@ import java.util.List;
 
 @SubCommandMeta(
         command = "reload",
+        aliases = {"restart"},
         permission = "pyspigot.command.reload",
         description = "Reload a script with the specified name",
         usage = "<scriptname>"

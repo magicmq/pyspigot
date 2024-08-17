@@ -29,6 +29,7 @@ import java.util.List;
 
 @SubCommandMeta(
         command = "load",
+        aliases = {"start"},
         permission = "pyspigot.command.load",
         description = "Load a script with the specified name",
         usage = "<scriptname>"
