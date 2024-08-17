@@ -30,8 +30,8 @@ script-option-defaults:
 debug-options:
   # If true, will print stack traces for all script-related exceptions to the server console
   print-stack-traces: false
-  # If ture, will suppress notifications that the plugin version is outdated
-  suppress-update-messages: false
+  # If true, the plugin will show messages in console and on join (to players with the permission pyspigot.admin) when a newer version of PySpigot is available to download on spigotmc.org.
+  show-update-messages: true
   # If false, the pyspigot.py file will *not* be automatically replaced with the most recent version (from the pyspigot JAR) on server start if a change is detected. It is recommended to keep this enabled in the event a plugin update comes with an updated pyspigot.py file.
   auto-pyspigot-lib-update-enabled: true
 messages:

@@ -52,7 +52,7 @@ public class PluginListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if (!PluginConfig.shouldSuppressUpdateMessages()) {
+        if (PluginConfig.shouldShowUpdateMessages()) {
             Player player = event.getPlayer();
             if (player.hasPermission("pyspigot.admin")) {
                 String latest = PySpigot.get().getSpigotVersion();

@@ -109,8 +109,8 @@ public class PluginConfig {
         return config.getBoolean("debug-options.print-stack-traces");
     }
 
-    public static boolean shouldSuppressUpdateMessages() {
-        return config.getBoolean("debug-options.suppress-update-messages");
+    public static boolean shouldShowUpdateMessages() {
+        return config.getBoolean("debug-options.show-update-messages");
     }
 
     public static boolean shouldUpdatePySpigotLib() {

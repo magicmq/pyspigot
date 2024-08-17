@@ -147,7 +147,7 @@ public class PySpigot extends JavaPlugin {
 
         fetchSpigotVersion();
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            if (spigotVersion != null && !PluginConfig.shouldSuppressUpdateMessages()) {
+            if (spigotVersion != null && PluginConfig.shouldShowUpdateMessages()) {
                 StringUtils.Version currentVersion = new StringUtils.Version(getDescription().getVersion());
                 StringUtils.Version latestVersion = new StringUtils.Version(spigotVersion);
                 if (currentVersion.compareTo(latestVersion) < 0) {
