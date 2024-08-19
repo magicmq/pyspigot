@@ -48,8 +48,8 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
     @Override
     public void message(String channel, String message) {
         if (channel.equals(this.channel)) {
-            PyObject parameter = Py.java2py(message);
-            function.__call__(parameter);
+            PyObject[] parameters = Py.javas2pys(channel, message);
+            function.__call__(parameters[0], parameters[1]);
         }
     }
 
