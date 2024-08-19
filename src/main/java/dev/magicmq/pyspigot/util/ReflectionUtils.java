@@ -17,10 +17,8 @@
 package dev.magicmq.pyspigot.util;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**

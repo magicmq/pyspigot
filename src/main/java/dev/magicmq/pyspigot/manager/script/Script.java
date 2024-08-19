@@ -17,9 +17,9 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PySpigot;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.magicmq.pyspigot.util.logging.PrintStreamWrapper;
 import dev.magicmq.pyspigot.util.logging.ScriptLogger;
-import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.permissions.Permission;
 import org.python.util.PythonInterpreter;

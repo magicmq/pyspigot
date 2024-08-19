@@ -3,7 +3,9 @@ package dev.magicmq.pyspigot.manager.database.mongo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
@@ -13,7 +15,8 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents an open connection to a Mongo Database.
