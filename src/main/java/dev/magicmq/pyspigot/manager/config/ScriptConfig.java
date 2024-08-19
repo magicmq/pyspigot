@@ -68,7 +68,7 @@ public class ScriptConfig extends YamlConfiguration {
      * @return True if the path was set to the value (in other words the path was not previously set), false if the path was not set to the value (in other words the path was already previously set)
      */
     public boolean setIfNotExists(String path, Object value) {
-        if (!isSet(path)) {
+        if (!super.isSet(path)) {
             super.set(path, value);
             return true;
         }
