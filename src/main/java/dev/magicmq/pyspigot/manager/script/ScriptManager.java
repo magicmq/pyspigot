@@ -169,13 +169,7 @@ public class ScriptManager {
     public RunResult loadScript(Path path) throws IOException {
         if (path != null) {
             String fileName = path.getFileName().toString();
-            ScriptOptions options;
-            try {
-                options = new ScriptOptions(fileName);
-            } catch (InvalidConfigurationException e) {
-                PySpigot.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used for this script.", e);
-                options = new ScriptOptions();
-            }
+            ScriptOptions options = getScriptOptions(path);
             Script script = new Script(path, fileName, options);
 
             return loadScript(script);
