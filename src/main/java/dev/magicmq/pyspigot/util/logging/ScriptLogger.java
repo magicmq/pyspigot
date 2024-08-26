@@ -34,6 +34,7 @@ import java.util.logging.*;
  */
 public class ScriptLogger extends Logger {
 
+    private final String prefix;
     private final String logFilePath;
     private FileHandler handler;
 
@@ -45,6 +46,7 @@ public class ScriptLogger extends Logger {
         super("PySpigot/" + script.getName(), null);
         this.setParent(PySpigot.get().getLogger());
 
+        this.prefix = "[PySpigot/" + script.getName() + "] ";
         File file = new File("");
         this.logFilePath = file.getAbsolutePath().replace("\\", "/") + "/plugins/PySpigot/logs/" + script.getLogFileName();
     }
@@ -82,6 +84,17 @@ public class ScriptLogger extends Logger {
      */
     public void debug(String logText) {
         super.log(Level.INFO, logText);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void log(LogRecord logRecord) {
+        if (!PySpigot.get().isPaper()) {
+            logRecord.setMessage(prefix + logRecord.getMessage());
+        }
+        super.log(logRecord);
     }
 
     /**

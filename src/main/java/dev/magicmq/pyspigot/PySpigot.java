@@ -97,6 +97,7 @@ public class PySpigot extends JavaPlugin {
      */
     public static RedisManager redis;
 
+    private boolean paper;
     private Path dataFolderPath;
     private Metrics metrics;
     private BukkitTask versionCheckTask;
@@ -105,6 +106,13 @@ public class PySpigot extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        try {
+            Class.forName("com.destroystokyo.paper.ParticleBuilder");
+            paper = true;
+        } catch (ClassNotFoundException ignored) {
+            paper = false;
+        }
 
         dataFolderPath = Paths.get(getDataFolder().getAbsolutePath());
 
@@ -187,6 +195,14 @@ public class PySpigot extends JavaPlugin {
      */
     public ClassLoader getPluginClassLoader() {
         return this.getClassLoader();
+    }
+
+    /**
+     * Get if the server is running paper.
+     * @return True if the server is running paper, false if otherwise
+     */
+    public boolean isPaper() {
+        return paper;
     }
 
     /**
