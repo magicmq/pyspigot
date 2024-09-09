@@ -87,7 +87,7 @@ public class ScriptLogger extends Logger {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void log(LogRecord logRecord) {
