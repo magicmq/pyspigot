@@ -109,15 +109,17 @@ public class LibraryManager {
 
         for (File library : toLoad) {
             String libName = library.getName();
-            if (!libName.endsWith("-relocated.jar")) {
-                try {
-                    long start = System.nanoTime();
-                    LoadResult result = loadLibrary(library);
-                    long duration = System.nanoTime() - start;
-                    if (result == LoadResult.SUCCESS)
-                        PySpigot.get().getLogger().log(Level.INFO, "Loaded library " + libName + " in " + (duration / 1000000) + " ms");
-                } catch (Throwable throwable) {
-                    PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + libName + "!", throwable);
+            if (libName.endsWith(".jar")) {
+                if (!libName.endsWith("-relocated.jar")) {
+                    try {
+                        long start = System.nanoTime();
+                        LoadResult result = loadLibrary(library);
+                        long duration = System.nanoTime() - start;
+                        if (result == LoadResult.SUCCESS)
+                            PySpigot.get().getLogger().log(Level.INFO, "Loaded library " + libName + " in " + (duration / 1000000) + " ms");
+                    } catch (Throwable throwable) {
+                        PySpigot.get().getLogger().log(Level.SEVERE, "Unable to load library " + libName + "!", throwable);
+                    }
                 }
             }
         }
