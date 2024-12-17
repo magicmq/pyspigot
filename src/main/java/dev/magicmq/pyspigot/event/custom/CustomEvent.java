@@ -16,10 +16,9 @@
 
 package dev.magicmq.pyspigot.event.custom;
 
-import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.event.ScriptEvent;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.python.core.Py;
 import org.python.core.PyObject;
@@ -27,11 +26,10 @@ import org.python.core.PyObject;
 /**
  * A custom event that scripts may instantiate and call for other plugins/scripts to listen to.
  */
-public class CustomEvent extends Event implements Cancellable {
+public class CustomEvent extends ScriptEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final Script script;
     private final String name;
     private final PyObject data;
 
@@ -44,19 +42,22 @@ public class CustomEvent extends Event implements Cancellable {
      * @param data The data to attach to the event
      */
     public CustomEvent(String name, PyObject data) {
-        this.script = ScriptUtils.getScriptFromCallStack();
+        this(name, data, false);
+    }
+
+    /**
+     * <p>
+     * <b>Note:</b> This class should be instantiated from scripts only!
+     * @param name The name of the event being created. Can be used to create subtypes of the generic custom event
+     * @param data The data to attach to the event
+     * @param async Whether the event is being called from an asynchronous context
+     */
+    public CustomEvent(String name, PyObject data, boolean async) {
+        super(ScriptUtils.getScriptFromCallStack(), async);
         this.name = name;
         this.data = data;
 
         cancelled = false;
-    }
-
-    /**
-     * Get the script that instantiated and called this event.
-     * @return The script that instantiated this event
-     */
-    public Script getScript() {
-        return script;
     }
 
     /**
