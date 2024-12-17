@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dev.magicmq</groupId>
     <artifactId>pyspigot</artifactId>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.7.1</version>
     <name>PySpigot</name>
     <description>Python scripting engine for Minecraft servers</description>
 
@@ -267,7 +267,7 @@
         <connection>scm:git:ssh://git@github.com/magicmq/PySpigot.git</connection>
         <url>https://github.com/magicmq/PySpigot</url>
         <developerConnection>scm:git:ssh://git@github.com/magicmq/PySpigot.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.7.1</tag>
     </scm>
 
     <distributionManagement>
