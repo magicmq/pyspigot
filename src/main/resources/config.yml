@@ -16,7 +16,7 @@ script-unload-on-plugin-disable: true
 script-option-defaults:
   # Whether the script is enabled
   enabled: true
-  # A list of other scripts the script depends on
+  # An integer load priority for the script
   load-priority: 1
   # A list of plugins the script depends on
   plugin-depend: []
