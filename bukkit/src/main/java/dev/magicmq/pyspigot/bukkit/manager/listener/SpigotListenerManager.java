@@ -30,9 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-/**
- * Manager to interface with Bukkit's event framework. Primarily used by scripts to register and unregister event listeners.
- */
 public class SpigotListenerManager extends ListenerManager<SpigotScriptEventListener, Event, EventPriority> {
 
     private static SpigotListenerManager manager;

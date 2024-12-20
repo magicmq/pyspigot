@@ -33,12 +33,6 @@ import org.python.core.PyException;
 
 import java.nio.file.Path;
 
-/**
- * Master manager class for PySpigot. Contains all logic to load, unload, and reload scripts.
- * <p>
- * Internally, utilizes Jython's {@link org.python.util.PythonInterpreter} to run scripts.
- * @see SpigotScript
- */
 public class SpigotScriptManager extends ScriptManager {
 
     private static SpigotScriptManager manager;

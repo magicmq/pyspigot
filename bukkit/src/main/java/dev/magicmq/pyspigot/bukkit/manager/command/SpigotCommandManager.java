@@ -34,9 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Manager to interface with Bukkit's command framework. Primarily used by scripts to register and unregister commands.
- */
 public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
 
     private static SpigotCommandManager manager;

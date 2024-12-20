@@ -32,12 +32,6 @@ import org.python.core.PyException;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Master manager class for PySpigot. Contains all logic to load, unload, and reload scripts.
- * <p>
- * Internally, utilizes Jython's {@link org.python.util.PythonInterpreter} to run scripts.
- * @see Script
- */
 public class BungeeScriptManager extends ScriptManager {
 
     private static BungeeScriptManager manager;

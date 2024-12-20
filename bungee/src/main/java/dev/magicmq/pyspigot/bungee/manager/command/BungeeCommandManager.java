@@ -26,9 +26,6 @@ import org.python.core.PyFunction;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Manager to interface with BungeeCord's command framework. Primarily used by scripts to register and unregister commands.
- */
 public class BungeeCommandManager extends CommandManager<BungeeScriptCommand> {
 
     private static BungeeCommandManager manager;

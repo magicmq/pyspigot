@@ -34,12 +34,19 @@ public class SpigotScriptOptions extends ScriptOptions {
     private final PermissionDefault permissionDefault;
     private final List<Permission> permissions;
 
+    /**
+     * Initialize a new ScriptOptions with the default values.
+     */
     public SpigotScriptOptions() {
         super();
         this.permissionDefault = PermissionDefault.getByName(PyCore.get().getConfig().scriptOptionPermissionDefault());
         this.permissions = Permission.loadPermissions(PyCore.get().getConfig().scriptOptionPermissions(), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
     }
 
+    /**
+     * Initialize a new ScriptOptions using the appropriate values in the script_options.yml file, using the script name to search for the values.
+     * @param scriptName The name of the script whose script options should be initialized
+     */
     public SpigotScriptOptions(String scriptName) throws InvalidConfigurationException {
         super(scriptName);
         if (ScriptOptionsConfig.contains(scriptName)) {

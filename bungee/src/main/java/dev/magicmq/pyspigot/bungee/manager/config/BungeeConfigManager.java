@@ -22,9 +22,6 @@ import dev.magicmq.pyspigot.manager.config.ConfigManager;
 import java.io.IOException;
 import java.nio.file.Path;
 
-/**
- * Manager for scripts to interface with configuration files. Primarily used by scripts to load, write to, and save .yml files.
- */
 public class BungeeConfigManager extends ConfigManager<BungeeScriptConfig> {
 
     private static BungeeConfigManager manager;

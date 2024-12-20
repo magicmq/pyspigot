@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot.bukkit.manager.script;
 
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import org.bukkit.Bukkit;
 import org.bukkit.permissions.Permission;
 
@@ -28,6 +29,12 @@ import java.util.logging.Level;
  */
 public class SpigotScript extends Script {
 
+    /**
+     *
+     * @param path The path that corresponds to the file where the script lives
+     * @param name The name of this script. Should contain its extension (.py)
+     * @param options The {@link ScriptOptions} for this script
+     */
     public SpigotScript(Path path, String name, SpigotScriptOptions options) {
         super(path, name, options);
     }

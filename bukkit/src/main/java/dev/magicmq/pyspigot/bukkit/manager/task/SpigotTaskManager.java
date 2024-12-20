@@ -28,9 +28,6 @@ import org.python.core.PyFunction;
 
 import java.util.List;
 
-/**
- * Manager to interface with Bukkit's scheduler. Primarily used by scripts to register and unregister tasks.
- */
 public class SpigotTaskManager extends TaskManager {
 
     private static SpigotTaskManager manager;

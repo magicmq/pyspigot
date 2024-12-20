@@ -41,6 +41,7 @@ public class Script implements Comparable<Script> {
     private long loadTime;
 
     /**
+     *
      * @param path The path that corresponds to the file where the script lives
      * @param name The name of this script. Should contain its extension (.py)
      * @param options The {@link ScriptOptions} for this script

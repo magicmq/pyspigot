@@ -45,7 +45,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.logging.Level;
 
 /**
- * Main class of the Spigot plugin.
+ * Entry point of PySpigot for Bukkit server software.
  */
 public class PySpigot extends JavaPlugin {
 

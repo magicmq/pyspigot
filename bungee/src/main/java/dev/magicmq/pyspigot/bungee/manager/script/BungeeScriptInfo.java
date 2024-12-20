@@ -19,9 +19,6 @@ package dev.magicmq.pyspigot.bungee.manager.script;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptInfo;
 
-/**
- * A utility class that fetches and returns a script's info (for the /pyspigot info command).
- */
 public class BungeeScriptInfo extends ScriptInfo {
 
     private static BungeeScriptInfo instance;
@@ -30,11 +27,6 @@ public class BungeeScriptInfo extends ScriptInfo {
         super();
     }
 
-    /**
-     * {@inheritDoc}
-     * @param script The script whose information should be printed
-     * @param appendTo The info StringBuilder that platform-specific manager info should be appended to
-     */
     @Override
     public void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
         //Don't need to add any additional managers

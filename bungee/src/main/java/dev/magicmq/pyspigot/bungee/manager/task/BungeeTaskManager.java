@@ -85,6 +85,10 @@ public class BungeeTaskManager extends TaskManager {
         return 0;
     }
 
+    /**
+     * Get the singleton instance of this BungeeTaskManager.
+     * @return The instance
+     */
     public static BungeeTaskManager get() {
         if (manager == null)
             manager = new BungeeTaskManager();

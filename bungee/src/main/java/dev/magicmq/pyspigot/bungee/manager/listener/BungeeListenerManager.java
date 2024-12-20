@@ -22,9 +22,6 @@ import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.event.EventPriority;
 import org.python.core.PyFunction;
 
-/**
- * Manager to interface with BungeeCord's event framework. Primarily used by scripts to register and unregister event listeners.
- */
 public class BungeeListenerManager extends ListenerManager<BungeeScriptEventListener, Event, EventPriority> {
 
     private static BungeeListenerManager manager;
