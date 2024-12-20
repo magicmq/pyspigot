@@ -26,7 +26,7 @@ import net.md_5.bungee.api.ChatColor;
         command = "loadlibrary",
         aliases = {"loadlib"},
         permission = "pyspigot.command.loadlibrary",
-        description = "Load a library as the specified file name in the libs folder.",
+        description = "Load a library as the specified file name in the java-libs folder.",
         usage = "<filename>"
 )
 public class LoadLibraryCommand implements SubCommand {

@@ -26,7 +26,7 @@ import net.md_5.bungee.api.ChatColor;
         command = "reloadconfig",
         aliases = {"configreload"},
         permission = "pyspigot.command.reloadconfig",
-        description = "Reload the config (This does not reload scripts!). This command has no effect on already loaded scripts."
+        description = "Reload the config. This command has no effect on already loaded scripts."
 )
 public class ReloadConfigCommand implements SubCommand {
 

@@ -27,9 +27,9 @@ import java.util.List;
 
 public class PySpigotCommand {
 
-    private static final String HELP_CMD_HEADER = "%prefix%&a&lCommand Syntax:";
-    private static final String HELP_CMD_FORMAT = "&6/%maincommand% %subcommand% &7- %description%";
-    private static final String HELP_CMD_FOOTER = "&aMade with care by %author%";
+    private static final String HELP_CMD_HEADER = ChatColor.translateAlternateColorCodes('&', "%prefix%&a&lCommand Syntax:");
+    private static final String HELP_CMD_FORMAT = ChatColor.translateAlternateColorCodes('&', "&6/%maincommand% %subcommand% &7- %description%");
+    private static final String HELP_CMD_FOOTER = ChatColor.translateAlternateColorCodes('&', "&aMade with care by %author%");
 
     private final List<SubCommand> subCommands;
 
