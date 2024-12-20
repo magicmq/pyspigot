@@ -72,16 +72,6 @@ config = config_manager()
 configs = config_manager()
 com = config_manager()
 
-protocol = protocol_manager()
-protocol_lib = protocol_manager()
-protocols = protocol_manager()
-pm = protocol_manager()
-
-placeholder = placeholder_manager()
-placeholder_api = placeholder_manager()
-placeholders = placeholder_manager()
-plm = placeholder_manager()
-
 database = database_manager()
 
 redis = redis_manager()

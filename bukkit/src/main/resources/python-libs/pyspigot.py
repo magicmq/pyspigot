@@ -2,7 +2,7 @@
 # NOTE: This module is not meant to be edited. Any changes made will be overridden on plugin reload or server restart.
 ###
 
-from dev.magicmq.pyspigot import PySpigot
+from dev.magicmq.pyspigot.bukkit import PySpigot
 from dev.magicmq.pyspigot.manager.script import ScriptManager
 from dev.magicmq.pyspigot.manager.script import GlobalVariables
 from dev.magicmq.pyspigot.manager.listener import ListenerManager
@@ -39,14 +39,14 @@ def config_manager():
 def protocol_manager():
     """Get the protocol manager for working with ProtocolLib (registering/unregistering packet listeners, sending packets, etc.). Note: this function will return None if ProtocolLib is not available on the server."""
     if PySpigot.get().isProtocolLibAvailable():
-        from dev.magicmq.pyspigot.manager.protocol import ProtocolManager
+        from dev.magicmq.pyspigot.bukkit.manager.protocol import ProtocolManager
         return ProtocolManager.get()
     else: return None
 
 def placeholder_manager():
     """Get the placeholder manager for registering/unregistering PlaceholderAPI placeholders. Note: this function will return None if PlaceholderAPI is not available on the server."""
     if PySpigot.get().isPlaceholderApiAvailable():
-        from dev.magicmq.pyspigot.manager.placeholder import PlaceholderManager
+        from dev.magicmq.pyspigot.bukkit.manager.placeholder import PlaceholderManager
         return PlaceholderManager.get()
     else: return None
 
