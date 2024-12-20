@@ -148,8 +148,11 @@ public class PyBungee extends Plugin {
     }
 
     private void saveDefaultConfig() throws IOException {
-        File configFile = new File(getDataFolder(), "config.yml");
+        File dataFolder = getDataFolder();
+        if (!dataFolder.exists())
+            dataFolder.mkdirs();
 
+        File configFile = new File(getDataFolder(), "config.yml");
         if (!configFile.exists()) {
             FileOutputStream outputStream = new FileOutputStream(configFile);
             InputStream in = getResourceAsStream("config.yml");
