@@ -1,7 +1,7 @@
 name: ${project.name}
 version: ${project.version}
 author: magicmq
-main: dev.magicmq.pyspigot.PySpigot
+main: dev.magicmq.pyspigot.bukkit.PySpigot
 load: STARTUP
 api-version: '1.13'
 softdepend: [ProtocolLib, PlaceholderAPI]
