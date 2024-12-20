@@ -26,7 +26,7 @@ public class BungeePluginCommand extends Command implements TabExecutor {
     private final PySpigotCommand baseCommand;
 
     public BungeePluginCommand() {
-        super("pybungee");
+        super("pybungee", null, "pb");
 
         baseCommand = new PySpigotCommand();
     }
