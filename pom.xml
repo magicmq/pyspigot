@@ -26,6 +26,16 @@
         </repository>
     </repositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>dev.magicmq</groupId>
+                <artifactId>pyspigot-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
         <defaultGoal>clean package</defaultGoal>
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>

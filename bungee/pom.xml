@@ -20,7 +20,6 @@
         <dependency>
             <groupId>dev.magicmq</groupId>
             <artifactId>pyspigot-core</artifactId>
-            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
