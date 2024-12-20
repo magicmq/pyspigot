@@ -181,15 +181,18 @@
                         <link>https://aadnk.github.io/ProtocolLib/Javadoc/</link>
                         <link>https://javadoc.io/doc/me.lucko/jar-relocator/latest/me/lucko/jarrelocator/</link>
                         <link>https://javadoc.io/doc/com.zaxxer/HikariCP/latest/com.zaxxer.hikari/</link>
-                        <link>https://mongodb.github.io/mongo-java-driver/5.2/apidocs/mongodb-driver-sync/</link>
+                        <link>https://javadoc.io/doc/org.mongodb/mongodb-driver-core/latest/</link>
+                        <link>https://javadoc.io/doc/org.mongodb/bson/latest/</link>
+                        <link>https://javadoc.io/doc/org.mongodb/mongodb-driver-sync/latest/</link>
                         <link>https://javadoc.io/doc/io.lettuce/lettuce-core/latest/</link>
                     </links>
                 </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>aggregate</goal>
                         </goals>
                     </execution>
                 </executions>
