@@ -33,6 +33,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A utility class that fetches and returns a script's info.
+ */
 public abstract class ScriptInfo {
 
     private static ScriptInfo instance;
@@ -41,8 +44,18 @@ public abstract class ScriptInfo {
         instance = this;
     }
 
+    /**
+     * Print platform-specific manager information for a script.
+     * @param script The script whose information should be printed
+     * @param appendTo The info StringBuilder that platform-specific manager info should be appended to
+     */
     public abstract void printPlatformManagerInfo(Script script, StringBuilder appendTo);
 
+    /**
+     * Print a script's info (for the /pyspigot info command).
+     * @param script The script whose information should be printed
+     * @return The info for the script
+     */
     public String printScriptInfo(Script script) {
         StringBuilder builder = new StringBuilder();
         builder.append(ChatColor.GOLD.toString() + ChatColor.BOLD + ChatColor.UNDERLINE + "Information about " + script.getName() + "\n");

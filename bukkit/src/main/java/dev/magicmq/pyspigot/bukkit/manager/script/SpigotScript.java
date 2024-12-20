@@ -23,12 +23,18 @@ import org.bukkit.permissions.Permission;
 import java.nio.file.Path;
 import java.util.logging.Level;
 
+/**
+ * An extension of the base {@link Script} class that includes Bukkit-specific code for initializing script permissions.
+ */
 public class SpigotScript extends Script {
 
     public SpigotScript(Path path, String name, SpigotScriptOptions options) {
         super(path, name, options);
     }
 
+    /**
+     * Adds the script's permission (from its options) to the server.
+     */
     public void initPermissions() {
         SpigotScriptOptions options = (SpigotScriptOptions) getOptions();
         for (Permission permission : options.getPermissions()) {
@@ -40,6 +46,9 @@ public class SpigotScript extends Script {
         }
     }
 
+    /**
+     * Removes the script's permissions from the server.
+     */
     public void removePermissions() {
         SpigotScriptOptions options = (SpigotScriptOptions) getOptions();
         for (Permission permission : options.getPermissions()) {

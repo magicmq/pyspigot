@@ -28,6 +28,9 @@ import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A utility class that fetches and returns a script's info (for the /pyspigot info command).
+ */
 public class SpigotScriptInfo extends ScriptInfo {
 
     private static SpigotScriptInfo instance;
@@ -36,6 +39,11 @@ public class SpigotScriptInfo extends ScriptInfo {
         super();
     }
 
+    /**
+     * {@inheritDoc}
+     * @param script The script whose information should be printed
+     * @param appendTo The info StringBuilder that platform-specific manager info should be appended to
+     */
     @Override
     public void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
         if (PySpigot.get().isPlaceholderApiAvailable()) {
@@ -61,6 +69,10 @@ public class SpigotScriptInfo extends ScriptInfo {
         }
     }
 
+    /**
+     * Get the singleton instance of this SpigotScriptInfo.
+     * @return The instance
+     */
     public static SpigotScriptInfo get() {
         if (instance == null)
             instance = new SpigotScriptInfo();

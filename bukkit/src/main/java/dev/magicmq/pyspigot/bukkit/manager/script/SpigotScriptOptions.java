@@ -26,6 +26,9 @@ import org.bukkit.permissions.PermissionDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An extension of the base {@link ScriptOptions} class that includes Bukkit-specific code for parsing script permissions.
+ */
 public class SpigotScriptOptions extends ScriptOptions {
 
     private final PermissionDefault permissionDefault;
@@ -64,10 +67,6 @@ public class SpigotScriptOptions extends ScriptOptions {
         return permissions;
     }
 
-    /**
-     * Prints a representation of this ScriptOptions in string format, including all options as defined in script_options.yml
-     * @return A string representation of the ScriptOptions
-     */
     @Override
     public String toString() {
         String superString = super.toString();
