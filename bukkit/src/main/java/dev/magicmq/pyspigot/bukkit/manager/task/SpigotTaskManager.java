@@ -37,98 +37,53 @@ public class SpigotTaskManager extends TaskManager {
     }
 
     @Override
-    public synchronized int runTask(PyFunction function, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function, functionArgs, false, 0);
-        addTask(task);
+    public void runTaskImpl(Task task) {
         task.setTaskId(Bukkit.getScheduler().runTask(PySpigot.get(), task).getTaskId());
-        return task.getTaskId();
     }
 
     @Override
-    public synchronized int runTaskAsync(PyFunction function, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function, functionArgs, true, 0);
-        addTask(task);
+    public void runTaskAsyncImpl(Task task) {
         task.setTaskId(Bukkit.getScheduler().runTaskAsynchronously(PySpigot.get(), task).getTaskId());
-        return task.getTaskId();
     }
 
     @Override
-    public synchronized int runTaskLater(PyFunction function, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function, functionArgs, false, delay);
-        addTask(task);
+    public void runTaskLaterImpl(Task task, long delay) {
         task.setTaskId(Bukkit.getScheduler().runTaskLater(PySpigot.get(), task, delay).getTaskId());
-        return task.getTaskId();
     }
 
     @Override
-    public synchronized int runTaskLaterAsync(PyFunction function, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new Task(script, function, functionArgs, true, delay);
-        addTask(task);
+    public void runTaskLaterAsyncImpl(Task task, long delay) {
         task.setTaskId(Bukkit.getScheduler().runTaskLaterAsynchronously(PySpigot.get(), task, delay).getTaskId());
-        return task.getTaskId();
     }
 
     @Override
-    public synchronized int scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new RepeatingTask(script, function, functionArgs, false, delay, interval);
-        addTask(task);
+    public void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
         task.setTaskId(Bukkit.getScheduler().runTaskTimer(PySpigot.get(), task, delay, interval).getTaskId());
-        return task.getTaskId();
     }
 
     @Override
-    public synchronized int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new RepeatingTask(script, function, functionArgs, true, delay, interval);
-        addTask(task);
+    public void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
         task.setTaskId(Bukkit.getScheduler().runTaskTimerAsynchronously(PySpigot.get(), task, delay, interval).getTaskId());
-        return task.getTaskId();
     }
 
     @Override
-    public synchronized int runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new SyncCallbackTask(script, function, callback, functionArgs, 0);
-        addTask(task);
+    public void runSyncCallbackTaskImpl(SyncCallbackTask task) {
         task.setTaskId(Bukkit.getScheduler().runTaskAsynchronously(PySpigot.get(), task).getTaskId());
-        return task.getTaskId();
     }
 
     @Override
-    public synchronized int runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        Task task = new SyncCallbackTask(script, function, callback, functionArgs, delay);
-        addTask(task);
+    public void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay) {
         task.setTaskId(Bukkit.getScheduler().runTaskLaterAsynchronously(PySpigot.get(), task, delay).getTaskId());
-        return task.getTaskId();
     }
 
     @Override
-    public synchronized void stopTask(int taskId) {
-        Task task = getTask(taskId);
-        Bukkit.getScheduler().cancelTask(task.getTaskId());
-        removeTask(task);
-    }
-
-    @Override
-    public synchronized void stopTasks(Script script) {
-        List<Task> associatedTasks = getTasks(script);
-        if (associatedTasks != null) {
-            for (Task task : associatedTasks) {
-                Bukkit.getScheduler().cancelTask(task.getTaskId());
-            }
-            removeTasks(script);
-        }
-    }
-
-    @Override
-    public int runSyncCallback(Runnable runnable) {
+    public int runSyncCallbackImpl(Runnable runnable) {
         return Bukkit.getScheduler().runTask(PySpigot.get(), runnable).getTaskId();
+    }
+
+    @Override
+    public void stopTaskImpl(int taskId) {
+        Bukkit.getScheduler().cancelTask(taskId);
     }
 
     /**

@@ -17,12 +17,16 @@
 package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Manager to interface with a server platform's scheduler. Primarily used by scripts to register and unregister tasks.
+ */
 public abstract class TaskManager {
 
     private static TaskManager manager;
@@ -36,6 +40,74 @@ public abstract class TaskManager {
     }
 
     /**
+     * Schedule a task via the platform-specific scheduler.
+     * @param task The task to schedule
+     */
+    public abstract void runTaskImpl(Task task);
+
+    /**
+     * Schedule an asynchronous task via the platform-specific scheduler.
+     * @param task The task to schedule
+     */
+    public abstract void runTaskAsyncImpl(Task task);
+
+    /**
+     * Schedule a task later via the platform-specific schedule.
+     * @param task The task to schedule
+     * @param delay The delay
+     */
+    public abstract void runTaskLaterImpl(Task task, long delay);
+
+    /**
+     * Schedule an asynchronous task later via the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay
+     */
+    public abstract void runTaskLaterAsyncImpl(Task task, long delay);
+
+    /**
+     * Schedule a repeating task via the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay
+     * @param interval The interval
+     */
+    public abstract void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval);
+
+    /**
+     * Schedule an asynchronous repeating task via the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay
+     * @param interval The interval
+     */
+    public abstract void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval);
+
+    /**
+     * Schedule a sync callback task via the platform-specific scheduler.
+     * @param task The task to schedule
+     */
+    public abstract void runSyncCallbackTaskImpl(SyncCallbackTask task);
+
+    /**
+     * Schedule a sync callback task later via the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay
+     */
+    public abstract void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay);
+
+    /**
+     * Schedule the synchronous portion of a callback task via the platform-specific scheduler.
+     * @param runnable The task to schedule
+     * @return The ID of the scheduled task
+     */
+    public abstract int runSyncCallbackImpl(Runnable runnable);
+
+    /**
+     * Stop a task via the platform-specific scheduler.
+     * @param taskId The ID of the task to stop
+     */
+    public abstract void stopTaskImpl(int taskId);
+
+    /**
      * Schedule a new synchronous task via a platform-specific implementation.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
@@ -43,7 +115,13 @@ public abstract class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public abstract int runTask(PyFunction function, Object... functionArgs);
+    public synchronized int runTask(PyFunction function, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        Task task = new Task(script, function, functionArgs, false, 0);
+        addTask(task);
+        runTaskImpl(task);
+        return task.getTaskId();
+    }
 
     /**
      * Schedule a new asynchronous task via a platform-specific implementation.
@@ -53,7 +131,13 @@ public abstract class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public abstract int runTaskAsync(PyFunction function, Object... functionArgs);
+    public synchronized int runTaskAsync(PyFunction function, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        Task task = new Task(script, function, functionArgs, true, 0);
+        addTask(task);
+        runTaskAsyncImpl(task);
+        return task.getTaskId();
+    }
 
     /**
      * Schedule a new synchronous task to run at a later point in time via a platform-specific implementation.
@@ -64,7 +148,13 @@ public abstract class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public abstract int runTaskLater(PyFunction function, long delay, Object... functionArgs);
+    public synchronized int runTaskLater(PyFunction function, long delay, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        Task task = new Task(script, function, functionArgs, false, delay);
+        addTask(task);
+        runTaskLaterImpl(task, delay);
+        return task.getTaskId();
+    }
 
     /**
      * Schedule a new asynchronous task to run at a later point in time via a platform-specific implementation.
@@ -75,7 +165,13 @@ public abstract class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public abstract int runTaskLaterAsync(PyFunction function, long delay, Object... functionArgs);
+    public synchronized int runTaskLaterAsync(PyFunction function, long delay, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        Task task = new Task(script, function, functionArgs, true, delay);
+        addTask(task);
+        runTaskLaterAsyncImpl(task, delay);
+        return task.getTaskId();
+    }
 
     /**
      * Schedule a new synchronous repeating task via a platform-specific implementation.
@@ -87,7 +183,13 @@ public abstract class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the synchronous task that was scheduled
      */
-    public abstract int scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs);
+    public synchronized int scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        RepeatingTask task = new RepeatingTask(script, function, functionArgs, false, delay, interval);
+        addTask(task);
+        scheduleRepeatingTaskImpl(task, delay, interval);
+        return task.getTaskId();
+    }
 
     /**
      * Schedule a new asynchronous repeating task via a platform-specific implementation.
@@ -99,7 +201,13 @@ public abstract class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public abstract int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs);
+    public synchronized int scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        RepeatingTask task = new RepeatingTask(script, function, functionArgs, true, delay, interval);
+        addTask(task);
+        scheduleAsyncRepeatingTaskImpl(task, delay, interval);
+        return task.getTaskId();
+    }
 
     /**
      * Schedule a new asynchronous task with a synchronous callback via a platform-specific implementation. Data returned from the initially called function (asynchronous portion) is automatically passed to the synchronous callback function as a function argument.
@@ -110,7 +218,13 @@ public abstract class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public abstract int runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs);
+    public synchronized int runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        SyncCallbackTask task = new SyncCallbackTask(script, function, callback, functionArgs, 0);
+        addTask(task);
+        runSyncCallbackTaskImpl(task);
+        return task.getTaskId();
+    }
 
     /**
      * Schedule a new asynchronous task with a synchronous callback to run at a later point in time via a platform-specific implementation. Data returned from the initially called function (asynchronous portion) is automatically passed to the synchronous callback function as a function argument.
@@ -122,26 +236,37 @@ public abstract class TaskManager {
      * @param functionArgs Any arguments that should be passed to the function
      * @return An ID representing the asynchronous task that was scheduled
      */
-    public abstract int runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs);
+    public synchronized int runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        SyncCallbackTask task = new SyncCallbackTask(script, function, callback, functionArgs, delay);
+        addTask(task);
+        runSyncCallbackTaskLaterImpl(task, delay);
+        return task.getTaskId();
+    }
 
     /**
      * Terminate a task with the given task ID via a platform-specific implementation.
      * @param taskId The ID of the task to terminate
      */
-    public abstract void stopTask(int taskId);
+    public synchronized void stopTask(int taskId) {
+        Task task = getTask(taskId);
+        stopTaskImpl(taskId);
+        removeTask(task);
+    }
 
     /**
      * Terminate all scheduled tasks belonging to a script via a platform-specific implementation.
      * @param script The script whose scheduled tasks should be terminated
      */
-    public abstract void stopTasks(Script script);
-
-    /**
-     * Run the synchronous callback portion of a task via a platform-specific implementation.
-     * @param runnable The synchronous callback task to run
-     * @return The ID of the scheduled task
-     */
-    public abstract int runSyncCallback(Runnable runnable);
+    public synchronized void stopTasks(Script script) {
+        List<Task> associatedTasks = getTasks(script);
+        if (associatedTasks != null) {
+            for (Task task : associatedTasks) {
+                stopTaskImpl(task.getTaskId());
+            }
+            removeTasks(script);
+        }
+    }
 
     /**
      * Get a scheduled task from its ID.

@@ -58,7 +58,7 @@ public class SyncCallbackTask extends Task {
             }
 
             callback = new Callback(this, outcome);
-            callback.setTaskId(TaskManager.get().runSyncCallback(callback));
+            callback.setTaskId(TaskManager.get().runSyncCallbackImpl(callback));
             synchronized (this) {
                 try {
                     this.wait();
