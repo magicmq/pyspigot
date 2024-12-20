@@ -16,28 +16,66 @@
 
 package dev.magicmq.pyspigot.bungee.manager.listener;
 
+import com.google.common.collect.Multimap;
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Event;
-import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventPriority;
 import org.python.core.PyFunction;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.logging.Level;
 
 public class BungeeListenerManager extends ListenerManager<BungeeScriptEventListener, Event, Byte> {
 
     private static BungeeListenerManager manager;
 
+    private Multimap<Plugin, Listener> listenersByPlugin;
+    private Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority;
+    private Lock lock;
+    private EventBus eventBus;
+    private Method bakeHandlers;
+
     private BungeeListenerManager() {
         super();
+
+        try {
+            Class<?> pluginManagerClass = PluginManager.class;
+            Field listenersByPlugin = pluginManagerClass.getDeclaredField("listenersByPlugin");
+            listenersByPlugin.setAccessible(true);
+            this.listenersByPlugin = (Multimap<Plugin, Listener>) listenersByPlugin.get(ProxyServer.getInstance().getPluginManager());
+
+            Field eventBusField = pluginManagerClass.getDeclaredField("eventBus");
+            eventBusField.setAccessible(true);
+            this.eventBus = (EventBus) eventBusField.get(ProxyServer.getInstance().getPluginManager());
+
+            Class<?> eventBusClass = EventBus.class;
+
+            Field byListenerAndPriorityField = eventBusClass.getDeclaredField("byListenerAndPriority");
+            byListenerAndPriorityField.setAccessible(true);
+            this.byListenerAndPriority = (Map<Class<?>, Map<Byte, Map<Object, Method[]>>>) byListenerAndPriorityField.get(eventBus);
+
+            Field lockField = eventBusClass.getDeclaredField("lock");
+            lockField.setAccessible(true);
+            this.lock = (Lock) lockField.get(eventBus);
+
+            this.bakeHandlers = eventBusClass.getDeclaredMethod("bakeHandlers", Class.class);
+            this.bakeHandlers.setAccessible(true);
+        } catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException e) {
+            PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing listener manager", e);
+        }
     }
 
     @Override
@@ -50,13 +88,9 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
         Script script = ScriptUtils.getScriptFromCallStack();
         BungeeScriptEventListener listener = getListener(script, eventClass);
         if (listener == null) {
-            try {
-                modifyEventPriority(priority);
-            } catch (Exception e) {
-                throw new RuntimeException("Exception occured when registering event '" + eventClass.getSimpleName() + "'", e);
-            }
-            listener = new BungeeScriptEventListener(script, function, eventClass);
-            ProxyServer.getInstance().getPluginManager().registerListener(PyBungee.get(), listener);
+            listener = new BungeeScriptEventListener(script, function, eventClass, priority);
+            registerWithBungee(listener);
+            addListener(script, listener);
             return listener;
         } else {
             throw new RuntimeException("Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
@@ -77,6 +111,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     public void unregisterListener(BungeeScriptEventListener listener) {
         ProxyServer.getInstance().getPluginManager().unregisterListener(listener);
         removeListener(listener.getScript(), listener);
+        unregisterWithBungee(listener);
     }
 
     @Override
@@ -84,7 +119,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
         List<BungeeScriptEventListener> associatedListeners = getListeners(script);
         if (associatedListeners != null) {
             for (BungeeScriptEventListener eventListener : associatedListeners) {
-                ProxyServer.getInstance().getPluginManager().unregisterListener(eventListener);
+                unregisterWithBungee(eventListener);
             }
             removeListeners(script);
         }
@@ -102,14 +137,73 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
         return null;
     }
 
-    private void modifyEventPriority(Byte priority) throws Exception {
-        Method method = BungeeScriptEventListener.class.getMethod("onEvent");
-        final EventHandler annotation = method.getAnnotation(EventHandler.class);
-        Object handler = Proxy.getInvocationHandler(annotation);
-        Field field = handler.getClass().getDeclaredField("memberValues");
-        field.setAccessible(true);
-        Map<String, Object> memberValues = (Map<String, Object>) field.get(handler);
-        memberValues.put("priority", priority);
+    private Map<Class<?>, Map<Byte, Set<Method>>> createDummyHandler(BungeeScriptEventListener listener) {
+        Map<Class<?>, Map<Byte, Set<Method>>> handler = new HashMap<>();
+        Set<Method> methods = new HashSet<>();
+        try {
+            methods.add(BungeeScriptEventListener.class.getDeclaredMethod("callToScript", Object.class));
+        } catch (NoSuchMethodException e) {
+            //This should not happen
+            listener.getScript().getLogger().log(Level.SEVERE, "Unhandled exception when registering listener for event '" + listener.getEvent().getSimpleName() + "'", e);
+        }
+        Map<Byte, Set<Method>> prioritiesMap = new HashMap<>();
+        prioritiesMap.put(listener.getPriority(), methods);
+        handler.put(listener.getEvent(), prioritiesMap);
+        return handler;
+    }
+
+    private void registerWithBungee(BungeeScriptEventListener listener) {
+        Map<Class<?>, Map<Byte, Set<Method>>> handler = createDummyHandler(listener);
+        lock.lock();
+        try {
+            for (Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
+                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.computeIfAbsent(e.getKey(), k -> new HashMap<>());
+                for (Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet()) {
+                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.computeIfAbsent(entry.getKey(), k -> new HashMap<>());
+                    currentPriorityMap.put(listener, entry.getValue().toArray(new Method[0]));
+                }
+                try {
+                    bakeHandlers.invoke(eventBus, e.getKey());
+                } catch (IllegalAccessException | InvocationTargetException exception) {
+                    listener.getScript().getLogger().log(Level.SEVERE,  "Unhandled exception when registering listener for event '" + listener.getEvent().getSimpleName() + "'", exception);
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+        this.listenersByPlugin.put(PyBungee.get(), listener);
+    }
+
+    private void unregisterWithBungee(BungeeScriptEventListener listener) {
+        Map<Class<?>, Map<Byte, Set<Method>>> handler = createDummyHandler(listener);
+        lock.lock();
+        try {
+            for (Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
+                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get(e.getKey());
+                if (prioritiesMap != null) {
+                    for (Byte priority : e.getValue().keySet()) {
+                        Map<Object, Method[]> currentPriority = prioritiesMap.get(priority);
+                        if (currentPriority != null) {
+                            currentPriority.remove(listener);
+                            if (currentPriority.isEmpty()) {
+                                prioritiesMap.remove(priority);
+                            }
+                        }
+                    }
+                    if (prioritiesMap.isEmpty()) {
+                        byListenerAndPriority.remove(e.getKey());
+                    }
+                }
+                try {
+                    bakeHandlers.invoke(eventBus, e.getKey());
+                } catch (IllegalAccessException | InvocationTargetException exception) {
+                    listener.getScript().getLogger().log(Level.SEVERE,  "Unhandled exception when unregistering listener for event '" + listener.getEvent().getSimpleName() + "'", exception);
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+        listenersByPlugin.values().remove(listener);
     }
 
     /**
