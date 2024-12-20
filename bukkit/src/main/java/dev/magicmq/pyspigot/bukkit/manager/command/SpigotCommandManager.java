@@ -63,40 +63,60 @@ public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
 
     @Override
     public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name) {
-        return registerCommand(commandFunction, null, name, "/" + name, "", new ArrayList<>(), null, null);
+        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
     }
 
     @Override
     public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
-        return registerCommand(commandFunction, tabFunction, name, "", "/" + name, new ArrayList<>(), null, null);
+        return registerCommand(commandFunction, tabFunction, name, "", "", new ArrayList<>(), null);
+    }
+
+    @Override
+    public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name, String permission) {
+        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), permission);
+    }
+
+    @Override
+    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String permission) {
+        return registerCommand(commandFunction, tabFunction, name, "", "", new ArrayList<>(), permission);
+    }
+
+    @Override
+    public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission) {
+        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
+    }
+
+    @Override
+    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
+        return registerCommand(commandFunction, tabFunction, name, "", "", aliases, null);
     }
 
     @Override
     public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
-        return registerCommand(commandFunction, null, name, description, usage, new ArrayList<>(), null, null);
+        return registerCommand(commandFunction, null, name, description, usage, new ArrayList<>(), null);
     }
 
     @Override
     public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
-        return registerCommand(commandFunction, tabFunction, name, description, usage, new ArrayList<>(), null, null);
+        return registerCommand(commandFunction, tabFunction, name, description, usage, new ArrayList<>(), null);
     }
 
     @Override
     public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
-        return registerCommand(commandFunction, null, name, description, usage, aliases, null, null);
+        return registerCommand(commandFunction, null, name, description, usage, aliases, null);
     }
 
     @Override
     public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
-        return registerCommand(commandFunction, tabFunction, name, description, usage, aliases, null, null);
+        return registerCommand(commandFunction, tabFunction, name, description, usage, aliases, null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
+    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         Script script = ScriptUtils.getScriptFromCallStack();
         SpigotScriptCommand command = getCommand(script, name);
         if (command == null) {
-            SpigotScriptCommand newCommand = new SpigotScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission, permissionMessage);
+            SpigotScriptCommand newCommand = new SpigotScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
             if (!addCommandToBukkit(newCommand))
                 script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");
             syncBukkitCommands();

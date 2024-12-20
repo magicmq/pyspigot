@@ -64,9 +64,8 @@ public class SpigotScriptCommand implements TabExecutor {
      * @param usage The usage message for the command
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null
-     * @param permissionMessage The message do display if there is insufficient permission to run the command. Can be null
      */
-    public SpigotScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
+    public SpigotScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         this.script = script;
         this.commandFunction = commandFunction;
         this.tabFunction = tabFunction;
@@ -81,7 +80,6 @@ public class SpigotScriptCommand implements TabExecutor {
             bukkitCommand.setUsage(usage);
             bukkitCommand.setAliases(aliases);
             bukkitCommand.setPermission(permission);
-            bukkitCommand.setPermissionMessage(permissionMessage);
             bukkitCommand.setExecutor(this);
             this.bukkitCommand = bukkitCommand;
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -98,7 +96,7 @@ public class SpigotScriptCommand implements TabExecutor {
             if (result instanceof PyBoolean)
                 return ((PyBoolean) result).getBooleanValue();
             else
-                script.getLogger().log(Level.SEVERE, "Script command function '" + commandFunction.__name__ + "' should return a boolean!");
+                script.getLogger().log(Level.WARNING, "Script command function '" + commandFunction.__name__ + "' should return a boolean!");
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + label + "'");
             //Mimic Bukkit behavior
@@ -119,7 +117,7 @@ public class SpigotScriptCommand implements TabExecutor {
                         if (object instanceof String)
                             toReturn.add((String) object);
                         else {
-                            script.getLogger().log(Level.SEVERE, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str!");
+                            script.getLogger().log(Level.WARNING, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str!");
                             return Collections.emptyList();
                         }
                     }

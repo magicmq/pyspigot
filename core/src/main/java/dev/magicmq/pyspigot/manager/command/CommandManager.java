@@ -66,8 +66,56 @@ public abstract class CommandManager<T> {
      * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param name The name of the command to register
-     * @param description The description of the command
-     * @param usage The usage message for the command
+     * @param permission The required permission node to use this command. Can be null
+     * @return A ScriptCommand representing the command that was registered
+     */
+    public abstract T registerCommand(PyFunction commandFunction, String name, String permission);
+
+    /**
+     * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command
+     * @param name The name of the command to register
+     * @param permission The required permission node to use this command. Can be null
+     * @return A ScriptCommand representing the command that was registered
+     */
+    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String permission);
+
+    /**
+     * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param name The name of the command to register
+     * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
+     * @param permission The required permission node to use this command. Can be null
+     * @return A ScriptCommand representing the command that was registered
+     */
+    public abstract T registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission);
+
+    /**
+     * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command
+     * @param name The name of the command to register
+     * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
+     * @param permission The required permission node to use this command. Can be null
+     * @return A ScriptCommand representing the command that was registered
+     */
+    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission);
+
+    /**
+     * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param name The name of the command to register
+     * @param description The description of the command. Can be null (or an empty string)
+     * @param usage The usage message for the command. Can be null (or an empty string)
      * @return A ScriptCommand representing the command that was registered
      */
     public abstract T registerCommand(PyFunction commandFunction, String name, String description, String usage);
@@ -79,8 +127,8 @@ public abstract class CommandManager<T> {
      * @param commandFunction The command function that should be called when the command is executed
      * @param tabFunction The tab function that should be called for tab completion of the command
      * @param name The name of the command to register
-     * @param description The description of the command
-     * @param usage The usage message for the command
+     * @param description The description of the command. Can be null (or an empty string)
+     * @param usage The usage message for the command. Can be null (or an empty string)
      * @return A ScriptCommand representing the command that was registered
      */
     public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage);
@@ -91,9 +139,9 @@ public abstract class CommandManager<T> {
      * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param name The name of the command to register
-     * @param description The description of the command
-     * @param usage The usage message for the command
-     * @param aliases A List of String containing all the aliases for this command
+     * @param description The description of the command. Can be null (or an empty string)
+     * @param usage The usage message for the command. Can be null (or an empty string)
+     * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @return A ScriptCommand representing the command that was registered
      */
     public abstract T registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases);
@@ -105,9 +153,9 @@ public abstract class CommandManager<T> {
      * @param commandFunction The command function that should be called when the command is executed
      * @param tabFunction The tab function that should be called for tab completion of the command
      * @param name The name of the command to register
-     * @param description The description of the command
-     * @param usage The usage message for the command
-     * @param aliases A List of String containing all the aliases for this command
+     * @param description The description of the command. Can be null (or an empty string)
+     * @param usage The usage message for the command. Can be null (or an empty string)
+     * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @return A ScriptCommand representing the command that was registered
      */
     public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases);
@@ -119,14 +167,13 @@ public abstract class CommandManager<T> {
      * @param commandFunction The command function that should be called when the command is executed
      * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
      * @param name The name of the command to register
-     * @param description The description of the command. Use an empty string for no description
-     * @param usage The usage message for the command
+     * @param description The description of the command. Can be null (or an empty string)
+     * @param usage The usage message for the command. Can be null (or an empty string)
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null
-     * @param permissionMessage The message do display if there is insufficient permission to run the command. Can be null
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage);
+    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission);
 
     /**
      * Unregister a script's command.

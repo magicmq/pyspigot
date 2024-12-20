@@ -16,10 +16,14 @@
 
 package dev.magicmq.pyspigot.bungee.manager.command;
 
+import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.util.ScriptUtils;
+import net.md_5.bungee.api.ProxyServer;
 import org.python.core.PyFunction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,56 +37,103 @@ public class BungeeCommandManager extends CommandManager<BungeeScriptCommand> {
         super();
     }
 
-    //TODO
-
     @Override
     public BungeeScriptCommand registerCommand(PyFunction commandFunction, String name) {
-        return null;
+        return registerCommand(commandFunction, null, name, new ArrayList<>(), null);
     }
 
     @Override
     public BungeeScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
-        return null;
+        return registerCommand(commandFunction, tabFunction, name, new ArrayList<>(), null);
+    }
+
+    @Override
+    public BungeeScriptCommand registerCommand(PyFunction commandFunction, String name, String permission) {
+        return registerCommand(commandFunction, null, name, new ArrayList<>(), permission);
+    }
+
+    @Override
+    public BungeeScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String permission) {
+        return registerCommand(commandFunction, tabFunction, name, new ArrayList<>(), permission);
+    }
+
+    @Override
+    public BungeeScriptCommand registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission) {
+        return registerCommand(commandFunction, null, name, aliases, permission);
+    }
+
+    @Override
+    public BungeeScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        BungeeScriptCommand command = getCommand(script, name);
+        if (command == null) {
+            BungeeScriptCommand newCommand = new BungeeScriptCommand(script, commandFunction, tabFunction, name, aliases, permission);
+            addCommandToBungee(newCommand);
+            return newCommand;
+        } else
+            throw new RuntimeException("Command '" + name + "' is already registered");
     }
 
     @Override
     public BungeeScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
-        return null;
+        throw new UnsupportedOperationException("Setting command descriptions is not possible in BungeeCord. Use registerCommand(command)");
     }
 
     @Override
     public BungeeScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
-        return null;
+        throw new UnsupportedOperationException("Setting command descriptions is not possible in BungeeCord.");
     }
 
     @Override
     public BungeeScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
-        return null;
+        throw new UnsupportedOperationException("Setting command descriptions is not possible in BungeeCord.");
     }
 
     @Override
     public BungeeScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
-        return null;
+        throw new UnsupportedOperationException("Setting command descriptions is not possible in BungeeCord.");
     }
 
     @Override
-    public BungeeScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission, String permissionMessage) {
-        return null;
+    public BungeeScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+        throw new UnsupportedOperationException("Setting command descriptions is not possible in BungeeCord.");
     }
 
     @Override
     public void unregisterCommand(BungeeScriptCommand command) {
-
+        removeCommandFromBungee(command);
+        removeCommand(command.getScript(), command);
     }
 
     @Override
     public void unregisterCommands(Script script) {
-
+        List<BungeeScriptCommand> associatedCommands = getCommands(script);
+        if (associatedCommands != null) {
+            for (BungeeScriptCommand command : associatedCommands) {
+                removeCommandFromBungee(command);
+            }
+            removeCommands(script);
+        }
     }
 
     @Override
     public BungeeScriptCommand getCommand(Script script, String name) {
+        List<BungeeScriptCommand> scriptCommands = getCommands(script);
+        if (scriptCommands != null) {
+            for (BungeeScriptCommand command : scriptCommands) {
+                if (command.getName().equalsIgnoreCase(name))
+                    return command;
+            }
+        }
         return null;
+    }
+
+    private void addCommandToBungee(BungeeScriptCommand command) {
+        ProxyServer.getInstance().getPluginManager().registerCommand(PyBungee.get(), command);
+    }
+
+    private void removeCommandFromBungee(BungeeScriptCommand command) {
+        ProxyServer.getInstance().getPluginManager().unregisterCommand(command);
     }
 
     /**
