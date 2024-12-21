@@ -19,10 +19,10 @@ package dev.magicmq.pyspigot.util.logging;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.manager.script.Script;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.logging.*;
@@ -34,7 +34,7 @@ import java.util.logging.*;
 public class ScriptLogger extends Logger {
 
     private final String prefix;
-    private final String logFilePath;
+    private final Path logFilePath;
     private FileHandler handler;
 
     /**
@@ -46,8 +46,9 @@ public class ScriptLogger extends Logger {
         this.setParent(PyCore.get().getLogger());
 
         this.prefix = "[PySpigot/" + script.getName() + "] ";
-        File file = new File("");
-        this.logFilePath = file.getAbsolutePath().replace("\\", "/") + "/plugins/PySpigot/logs/" + script.getLogFileName();
+
+        Path scriptLogsFolder = PyCore.get().getDataFolderPath().resolve("logs");
+        this.logFilePath = scriptLogsFolder.resolve(script.getLogFileName());
     }
 
     /**
@@ -55,7 +56,7 @@ public class ScriptLogger extends Logger {
      * @throws IOException If there was an IOException when initializing the FileHandler for this logger
      */
     public void initFileHandler() throws IOException {
-        this.handler = new FileHandler(logFilePath, true);
+        this.handler = new FileHandler(logFilePath.toString(), true);
         handler.setFormatter(new ScriptLogFormatter());
         handler.setEncoding("UTF-8");
         this.addHandler(handler);

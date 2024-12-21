@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.util;
 
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
@@ -60,8 +61,8 @@ public final class ScriptUtils {
     public static PySystemState initPySystemState() {
         PySystemState sys = new PySystemState();
         sys.setClassLoader(LibraryManager.get().getClassLoader());
-        sys.path.append(new PyString("./plugins/PySpigot/python-libs/"));
-        sys.path.append(new PyString("./plugins/PySpigot/scripts/"));
+        sys.path.append(new PyString(PyCore.get().getDataFolderPath().resolve("python-libs").toString()));
+        sys.path.append(new PyString(PyCore.get().getDataFolderPath().resolve("scripts").toString()));
         return sys;
     }
 }

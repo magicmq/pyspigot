@@ -9,6 +9,7 @@
 
     <artifactId>pyspigot-bukkit</artifactId>
     <name>PySpigot</name>
+    <description>Python scripting engine for Bukkit Minecraft servers</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
