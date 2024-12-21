@@ -2,6 +2,7 @@
 # NOTE: This module is not meant to be edited. Any changes made will be overridden on plugin reload or server restart.
 ###
 
+from dev.magicmq.pyspigot.bungee import PyBungee
 from dev.magicmq.pyspigot.manager.script import ScriptManager
 from dev.magicmq.pyspigot.manager.script import GlobalVariables
 from dev.magicmq.pyspigot.manager.listener import ListenerManager
@@ -43,6 +44,13 @@ def redis_manager():
     """Get the redis manager for connecting to and interacting with redis servers."""
     return RedisManager.get()
 
+def protocol_manager():
+    """Get the protocol manager for working with ProtocolLib (registering/unregistering packet listeners, sending packets, etc.). Note: this function will return None if ProtocolLib is not available on the server."""
+    if PyBungee.get().isProtocolizeAvailable():
+        from dev.magicmq.pyspigot.bungee.manager.protocol import ProtocolManager
+        return ProtocolManager.get()
+    else: return None
+
 # Convenience variables for ease of access
 
 script = script_manager()
@@ -75,3 +83,8 @@ com = config_manager()
 database = database_manager()
 
 redis = redis_manager()
+
+protocol = protocol_manager()
+protocol_lib = protocol_manager()
+protocols = protocol_manager()
+pm = protocol_manager()

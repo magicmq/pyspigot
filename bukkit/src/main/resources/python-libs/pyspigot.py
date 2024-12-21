@@ -36,6 +36,14 @@ def config_manager():
     """Get the config manager for writing to and reading from config files."""
     return ConfigManager.get()
 
+def database_manager():
+    """Get the database manager for connecting to and interacting with databases."""
+    return DatabaseManager.get()
+
+def redis_manager():
+    """Get the redis manager for connecting to and interacting with redis servers."""
+    return RedisManager.get()
+
 def protocol_manager():
     """Get the protocol manager for working with ProtocolLib (registering/unregistering packet listeners, sending packets, etc.). Note: this function will return None if ProtocolLib is not available on the server."""
     if PySpigot.get().isProtocolLibAvailable():
@@ -49,14 +57,6 @@ def placeholder_manager():
         from dev.magicmq.pyspigot.bukkit.manager.placeholder import PlaceholderManager
         return PlaceholderManager.get()
     else: return None
-
-def database_manager():
-    """Get the database manager for connecting to and interacting with databases."""
-    return DatabaseManager.get()
-
-def redis_manager():
-    """Get the redis manager for connecting to and interacting with redis servers."""
-    return RedisManager.get()
 
 # Convenience variables for ease of access
 
@@ -87,6 +87,10 @@ config = config_manager()
 configs = config_manager()
 com = config_manager()
 
+database = database_manager()
+
+redis = redis_manager()
+
 protocol = protocol_manager()
 protocol_lib = protocol_manager()
 protocols = protocol_manager()
@@ -96,7 +100,3 @@ placeholder = placeholder_manager()
 placeholder_api = placeholder_manager()
 placeholders = placeholder_manager()
 plm = placeholder_manager()
-
-database = database_manager()
-
-redis = redis_manager()

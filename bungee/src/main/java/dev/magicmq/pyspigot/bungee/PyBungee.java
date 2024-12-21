@@ -22,6 +22,7 @@ import dev.magicmq.pyspigot.bungee.config.BungeePluginConfig;
 import dev.magicmq.pyspigot.bungee.manager.command.BungeeCommandManager;
 import dev.magicmq.pyspigot.bungee.manager.config.BungeeConfigManager;
 import dev.magicmq.pyspigot.bungee.manager.listener.BungeeListenerManager;
+import dev.magicmq.pyspigot.bungee.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.bungee.manager.script.BungeeScriptInfo;
 import dev.magicmq.pyspigot.bungee.manager.script.BungeeScriptManager;
 import dev.magicmq.pyspigot.bungee.manager.task.BungeeTaskManager;
@@ -84,6 +85,10 @@ public class PyBungee extends Plugin {
      * Can be used by scripts to access the {@link RedisManager}
      */
     public static RedisManager redis;
+    /**
+     * Can be used by scripts to access the {@link ProtocolManager}
+     */
+    public static ProtocolManager protocol;
 
     private Metrics metrics;
     private ScheduledTask versionCheckTask;
@@ -124,6 +129,9 @@ public class PyBungee extends Plugin {
         database = DatabaseManager.get();
         redis = RedisManager.get();
 
+        if (isProtocolizeAvailable())
+            protocol = ProtocolManager.get();
+
         if (pluginConfig.getMetricsEnabled())
             setupMetrics();
 
@@ -145,6 +153,14 @@ public class PyBungee extends Plugin {
 
         if (versionCheckTask != null)
             versionCheckTask.cancel();
+    }
+
+    /**
+     * Check if ProtocolLib is available on the server.
+     * @return True if ProtocolLib is loaded and enabled, false if otherwise
+     */
+    public boolean isProtocolizeAvailable() {
+        return ProxyServer.getInstance().getPluginManager().getPlugin("Protocolize") != null;
     }
 
     private void saveDefaultConfig() throws IOException {

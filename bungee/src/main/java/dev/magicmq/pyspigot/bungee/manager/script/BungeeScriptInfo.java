@@ -16,8 +16,15 @@
 
 package dev.magicmq.pyspigot.bungee.manager.script;
 
+import dev.magicmq.pyspigot.bungee.PyBungee;
+import dev.magicmq.pyspigot.bungee.manager.protocol.ProtocolManager;
+import dev.magicmq.pyspigot.bungee.manager.protocol.ScriptPacketListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptInfo;
+import net.md_5.bungee.api.ChatColor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BungeeScriptInfo extends ScriptInfo {
 
@@ -29,7 +36,13 @@ public class BungeeScriptInfo extends ScriptInfo {
 
     @Override
     public void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
-        //Don't need to add any additional managers
+        if (PyBungee.get().isProtocolizeAvailable()) {
+            List<ScriptPacketListener<?>> registeredPacketListeners = ProtocolManager.get().getPacketListeners(script);
+            List<String> packetTypes = new ArrayList<>();
+            if (registeredPacketListeners != null)
+                registeredPacketListeners.forEach(listener -> packetTypes.add(listener.toString()));
+            appendTo.append(ChatColor.GOLD + "Listening to packet types: " + ChatColor.RESET + packetTypes + "\n");
+        }
     }
 
     /**
