@@ -41,13 +41,13 @@ import java.util.stream.Stream;
  */
 public abstract class ScriptManager {
 
-    private static ScriptManager manager;
+    private static ScriptManager instance;
 
     private final Path scriptsFolder;
     private final LinkedHashMap<String, Script> scripts;
 
     protected ScriptManager() {
-        manager = this;
+        instance = this;
 
         scriptsFolder = PyCore.get().getDataFolderPath().resolve("scripts");
         this.scripts = new LinkedHashMap<>();
@@ -520,6 +520,6 @@ public abstract class ScriptManager {
      * @return The instance
      */
     public static ScriptManager get() {
-        return manager;
+        return instance;
     }
 }

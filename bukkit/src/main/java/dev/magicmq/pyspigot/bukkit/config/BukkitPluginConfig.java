@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Helper class to retrieve configuration values from the plugin config.
  */
-public class SpigotPluginConfig implements PluginConfig {
+public class BukkitPluginConfig implements PluginConfig {
 
     private FileConfiguration config;
 

@@ -30,17 +30,17 @@ import org.python.core.PyObject;
  * Represents an event executor for script event listeners.
  * @see org.bukkit.plugin.EventExecutor
  */
-public class SpigotScriptEventExecutor implements EventExecutor {
+public class BukkitScriptEventExecutor implements EventExecutor {
 
-    private final SpigotScriptEventListener scriptEventListener;
+    private final BukkitScriptEventListener scriptEventListener;
     private final Class<? extends Event> eventClass;
 
     /**
      *
-     * @param scriptEventListener The {@link SpigotScriptEventListener} associated with this ScriptEventExecutor
+     * @param scriptEventListener The {@link BukkitScriptEventListener} associated with this ScriptEventExecutor
      * @param eventClass The Bukkit event associated with this ScriptEventExecutor. Should be a {@link Class} of the Bukkit event
      */
-    public SpigotScriptEventExecutor(SpigotScriptEventListener scriptEventListener, Class<? extends Event> eventClass) {
+    public BukkitScriptEventExecutor(BukkitScriptEventListener scriptEventListener, Class<? extends Event> eventClass) {
         this.scriptEventListener = scriptEventListener;
         this.eventClass = eventClass;
     }

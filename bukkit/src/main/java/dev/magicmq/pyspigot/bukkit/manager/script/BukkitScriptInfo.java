@@ -28,11 +28,11 @@ import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpigotScriptInfo extends ScriptInfo {
+public class BukkitScriptInfo extends ScriptInfo {
 
-    private static SpigotScriptInfo instance;
+    private static BukkitScriptInfo instance;
 
-    private SpigotScriptInfo() {
+    private BukkitScriptInfo() {
         super();
     }
 
@@ -65,9 +65,9 @@ public class SpigotScriptInfo extends ScriptInfo {
      * Get the singleton instance of this SpigotScriptInfo.
      * @return The instance
      */
-    public static SpigotScriptInfo get() {
+    public static BukkitScriptInfo get() {
         if (instance == null)
-            instance = new SpigotScriptInfo();
+            instance = new BukkitScriptInfo();
         return instance;
     }
 }

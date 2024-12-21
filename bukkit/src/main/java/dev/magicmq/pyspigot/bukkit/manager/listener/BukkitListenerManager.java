@@ -30,35 +30,35 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class SpigotListenerManager extends ListenerManager<SpigotScriptEventListener, Event, EventPriority> {
+public class BukkitListenerManager extends ListenerManager<BukkitScriptEventListener, Event, EventPriority> {
 
-    private static SpigotListenerManager manager;
+    private static BukkitListenerManager instance;
 
-    private SpigotListenerManager() {
+    private BukkitListenerManager() {
         super();
     }
 
     @Override
-    public SpigotScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass) {
+    public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass) {
         return registerListener(function, eventClass, EventPriority.NORMAL, false);
     }
 
     @Override
-    public SpigotScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority) {
+    public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority) {
         return registerListener(function, eventClass, priority, false);
     }
 
     @Override
-    public SpigotScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
+    public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
         return registerListener(function, eventClass, EventPriority.NORMAL, ignoreCancelled);
     }
 
     @Override
-    public SpigotScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
+    public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        SpigotScriptEventListener listener = getListener(script, eventClass);
+        BukkitScriptEventListener listener = getListener(script, eventClass);
         if (listener == null) {
-            listener = new SpigotScriptEventListener(script, function, eventClass);
+            listener = new BukkitScriptEventListener(script, function, eventClass);
             Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, listener.getEventExecutor(), PySpigot.get(), ignoreCancelled);
             addListener(script, listener);
             return listener;
@@ -68,16 +68,16 @@ public class SpigotListenerManager extends ListenerManager<SpigotScriptEventList
     }
 
     @Override
-    public void unregisterListener(SpigotScriptEventListener listener) {
+    public void unregisterListener(BukkitScriptEventListener listener) {
         removeFromHandlers(listener);
         removeListener(listener.getScript(), listener);
     }
 
     @Override
     public void unregisterListeners(Script script) {
-        List<SpigotScriptEventListener> associatedListeners = getListeners(script);
+        List<BukkitScriptEventListener> associatedListeners = getListeners(script);
         if (associatedListeners != null) {
-            for (SpigotScriptEventListener eventListener : associatedListeners) {
+            for (BukkitScriptEventListener eventListener : associatedListeners) {
                 removeFromHandlers(eventListener);
             }
             removeListeners(script);
@@ -85,10 +85,10 @@ public class SpigotListenerManager extends ListenerManager<SpigotScriptEventList
     }
 
     @Override
-    public SpigotScriptEventListener getListener(Script script, Class<? extends Event> eventClass) {
-        List<SpigotScriptEventListener> scriptListeners = getListeners(script);
+    public BukkitScriptEventListener getListener(Script script, Class<? extends Event> eventClass) {
+        List<BukkitScriptEventListener> scriptListeners = getListeners(script);
         if (scriptListeners != null) {
-            for (SpigotScriptEventListener listener : scriptListeners) {
+            for (BukkitScriptEventListener listener : scriptListeners) {
                 if (listener.getEvent().equals(eventClass))
                     return listener;
             }
@@ -96,7 +96,7 @@ public class SpigotListenerManager extends ListenerManager<SpigotScriptEventList
         return null;
     }
 
-    private void removeFromHandlers(SpigotScriptEventListener listener) {
+    private void removeFromHandlers(BukkitScriptEventListener listener) {
         try {
             Method method = getRegistrationClass(listener.getEvent()).getDeclaredMethod("getHandlerList");
             method.setAccessible(true);
@@ -104,7 +104,7 @@ public class SpigotListenerManager extends ListenerManager<SpigotScriptEventList
             list.unregister(listener);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             //This should not happen, because all events *should* have getHandlerList defined
-            throw new RuntimeException("Unhandled exception when unregistering listener '" + listener.getEvent().getSimpleName() + "'", e);
+            throw new RuntimeException("Unhandled exception when unregistering listener for event '" + listener.getEvent().getSimpleName() + "'", e);
         }
     }
 
@@ -125,12 +125,12 @@ public class SpigotListenerManager extends ListenerManager<SpigotScriptEventList
     }
 
     /**
-     * Get the singleton instance of this SpigotListenerManager.
+     * Get the singleton instance of this BukkitListenerManager.
      * @return The instance
      */
-    public static SpigotListenerManager get() {
-        if (manager == null)
-            manager = new SpigotListenerManager();
-        return manager;
+    public static BukkitListenerManager get() {
+        if (instance == null)
+            instance = new BukkitListenerManager();
+        return instance;
     }
 }

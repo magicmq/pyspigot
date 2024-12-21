@@ -23,24 +23,24 @@ import org.bukkit.command.TabExecutor;
 
 import java.util.List;
 
-public class SpigotPluginCommand implements TabExecutor {
+public class BukkitPluginCommand implements TabExecutor {
 
     private final PySpigotCommand baseCommand;
 
-    public SpigotPluginCommand() {
+    public BukkitPluginCommand() {
         baseCommand = new PySpigotCommand();
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SpigotCommandSender commandSender = new SpigotCommandSender(sender);
+        BukkitCommandSender commandSender = new BukkitCommandSender(sender);
         baseCommand.onCommand(commandSender, label, args);
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        SpigotCommandSender commandSender = new SpigotCommandSender(sender);
+        BukkitCommandSender commandSender = new BukkitCommandSender(sender);
         return baseCommand.onTabComplete(commandSender, args);
     }
 }

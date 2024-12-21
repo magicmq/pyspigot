@@ -24,7 +24,7 @@ import java.nio.file.Path;
 
 public class BungeeConfigManager extends ConfigManager<BungeeScriptConfig> {
 
-    private static BungeeConfigManager manager;
+    private static BungeeConfigManager instance;
 
     private BungeeConfigManager() {
         super();
@@ -49,9 +49,9 @@ public class BungeeConfigManager extends ConfigManager<BungeeScriptConfig> {
      * @return The instance
      */
     public static BungeeConfigManager get() {
-        if (manager == null)
-            manager = new BungeeConfigManager();
-        return manager;
+        if (instance == null)
+            instance = new BungeeConfigManager();
+        return instance;
     }
 
 }

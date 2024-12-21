@@ -29,12 +29,12 @@ import java.util.List;
  */
 public abstract class CommandManager<T> {
 
-    private static CommandManager<?> manager;
+    private static CommandManager<?> instance;
 
     private final HashMap<Script, List<T>> registeredCommands;
 
     protected CommandManager() {
-        manager = this;
+        instance = this;
 
         registeredCommands = new HashMap<>();
     }
@@ -236,6 +236,6 @@ public abstract class CommandManager<T> {
      * @return The instance
      */
     public static CommandManager<?> get() {
-        return manager;
+        return instance;
     }
 }

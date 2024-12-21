@@ -31,7 +31,7 @@ import org.bukkit.event.server.PluginDisableEvent;
 
 import java.util.logging.Level;
 
-public class SpigotListener implements Listener {
+public class BukkitListener implements Listener {
 
     @EventHandler
     public void onDisable(PluginDisableEvent event) {

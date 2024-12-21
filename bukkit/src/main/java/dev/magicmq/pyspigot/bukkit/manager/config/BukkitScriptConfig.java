@@ -28,7 +28,7 @@ import java.nio.file.Paths;
  * A class representing a script configuration file.
  * @see org.bukkit.configuration.file.YamlConfiguration
  */
-public class SpigotScriptConfig extends YamlConfiguration {
+public class BukkitScriptConfig extends YamlConfiguration {
 
     private final File configFile;
     private final String defaults;
@@ -38,7 +38,7 @@ public class SpigotScriptConfig extends YamlConfiguration {
      * @param configFile The configuration file
      * @param defaults A YAML-formatted string containing the desired default values for the configuration
      */
-    public SpigotScriptConfig(File configFile, String defaults) {
+    public BukkitScriptConfig(File configFile, String defaults) {
         this.configFile = configFile;
         this.defaults = defaults;
     }

@@ -33,13 +33,13 @@ import org.python.core.PyException;
 
 import java.nio.file.Path;
 
-public class SpigotScriptManager extends ScriptManager {
+public class BukkitScriptManager extends ScriptManager {
 
-    private static SpigotScriptManager manager;
+    private static BukkitScriptManager instance;
 
     private BukkitTask startScriptTask;
 
-    private SpigotScriptManager() {
+    private BukkitScriptManager() {
         super();
     }
 
@@ -81,27 +81,27 @@ public class SpigotScriptManager extends ScriptManager {
 
     @Override
     public ScriptOptions newScriptOptions() {
-        return new SpigotScriptOptions();
+        return new BukkitScriptOptions();
     }
 
     @Override
     public ScriptOptions newScriptOptions(String scriptName) throws InvalidConfigurationException {
-        return new SpigotScriptOptions(scriptName);
+        return new BukkitScriptOptions(scriptName);
     }
 
     @Override
     public Script newScript(Path path, String name, ScriptOptions options) {
-        return new SpigotScript(path, name, (SpigotScriptOptions) options);
+        return new BukkitScript(path, name, (BukkitScriptOptions) options);
     }
 
     @Override
     public void initScriptPermissions(Script script) {
-        ((SpigotScript) script).initPermissions();
+        ((BukkitScript) script).initPermissions();
     }
 
     @Override
     public void removeScriptPermissions(Script script) {
-        ((SpigotScript) script).removePermissions();
+        ((BukkitScript) script).removePermissions();
     }
 
     @Override
@@ -117,12 +117,12 @@ public class SpigotScriptManager extends ScriptManager {
     }
 
     /**
-     * Get the singleton instance of this SpigotScriptManager.
+     * Get the singleton instance of this BukkitScriptManager.
      * @return The instance
      */
-    public static SpigotScriptManager get() {
-        if (manager == null)
-            manager = new SpigotScriptManager();
-        return manager;
+    public static BukkitScriptManager get() {
+        if (instance == null)
+            instance = new BukkitScriptManager();
+        return instance;
     }
 }

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BungeeScriptManager extends ScriptManager {
 
-    private static BungeeScriptManager manager;
+    private static BungeeScriptManager instance;
 
     private ScheduledTask startScriptTask;
 
@@ -113,8 +113,8 @@ public class BungeeScriptManager extends ScriptManager {
      * @return The instance
      */
     public static BungeeScriptManager get() {
-        if (manager == null)
-            manager = new BungeeScriptManager();
-        return manager;
+        if (instance == null)
+            instance = new BungeeScriptManager();
+        return instance;
     }
 }

@@ -29,12 +29,12 @@ import java.util.List;
  */
 public abstract class TaskManager {
 
-    private static TaskManager manager;
+    private static TaskManager instance;
 
     private final HashMap<Script, List<Task>> activeTasks;
 
     protected TaskManager() {
-        manager = this;
+        instance = this;
 
         activeTasks = new HashMap<>();
     }
@@ -324,6 +324,6 @@ public abstract class TaskManager {
     }
 
     public static TaskManager get() {
-        return manager;
+        return instance;
     }
 }

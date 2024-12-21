@@ -40,7 +40,7 @@ import java.util.logging.Level;
 
 public class BungeeListenerManager extends ListenerManager<BungeeScriptEventListener, Event, Byte> {
 
-    private static BungeeListenerManager manager;
+    private static BungeeListenerManager instance;
 
     private Multimap<Plugin, Listener> listenersByPlugin;
     private Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority;
@@ -211,8 +211,8 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
      * @return The instance
      */
     public static BungeeListenerManager get() {
-        if (manager == null)
-            manager = new BungeeListenerManager();
-        return manager;
+        if (instance == null)
+            instance = new BungeeListenerManager();
+        return instance;
     }
 }

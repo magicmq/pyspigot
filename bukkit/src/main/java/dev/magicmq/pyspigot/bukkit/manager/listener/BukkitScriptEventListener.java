@@ -25,12 +25,12 @@ import org.python.core.PyFunction;
  * A dummy listener object that holds an event a script is currently listening to.
  * @see org.bukkit.event.Listener
  */
-public class SpigotScriptEventListener implements Listener {
+public class BukkitScriptEventListener implements Listener {
 
     private final Script script;
     private final PyFunction listenerFunction;
     private final Class<? extends Event> event;
-    private final SpigotScriptEventExecutor eventExecutor;
+    private final BukkitScriptEventExecutor eventExecutor;
 
     /**
      *
@@ -38,11 +38,11 @@ public class SpigotScriptEventListener implements Listener {
      * @param listenerFunction The script function that should be called when the event occurs
      * @param event The Bukkit event associated with this listener. Should be a {@link Class} of the Bukkit event
      */
-    public SpigotScriptEventListener(Script script, PyFunction listenerFunction, Class<? extends Event> event) {
+    public BukkitScriptEventListener(Script script, PyFunction listenerFunction, Class<? extends Event> event) {
         this.script = script;
         this.listenerFunction = listenerFunction;
         this.event = event;
-        this.eventExecutor = new SpigotScriptEventExecutor(this, event);
+        this.eventExecutor = new BukkitScriptEventExecutor(this, event);
     }
 
     /**
@@ -72,15 +72,15 @@ public class SpigotScriptEventListener implements Listener {
     }
 
     /**
-     * Get the {@link SpigotScriptEventExecutor} associated with this script event listener.
-     * @return The {@link SpigotScriptEventExecutor} associated with this script event listener
+     * Get the {@link BukkitScriptEventExecutor} associated with this script event listener.
+     * @return The {@link BukkitScriptEventExecutor} associated with this script event listener
      */
-    public SpigotScriptEventExecutor getEventExecutor() {
+    public BukkitScriptEventExecutor getEventExecutor() {
         return eventExecutor;
     }
 
     /**
-     * Prints a representation of this ScriptEventListener in string format, including the event being listened to by the listener
+     * Prints a representation of this BukkitScriptEventListener in string format, including the event being listened to by the listener
      * @return A string representation of the ScriptEventListener
      */
     @Override

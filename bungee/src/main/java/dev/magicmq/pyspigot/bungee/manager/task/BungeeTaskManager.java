@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BungeeTaskManager extends TaskManager {
 
-    private static BungeeTaskManager manager;
+    private static BungeeTaskManager instance;
 
     private BungeeTaskManager() {
         super();
@@ -119,8 +119,8 @@ public class BungeeTaskManager extends TaskManager {
      * @return The instance
      */
     public static BungeeTaskManager get() {
-        if (manager == null)
-            manager = new BungeeTaskManager();
-        return manager;
+        if (instance == null)
+            instance = new BungeeTaskManager();
+        return instance;
     }
 }

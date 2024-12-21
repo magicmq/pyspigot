@@ -22,36 +22,36 @@ import dev.magicmq.pyspigot.manager.config.ConfigManager;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class SpigotConfigManager extends ConfigManager<SpigotScriptConfig> {
+public class BukkitConfigManager extends ConfigManager<BukkitScriptConfig> {
 
-    private static SpigotConfigManager manager;
+    private static BukkitConfigManager instance;
 
-    private SpigotConfigManager() {
+    private BukkitConfigManager() {
         super();
     }
 
     @Override
-    public SpigotScriptConfig loadConfig(String filePath) throws IOException, InvalidConfigurationException {
+    public BukkitScriptConfig loadConfig(String filePath) throws IOException, InvalidConfigurationException {
         return loadConfig(filePath, null);
     }
 
     @Override
-    public SpigotScriptConfig loadConfig(String filePath, String defaults) throws IOException, InvalidConfigurationException {
+    public BukkitScriptConfig loadConfig(String filePath, String defaults) throws IOException, InvalidConfigurationException {
         Path configFile = createConfigIfNotExists(filePath);
 
-        SpigotScriptConfig config = new SpigotScriptConfig(configFile.toFile(), defaults);
+        BukkitScriptConfig config = new BukkitScriptConfig(configFile.toFile(), defaults);
         config.load();
         return config;
     }
 
     /**
-     * Get the singleton instance of this SpigotConfigManager.
+     * Get the singleton instance of this BukkitConfigManager.
      * @return The instance
      */
-    public static SpigotConfigManager get() {
-        if (manager == null)
-            manager = new SpigotConfigManager();
-        return manager;
+    public static BukkitConfigManager get() {
+        if (instance == null)
+            instance = new BukkitConfigManager();
+        return instance;
     }
 
 }

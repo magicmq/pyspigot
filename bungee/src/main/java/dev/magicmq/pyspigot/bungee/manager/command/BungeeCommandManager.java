@@ -28,7 +28,7 @@ import java.util.List;
 
 public class BungeeCommandManager extends CommandManager<BungeeScriptCommand> {
 
-    private static BungeeCommandManager manager;
+    private static BungeeCommandManager instance;
 
     private BungeeCommandManager() {
         super();
@@ -138,8 +138,8 @@ public class BungeeCommandManager extends CommandManager<BungeeScriptCommand> {
      * @return The instance
      */
     public static BungeeCommandManager get() {
-        if (manager == null)
-            manager = new BungeeCommandManager();
-        return manager;
+        if (instance == null)
+            instance = new BungeeCommandManager();
+        return instance;
     }
 }

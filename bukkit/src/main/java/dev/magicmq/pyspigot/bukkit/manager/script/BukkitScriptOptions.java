@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * An extension of the base {@link ScriptOptions} class that includes Bukkit-specific code for parsing script permissions.
  */
-public class SpigotScriptOptions extends ScriptOptions {
+public class BukkitScriptOptions extends ScriptOptions {
 
     private final PermissionDefault permissionDefault;
     private final List<Permission> permissions;
@@ -37,7 +37,7 @@ public class SpigotScriptOptions extends ScriptOptions {
     /**
      * Initialize a new ScriptOptions with the default values.
      */
-    public SpigotScriptOptions() {
+    public BukkitScriptOptions() {
         super();
         this.permissionDefault = PermissionDefault.getByName(PyCore.get().getConfig().scriptOptionPermissionDefault());
         this.permissions = Permission.loadPermissions(PyCore.get().getConfig().scriptOptionPermissions(), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
@@ -47,7 +47,7 @@ public class SpigotScriptOptions extends ScriptOptions {
      * Initialize a new ScriptOptions using the appropriate values in the script_options.yml file, using the script name to search for the values.
      * @param scriptName The name of the script whose script options should be initialized
      */
-    public SpigotScriptOptions(String scriptName) throws InvalidConfigurationException {
+    public BukkitScriptOptions(String scriptName) throws InvalidConfigurationException {
         super(scriptName);
         if (ScriptOptionsConfig.contains(scriptName)) {
             this.permissionDefault = PermissionDefault.getByName(ScriptOptionsConfig.getPermissionDefault(scriptName, PyCore.get().getConfig().scriptOptionPermissionDefault()));

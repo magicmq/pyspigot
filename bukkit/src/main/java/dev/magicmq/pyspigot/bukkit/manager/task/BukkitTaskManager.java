@@ -17,22 +17,17 @@
 package dev.magicmq.pyspigot.bukkit.manager.task;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
-import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.task.RepeatingTask;
 import dev.magicmq.pyspigot.manager.task.SyncCallbackTask;
 import dev.magicmq.pyspigot.manager.task.Task;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
-import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Bukkit;
-import org.python.core.PyFunction;
 
-import java.util.List;
+public class BukkitTaskManager extends TaskManager {
 
-public class SpigotTaskManager extends TaskManager {
+    private static BukkitTaskManager instance;
 
-    private static SpigotTaskManager manager;
-
-    private SpigotTaskManager() {
+    private BukkitTaskManager() {
         super();
     }
 
@@ -87,12 +82,12 @@ public class SpigotTaskManager extends TaskManager {
     }
 
     /**
-     * Get the singleton instance of this TaskManager.
+     * Get the singleton instance of this BukkitTaskManager.
      * @return The instance
      */
-    public static SpigotTaskManager get() {
-        if (manager == null)
-            manager = new SpigotTaskManager();
-        return manager;
+    public static BukkitTaskManager get() {
+        if (instance == null)
+            instance = new BukkitTaskManager();
+        return instance;
     }
 }

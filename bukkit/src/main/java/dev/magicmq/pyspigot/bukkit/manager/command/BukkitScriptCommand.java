@@ -44,7 +44,7 @@ import java.util.logging.Level;
  * @see org.bukkit.command.TabExecutor
  * @see org.bukkit.command.defaults.BukkitCommand
  */
-public class SpigotScriptCommand implements TabExecutor {
+public class BukkitScriptCommand implements TabExecutor {
 
     private final Script script;
     private final PyFunction commandFunction;
@@ -65,7 +65,7 @@ public class SpigotScriptCommand implements TabExecutor {
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null
      */
-    public SpigotScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+    public BukkitScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         this.script = script;
         this.commandFunction = commandFunction;
         this.tabFunction = tabFunction;

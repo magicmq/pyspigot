@@ -31,12 +31,12 @@ import java.util.List;
  */
 public abstract class ListenerManager<T, S, U> {
 
-    private static ListenerManager<?, ?, ?> manager;
+    private static ListenerManager<?, ?, ?> instance;
 
     private final HashMap<Script, List<T>> registeredListeners;
 
     protected ListenerManager() {
-        manager = this;
+        instance = this;
 
         registeredListeners = new HashMap<>();
     }
@@ -146,7 +146,7 @@ public abstract class ListenerManager<T, S, U> {
      * @return The instance
      */
     public static ListenerManager<?, ?, ?> get() {
-        return manager;
+        return instance;
     }
 
 }

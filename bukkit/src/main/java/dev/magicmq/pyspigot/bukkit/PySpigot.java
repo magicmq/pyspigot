@@ -17,16 +17,16 @@
 package dev.magicmq.pyspigot.bukkit;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.bukkit.command.SpigotPluginCommand;
-import dev.magicmq.pyspigot.bukkit.config.SpigotPluginConfig;
-import dev.magicmq.pyspigot.bukkit.manager.command.SpigotCommandManager;
-import dev.magicmq.pyspigot.bukkit.manager.config.SpigotConfigManager;
-import dev.magicmq.pyspigot.bukkit.manager.listener.SpigotListenerManager;
+import dev.magicmq.pyspigot.bukkit.command.BukkitPluginCommand;
+import dev.magicmq.pyspigot.bukkit.config.BukkitPluginConfig;
+import dev.magicmq.pyspigot.bukkit.manager.command.BukkitCommandManager;
+import dev.magicmq.pyspigot.bukkit.manager.config.BukkitConfigManager;
+import dev.magicmq.pyspigot.bukkit.manager.listener.BukkitListenerManager;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
-import dev.magicmq.pyspigot.bukkit.manager.script.SpigotScriptInfo;
-import dev.magicmq.pyspigot.bukkit.manager.script.SpigotScriptManager;
-import dev.magicmq.pyspigot.bukkit.manager.task.SpigotTaskManager;
+import dev.magicmq.pyspigot.bukkit.manager.script.BukkitScriptInfo;
+import dev.magicmq.pyspigot.bukkit.manager.script.BukkitScriptManager;
+import dev.magicmq.pyspigot.bukkit.manager.task.BukkitTaskManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
@@ -53,37 +53,29 @@ public class PySpigot extends JavaPlugin {
     private static PyCore core;
 
     /**
-     * Can be used by scripts to access the {@link SpigotScriptManager}.
+     * Can be used by scripts to access the {@link BukkitScriptManager}.
      */
-    public static SpigotScriptManager script;
+    public static BukkitScriptManager script;
     /**
      * Can be used by scripts to access the {@link GlobalVariables}
      */
     public static GlobalVariables global_vars;
     /**
-     * Can be used by scripts to access the {@link SpigotListenerManager}.
+     * Can be used by scripts to access the {@link BukkitListenerManager}.
      */
-    public static SpigotListenerManager listener;
+    public static BukkitListenerManager listener;
     /**
-     * Can be used by scripts to access the {@link SpigotCommandManager}.
+     * Can be used by scripts to access the {@link BukkitCommandManager}.
      */
-    public static SpigotCommandManager command;
+    public static BukkitCommandManager command;
     /**
-     * Can be used by scripts to access the {@link SpigotTaskManager}.
+     * Can be used by scripts to access the {@link BukkitTaskManager}.
      */
-    public static SpigotTaskManager scheduler;
+    public static BukkitTaskManager scheduler;
     /**
-     * Can be used by scripts to access the {@link SpigotConfigManager}.
+     * Can be used by scripts to access the {@link BukkitConfigManager}.
      */
-    public static SpigotConfigManager config;
-    /**
-     * Can be used by scripts to access the {@link ProtocolManager}.
-     */
-    public static ProtocolManager protocol;
-    /**
-     * Can be used by scripts to access the {@link PlaceholderManager}.
-     */
-    public static PlaceholderManager placeholder;
+    public static BukkitConfigManager config;
     /**
      * Can be used by scripts to access the {@link DatabaseManager}
      */
@@ -92,6 +84,14 @@ public class PySpigot extends JavaPlugin {
      * Can be used by scripts to access the {@link RedisManager}
      */
     public static RedisManager redis;
+    /**
+     * Can be used by scripts to access the {@link ProtocolManager}.
+     */
+    public static ProtocolManager protocol;
+    /**
+     * Can be used by scripts to access the {@link PlaceholderManager}.
+     */
+    public static PlaceholderManager placeholder;
 
     private Metrics metrics;
     private BukkitTask versionCheckTask;
@@ -102,7 +102,7 @@ public class PySpigot extends JavaPlugin {
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
-        SpigotPluginConfig pluginConfig = new SpigotPluginConfig();
+        BukkitPluginConfig pluginConfig = new BukkitPluginConfig();
         pluginConfig.reload();
 
         boolean paper;
@@ -124,9 +124,9 @@ public class PySpigot extends JavaPlugin {
         );
         core.init();
 
-        getCommand("pyspigot").setExecutor(new SpigotPluginCommand());
+        getCommand("pyspigot").setExecutor(new BukkitPluginCommand());
 
-        Bukkit.getPluginManager().registerEvents(new SpigotListener(), this);
+        Bukkit.getPluginManager().registerEvents(new BukkitListener(), this);
 
         try {
             checkReflection();
@@ -135,12 +135,12 @@ public class PySpigot extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
-        script = SpigotScriptManager.get();
+        script = BukkitScriptManager.get();
         global_vars = GlobalVariables.get();
-        listener = SpigotListenerManager.get();
-        command = SpigotCommandManager.get();
-        scheduler = SpigotTaskManager.get();
-        config = SpigotConfigManager.get();
+        listener = BukkitListenerManager.get();
+        command = BukkitCommandManager.get();
+        scheduler = BukkitTaskManager.get();
+        config = BukkitConfigManager.get();
         database = DatabaseManager.get();
         redis = RedisManager.get();
 
@@ -153,7 +153,7 @@ public class PySpigot extends JavaPlugin {
         if (pluginConfig.getMetricsEnabled())
             setupMetrics();
 
-        SpigotScriptInfo.get();
+        BukkitScriptInfo.get();
 
         core.fetchSpigotVersion();
         Bukkit.getScheduler().runTaskLater(this, core::compareVersions, 20L);

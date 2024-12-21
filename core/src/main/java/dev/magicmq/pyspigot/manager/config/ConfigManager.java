@@ -30,12 +30,12 @@ import java.util.logging.Level;
  */
 public abstract class ConfigManager<T> {
 
-    private static ConfigManager<?> manager;
+    private static ConfigManager<?> instance;
 
     private final Path configFolder;
 
     protected ConfigManager() {
-        manager = this;
+        instance = this;
 
         configFolder = PyCore.get().getDataFolderPath().resolve("configs");
         if (!Files.exists(configFolder)) {
@@ -125,7 +125,7 @@ public abstract class ConfigManager<T> {
      * @return The instance
      */
     public static ConfigManager<?> get() {
-        return manager;
+        return instance;
     }
 
 }

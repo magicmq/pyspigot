@@ -34,16 +34,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
-public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
+public class BukkitCommandManager extends CommandManager<BukkitScriptCommand> {
 
-    private static SpigotCommandManager manager;
+    private static BukkitCommandManager instance;
 
     private final Method bSyncCommands;
 
     private SimpleCommandMap bCommandMap;
     private HashMap<String, Command> bKnownCommands;
 
-    private SpigotCommandManager() {
+    private BukkitCommandManager() {
         super();
 
         bSyncCommands = ReflectionUtils.getMethod(Bukkit.getServer().getClass(), "syncCommands");
@@ -59,61 +59,61 @@ public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name) {
         return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
         return registerCommand(commandFunction, tabFunction, name, "", "", new ArrayList<>(), null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name, String permission) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name, String permission) {
         return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), permission);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String permission) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String permission) {
         return registerCommand(commandFunction, tabFunction, name, "", "", new ArrayList<>(), permission);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission) {
         return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
         return registerCommand(commandFunction, tabFunction, name, "", "", aliases, null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
         return registerCommand(commandFunction, null, name, description, usage, new ArrayList<>(), null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
         return registerCommand(commandFunction, tabFunction, name, description, usage, new ArrayList<>(), null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
         return registerCommand(commandFunction, null, name, description, usage, aliases, null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
         return registerCommand(commandFunction, tabFunction, name, description, usage, aliases, null);
     }
 
     @Override
-    public SpigotScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        SpigotScriptCommand command = getCommand(script, name);
+        BukkitScriptCommand command = getCommand(script, name);
         if (command == null) {
-            SpigotScriptCommand newCommand = new SpigotScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
+            BukkitScriptCommand newCommand = new BukkitScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
             if (!addCommandToBukkit(newCommand))
                 script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");
             syncBukkitCommands();
@@ -125,7 +125,7 @@ public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
     }
 
     @Override
-    public void unregisterCommand(SpigotScriptCommand command) {
+    public void unregisterCommand(BukkitScriptCommand command) {
         removeCommandFromBukkit(command);
         command.removeHelp();
         syncBukkitCommands();
@@ -134,9 +134,9 @@ public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
 
     @Override
     public void unregisterCommands(Script script) {
-        List<SpigotScriptCommand> associatedCommands = getCommands(script);
+        List<BukkitScriptCommand> associatedCommands = getCommands(script);
         if (associatedCommands != null) {
-            for (SpigotScriptCommand command : associatedCommands) {
+            for (BukkitScriptCommand command : associatedCommands) {
                 removeCommandFromBukkit(command);
                 command.removeHelp();
             }
@@ -146,10 +146,10 @@ public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
     }
 
     @Override
-    public SpigotScriptCommand getCommand(Script script, String name) {
-        List<SpigotScriptCommand> scriptCommands = getCommands(script);
+    public BukkitScriptCommand getCommand(Script script, String name) {
+        List<BukkitScriptCommand> scriptCommands = getCommands(script);
         if (scriptCommands != null) {
-            for (SpigotScriptCommand command : scriptCommands) {
+            for (BukkitScriptCommand command : scriptCommands) {
                 if (command.getName().equalsIgnoreCase(name))
                     return command;
             }
@@ -157,11 +157,11 @@ public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
         return null;
     }
 
-    private boolean addCommandToBukkit(SpigotScriptCommand command) {
+    private boolean addCommandToBukkit(BukkitScriptCommand command) {
         return bCommandMap.register(command.getScript().getName(), command.getBukkitCommand());
     }
 
-    private void removeCommandFromBukkit(SpigotScriptCommand command) {
+    private void removeCommandFromBukkit(BukkitScriptCommand command) {
         command.getBukkitCommand().unregister(bCommandMap);
         bKnownCommands.remove(command.getBukkitCommand().getLabel());
         for (String alias : command.getBukkitCommand().getAliases())
@@ -193,13 +193,13 @@ public class SpigotCommandManager extends CommandManager<SpigotScriptCommand> {
     }
 
     /**
-     * Get the singleton instance of this SpigotCommandManager.
+     * Get the singleton instance of this BukkitCommandManager.
      * @return The instance
      */
-    public static SpigotCommandManager get() {
-        if (manager == null)
-            manager = new SpigotCommandManager();
-        return manager;
+    public static BukkitCommandManager get() {
+        if (instance == null)
+            instance = new BukkitCommandManager();
+        return instance;
     }
 }
 

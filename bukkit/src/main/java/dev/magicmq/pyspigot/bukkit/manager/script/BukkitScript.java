@@ -27,7 +27,7 @@ import java.util.logging.Level;
 /**
  * An extension of the base {@link Script} class that includes Bukkit-specific code for initializing script permissions.
  */
-public class SpigotScript extends Script {
+public class BukkitScript extends Script {
 
     /**
      *
@@ -35,7 +35,7 @@ public class SpigotScript extends Script {
      * @param name The name of this script. Should contain its extension (.py)
      * @param options The {@link ScriptOptions} for this script
      */
-    public SpigotScript(Path path, String name, SpigotScriptOptions options) {
+    public BukkitScript(Path path, String name, BukkitScriptOptions options) {
         super(path, name, options);
     }
 
@@ -43,7 +43,7 @@ public class SpigotScript extends Script {
      * Adds the script's permission (from its options) to the server.
      */
     public void initPermissions() {
-        SpigotScriptOptions options = (SpigotScriptOptions) getOptions();
+        BukkitScriptOptions options = (BukkitScriptOptions) getOptions();
         for (Permission permission : options.getPermissions()) {
             try {
                 Bukkit.getPluginManager().addPermission(permission);
@@ -57,7 +57,7 @@ public class SpigotScript extends Script {
      * Removes the script's permissions from the server.
      */
     public void removePermissions() {
-        SpigotScriptOptions options = (SpigotScriptOptions) getOptions();
+        BukkitScriptOptions options = (BukkitScriptOptions) getOptions();
         for (Permission permission : options.getPermissions()) {
             Bukkit.getPluginManager().removePermission(permission);
         }

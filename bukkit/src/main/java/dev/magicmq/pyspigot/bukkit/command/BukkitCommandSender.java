@@ -21,9 +21,9 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class SpigotCommandSender extends AbstractCommandSender<CommandSender> {
+public class BukkitCommandSender extends AbstractCommandSender<CommandSender> {
 
-    public SpigotCommandSender(CommandSender sender) {
+    public BukkitCommandSender(CommandSender sender) {
         super(sender);
     }
 
