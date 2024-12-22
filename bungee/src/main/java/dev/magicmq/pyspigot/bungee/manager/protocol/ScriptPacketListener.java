@@ -95,6 +95,6 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
      */
     @Override
     public String toString() {
-        return String.format("ScriptPacketListener[Packet Type: %s]", type().toString());
+        return String.format("ScriptPacketListener[Packet: %s]", type().toString());
     }
 }

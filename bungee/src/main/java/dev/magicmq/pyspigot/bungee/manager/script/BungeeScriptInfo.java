@@ -41,7 +41,7 @@ public class BungeeScriptInfo extends ScriptInfo {
             List<String> packetTypes = new ArrayList<>();
             if (registeredPacketListeners != null)
                 registeredPacketListeners.forEach(listener -> packetTypes.add(listener.toString()));
-            appendTo.append(ChatColor.GOLD + "Listening to packet types: " + ChatColor.RESET + packetTypes + "\n");
+            appendTo.append(ChatColor.GOLD + "Listening to packets: " + ChatColor.RESET + packetTypes + "\n");
         }
     }
 
