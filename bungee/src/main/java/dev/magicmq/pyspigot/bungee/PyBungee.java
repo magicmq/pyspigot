@@ -90,8 +90,9 @@ public class PyBungee extends Plugin implements PlatformAdapter {
             File configFile = new File(getDataFolder(), "config.yml");
             if (!configFile.exists()) {
                 FileOutputStream outputStream = new FileOutputStream(configFile);
-                InputStream in = getResourceAsStream("config.yml");
-                in.transferTo(outputStream);
+                try (InputStream in = getResourceAsStream("config.yml")) {
+                    in.transferTo(outputStream);
+                }
             }
 
             return new BungeePluginConfig();
