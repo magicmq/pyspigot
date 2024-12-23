@@ -77,11 +77,11 @@ public class PyCore {
             paper = false;
         }
 
-        initFolders();
-        initHelperLib();
-
         config = adapter.initConfig();
         config.reload();
+
+        initFolders();
+        initHelperLib();
 
         adapter.initCommands();
         adapter.initListeners();
