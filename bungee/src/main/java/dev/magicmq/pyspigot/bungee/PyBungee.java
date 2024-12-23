@@ -69,8 +69,10 @@ public class PyBungee extends Plugin implements PlatformAdapter {
 
         }
 
-        if (reflectionPassed)
+        if (reflectionPassed) {
             PyCore.newInstance(this);
+            PyCore.get().init();
+        }
     }
 
     @Override
