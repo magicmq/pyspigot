@@ -14,48 +14,39 @@
  *    limitations under the License.
  */
 
-package dev.magicmq.pyspigot.command;
+package dev.magicmq.pyspigot.util.player;
+
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
 /**
  * A utility class that wraps a platform-specific command sender object.
- * @param <T> The platform-specific command sender type
  */
-public abstract class AbstractCommandSender<T> {
-
-    protected T sender;
-
-    /**
-     *
-     * @param sender The command sender
-     */
-    public AbstractCommandSender(T sender) {
-        this.sender = sender;
-    }
+public interface CommandSenderAdapter {
 
     /**
      * Check if the command sender has a permission via a platform-specific implementation.
      * @param permission The permission to check
      * @return True if the command sender has the permission, false if it does not
      */
-    public abstract boolean hasPermission(String permission);
+    boolean hasPermission(String permission);
 
     /**
      * Send a message to the command sender via a platform-specific implementation.
      * @param message The message to send
      */
-    public abstract void sendMessage(String message);
+    void sendMessage(String message);
 
     /**
      * Send a message to the command sender via a platform-specific implementation.
      * @param message The message to send
      */
-    public abstract void sendMessage(BaseComponent[] message);
+    void sendMessage(BaseComponent[] message);
 
     /**
      * Check if the command sender is a player via a platform-specific implementation.
      * @return True if the command sender is a player, false if it is not
      */
-    public abstract boolean isPlayer();
+    boolean isPlayer();
+
 }

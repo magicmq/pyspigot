@@ -16,7 +16,9 @@
 
 package dev.magicmq.pyspigot.bukkit.command;
 
+import dev.magicmq.pyspigot.bukkit.util.player.BukkitCommandSender;
 import dev.magicmq.pyspigot.command.PySpigotCommand;
+import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -33,14 +35,14 @@ public class BukkitPluginCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        BukkitCommandSender commandSender = new BukkitCommandSender(sender);
-        baseCommand.onCommand(commandSender, label, args);
+        CommandSenderAdapter bukkitSender = new BukkitCommandSender(sender);
+        baseCommand.onCommand(bukkitSender, label, args);
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        BukkitCommandSender commandSender = new BukkitCommandSender(sender);
-        return baseCommand.onTabComplete(commandSender, args);
+        CommandSenderAdapter bukkitSender = new BukkitCommandSender(sender);
+        return baseCommand.onTabComplete(bukkitSender, args);
     }
 }

@@ -16,48 +16,24 @@
 
 package dev.magicmq.pyspigot.bungee;
 
-import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.util.StringUtils;
-import net.md_5.bungee.api.ChatColor;
+import dev.magicmq.pyspigot.PluginListener;
+import dev.magicmq.pyspigot.bungee.util.player.BungeePlayer;
+import dev.magicmq.pyspigot.util.player.PlayerAdapter;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.*;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import java.util.concurrent.TimeUnit;
 
-public class BungeeListener implements Listener {
+/**
+ * The BungeeCord listener.
+ */
+public class BungeeListener extends PluginListener implements Listener {
 
     @EventHandler
     public void onJoin(PostLoginEvent event) {
-        if (PyCore.get().getConfig().shouldShowUpdateMessages()) {
-            ProxiedPlayer player = event.getPlayer();
-            if (player.hasPermission("pyspigot.admin")) {
-                String latest = PyCore.get().getSpigotVersion();
-                if (latest != null) {
-                    ProxyServer.getInstance().getScheduler().schedule(PyBungee.get(), () -> {
-                        StringUtils.Version currentVersion = new StringUtils.Version(PyCore.get().getVersion());
-                        StringUtils.Version latestVersion = new StringUtils.Version(latest);
-                        if (currentVersion.compareTo(latestVersion) < 0) {
-                            player.sendMessage(buildMessage(latest));
-                        }
-                    }, 500L, TimeUnit.MILLISECONDS);
-                }
-            }
-        }
-    }
-
-    private BaseComponent[] buildMessage(String version) {
-        TextComponent pluginPage = new TextComponent("Download the latest version here.");
-        pluginPage.setColor(net.md_5.bungee.api.ChatColor.RED);
-        pluginPage.setUnderlined(true);
-        pluginPage.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://spigotmc.org/resources/pyspigot.111006/"));
-        pluginPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Click to go to the PySpigot plugin page"))));
-
-        ComponentBuilder builder = new ComponentBuilder("");
-        builder.append("You're running an outdated version of PySpigot. The latest version is " + version + ". ").color(net.md_5.bungee.api.ChatColor.RED).append(pluginPage);
-        return builder.create();
+        PlayerAdapter bungeePlayer = new BungeePlayer(event.getPlayer());
+        ProxyServer.getInstance().getScheduler().schedule(PyBungee.get(), () -> this.onJoin(bungeePlayer), 500L, TimeUnit.MILLISECONDS);
     }
 }

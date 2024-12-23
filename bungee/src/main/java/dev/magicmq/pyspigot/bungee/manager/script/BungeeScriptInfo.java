@@ -28,12 +28,6 @@ import java.util.List;
 
 public class BungeeScriptInfo extends ScriptInfo {
 
-    private static BungeeScriptInfo instance;
-
-    private BungeeScriptInfo() {
-        super();
-    }
-
     @Override
     public void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
         if (PyBungee.get().isProtocolizeAvailable()) {
@@ -43,16 +37,6 @@ public class BungeeScriptInfo extends ScriptInfo {
                 registeredPacketListeners.forEach(listener -> packetTypes.add(listener.toString()));
             appendTo.append(ChatColor.GOLD + "Listening to packets: " + ChatColor.RESET + packetTypes + "\n");
         }
-    }
-
-    /**
-     * Get the singleton instance of this BungeeScriptInfo.
-     * @return The instance
-     */
-    public static BungeeScriptInfo get() {
-        if (instance == null)
-            instance = new BungeeScriptInfo();
-        return instance;
     }
 }
 

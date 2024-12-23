@@ -17,9 +17,9 @@
 package dev.magicmq.pyspigot.command.subcommands;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.command.AbstractCommandSender;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
+import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 
@@ -78,7 +78,7 @@ public class HelpCommand implements SubCommand {
     }
 
     @Override
-    public boolean onCommand(AbstractCommandSender<?> sender, String[] args) {
+    public boolean onCommand(CommandSenderAdapter sender, String[] args) {
         if (sender.isPlayer())
             sender.sendMessage(HELP_MESSAGE);
         else

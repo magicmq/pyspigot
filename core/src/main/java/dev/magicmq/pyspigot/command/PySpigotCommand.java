@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.command;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.command.subcommands.*;
 import dev.magicmq.pyspigot.util.StringUtils;
+import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class PySpigotCommand {
         });
     }
 
-    public boolean onCommand(AbstractCommandSender<?> sender, String label, String[] args) {
+    public boolean onCommand(CommandSenderAdapter sender, String label, String[] args) {
         if (args.length == 0) {
             if (sender.hasPermission("pyspigot.command.listcmds")) {
                 printHelp(sender, label);
@@ -93,7 +94,7 @@ public class PySpigotCommand {
         return true;
     }
 
-    public List<String> onTabComplete(AbstractCommandSender<?> sender, String[] args) {
+    public List<String> onTabComplete(CommandSenderAdapter sender, String[] args) {
         List<String> toReturn = new ArrayList<>();
 
         if (args.length == 1) {
@@ -142,7 +143,7 @@ public class PySpigotCommand {
         return null;
     }
 
-    private void printHelp(AbstractCommandSender<?> sender, String label) {
+    private void printHelp(CommandSenderAdapter sender, String label) {
         sender.sendMessage(HELP_CMD_HEADER
                 .replace("%prefix%", PyCore.get().getConfig().getMessage("plugin-prefix", false))
                 .replace("%author%", StringUtils.replaceLastOccurrence(String.join(", ", PyCore.get().getAuthor()), ", ", " and ")));

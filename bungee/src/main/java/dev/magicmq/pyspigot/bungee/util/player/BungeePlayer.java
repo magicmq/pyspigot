@@ -14,36 +14,29 @@
  *    limitations under the License.
  */
 
-package dev.magicmq.pyspigot.bungee.command;
+package dev.magicmq.pyspigot.bungee.util.player;
 
-import dev.magicmq.pyspigot.command.AbstractCommandSender;
-import net.md_5.bungee.api.CommandSender;
+
+import dev.magicmq.pyspigot.util.player.PlayerAdapter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-public class BungeeCommandSender extends AbstractCommandSender<CommandSender> {
+public class BungeePlayer implements PlayerAdapter {
 
-    public BungeeCommandSender(CommandSender sender) {
-        super(sender);
+    private final ProxiedPlayer player;
+
+    public BungeePlayer(ProxiedPlayer player) {
+        this.player = player;
     }
 
     @Override
     public boolean hasPermission(String permission) {
-        return sender.hasPermission(permission);
-    }
-
-    @Override
-    public void sendMessage(String message) {
-        sender.sendMessage(message);
+        return player.hasPermission(permission);
     }
 
     @Override
     public void sendMessage(BaseComponent[] message) {
-        sender.sendMessage(message);
+        player.sendMessage(message);
     }
 
-    @Override
-    public boolean isPlayer() {
-        return sender instanceof ProxiedPlayer;
-    }
 }

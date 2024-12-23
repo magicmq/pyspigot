@@ -40,7 +40,7 @@ public class BungeeScriptManager extends ScriptManager {
     private ScheduledTask startScriptTask;
 
     private BungeeScriptManager() {
-        super();
+        super(new BungeeScriptInfo());
     }
 
     @Override

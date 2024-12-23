@@ -19,55 +19,92 @@ package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
+import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
+import dev.magicmq.pyspigot.manager.redis.RedisManager;
+import dev.magicmq.pyspigot.manager.script.GlobalVariables;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.StringUtils;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Core class of PySpigot for both Spigot and BungeeCord.
+ * Core class of PySpigot for all platform-specific implementations. Platform-specific code is implemented via the PlatformAdapter.
+ * @see PlatformAdapter
  */
 public class PyCore {
 
     private static PyCore instance;
 
-    private final Logger logger;
-    private final File dataFolder;
-    private final Path dataFolderPath;
-    private final ClassLoader pluginClassLoader;
-    private final String version;
-    private final String author;
-    private final boolean paper;
-    private final PluginConfig config;
+    private final PlatformAdapter adapter;
 
+    private boolean paper;
+    private PluginConfig config;
     private volatile String spigotVersion;
 
-    public PyCore(Logger logger, File dataFolder, ClassLoader pluginClassLoader, PluginConfig config, String version, String author, boolean paper) {
-        instance = this;
-
-        this.logger = logger;
-        this.dataFolder = dataFolder;
-        this.dataFolderPath = Paths.get(dataFolder.getAbsolutePath());
-        this.pluginClassLoader = pluginClassLoader;
-        this.version = version;
-        this.author = author;
-        this.paper = paper;
-
-        this.config = config;
+    private PyCore(PlatformAdapter adapter) {
+        this.adapter = adapter;
     }
 
+    /**
+     * Initialize the PyCore instance.
+     * <p>
+     * Called from the {@code onEnable} method of the platform-specific plugin class (PySpigot for Bukkit, for example).
+     * @param adapter The platform-specific adapter.
+     */
+    public static void newInstance(PlatformAdapter adapter) {
+        if (instance != null) {
+            throw new UnsupportedOperationException("PyCore has already been initialized");
+        }
+
+        instance = new PyCore(adapter);
+    }
+
+    /**
+     * Initialize the plugin.
+     */
     public void init() {
-        LibraryManager.get();
+        try {
+            Class.forName("com.destroystokyo.paper.ParticleBuilder");
+            paper = true;
+        } catch (ClassNotFoundException ignored) {
+            paper = false;
+        }
 
         initFolders();
         initHelperLib();
+
+        config = adapter.initConfig();
+        config.reload();
+
+        adapter.initCommands();
+        adapter.initListeners();
+
+        adapter.initPlatformManagers();
+        initCommonManagers();
+
+        adapter.setupMetrics();
+
+        fetchSpigotVersion();
+        adapter.initVersionChecking();
+    }
+
+    /**
+     * Shutdown the plugin.
+     */
+    public void shutdown() {
+        ScriptManager.get().shutdown();
+        LibraryManager.get().shutdown();
+
+        adapter.shutdownMetrics();
+
+        adapter.shutdownVersionChecking();
     }
 
     /**
@@ -83,7 +120,7 @@ public class PyCore {
      * @return The logger
      */
     public Logger getLogger() {
-        return logger;
+        return adapter.getLogger();
     }
 
     /**
@@ -91,7 +128,7 @@ public class PyCore {
      * @return The data folder
      */
     public File getDataFolder() {
-        return dataFolder;
+        return adapter.getDataFolder();
     }
 
     /**
@@ -99,7 +136,7 @@ public class PyCore {
      * @return A path representing the data folder
      */
     public Path getDataFolderPath() {
-        return dataFolderPath;
+        return adapter.getDataFolderPath();
     }
 
     /**
@@ -107,7 +144,7 @@ public class PyCore {
      * @return The ClassLoader
      */
     public ClassLoader getPluginClassLoader() {
-        return pluginClassLoader;
+        return adapter.getPluginClassLoader();
     }
 
     /**
@@ -115,7 +152,7 @@ public class PyCore {
      * @return The version
      */
     public String getVersion() {
-        return version;
+        return adapter.getVersion();
     }
 
     /**
@@ -123,7 +160,7 @@ public class PyCore {
      * @return The author
      */
     public String getAuthor() {
-        return author;
+        return adapter.getAuthor();
     }
 
     /**
@@ -150,18 +187,24 @@ public class PyCore {
         return spigotVersion;
     }
 
+    /**
+     * Fetch the latest available plugin version from SpigotMC.
+     */
     public void fetchSpigotVersion() {
         try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/").openStream(); Scanner scanner = new Scanner(is)) {
             if (scanner.hasNext())
                 spigotVersion = scanner.next();
         } catch (IOException e) {
-            logger.log(Level.WARNING, "Error when attempting to get latest plugin version from Spigot.", e);
+            adapter.getLogger().log(Level.WARNING, "Error when attempting to get latest plugin version from Spigot.", e);
         }
     }
 
+    /**
+     * Compare the current loaded plugin version with the cached latest SpigotMC plugin version, and log a message to console if the current version is detected as outdated.
+     */
     public void compareVersions() {
         if (spigotVersion != null && config.shouldShowUpdateMessages()) {
-            StringUtils.Version currentVersion = new StringUtils.Version(version);
+            StringUtils.Version currentVersion = new StringUtils.Version(adapter.getVersion());
             StringUtils.Version latestVersion = new StringUtils.Version(spigotVersion);
             if (currentVersion.compareTo(latestVersion) < 0) {
                 getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + spigotVersion + ".");
@@ -170,6 +213,11 @@ public class PyCore {
         }
     }
 
+    /**
+     * Save a resource from the plugin JAR file to the plugin data folder.
+     * @param resourcePath The path of the resource to save
+     * @param replace True if the file should be replaced (if it already exists in the data folder), false if it should not
+     */
     public void saveResource(String resourcePath, boolean replace) {
         if (resourcePath == null || resourcePath.isEmpty()) {
             throw new IllegalArgumentException("ResourcePath cannot be null or empty");
@@ -178,9 +226,9 @@ public class PyCore {
         resourcePath = resourcePath.replace('\\', '/');
         InputStream in = getResourceAsStream(resourcePath);
 
-        File outFile = new File(dataFolder, resourcePath);
+        File outFile = new File(adapter.getDataFolder(), resourcePath);
         int lastIndex = resourcePath.lastIndexOf('/');
-        File outDir = new File(dataFolder, resourcePath.substring(0, Math.max(lastIndex, 0)));
+        File outDir = new File(adapter.getDataFolder(), resourcePath.substring(0, Math.max(lastIndex, 0)));
 
         if (!outDir.exists()) {
             outDir.mkdirs();
@@ -197,17 +245,24 @@ public class PyCore {
                 out.close();
                 in.close();
             } else {
-                logger.log(Level.WARNING, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
+                adapter.getLogger().log(Level.WARNING, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
             }
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Could not save " + outFile.getName() + " to " + outFile, ex);
+            adapter.getLogger().log(Level.SEVERE, "Could not save " + outFile.getName() + " to " + outFile, ex);
         }
+    }
+
+    private void initCommonManagers() {
+        LibraryManager.get();
+        GlobalVariables.get();
+        DatabaseManager.get();
+        RedisManager.get();
     }
 
     private void initFolders() {
         String[] folders = new String[]{"java-libs", "python-libs", "scripts", "logs"};
         for (String folder : folders) {
-            File file = new File(dataFolder, folder);
+            File file = new File(adapter.getDataFolder(), folder);
             if (!file.exists())
                 file.mkdirs();
         }
@@ -218,7 +273,7 @@ public class PyCore {
             return;
         }
 
-        File pythonLibs = new File(dataFolder, "python-libs");
+        File pythonLibs = new File(adapter.getDataFolder(), "python-libs");
         if (pythonLibs.exists()) {
             File libFile = new File(pythonLibs, "pyspigot.py");
             if (!libFile.exists()) {
@@ -227,7 +282,7 @@ public class PyCore {
                 try {
                     FileInputStream savedFile = new FileInputStream(libFile);
 
-                    URL url = pluginClassLoader.getResource("python-libs/pyspigot.py");
+                    URL url = adapter.getPluginClassLoader().getResource("python-libs/pyspigot.py");
                     URLConnection connection = url.openConnection();
                     connection.setUseCaches(false);
                     InputStream jarFile = connection.getInputStream();
@@ -236,7 +291,7 @@ public class PyCore {
                         saveResource("python-libs/pyspigot.py", true);
                     }
                 } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Error when initializing library files: ", e);
+                    adapter.getLogger().log(Level.SEVERE, "Error when initializing library files: ", e);
                 }
             }
         }
@@ -251,13 +306,13 @@ public class PyCore {
             }
             return bis2.read() == -1;
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error when initializing library files: ", e);
+            adapter.getLogger().log(Level.SEVERE, "Error when initializing library files: ", e);
             return false;
         }
     }
 
     private InputStream getResourceAsStream(String name) {
-        return pluginClassLoader.getResourceAsStream(name);
+        return adapter.getPluginClassLoader().getResourceAsStream(name);
     }
 
     public static PyCore get() {

@@ -30,12 +30,6 @@ import java.util.List;
 
 public class BukkitScriptInfo extends ScriptInfo {
 
-    private static BukkitScriptInfo instance;
-
-    private BukkitScriptInfo() {
-        super();
-    }
-
     @Override
     public void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
         if (PySpigot.get().isPlaceholderApiAvailable()) {
@@ -59,15 +53,5 @@ public class BukkitScriptInfo extends ScriptInfo {
                 registeredPacketListenersAsync.forEach(listener -> packetTypesAsync.add(listener.toString()));
             appendTo.append(ChatColor.GOLD + "Listening to packet types (async): " + ChatColor.RESET + packetTypesAsync + "\n");
         }
-    }
-
-    /**
-     * Get the singleton instance of this SpigotScriptInfo.
-     * @return The instance
-     */
-    public static BukkitScriptInfo get() {
-        if (instance == null)
-            instance = new BukkitScriptInfo();
-        return instance;
     }
 }

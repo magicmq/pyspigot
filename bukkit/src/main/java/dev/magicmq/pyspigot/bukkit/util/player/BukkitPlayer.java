@@ -14,19 +14,28 @@
  *    limitations under the License.
  */
 
-package dev.magicmq.pyspigot.command;
+package dev.magicmq.pyspigot.bukkit.util.player;
 
 
-import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
+import dev.magicmq.pyspigot.util.player.PlayerAdapter;
+import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.List;
+public class BukkitPlayer implements PlayerAdapter {
 
-public interface SubCommand {
+    private final Player player;
 
-    boolean onCommand(CommandSenderAdapter sender, String[] args);
+    public BukkitPlayer(Player player) {
+        this.player = player;
+    }
 
-    default List<String> onTabComplete(CommandSenderAdapter sender, String[] args) {
-        return Collections.emptyList();
+    @Override
+    public boolean hasPermission(String permission) {
+        return player.hasPermission(permission);
+    }
+
+    @Override
+    public void sendMessage(BaseComponent[] message) {
+        player.spigot().sendMessage(message);
     }
 }

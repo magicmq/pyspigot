@@ -16,14 +16,13 @@
 
 package dev.magicmq.pyspigot.bukkit;
 
+import dev.magicmq.pyspigot.PluginListener;
 import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.bukkit.util.player.BukkitPlayer;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.StringUtils;
-import net.md_5.bungee.api.chat.*;
+import dev.magicmq.pyspigot.util.player.PlayerAdapter;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -31,7 +30,10 @@ import org.bukkit.event.server.PluginDisableEvent;
 
 import java.util.logging.Level;
 
-public class BukkitListener implements Listener {
+/**
+ * The Bukkit listener.
+ */
+public class BukkitListener extends PluginListener implements Listener {
 
     @EventHandler
     public void onDisable(PluginDisableEvent event) {
@@ -49,32 +51,7 @@ public class BukkitListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if (PyCore.get().getConfig().shouldShowUpdateMessages()) {
-            Player player = event.getPlayer();
-            if (player.hasPermission("pyspigot.admin")) {
-                String latest = PyCore.get().getSpigotVersion();
-                if (latest != null) {
-                    Bukkit.getScheduler().runTaskLater(PySpigot.get(), () -> {
-                        StringUtils.Version currentVersion = new StringUtils.Version(PyCore.get().getVersion());
-                        StringUtils.Version latestVersion = new StringUtils.Version(latest);
-                        if (currentVersion.compareTo(latestVersion) < 0) {
-                            player.spigot().sendMessage(buildMessage(latest));
-                        }
-                    }, 10L);
-                }
-            }
-        }
-    }
-
-    private BaseComponent[] buildMessage(String version) {
-        TextComponent pluginPage = new TextComponent("Download the latest version here.");
-        pluginPage.setColor(net.md_5.bungee.api.ChatColor.RED);
-        pluginPage.setUnderlined(true);
-        pluginPage.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://spigotmc.org/resources/pyspigot.111006/"));
-        pluginPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Click to go to the PySpigot plugin page"))));
-
-        ComponentBuilder builder = new ComponentBuilder("");
-        builder.append("You're running an outdated version of PySpigot. The latest version is " + version + ". ").color(net.md_5.bungee.api.ChatColor.RED).append(pluginPage);
-        return builder.create();
+        PlayerAdapter bukkitPlayer = new BukkitPlayer(event.getPlayer());
+        Bukkit.getScheduler().runTaskLater(PySpigot.get(), () -> this.onJoin(bukkitPlayer), 10L);
     }
 }

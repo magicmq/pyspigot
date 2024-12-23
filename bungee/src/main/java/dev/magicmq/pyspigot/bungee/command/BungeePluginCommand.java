@@ -16,7 +16,9 @@
 
 package dev.magicmq.pyspigot.bungee.command;
 
+import dev.magicmq.pyspigot.bungee.util.player.BungeeCommandSender;
 import dev.magicmq.pyspigot.command.PySpigotCommand;
+import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
@@ -33,12 +35,12 @@ public class BungeePluginCommand extends Command implements TabExecutor {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        BungeeCommandSender commandSender = new BungeeCommandSender(sender);
-        baseCommand.onCommand(commandSender, getName(), args);
+        CommandSenderAdapter bungeeSender = new BungeeCommandSender(sender);
+        baseCommand.onCommand(bungeeSender, getName(), args);
     }
 
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        BungeeCommandSender commandSender = new BungeeCommandSender(sender);
-        return baseCommand.onTabComplete(commandSender, args);
+        CommandSenderAdapter bungeeSender = new BungeeCommandSender(sender);
+        return baseCommand.onTabComplete(bungeeSender, args);
     }
 }

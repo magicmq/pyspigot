@@ -38,12 +38,6 @@ import java.util.List;
  */
 public abstract class ScriptInfo {
 
-    private static ScriptInfo instance;
-
-    protected ScriptInfo() {
-        instance = this;
-    }
-
     /**
      * Print platform-specific manager information for a script.
      * @param script The script whose information should be printed
@@ -103,6 +97,13 @@ public abstract class ScriptInfo {
         return builder.toString();
     }
 
+    /**
+     * Print a script's info (for the /pyspigot info command), if the script is not loaded.
+     * @param scriptName The name of the script whose information should be printed
+     * @param scriptPath The path of the script
+     * @param options The options of the script
+     * @return The info for the script
+     */
     public String printOfflineScriptInfo(String scriptName, Path scriptPath, ScriptOptions options) {
         StringBuilder builder = new StringBuilder();
         builder.append(ChatColor.GOLD.toString() + ChatColor.BOLD + ChatColor.UNDERLINE + "Information about " + scriptName + "\n");
@@ -116,9 +117,4 @@ public abstract class ScriptInfo {
 
         return builder.toString();
     }
-
-    public static ScriptInfo get() {
-        return instance;
-    }
-
 }

@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bukkit;
 
+import dev.magicmq.pyspigot.PlatformAdapter;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bukkit.command.BukkitPluginCommand;
 import dev.magicmq.pyspigot.bukkit.config.BukkitPluginConfig;
@@ -24,13 +25,9 @@ import dev.magicmq.pyspigot.bukkit.manager.config.BukkitConfigManager;
 import dev.magicmq.pyspigot.bukkit.manager.listener.BukkitListenerManager;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
-import dev.magicmq.pyspigot.bukkit.manager.script.BukkitScriptInfo;
 import dev.magicmq.pyspigot.bukkit.manager.script.BukkitScriptManager;
 import dev.magicmq.pyspigot.bukkit.manager.task.BukkitTaskManager;
-import dev.magicmq.pyspigot.manager.database.DatabaseManager;
-import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
-import dev.magicmq.pyspigot.manager.redis.RedisManager;
-import dev.magicmq.pyspigot.manager.script.GlobalVariables;
+import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -42,56 +39,16 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 
 /**
- * Entry point of PySpigot for Bukkit server software.
+ * Entry point of PySpigot for the Bukkit server software.
  */
-public class PySpigot extends JavaPlugin {
+public class PySpigot extends JavaPlugin implements PlatformAdapter {
 
     private static PySpigot instance;
-    private static PyCore core;
-
-    /**
-     * Can be used by scripts to access the {@link BukkitScriptManager}.
-     */
-    public static BukkitScriptManager script;
-    /**
-     * Can be used by scripts to access the {@link GlobalVariables}
-     */
-    public static GlobalVariables global_vars;
-    /**
-     * Can be used by scripts to access the {@link BukkitListenerManager}.
-     */
-    public static BukkitListenerManager listener;
-    /**
-     * Can be used by scripts to access the {@link BukkitCommandManager}.
-     */
-    public static BukkitCommandManager command;
-    /**
-     * Can be used by scripts to access the {@link BukkitTaskManager}.
-     */
-    public static BukkitTaskManager scheduler;
-    /**
-     * Can be used by scripts to access the {@link BukkitConfigManager}.
-     */
-    public static BukkitConfigManager config;
-    /**
-     * Can be used by scripts to access the {@link DatabaseManager}
-     */
-    public static DatabaseManager database;
-    /**
-     * Can be used by scripts to access the {@link RedisManager}
-     */
-    public static RedisManager redis;
-    /**
-     * Can be used by scripts to access the {@link ProtocolManager}.
-     */
-    public static ProtocolManager protocol;
-    /**
-     * Can be used by scripts to access the {@link PlaceholderManager}.
-     */
-    public static PlaceholderManager placeholder;
 
     private Metrics metrics;
     private BukkitTask versionCheckTask;
@@ -100,77 +57,101 @@ public class PySpigot extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        getConfig().options().copyDefaults(true);
-        saveDefaultConfig();
-        BukkitPluginConfig pluginConfig = new BukkitPluginConfig();
-        pluginConfig.reload();
-
-        boolean paper;
-        try {
-            Class.forName("com.destroystokyo.paper.ParticleBuilder");
-            paper = true;
-        } catch (ClassNotFoundException ignored) {
-            paper = false;
-        }
-
-        core = new PyCore(
-                getLogger(),
-                getDataFolder(),
-                getClassLoader(),
-                pluginConfig,
-                getDescription().getVersion(),
-                getDescription().getAuthors().get(0),
-                paper
-        );
-        core.init();
-
-        getCommand("pyspigot").setExecutor(new BukkitPluginCommand());
-
-        Bukkit.getPluginManager().registerEvents(new BukkitListener(), this);
-
         try {
             checkReflection();
         } catch (NoSuchMethodException | NoSuchFieldException e) {
-            getLogger().log(Level.SEVERE, "Error when accessing CraftBukkit (Are you on a supported MC version?), PySpigot will not work correctly.");
+            getLogger().log(Level.SEVERE, "Error when accessing CraftBukkit (Are you running a supported version?), PySpigot will not work correctly.");
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
-        script = BukkitScriptManager.get();
-        global_vars = GlobalVariables.get();
-        listener = BukkitListenerManager.get();
-        command = BukkitCommandManager.get();
-        scheduler = BukkitTaskManager.get();
-        config = BukkitConfigManager.get();
-        database = DatabaseManager.get();
-        redis = RedisManager.get();
-
-        if (isProtocolLibAvailable())
-            protocol = ProtocolManager.get();
-
-        if (isPlaceholderApiAvailable())
-            placeholder = PlaceholderManager.get();
-
-        if (pluginConfig.getMetricsEnabled())
-            setupMetrics();
-
-        BukkitScriptInfo.get();
-
-        core.fetchSpigotVersion();
-        Bukkit.getScheduler().runTaskLater(this, core::compareVersions, 20L);
-        versionCheckTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, core::fetchSpigotVersion, 864000L, 864000L);
+        PyCore.newInstance(this);
+        PyCore.get().init();
     }
 
     @Override
     public void onDisable() {
-        ScriptManager.get().shutdown();
+        PyCore.get().shutdown();
+    }
 
-        LibraryManager.get().shutdown();
+    @Override
+    public PluginConfig initConfig() {
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+        return new BukkitPluginConfig();
+    }
 
+    @Override
+    public void initCommands() {
+        getCommand("pyspigot").setExecutor(new BukkitPluginCommand());
+    }
+
+    @Override
+    public void initListeners() {
+        Bukkit.getPluginManager().registerEvents(new BukkitListener(), this);
+    }
+
+    @Override
+    public void initPlatformManagers() {
+        BukkitScriptManager.get();
+        BukkitListenerManager.get();
+        BukkitCommandManager.get();
+        BukkitTaskManager.get();
+        BukkitConfigManager.get();
+        ProtocolManager.get();
+        PlaceholderManager.get();
+    }
+
+    @Override
+    public void initVersionChecking() {
+        Bukkit.getScheduler().runTaskLater(this, PyCore.get()::compareVersions, 20L);
+        versionCheckTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, PyCore.get()::fetchSpigotVersion, 864000L, 864000L);
+    }
+
+    @Override
+    public void setupMetrics() {
+        metrics = new Metrics(this, 18991);
+
+        metrics.addCustomChart(new SimplePie("all_scripts", () -> {
+            int allScripts = ScriptManager.get().getAllScriptPaths().size();
+            return "" + allScripts;
+        }));
+
+        metrics.addCustomChart(new SimplePie("loaded_scripts", () -> {
+            int loadedScripts = ScriptManager.get().getLoadedScripts().size();
+            return "" + loadedScripts;
+        }));
+    }
+
+    @Override
+    public void shutdownMetrics() {
         if (metrics != null)
             metrics.shutdown();
+    }
 
+    @Override
+    public void shutdownVersionChecking() {
         if (versionCheckTask != null)
             versionCheckTask.cancel();
+    }
+
+    @Override
+    public Path getDataFolderPath() {
+        return Paths.get(getDataFolder().getAbsolutePath());
+    }
+
+    @Override
+    public ClassLoader getPluginClassLoader() {
+        return getClassLoader();
+    }
+
+    @Override
+    public String getVersion() {
+        return getDescription().getVersion();
+    }
+
+    @Override
+    public String getAuthor() {
+        return getDescription().getAuthors().get(0);
     }
 
     /**
@@ -195,20 +176,6 @@ public class PySpigot extends JavaPlugin {
         Bukkit.getServer().getClass().getDeclaredField("commandMap");
         SimpleCommandMap.class.getDeclaredField("knownCommands");
         IndexHelpTopic.class.getDeclaredField("allTopics");
-    }
-
-    private void setupMetrics() {
-        metrics = new Metrics(this, 18991);
-
-        metrics.addCustomChart(new SimplePie("all_scripts", () -> {
-            int allScripts = ScriptManager.get().getAllScriptPaths().size();
-            return "" + allScripts;
-        }));
-
-        metrics.addCustomChart(new SimplePie("loaded_scripts", () -> {
-            int loadedScripts = ScriptManager.get().getLoadedScripts().size();
-            return "" + loadedScripts;
-        }));
     }
 
     /**

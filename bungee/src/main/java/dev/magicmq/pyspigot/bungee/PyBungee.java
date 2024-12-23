@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bungee;
 
+import dev.magicmq.pyspigot.PlatformAdapter;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bungee.command.BungeePluginCommand;
 import dev.magicmq.pyspigot.bungee.config.BungeePluginConfig;
@@ -23,18 +24,15 @@ import dev.magicmq.pyspigot.bungee.manager.command.BungeeCommandManager;
 import dev.magicmq.pyspigot.bungee.manager.config.BungeeConfigManager;
 import dev.magicmq.pyspigot.bungee.manager.listener.BungeeListenerManager;
 import dev.magicmq.pyspigot.bungee.manager.protocol.ProtocolManager;
-import dev.magicmq.pyspigot.bungee.manager.script.BungeeScriptInfo;
 import dev.magicmq.pyspigot.bungee.manager.script.BungeeScriptManager;
 import dev.magicmq.pyspigot.bungee.manager.task.BungeeTaskManager;
-import dev.magicmq.pyspigot.manager.config.ConfigManager;
-import dev.magicmq.pyspigot.manager.database.DatabaseManager;
-import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
-import dev.magicmq.pyspigot.manager.redis.RedisManager;
-import dev.magicmq.pyspigot.manager.script.GlobalVariables;
+import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
+import net.md_5.bungee.event.EventBus;
 import org.bstats.bungeecord.Metrics;
 import org.bstats.charts.SimplePie;
 
@@ -42,53 +40,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
- * Entry point of PySpigot for BungeeCord server software.
+ * Entry point of PySpigot for the BungeeCord server software.
  */
-public class PyBungee extends Plugin {
+public class PyBungee extends Plugin implements PlatformAdapter {
 
     private static PyBungee instance;
-    private static PyCore core;
-
-    /**
-     * Can be used by scripts to access the {@link BungeeScriptManager}.
-     */
-    public static BungeeScriptManager script;
-    /**
-     * Can be used by scripts to access the {@link GlobalVariables}
-     */
-    public static GlobalVariables global_vars;
-    /**
-     * Can be used by scripts to access the {@link BungeeListenerManager}.
-     */
-    public static BungeeListenerManager listener;
-    /**
-     * Can be used by scripts to access the {@link BungeeCommandManager}.
-     */
-    public static BungeeCommandManager command;
-    /**
-     * Can be used by scripts to access the {@link BungeeTaskManager}.
-     */
-    public static BungeeTaskManager scheduler;
-    /**
-     * Can be used by scripts to access the {@link ConfigManager}.
-     */
-    public static BungeeConfigManager config;
-    /**
-     * Can be used by scripts to access the {@link DatabaseManager}
-     */
-    public static DatabaseManager database;
-    /**
-     * Can be used by scripts to access the {@link RedisManager}
-     */
-    public static RedisManager redis;
-    /**
-     * Can be used by scripts to access the {@link ProtocolManager}
-     */
-    public static ProtocolManager protocol;
 
     private Metrics metrics;
     private ScheduledTask versionCheckTask;
@@ -97,86 +59,74 @@ public class PyBungee extends Plugin {
     public void onEnable() {
         instance = this;
 
+        boolean reflectionPassed;
         try {
-            saveDefaultConfig();
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Error when saving the default config file.", e);
+            checkReflection();
+            reflectionPassed = true;
+        } catch (NoSuchMethodException | NoSuchFieldException e) {
+            getLogger().log(Level.SEVERE, "Error when accessing BungeeCord via reflection (Are you on a supported version?), PyBungee will not work correctly.");
+            reflectionPassed = false;
+
         }
-        BungeePluginConfig pluginConfig = new BungeePluginConfig();
-        pluginConfig.reload();
 
-        core = new PyCore(
-                getLogger(),
-                getDataFolder(),
-                getClass().getClassLoader(),
-                pluginConfig,
-                getDescription().getVersion(),
-                getDescription().getAuthor(),
-                false
-        );
-        core.init();
-
-        ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeePluginCommand());
-
-        ProxyServer.getInstance().getPluginManager().registerListener(this, new BungeeListener());
-
-        script = BungeeScriptManager.get();
-        global_vars = GlobalVariables.get();
-        listener = BungeeListenerManager.get();
-        command = BungeeCommandManager.get();
-        scheduler = BungeeTaskManager.get();
-        config = BungeeConfigManager.get();
-        database = DatabaseManager.get();
-        redis = RedisManager.get();
-
-        if (isProtocolizeAvailable())
-            protocol = ProtocolManager.get();
-
-        if (pluginConfig.getMetricsEnabled())
-            setupMetrics();
-
-        BungeeScriptInfo.get();
-
-        core.fetchSpigotVersion();
-        ProxyServer.getInstance().getScheduler().schedule(this, core::compareVersions, 1L, TimeUnit.SECONDS);
-        versionCheckTask = ProxyServer.getInstance().getScheduler().schedule(this, core::fetchSpigotVersion, 12L, 12L, TimeUnit.HOURS);
+        if (reflectionPassed)
+            PyCore.newInstance(this);
     }
 
     @Override
     public void onDisable() {
-        ScriptManager.get().shutdown();
-
-        LibraryManager.get().shutdown();
-
-        if (metrics != null)
-            metrics.shutdown();
-
-        if (versionCheckTask != null)
-            versionCheckTask.cancel();
+        PyCore.get().shutdown();
     }
 
-    /**
-     * Check if ProtocolLib is available on the server.
-     * @return True if ProtocolLib is loaded and enabled, false if otherwise
-     */
-    public boolean isProtocolizeAvailable() {
-        return ProxyServer.getInstance().getPluginManager().getPlugin("Protocolize") != null;
-    }
+    @Override
+    public PluginConfig initConfig() {
+        try {
+            File dataFolder = getDataFolder();
+            if (!dataFolder.exists())
+                dataFolder.mkdirs();
 
-    private void saveDefaultConfig() throws IOException {
-        File dataFolder = getDataFolder();
-        if (!dataFolder.exists())
-            dataFolder.mkdirs();
+            File configFile = new File(getDataFolder(), "config.yml");
+            if (!configFile.exists()) {
+                FileOutputStream outputStream = new FileOutputStream(configFile);
+                InputStream in = getResourceAsStream("config.yml");
+                in.transferTo(outputStream);
+            }
 
-        File configFile = new File(getDataFolder(), "config.yml");
-        if (!configFile.exists()) {
-            FileOutputStream outputStream = new FileOutputStream(configFile);
-            InputStream in = getResourceAsStream("config.yml");
-            in.transferTo(outputStream);
+            return new BungeePluginConfig();
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error when saving the default config file.", e);
+            return null;
         }
     }
 
-    private void setupMetrics() {
+    @Override
+    public void initCommands() {
+        ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeePluginCommand());
+    }
+
+    @Override
+    public void initListeners() {
+        ProxyServer.getInstance().getPluginManager().registerListener(this, new BungeeListener());
+    }
+
+    @Override
+    public void initPlatformManagers() {
+        BungeeScriptManager.get();
+        BungeeListenerManager.get();
+        BungeeCommandManager.get();
+        BungeeTaskManager.get();
+        BungeeConfigManager.get();
+        ProtocolManager.get();
+    }
+
+    @Override
+    public void initVersionChecking() {
+        ProxyServer.getInstance().getScheduler().schedule(this, PyCore.get()::compareVersions, 1L, TimeUnit.SECONDS);
+        versionCheckTask = ProxyServer.getInstance().getScheduler().schedule(this, PyCore.get()::fetchSpigotVersion, 12L, 12L, TimeUnit.HOURS);
+    }
+
+    @Override
+    public void setupMetrics() {
         metrics = new Metrics(this, 18991);
 
         metrics.addCustomChart(new SimplePie("all_scripts", () -> {
@@ -188,6 +138,54 @@ public class PyBungee extends Plugin {
             int loadedScripts = ScriptManager.get().getLoadedScripts().size();
             return "" + loadedScripts;
         }));
+    }
+
+    @Override
+    public void shutdownMetrics() {
+        if (metrics != null)
+            metrics.shutdown();
+    }
+
+    @Override
+    public void shutdownVersionChecking() {
+        if (versionCheckTask != null)
+            versionCheckTask.cancel();
+    }
+
+    @Override
+    public Path getDataFolderPath() {
+        return Paths.get(getDataFolder().getAbsolutePath());
+    }
+
+    @Override
+    public ClassLoader getPluginClassLoader() {
+        return getClass().getClassLoader();
+    }
+
+    @Override
+    public String getVersion() {
+        return getDescription().getVersion();
+    }
+
+    @Override
+    public String getAuthor() {
+        return getDescription().getAuthor();
+    }
+
+    /**
+     * Check if Protocolize is available on the server.
+     * @return True if Protocolize is loaded and enabled, false if otherwise
+     */
+    public boolean isProtocolizeAvailable() {
+        return ProxyServer.getInstance().getPluginManager().getPlugin("Protocolize") != null;
+    }
+
+    private void checkReflection() throws NoSuchMethodException, NoSuchFieldException {
+        //Check reflection for registering listeners
+        PluginManager.class.getDeclaredField("listenersByPlugin");
+        EventBus.class.getDeclaredField("byListenerAndPriority");
+        EventBus.class.getDeclaredField("lock");
+        EventBus.class.getDeclaredMethod("bakeHandlers", Class.class);
     }
 
     /**

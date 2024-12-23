@@ -43,11 +43,13 @@ public abstract class ScriptManager {
 
     private static ScriptManager instance;
 
+    private final ScriptInfo scriptInfo;
     private final Path scriptsFolder;
     private final LinkedHashMap<String, Script> scripts;
 
-    protected ScriptManager() {
+    protected ScriptManager(ScriptInfo scriptInfo) {
         instance = this;
+        this.scriptInfo = scriptInfo;
 
         scriptsFolder = PyCore.get().getDataFolderPath().resolve("scripts");
         this.scripts = new LinkedHashMap<>();
@@ -484,6 +486,14 @@ public abstract class ScriptManager {
             }
         }
         return scripts;
+    }
+
+    /**
+     * Get the platform-specific script info object (for printing script info via the /pyspigot info command).
+     * @return The {@link ScriptInfo}
+     */
+    public ScriptInfo getScriptInfo() {
+        return scriptInfo;
     }
 
     private boolean stopScript(Script script, boolean error) {

@@ -17,10 +17,10 @@
 package dev.magicmq.pyspigot.command.subcommands;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.command.AbstractCommandSender;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 
 import java.nio.file.Path;
@@ -39,7 +39,7 @@ public class ListScriptsCommand implements SubCommand {
     private static final int ENTRIES_PER_PAGE = 15;
 
     @Override
-    public boolean onCommand(AbstractCommandSender<?> sender, String[] args) {
+    public boolean onCommand(CommandSenderAdapter sender, String[] args) {
         int page = 1;
         if (args.length > 0) {
             try {

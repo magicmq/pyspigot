@@ -16,11 +16,11 @@
 
 package dev.magicmq.pyspigot.command.subcommands;
 
-import dev.magicmq.pyspigot.command.AbstractCommandSender;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.script.RunResult;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ import java.util.List;
 public class ReloadCommand implements SubCommand {
 
     @Override
-    public boolean onCommand(AbstractCommandSender<?> sender, String[] args) {
+    public boolean onCommand(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
             if (args[0].endsWith(".py")) {
                 if (ScriptManager.get().isScriptRunning(args[0])) {
@@ -72,7 +72,7 @@ public class ReloadCommand implements SubCommand {
     }
 
     @Override
-    public List<String> onTabComplete(AbstractCommandSender<?> sender, String[] args) {
+    public List<String> onTabComplete(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
             return new ArrayList<>(ScriptManager.get().getAllScriptNames());
         } else {

@@ -14,17 +14,19 @@
  *    limitations under the License.
  */
 
-package dev.magicmq.pyspigot.bukkit.command;
+package dev.magicmq.pyspigot.bungee.util.player;
 
-import dev.magicmq.pyspigot.command.AbstractCommandSender;
+import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-public class BukkitCommandSender extends AbstractCommandSender<CommandSender> {
+public class BungeeCommandSender implements CommandSenderAdapter {
 
-    public BukkitCommandSender(CommandSender sender) {
-        super(sender);
+    private final CommandSender sender;
+
+    public BungeeCommandSender(CommandSender sender) {
+        this.sender = sender;
     }
 
     @Override
@@ -39,11 +41,11 @@ public class BukkitCommandSender extends AbstractCommandSender<CommandSender> {
 
     @Override
     public void sendMessage(BaseComponent[] message) {
-        sender.spigot().sendMessage(message);
+        sender.sendMessage(message);
     }
 
     @Override
     public boolean isPlayer() {
-        return sender instanceof Player;
+        return sender instanceof ProxiedPlayer;
     }
 }

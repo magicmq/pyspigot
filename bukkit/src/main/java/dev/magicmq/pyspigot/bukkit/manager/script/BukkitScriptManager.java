@@ -40,7 +40,7 @@ public class BukkitScriptManager extends ScriptManager {
     private BukkitTask startScriptTask;
 
     private BukkitScriptManager() {
-        super();
+        super(new BukkitScriptInfo());
     }
 
     @Override

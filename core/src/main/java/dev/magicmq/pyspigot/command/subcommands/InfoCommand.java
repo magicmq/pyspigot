@@ -16,13 +16,12 @@
 
 package dev.magicmq.pyspigot.command.subcommands;
 
-import dev.magicmq.pyspigot.command.AbstractCommandSender;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.manager.script.ScriptInfo;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
+import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 
 import java.nio.file.Path;
@@ -39,18 +38,18 @@ import java.util.List;
 public class InfoCommand implements SubCommand {
 
     @Override
-    public boolean onCommand(AbstractCommandSender<?> sender, String[] args) {
+    public boolean onCommand(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
             if (args[0].endsWith(".py")) {
                 if (ScriptManager.get().isScriptRunning(args[0])) {
                     Script script = ScriptManager.get().getScript(args[0]);
-                    String scriptInfo = ScriptInfo.get().printScriptInfo(script);
+                    String scriptInfo = ScriptManager.get().getScriptInfo().printScriptInfo(script);
                     sender.sendMessage(scriptInfo);
                 } else {
                     Path scriptPath = ScriptManager.get().getScriptPath(args[0]);
                     ScriptOptions options = ScriptManager.get().getScriptOptions(scriptPath);
                     if (options != null) {
-                        String scriptInfo = ScriptInfo.get().printOfflineScriptInfo(args[0], scriptPath, options);
+                        String scriptInfo = ScriptManager.get().getScriptInfo().printOfflineScriptInfo(args[0], scriptPath, options);
                         sender.sendMessage(scriptInfo);
                     } else
                         sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
@@ -64,7 +63,7 @@ public class InfoCommand implements SubCommand {
     }
 
     @Override
-    public List<String> onTabComplete(AbstractCommandSender<?> sender, String[] args) {
+    public List<String> onTabComplete(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
             return new ArrayList<>(ScriptManager.get().getAllScriptNames());
         } else {
