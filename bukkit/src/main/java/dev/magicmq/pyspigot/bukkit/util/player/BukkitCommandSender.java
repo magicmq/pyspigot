@@ -21,10 +21,17 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+/**
+ * A wrapper for the Bukkit {@link org.bukkit.command.CommandSender} class.
+ */
 public class BukkitCommandSender implements CommandSenderAdapter {
 
     private final CommandSender sender;
 
+    /**
+     *
+     * @param sender The Bukkit CommandSender
+     */
     public BukkitCommandSender(CommandSender sender) {
         this.sender = sender;
     }

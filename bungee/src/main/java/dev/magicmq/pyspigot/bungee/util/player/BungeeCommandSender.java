@@ -21,10 +21,17 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+/**
+ * A wrapper for the BungeeCord {@link net.md_5.bungee.api.CommandSender} class.
+ */
 public class BungeeCommandSender implements CommandSenderAdapter {
 
     private final CommandSender sender;
 
+    /**
+     *
+     * @param sender The BungeeCord CommandSender
+     */
     public BungeeCommandSender(CommandSender sender) {
         this.sender = sender;
     }

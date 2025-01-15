@@ -30,6 +30,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+/**
+ * The Bukkit-specific implementation of the listener manager.
+ */
 public class BukkitListenerManager extends ListenerManager<BukkitScriptEventListener, Event, EventPriority> {
 
     private static BukkitListenerManager instance;

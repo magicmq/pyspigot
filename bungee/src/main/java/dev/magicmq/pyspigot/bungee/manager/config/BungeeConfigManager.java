@@ -22,6 +22,9 @@ import dev.magicmq.pyspigot.manager.config.ConfigManager;
 import java.io.IOException;
 import java.nio.file.Path;
 
+/**
+ * The BungeeCord-specific implementation of the config manager.
+ */
 public class BungeeConfigManager extends ConfigManager<BungeeScriptConfig> {
 
     private static BungeeConfigManager instance;

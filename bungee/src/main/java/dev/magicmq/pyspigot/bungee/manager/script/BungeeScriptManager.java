@@ -33,6 +33,9 @@ import org.python.core.PyException;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The BungeeCord-specific implementation of the script manager.
+ */
 public class BungeeScriptManager extends ScriptManager {
 
     private static BungeeScriptManager instance;

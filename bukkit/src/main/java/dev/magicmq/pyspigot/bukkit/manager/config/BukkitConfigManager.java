@@ -22,6 +22,9 @@ import dev.magicmq.pyspigot.manager.config.ConfigManager;
 import java.io.IOException;
 import java.nio.file.Path;
 
+/**
+ * The Bukkit-specific implementation of the config manager.
+ */
 public class BukkitConfigManager extends ConfigManager<BukkitScriptConfig> {
 
     private static BukkitConfigManager instance;

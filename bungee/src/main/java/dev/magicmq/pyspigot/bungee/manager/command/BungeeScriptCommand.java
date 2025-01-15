@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * Represents a command belonging to a script.
+ * Represents a registered BungeeCord command belonging to a script.
  * @see net.md_5.bungee.api.plugin.Command
  * @see net.md_5.bungee.api.plugin.TabExecutor
  */

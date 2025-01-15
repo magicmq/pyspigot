@@ -26,6 +26,9 @@ import org.python.core.PyFunction;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The BungeeCord-specific implementation of the task manager.
+ */
 public class BungeeTaskManager extends TaskManager {
 
     private static BungeeTaskManager instance;

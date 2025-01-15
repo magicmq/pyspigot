@@ -27,7 +27,7 @@ import org.python.core.PyException;
 import org.python.core.PyObject;
 
 /**
- * Represents an event executor for script event listeners.
+ * Represents a Bukkit event executor for script event listeners.
  * @see org.bukkit.plugin.EventExecutor
  */
 public class BukkitScriptEventExecutor implements EventExecutor {

@@ -26,6 +26,10 @@ import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 
+/**
+ * A dummy BungeeCord Listener that holds an event a script is currently listening to.
+ * @see net.md_5.bungee.api.plugin.Listener
+ */
 public class BungeeScriptEventListener implements Listener {
 
     private final Script script;

@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * Represents a command belonging to a script.
+ * Represents a registered Bukkit command belonging to a script.
  * @see org.bukkit.command.TabExecutor
  * @see org.bukkit.command.defaults.BukkitCommand
  */

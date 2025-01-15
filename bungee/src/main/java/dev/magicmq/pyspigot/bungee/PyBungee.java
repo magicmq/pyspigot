@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
- * Entry point of PySpigot for the BungeeCord server software.
+ * Entry point of PySpigot for the BungeeCord servers.
  */
 public class PyBungee extends Plugin implements PlatformAdapter {
 

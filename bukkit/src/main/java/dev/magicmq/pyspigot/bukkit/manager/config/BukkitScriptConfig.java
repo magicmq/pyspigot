@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * A class representing a script configuration file.
+ * A class representing a script configuration file, for the Bukkit implementation.
  * @see org.bukkit.configuration.file.YamlConfiguration
  */
 public class BukkitScriptConfig extends YamlConfiguration {

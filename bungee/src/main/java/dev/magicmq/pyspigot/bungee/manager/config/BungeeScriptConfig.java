@@ -27,6 +27,10 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * A class representing a script configuration file, for the BungeeCord implementation.
+ * @see net.md_5.bungee.config.Configuration
+ */
 public class BungeeScriptConfig {
 
     private final File configFile;
@@ -105,7 +109,7 @@ public class BungeeScriptConfig {
         reload();
     }
 
-    /*--------------------------------------------------------*/
+    /*------------------------------- Passthrough methods for consistency with Bukkit implementation -------------------------------*/
 
     public <T> T get(String path, T def) {
         return config.get(path, def);

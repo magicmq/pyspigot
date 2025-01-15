@@ -28,7 +28,7 @@ import org.python.core.PyFunction;
 import org.python.core.PyObject;
 
 /**
- * A script listener for BungeeCord packets.
+ * A script listener that listens for BungeeCord packets.
  * @param <T> The packet to listen for
  */
 public class ScriptPacketListener<T> extends AbstractPacketListener<T> {

@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Manager to interface with ProtocolLib's AsynchronousManager. Primarily used by scripts to register and unregister asynchronous packet listeners.
+ * Manager to interface with ProtocolLib's AsynchronousManager. Primarily used by scripts to register and unregister asynchronous packet listeners on Bukkit/Minecraft.
  * @see com.comphenix.protocol.AsynchronousManager
  */
 public class AsyncProtocolManager {

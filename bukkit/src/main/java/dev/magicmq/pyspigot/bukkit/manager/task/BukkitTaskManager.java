@@ -23,6 +23,9 @@ import dev.magicmq.pyspigot.manager.task.Task;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import org.bukkit.Bukkit;
 
+/**
+ * The Bukkit-specific implementation of the task manager.
+ */
 public class BukkitTaskManager extends TaskManager {
 
     private static BukkitTaskManager instance;

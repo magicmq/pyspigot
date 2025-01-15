@@ -22,7 +22,7 @@ import org.bukkit.event.Listener;
 import org.python.core.PyFunction;
 
 /**
- * A dummy listener object that holds an event a script is currently listening to.
+ * A dummy Bukkit Listener that holds an event a script is currently listening to.
  * @see org.bukkit.event.Listener
  */
 public class BukkitScriptEventListener implements Listener {

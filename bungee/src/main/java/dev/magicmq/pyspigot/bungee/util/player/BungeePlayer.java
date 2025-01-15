@@ -21,10 +21,17 @@ import dev.magicmq.pyspigot.util.player.PlayerAdapter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+/**
+ * A wrapper for the BungeeCord {@link net.md_5.bungee.api.connection.ProxiedPlayer} class.
+ */
 public class BungeePlayer implements PlayerAdapter {
 
     private final ProxiedPlayer player;
 
+    /**
+     *
+     * @param player The BungeeCord ProxiedPlayer
+     */
     public BungeePlayer(ProxiedPlayer player) {
         this.player = player;
     }

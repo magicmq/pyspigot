@@ -30,6 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Manager to interface with Protocolize. Primarily used by scripts to register and unregister packet listeners on the BungeeCord proxy.
+ * <p>
+ * Do not call this manager if Protocolize is not loaded and enabled on the server! It will not work.
+ * @see dev.simplix.protocolize.api.Protocolize
+ */
 public class ProtocolManager {
 
     private static ProtocolManager instance;

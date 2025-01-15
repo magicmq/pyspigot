@@ -26,6 +26,9 @@ import org.python.core.PyFunction;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The BungeeCord-specific implementation of the command manager.
+ */
 public class BungeeCommandManager extends CommandManager<BungeeScriptCommand> {
 
     private static BungeeCommandManager instance;

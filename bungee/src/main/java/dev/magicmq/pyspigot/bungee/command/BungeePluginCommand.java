@@ -23,6 +23,9 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
+/**
+ * The executor for the /pybungee command.
+ */
 public class BungeePluginCommand extends Command implements TabExecutor {
 
     private final PySpigotCommand baseCommand;

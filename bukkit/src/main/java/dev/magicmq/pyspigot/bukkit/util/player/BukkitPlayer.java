@@ -21,10 +21,17 @@ import dev.magicmq.pyspigot.util.player.PlayerAdapter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 
+/**
+ * A wrapper for the Bukkit {@link org.bukkit.entity.Player} class.
+ */
 public class BukkitPlayer implements PlayerAdapter {
 
     private final Player player;
 
+    /**
+     *
+     * @param player The Bukkit Player
+     */
     public BukkitPlayer(Player player) {
         this.player = player;
     }

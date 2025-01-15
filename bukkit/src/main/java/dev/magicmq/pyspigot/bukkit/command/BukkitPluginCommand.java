@@ -25,6 +25,9 @@ import org.bukkit.command.TabExecutor;
 
 import java.util.List;
 
+/**
+ * The executor for the /pyspigot command.
+ */
 public class BukkitPluginCommand implements TabExecutor {
 
     private final PySpigotCommand baseCommand;

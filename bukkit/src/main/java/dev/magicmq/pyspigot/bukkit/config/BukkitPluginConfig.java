@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Helper class to retrieve configuration values from the plugin config.
+ * The Bukkit-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retreiving values from the plugin config.yml.
  */
 public class BukkitPluginConfig implements PluginConfig {
 

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An extension of the base {@link ScriptOptions} class that includes Bukkit-specific code for parsing script permissions.
+ * An extension of the base {@link ScriptOptions} class that includes Bukkit-specific code for parsing and registering script permissions.
  */
 public class BukkitScriptOptions extends ScriptOptions {
 

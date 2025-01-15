@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Manager to interface with ProtocolLib's ProtocolManager. Primarily used by scripts to register and unregister packet listeners.
+ * Manager to interface with ProtocolLib's ProtocolManager. Primarily used by scripts to register and unregister packet listeners on Bukkit/Minecraft.
  * <p>
  * Do not call this manager if ProtocolLib is not loaded and enabled on the server! It will not work.
  * @see com.comphenix.protocol.ProtocolManager

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Helper class to retrieve configuration values from the plugin config.
+ * The BungeeCord-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retreiving values from the plugin config.yml.
  */
 public class BungeePluginConfig implements PluginConfig {
 

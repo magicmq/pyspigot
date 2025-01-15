@@ -33,6 +33,9 @@ import org.python.core.PyException;
 
 import java.nio.file.Path;
 
+/**
+ * The Bukkit-specific implementation of the script manager.
+ */
 public class BukkitScriptManager extends ScriptManager {
 
     private static BukkitScriptManager instance;

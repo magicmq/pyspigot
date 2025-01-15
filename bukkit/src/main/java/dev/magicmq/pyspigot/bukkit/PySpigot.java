@@ -44,7 +44,7 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 
 /**
- * Entry point of PySpigot for the Bukkit server software.
+ * Entry point of PySpigot for Bukkit servers.
  */
 public class PySpigot extends JavaPlugin implements PlatformAdapter {
 

@@ -28,6 +28,9 @@ import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Bukkit-specific implementation of the {@link dev.magicmq.pyspigot.manager.script.ScriptInfo} class, for printing information related to Bukkit-specific managers.
+ */
 public class BukkitScriptInfo extends ScriptInfo {
 
     @Override

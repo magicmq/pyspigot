@@ -38,6 +38,9 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
+/**
+ * The BungeeCord-specific implementation of the listener manager.
+ */
 public class BungeeListenerManager extends ListenerManager<BungeeScriptEventListener, Event, Byte> {
 
     private static BungeeListenerManager instance;

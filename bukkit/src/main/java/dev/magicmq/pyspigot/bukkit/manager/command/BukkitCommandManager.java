@@ -34,6 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
+/**
+ * The Bukkit-specific implementation of the command manager.
+ */
 public class BukkitCommandManager extends CommandManager<BukkitScriptCommand> {
 
     private static BukkitCommandManager instance;
