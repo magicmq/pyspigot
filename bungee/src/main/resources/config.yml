@@ -35,4 +35,4 @@ debug-options:
   # If false, the pyspigot.py file will *not* be automatically replaced with the most recent version (from the pyspigot JAR) on server start if a change is detected. It is recommended to keep this enabled in the event a plugin update comes with an updated pyspigot.py file.
   auto-pyspigot-lib-update-enabled: true
 messages:
-  plugin-prefix: '&8[&6PyBungee&8] &r'
+  plugin-prefix: '&8[&6PySpigot-Bungee&8] &r'
