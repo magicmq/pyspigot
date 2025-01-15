@@ -152,7 +152,6 @@
                             <phase>package</phase>
                             <goals>
                                 <goal>jar</goal>
-                                <goal>aggregate</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -180,6 +179,49 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>aggregate-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <links>
+                        <link>https://hub.spigotmc.org/javadocs/spigot/</link>
+                        <link>https://javadoc.io/doc/org.python/jython/latest/</link>
+                        <link>https://aadnk.github.io/ProtocolLib/Javadoc/</link>
+                        <link>https://javadoc.io/doc/me.lucko/jar-relocator/latest/me/lucko/jarrelocator/</link>
+                        <link>https://javadoc.io/doc/com.zaxxer/HikariCP/latest/com.zaxxer.hikari/</link>
+                        <link>https://javadoc.io/doc/org.mongodb/mongodb-driver-core/latest/</link>
+                        <link>https://javadoc.io/doc/org.mongodb/bson/latest/</link>
+                        <link>https://javadoc.io/doc/org.mongodb/mongodb-driver-sync/latest/</link>
+                        <link>https://javadoc.io/doc/io.lettuce/lettuce-core/latest/</link>
+                    </links>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aggregate-javadocs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <scm>
