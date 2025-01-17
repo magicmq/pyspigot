@@ -52,10 +52,7 @@ public class Script implements Comparable<Script> {
         this.options = options;
     }
 
-    /**
-     * Prepares this script for execution by initializing its interpreter and logger. Called just prior to executing the script's code.
-     */
-    public void prepare() {
+    protected void prepare() {
         this.interpreter = new PythonInterpreter(null, ScriptUtils.initPySystemState());
         this.interpreter.setOut(new PrintStreamWrapper(System.out, this, Level.INFO, "[STDOUT]"));
         this.interpreter.setErr(new PrintStreamWrapper(System.err, this, Level.SEVERE, "[STDERR]"));

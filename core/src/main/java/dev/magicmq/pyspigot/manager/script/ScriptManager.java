@@ -295,8 +295,13 @@ public abstract class ScriptManager {
             script.getInterpreter().execfile(scriptFileReader, script.getName());
 
             PyObject start = script.getInterpreter().get("start");
-            if (start instanceof PyFunction)
-                start.__call__();
+            if (start instanceof PyFunction startFunction) {
+                int args = ((PyBaseCode) startFunction.__code__).co_argcount;
+                if (args == 0)
+                    startFunction.__call__();
+                else
+                    startFunction.__call__(Py.java2py(script));
+            }
 
             callScriptLoadEvent(script);
 
@@ -500,9 +505,13 @@ public abstract class ScriptManager {
         boolean gracefulStop = true;
         if (!error) {
             PyObject stop = script.getInterpreter().get("stop");
-            if (stop instanceof PyFunction) {
+            if (stop instanceof PyFunction stopFunction) {
                 try {
-                    stop.__call__();
+                    int args = ((PyBaseCode) stopFunction.__code__).co_argcount;
+                    if (args == 0)
+                        stopFunction.__call__();
+                    else
+                        stopFunction.__call__(Py.java2py(script));
                 } catch (PyException e) {
                     handleScriptException(script, e, "Error when calling stop function");
                     gracefulStop = false;
