@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dev.magicmq</groupId>
     <artifactId>pyspigot</artifactId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -228,7 +228,7 @@
         <connection>scm:git:ssh://git@github.com/magicmq/PySpigot.git</connection>
         <url>https://github.com/magicmq/PySpigot</url>
         <developerConnection>scm:git:ssh://git@github.com/magicmq/PySpigot.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.8.0</tag>
     </scm>
 
     <distributionManagement>
