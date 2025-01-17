@@ -154,6 +154,11 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
         return getDescription().getAuthors().get(0);
     }
 
+    @Override
+    public String getPluginIdentifier() {
+        return "PySpigot";
+    }
+
     /**
      * Check if ProtocolLib is available on the server.
      * @return True if ProtocolLib is loaded and enabled, false if otherwise

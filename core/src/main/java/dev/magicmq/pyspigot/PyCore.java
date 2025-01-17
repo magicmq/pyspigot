@@ -164,6 +164,14 @@ public class PyCore {
     }
 
     /**
+     * Get the identifier of the plugin.
+     * @return The plugin identifier
+     */
+    public String getPluginIdentifier() {
+        return adapter.getPluginIdentifier();
+    }
+
+    /**
      * Get if the server is running paper.
      * @return True if the server is running paper, false if otherwise
      */

@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.command;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.command.subcommands.*;
-import dev.magicmq.pyspigot.util.StringUtils;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 
@@ -28,9 +27,9 @@ import java.util.List;
 
 public class PySpigotCommand {
 
-    private static final String HELP_CMD_HEADER = ChatColor.translateAlternateColorCodes('&', "%prefix%&a&lCommand Syntax:");
+    private static final String PLUGIN_PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.GOLD + PyCore.get().getPluginIdentifier() + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
+    private static final String HELP_CMD_HEADER = ChatColor.translateAlternateColorCodes('&', PLUGIN_PREFIX + "&a&lCommand Syntax:");
     private static final String HELP_CMD_FORMAT = ChatColor.translateAlternateColorCodes('&', "&6/%maincommand% %subcommand% &7- %description%");
-    private static final String HELP_CMD_FOOTER = ChatColor.translateAlternateColorCodes('&', "&aMade with care by %author%");
 
     private final List<SubCommand> subCommands;
 
@@ -144,9 +143,7 @@ public class PySpigotCommand {
     }
 
     private void printHelp(CommandSenderAdapter sender, String label) {
-        sender.sendMessage(HELP_CMD_HEADER
-                .replace("%prefix%", PyCore.get().getConfig().getMessage("plugin-prefix", false))
-                .replace("%author%", StringUtils.replaceLastOccurrence(String.join(", ", PyCore.get().getAuthor()), ", ", " and ")));
+        sender.sendMessage(HELP_CMD_HEADER);
         subCommands.forEach(subCommand -> {
             SubCommandMeta subCommandMeta = subCommand.getClass().getAnnotation(SubCommandMeta.class);
             if (sender.hasPermission(subCommandMeta.permission()) || subCommandMeta.permission().isEmpty()) {
@@ -158,8 +155,5 @@ public class PySpigotCommand {
                 }
             }
         });
-        sender.sendMessage(HELP_CMD_FOOTER
-                .replace("%prefix%", PyCore.get().getConfig().getMessage("plugin-prefix", false))
-                .replace("%author%", StringUtils.replaceLastOccurrence(String.join(", ", PyCore.get().getAuthor()), ", ", " and ")));
     }
 }

@@ -31,9 +31,10 @@ import net.md_5.bungee.api.chat.*;
 )
 public class HelpCommand implements SubCommand {
 
+    private static final String PLUGIN_PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.GOLD + PyCore.get().getPluginIdentifier() + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
     private static final String HELP_MESSAGE_CONSOLE =
             "\n" +
-                    PyCore.get().getConfig().getPrefix() + "&aSome helpful links:" + "\n" +
+                    PLUGIN_PREFIX + "&aSome helpful links:" + "\n" +
                     "&b&l- PySpigot Documentation: &b&nhttps://pyspigot-docs.magicmq.dev" + "\n" +
                     "&b&l- Spigot Plugin Page: &b&nhttps://spigotmc.org/resources/pyspigot.111006/" + "\n" +
                     "&b- Need help? Reach out on the PySpigot Discord: &b&nhttps://discord.gg/f2u7nzRwuk" + "\n" +
@@ -69,7 +70,7 @@ public class HelpCommand implements SubCommand {
         ComponentBuilder builder = new ComponentBuilder("");
         builder
                 .append("\n")
-                .appendLegacy(PyCore.get().getConfig().getPrefix() + ChatColor.GREEN + "Some helpful links:").append("\n").reset()
+                .appendLegacy(PLUGIN_PREFIX + ChatColor.GREEN + "Some helpful links:").append("\n").reset()
                 .append("- ").color(ChatColor.AQUA).append(documentation).append("\n").reset()
                 .append("- ").color(ChatColor.AQUA).append(pluginPage).append("\n").reset()
                 .append("- Need help? Reach out on the ").color(ChatColor.AQUA).append(discord).append("\n").reset()

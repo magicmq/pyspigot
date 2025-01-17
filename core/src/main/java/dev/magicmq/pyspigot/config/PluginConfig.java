@@ -58,8 +58,4 @@ public interface PluginConfig {
     boolean shouldShowUpdateMessages();
 
     boolean shouldUpdatePySpigotLib();
-
-    String getMessage(String key, boolean withPrefix);
-
-    String getPrefix();
 }

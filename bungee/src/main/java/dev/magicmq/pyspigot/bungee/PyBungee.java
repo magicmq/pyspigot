@@ -175,6 +175,11 @@ public class PyBungee extends Plugin implements PlatformAdapter {
         return getDescription().getAuthor();
     }
 
+    @Override
+    public String getPluginIdentifier() {
+        return "PySpigot-Bungee";
+    }
+
     /**
      * Check if Protocolize is available on the server.
      * @return True if Protocolize is loaded and enabled, false if otherwise

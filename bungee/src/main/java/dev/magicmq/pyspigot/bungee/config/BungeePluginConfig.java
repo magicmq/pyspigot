@@ -123,12 +123,4 @@ public class BungeePluginConfig implements PluginConfig {
     public boolean shouldUpdatePySpigotLib() {
         return config.getBoolean("debug-options.auto-pyspigot-lib-update-enabled");
     }
-
-    public String getMessage(String key, boolean withPrefix) {
-        return ChatColor.translateAlternateColorCodes('&', (withPrefix ? config.getString("messages.plugin-prefix") : "") + config.getString("messages." + key));
-    }
-
-    public String getPrefix() {
-        return ChatColor.translateAlternateColorCodes('&', config.getString("messages.plugin-prefix"));
-    }
 }
