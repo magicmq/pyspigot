@@ -101,12 +101,6 @@ public interface PlatformAdapter {
     String getVersion();
 
     /**
-     * Get the plugin author via a platform-specific implementation.
-     * @return The plugin author
-     */
-    String getAuthor();
-
-    /**
      * Get the appropriate plugin identifier, depending on the platform.
      * @return The plugin identifier
      */

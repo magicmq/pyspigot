@@ -156,14 +156,6 @@ public class PyCore {
     }
 
     /**
-     * Get the author of the plugin.
-     * @return The author
-     */
-    public String getAuthor() {
-        return adapter.getAuthor();
-    }
-
-    /**
      * Get the identifier of the plugin.
      * @return The plugin identifier
      */

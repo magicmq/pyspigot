@@ -150,11 +150,6 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
     }
 
     @Override
-    public String getAuthor() {
-        return getDescription().getAuthors().get(0);
-    }
-
-    @Override
     public String getPluginIdentifier() {
         return "PySpigot";
     }
