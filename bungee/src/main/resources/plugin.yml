@@ -1,0 +1,5 @@
+name: ${project.name}
+version: ${project.version}
+author: magicmq
+main: dev.magicmq.pyspigot.bungee.PyBungee
+softDepends: ['Protocolize']

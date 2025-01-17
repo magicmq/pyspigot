@@ -1,10 +1,10 @@
 #IntelliJ
-/target/
+**/target/
 /.idea/
-pyspigot.iml
+*.iml
 
 #Maven
-/dependency-reduced-pom.xml
+**/dependency-reduced-pom.xml
 
 
 # Compiled class file
