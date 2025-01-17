@@ -1,4 +1,4 @@
-from dev.magicmq.pyspigot import PySpigot as ps
+import pyspigot as ps
 
 #The placeholder in this example scrpipt will be %script:placeholder_<placeholder>%. For example, %script:placeholder_player_banned% to get if the player is banned
 def replacer(offline_player, placeholder):

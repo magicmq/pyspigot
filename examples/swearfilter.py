@@ -1,4 +1,4 @@
-from dev.magicmq.pyspigot import PySpigot as ps
+import pyspigot as ps
 from org.bukkit.event.player import AsyncPlayerChatEvent
 from org.bukkit.event import EventPriority
 from org.bukkit import Bukkit

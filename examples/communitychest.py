@@ -1,4 +1,4 @@
-from dev.magicmq.pyspigot import PySpigot as ps
+import pyspigot as ps
 from org.bukkit.entity import Player
 from org.bukkit import ChatColor
 from org.bukkit import Material

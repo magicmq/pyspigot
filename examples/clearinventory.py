@@ -1,4 +1,4 @@
-from dev.magicmq.pyspigot import PySpigot as ps
+import pyspigot as ps
 from org.bukkit.entity import Player
 from org.bukkit import ChatColor
 
@@ -17,4 +17,5 @@ def clear_inventory_command(sender, label, args):
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', player_only_message))
     return True
 
-ps.command.registerCommand(clear_inventory_command, 'clear_inventory', 'Clear your inventory', '/clear_inventory', {'cinventory', 'cleari', 'purgeinventory', 'purge_inventory', 'pi', 'purgei', 'pinventory'})
+ps.command.registerCommand(clear_inventory_command, 'clear_inventory', 'Clear your inventory', '/clear_inventory',
+                           ['cinventory', 'cleari', 'purgeinventory', 'purge_inventory', 'pi', 'purgei', 'pinventory'])
