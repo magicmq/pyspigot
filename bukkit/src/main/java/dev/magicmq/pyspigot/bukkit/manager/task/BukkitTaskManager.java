@@ -35,52 +35,52 @@ public class BukkitTaskManager extends TaskManager {
     }
 
     @Override
-    public void runTaskImpl(Task task) {
+    protected synchronized void runTaskImpl(Task task) {
         task.setTaskId(Bukkit.getScheduler().runTask(PySpigot.get(), task).getTaskId());
     }
 
     @Override
-    public void runTaskAsyncImpl(Task task) {
+    protected synchronized void runTaskAsyncImpl(Task task) {
         task.setTaskId(Bukkit.getScheduler().runTaskAsynchronously(PySpigot.get(), task).getTaskId());
     }
 
     @Override
-    public void runTaskLaterImpl(Task task, long delay) {
+    protected synchronized void runTaskLaterImpl(Task task, long delay) {
         task.setTaskId(Bukkit.getScheduler().runTaskLater(PySpigot.get(), task, delay).getTaskId());
     }
 
     @Override
-    public void runTaskLaterAsyncImpl(Task task, long delay) {
+    protected synchronized void runTaskLaterAsyncImpl(Task task, long delay) {
         task.setTaskId(Bukkit.getScheduler().runTaskLaterAsynchronously(PySpigot.get(), task, delay).getTaskId());
     }
 
     @Override
-    public void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
+    protected synchronized void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
         task.setTaskId(Bukkit.getScheduler().runTaskTimer(PySpigot.get(), task, delay, interval).getTaskId());
     }
 
     @Override
-    public void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
+    protected synchronized void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
         task.setTaskId(Bukkit.getScheduler().runTaskTimerAsynchronously(PySpigot.get(), task, delay, interval).getTaskId());
     }
 
     @Override
-    public void runSyncCallbackTaskImpl(SyncCallbackTask task) {
+    protected synchronized void runSyncCallbackTaskImpl(SyncCallbackTask task) {
         task.setTaskId(Bukkit.getScheduler().runTaskAsynchronously(PySpigot.get(), task).getTaskId());
     }
 
     @Override
-    public void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay) {
+    protected synchronized void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay) {
         task.setTaskId(Bukkit.getScheduler().runTaskLaterAsynchronously(PySpigot.get(), task, delay).getTaskId());
     }
 
     @Override
-    public int runSyncCallbackImpl(Runnable runnable) {
+    protected synchronized int runSyncCallbackImpl(Runnable runnable) {
         return Bukkit.getScheduler().runTask(PySpigot.get(), runnable).getTaskId();
     }
 
     @Override
-    public void stopTaskImpl(int taskId) {
+    protected synchronized void stopTaskImpl(int taskId) {
         Bukkit.getScheduler().cancelTask(taskId);
     }
 

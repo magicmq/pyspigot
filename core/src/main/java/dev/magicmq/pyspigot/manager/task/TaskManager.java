@@ -39,73 +39,25 @@ public abstract class TaskManager {
         activeTasks = new HashMap<>();
     }
 
-    /**
-     * Schedule a task via the platform-specific scheduler.
-     * @param task The task to schedule
-     */
-    public abstract void runTaskImpl(Task task);
+    protected abstract void runTaskImpl(Task task);
 
-    /**
-     * Schedule an asynchronous task via the platform-specific scheduler.
-     * @param task The task to schedule
-     */
-    public abstract void runTaskAsyncImpl(Task task);
+    protected abstract void runTaskAsyncImpl(Task task);
 
-    /**
-     * Schedule a task later via the platform-specific schedule.
-     * @param task The task to schedule
-     * @param delay The delay
-     */
-    public abstract void runTaskLaterImpl(Task task, long delay);
+    protected abstract void runTaskLaterImpl(Task task, long delay);
 
-    /**
-     * Schedule an asynchronous task later via the platform-specific scheduler.
-     * @param task The task to schedule
-     * @param delay The delay
-     */
-    public abstract void runTaskLaterAsyncImpl(Task task, long delay);
+    protected abstract void runTaskLaterAsyncImpl(Task task, long delay);
 
-    /**
-     * Schedule a repeating task via the platform-specific scheduler.
-     * @param task The task to schedule
-     * @param delay The delay
-     * @param interval The interval
-     */
-    public abstract void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval);
+    protected abstract void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval);
 
-    /**
-     * Schedule an asynchronous repeating task via the platform-specific scheduler.
-     * @param task The task to schedule
-     * @param delay The delay
-     * @param interval The interval
-     */
-    public abstract void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval);
+    protected abstract void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval);
 
-    /**
-     * Schedule a sync callback task via the platform-specific scheduler.
-     * @param task The task to schedule
-     */
-    public abstract void runSyncCallbackTaskImpl(SyncCallbackTask task);
+    protected abstract void runSyncCallbackTaskImpl(SyncCallbackTask task);
 
-    /**
-     * Schedule a sync callback task later via the platform-specific scheduler.
-     * @param task The task to schedule
-     * @param delay The delay
-     */
-    public abstract void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay);
+    protected abstract void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay);
 
-    /**
-     * Schedule the synchronous portion of a callback task via the platform-specific scheduler.
-     * @param runnable The task to schedule
-     * @return The ID of the scheduled task
-     */
-    public abstract int runSyncCallbackImpl(Runnable runnable);
+    protected abstract int runSyncCallbackImpl(Runnable runnable);
 
-    /**
-     * Stop a task via the platform-specific scheduler.
-     * @param taskId The ID of the task to stop
-     */
-    public abstract void stopTaskImpl(int taskId);
+    protected abstract void stopTaskImpl(int taskId);
 
     /**
      * Schedule a new synchronous task via a platform-specific implementation.

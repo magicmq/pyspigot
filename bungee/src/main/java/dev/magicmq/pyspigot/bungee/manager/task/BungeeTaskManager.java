@@ -37,79 +37,125 @@ public class BungeeTaskManager extends TaskManager {
         super();
     }
 
+    /**
+     * <b>DO NOT USE.</b>
+     * <p>
+     * Synchronous tasks are not implemented in BungeeCord, so this method will not work.
+     * @param function The function that should be called when the synchronous task executes
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return An ID representing the synchronous task that was scheduled
+     */
     @Override
     public synchronized int runTask(PyFunction function, Object... functionArgs) {
         throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
     }
 
+    /**
+     * <b>DO NOT USE.</b>
+     * <p>
+     * Synchronous tasks are not implemented in BungeeCord, so this method will not work.
+     * @param function The function that should be called when the synchronous task executes
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the synchronous task
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return An ID representing the synchronous task that was scheduled
+     */
     @Override
     public synchronized int runTaskLater(PyFunction function, long delay, Object... functionArgs) {
         throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
     }
 
+    /**
+     * <b>DO NOT USE.</b>
+     * <p>
+     * Synchronous tasks are not implemented in BungeeCord, so this method will not work.
+     * @param function The function that should be called each time the synchronous task executes
+     * @param delay The delay, in ticks, to wait before beginning this synchronous repeating task
+     * @param interval The interval, in ticks, that the synchronous repeating task should be executed
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return An ID representing the synchronous task that was scheduled
+     */
     @Override
     public synchronized int scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
         throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
     }
 
+    /**
+     * <b>DO NOT USE.</b>
+     * <p>
+     * Synchronous tasks are not implemented in BungeeCord, so this method will not work.
+     * @param function The function that should be called when the asynchronous task executes
+     * @param callback The function that should be called for the synchronous callback once the asynchronous portion of the task finishes
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return An ID representing the synchronous task that was scheduled
+     */
     @Override
     public synchronized int runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
         throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
     }
 
+    /**
+     * <b>DO NOT USE.</b>
+     * <p>
+     * Synchronous tasks are not implemented in BungeeCord, so this method will not work.
+     * @param function The function that should be called when the asynchronous task executes
+     * @param callback The function that should be called for the synchronous callback once the asynchronous portion of the task finishes
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the asynchronous task
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return An ID representing the synchronous task that was scheduled
+     */
     @Override
     public synchronized int runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
         throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
     }
 
     @Override
-    public synchronized void runTaskImpl(Task task) {
+    protected synchronized void runTaskImpl(Task task) {
         //Synchronous tasks not implemented in BungeeCord
     }
 
     @Override
-    public synchronized void runTaskAsyncImpl(Task task) {
+    protected synchronized void runTaskAsyncImpl(Task task) {
         task.setTaskId(ProxyServer.getInstance().getScheduler().runAsync(PyBungee.get(), task).getId());
     }
 
     @Override
-    public synchronized void runTaskLaterImpl(Task task, long delay) {
+    protected synchronized void runTaskLaterImpl(Task task, long delay) {
         //Synchronous tasks not implemented in BungeeCord
     }
 
     @Override
-    public synchronized void runTaskLaterAsyncImpl(Task task, long delay) {
+    protected synchronized void runTaskLaterAsyncImpl(Task task, long delay) {
         task.setTaskId(ProxyServer.getInstance().getScheduler().schedule(PyBungee.get(), task, ticksToMillis(delay), TimeUnit.MILLISECONDS).getId());
     }
 
     @Override
-    public synchronized void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
+    protected synchronized void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
         //Synchronous tasks not implemented in BungeeCord
     }
 
     @Override
-    public synchronized void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
+    protected synchronized void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval) {
         task.setTaskId(ProxyServer.getInstance().getScheduler().schedule(PyBungee.get(), task, ticksToMillis(delay), ticksToMillis(interval), TimeUnit.MILLISECONDS).getId());
     }
 
     @Override
-    public synchronized void runSyncCallbackTaskImpl(SyncCallbackTask task) {
+    protected synchronized void runSyncCallbackTaskImpl(SyncCallbackTask task) {
         //Synchronous tasks not implemented in BungeeCord
     }
 
     @Override
-    public synchronized void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay) {
+    protected synchronized void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay) {
         //Synchronous tasks not implemented in BungeeCord
     }
 
     @Override
-    public synchronized int runSyncCallbackImpl(Runnable runnable) {
+    protected synchronized int runSyncCallbackImpl(Runnable runnable) {
         //Synchronous tasks not implemented in BungeeCord
         return 0;
     }
 
     @Override
-    public void stopTaskImpl(int taskId) {
+    protected void stopTaskImpl(int taskId) {
         ProxyServer.getInstance().getScheduler().cancel(taskId);
     }
 
