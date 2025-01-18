@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.bukkit.manager.command;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.bukkit.util.CommandAliasHelpTopic;
+import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.Bukkit;
@@ -44,7 +45,7 @@ import java.util.logging.Level;
  * @see org.bukkit.command.TabExecutor
  * @see org.bukkit.command.defaults.BukkitCommand
  */
-public class BukkitScriptCommand implements TabExecutor {
+public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
 
     private final Script script;
     private final PyFunction commandFunction;

@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bungee.manager.command;
 
+import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import net.md_5.bungee.api.ChatColor;
@@ -34,7 +35,7 @@ import java.util.logging.Level;
  * @see net.md_5.bungee.api.plugin.Command
  * @see net.md_5.bungee.api.plugin.TabExecutor
  */
-public class BungeeScriptCommand extends Command implements TabExecutor {
+public class BungeeScriptCommand extends Command implements TabExecutor, ScriptCommand {
 
     private final Script script;
     private final PyFunction commandFunction;

@@ -19,8 +19,8 @@ package dev.magicmq.pyspigot.bukkit.manager.command;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bukkit.util.ReflectionUtils;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
+import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
@@ -29,7 +29,6 @@ import org.python.core.PyFunction;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -37,7 +36,7 @@ import java.util.logging.Level;
 /**
  * The Bukkit-specific implementation of the command manager.
  */
-public class BukkitCommandManager extends CommandManager<BukkitScriptCommand> {
+public class BukkitCommandManager extends CommandManager {
 
     private static BukkitCommandManager instance;
 
@@ -62,102 +61,29 @@ public class BukkitCommandManager extends CommandManager<BukkitScriptCommand> {
     }
 
     @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name) {
-        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
-        return registerCommand(commandFunction, tabFunction, name, "", "", new ArrayList<>(), null);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name, String permission) {
-        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), permission);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String permission) {
-        return registerCommand(commandFunction, tabFunction, name, "", "", new ArrayList<>(), permission);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission) {
-        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
-        return registerCommand(commandFunction, tabFunction, name, "", "", aliases, null);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
-        return registerCommand(commandFunction, null, name, description, usage, new ArrayList<>(), null);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
-        return registerCommand(commandFunction, tabFunction, name, description, usage, new ArrayList<>(), null);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
-        return registerCommand(commandFunction, null, name, description, usage, aliases, null);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
-        return registerCommand(commandFunction, tabFunction, name, description, usage, aliases, null);
-    }
-
-    @Override
-    public BukkitScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
-        Script script = ScriptUtils.getScriptFromCallStack();
-        BukkitScriptCommand command = getCommand(script, name);
-        if (command == null) {
-            BukkitScriptCommand newCommand = new BukkitScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
-            if (!addCommandToBukkit(newCommand))
-                script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");
-            syncBukkitCommands();
-            newCommand.initHelp();
-            addCommand(script, newCommand);
-            return newCommand;
-        } else
-            throw new RuntimeException("Command '" + name + "' is already registered");
-    }
-
-    @Override
-    public void unregisterCommand(BukkitScriptCommand command) {
-        removeCommandFromBukkit(command);
-        command.removeHelp();
+    public ScriptCommand registerWithPlatform(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+        BukkitScriptCommand newCommand = new BukkitScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
+        if (!addCommandToBukkit(newCommand))
+            script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");
         syncBukkitCommands();
-        removeCommand(command.getScript(), command);
+        newCommand.initHelp();
+        return newCommand;
     }
 
     @Override
-    public void unregisterCommands(Script script) {
-        List<BukkitScriptCommand> associatedCommands = getCommands(script);
-        if (associatedCommands != null) {
-            for (BukkitScriptCommand command : associatedCommands) {
-                removeCommandFromBukkit(command);
-                command.removeHelp();
-            }
-            removeCommands(script);
-            syncBukkitCommands();
-        }
+    public void unregisterFromPlatform(ScriptCommand command) {
+        removeCommandFromBukkit((BukkitScriptCommand) command);
+        ((BukkitScriptCommand) command).removeHelp();
+        syncBukkitCommands();
     }
 
     @Override
-    public BukkitScriptCommand getCommand(Script script, String name) {
-        List<BukkitScriptCommand> scriptCommands = getCommands(script);
-        if (scriptCommands != null) {
-            for (BukkitScriptCommand command : scriptCommands) {
-                if (command.getName().equalsIgnoreCase(name))
-                    return command;
-            }
+    public void unregisterFromPlatform(List<ScriptCommand> commands) {
+        for (ScriptCommand command : commands) {
+            removeCommandFromBukkit((BukkitScriptCommand) command);
+            ((BukkitScriptCommand) command).removeHelp();
         }
-        return null;
+        syncBukkitCommands();
     }
 
     private boolean addCommandToBukkit(BukkitScriptCommand command) {

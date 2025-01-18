@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot.manager.command;
 
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
@@ -25,18 +26,48 @@ import java.util.List;
 
 /**
  * Abstract manager to interface with a server-specific command framework. Primarily used by scripts to register and unregister commands.
- * @param <T> The platform-specific command class
  */
-public abstract class CommandManager<T> {
+public abstract class CommandManager {
 
-    private static CommandManager<?> instance;
+    private static CommandManager instance;
 
-    private final HashMap<Script, List<T>> registeredCommands;
+    private final HashMap<Script, List<ScriptCommand>> registeredCommands;
 
     protected CommandManager() {
         instance = this;
 
         registeredCommands = new HashMap<>();
+    }
+
+    protected abstract ScriptCommand registerWithPlatform(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission);
+
+    protected abstract void unregisterFromPlatform(ScriptCommand command);
+
+    protected abstract void unregisterFromPlatform(List<ScriptCommand> commands);
+
+    /**
+     * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param name The name of the command to register
+     * @return A ScriptCommand representing the command that was registered
+     */
+    public ScriptCommand registerCommand(PyFunction commandFunction, String name) {
+        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
+    }
+
+    /**
+     * Register a new command.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command
+     * @param name The name of the command to register
+     * @return A ScriptCommand representing the command that was registered
+     */
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name) {
+        return registerCommand(commandFunction, tabFunction, name, "", "", new ArrayList<>(), null);
     }
 
     /**
@@ -45,31 +76,12 @@ public abstract class CommandManager<T> {
      * <b>Note:</b> This should be called from scripts only!
      * @param commandFunction The command function that should be called when the command is executed
      * @param name The name of the command to register
-     * @return A ScriptCommand representing the command that was registered
-     */
-    public abstract T registerCommand(PyFunction commandFunction, String name);
-
-    /**
-     * Register a new command.
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
-     * @param commandFunction The command function that should be called when the command is executed
-     * @param tabFunction The tab function that should be called for tab completion of the command
-     * @param name The name of the command to register
-     * @return A ScriptCommand representing the command that was registered
-     */
-    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name);
-
-    /**
-     * Register a new command.
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
-     * @param commandFunction The command function that should be called when the command is executed
-     * @param name The name of the command to register
      * @param permission The required permission node to use this command. Can be null
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, String name, String permission);
+    public ScriptCommand registerCommand(PyFunction commandFunction, String name, String permission) {
+        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), permission);
+    }
 
     /**
      * Register a new command.
@@ -81,7 +93,9 @@ public abstract class CommandManager<T> {
      * @param permission The required permission node to use this command. Can be null
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String permission);
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String permission) {
+        return registerCommand(commandFunction, tabFunction, name, "", "", new ArrayList<>(), permission);
+    }
 
     /**
      * Register a new command.
@@ -93,7 +107,9 @@ public abstract class CommandManager<T> {
      * @param permission The required permission node to use this command. Can be null
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission);
+    public ScriptCommand registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission) {
+        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
+    }
 
     /**
      * Register a new command.
@@ -106,7 +122,9 @@ public abstract class CommandManager<T> {
      * @param permission The required permission node to use this command. Can be null
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission);
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
+        return registerCommand(commandFunction, tabFunction, name, "", "", aliases, null);
+    }
 
     /**
      * Register a new command.
@@ -118,7 +136,9 @@ public abstract class CommandManager<T> {
      * @param usage The usage message for the command. Can be null (or an empty string)
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, String name, String description, String usage);
+    public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage) {
+        return registerCommand(commandFunction, null, name, description, usage, new ArrayList<>(), null);
+    }
 
     /**
      * Register a new command.
@@ -131,7 +151,9 @@ public abstract class CommandManager<T> {
      * @param usage The usage message for the command. Can be null (or an empty string)
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage);
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage) {
+        return registerCommand(commandFunction, tabFunction, name, description, usage, new ArrayList<>(), null);
+    }
 
     /**
      * Register a new command.
@@ -144,7 +166,9 @@ public abstract class CommandManager<T> {
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases);
+    public ScriptCommand registerCommand(PyFunction commandFunction, String name, String description, String usage, List<String> aliases) {
+        return registerCommand(commandFunction, null, name, description, usage, aliases, null);
+    }
 
     /**
      * Register a new command.
@@ -158,7 +182,9 @@ public abstract class CommandManager<T> {
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases);
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases) {
+        return registerCommand(commandFunction, tabFunction, name, description, usage, aliases, null);
+    }
 
     /**
      * Register a new command.
@@ -173,7 +199,16 @@ public abstract class CommandManager<T> {
      * @param permission The required permission node to use this command. Can be null
      * @return A ScriptCommand representing the command that was registered
      */
-    public abstract T registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission);
+    public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        ScriptCommand command = getCommand(script, name);
+        if (command == null) {
+            ScriptCommand newCommand = registerWithPlatform(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
+            addCommand(script, newCommand);
+            return newCommand;
+        } else
+            throw new RuntimeException("Command '" + name + "' is already registered");
+    }
 
     /**
      * Unregister a script's command.
@@ -181,13 +216,22 @@ public abstract class CommandManager<T> {
      * <b>Note:</b> This should be called from scripts only!
      * @param command The command to be unregistered
      */
-    public abstract void unregisterCommand(T command);
+    public void unregisterCommand(ScriptCommand command) {
+        unregisterFromPlatform(command);
+        removeCommand(command.getScript(), command);
+    }
 
     /**
      * Unregister all commands belonging to a particular script.
      * @param script The script from which all commands should be unregistered
      */
-    public abstract void unregisterCommands(Script script);
+    public void unregisterCommands(Script script) {
+        List<ScriptCommand> associatedCommands = getCommands(script);
+        if (associatedCommands != null) {
+            unregisterFromPlatform(associatedCommands);
+            removeCommands(script);
+        }
+    }
 
     /**
      * Get a command associated with a particular script by the command name
@@ -195,39 +239,48 @@ public abstract class CommandManager<T> {
      * @param name The name of the command
      * @return The command with this name and associated with the script, or null if none was found
      */
-    public abstract T getCommand(Script script, String name);
+    public ScriptCommand getCommand(Script script, String name) {
+        List<ScriptCommand> scriptCommands = getCommands(script);
+        if (scriptCommands != null) {
+            for (ScriptCommand command : scriptCommands) {
+                if (command.getName().equalsIgnoreCase(name))
+                    return command;
+            }
+        }
+        return null;
+    }
 
     /**
      * Get an immutable list containing all commands belonging to a particular script.
      * @param script The script to get commands from
      * @return An immutable list containing all commands belonging to the script. Will return null if no commands belong to the script
      */
-    public List<T> getCommands(Script script) {
-        List<T> scriptCommands = registeredCommands.get(script);
+    public List<ScriptCommand> getCommands(Script script) {
+        List<ScriptCommand> scriptCommands = registeredCommands.get(script);
         if (scriptCommands != null)
             return new ArrayList<>(scriptCommands);
         else
             return null;
     }
 
-    protected void addCommand(Script script, T command) {
+    private void addCommand(Script script, ScriptCommand command) {
         if (registeredCommands.containsKey(script))
             registeredCommands.get(script).add(command);
         else {
-            List<T> scriptCommands = new ArrayList<>();
+            List<ScriptCommand> scriptCommands = new ArrayList<>();
             scriptCommands.add(command);
             registeredCommands.put(script, scriptCommands);
         }
     }
 
-    protected void removeCommand(Script script, T command) {
-        List<T> scriptCommands = registeredCommands.get(script);
+    private void removeCommand(Script script, ScriptCommand command) {
+        List<ScriptCommand> scriptCommands = registeredCommands.get(script);
         scriptCommands.remove(command);
         if (scriptCommands.isEmpty())
             registeredCommands.remove(script);
     }
 
-    protected void removeCommands(Script script) {
+    private void removeCommands(Script script) {
         registeredCommands.remove(script);
     }
 
@@ -235,7 +288,7 @@ public abstract class CommandManager<T> {
      * Get the singleton instance of this CommandManager.
      * @return The instance
      */
-    public static CommandManager<?> get() {
+    public static CommandManager get() {
         return instance;
     }
 }
