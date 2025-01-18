@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bungee.manager.config;
 
+import dev.magicmq.pyspigot.manager.config.ScriptConfig;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -31,7 +32,7 @@ import java.util.List;
  * A class representing a script configuration file, for the BungeeCord implementation.
  * @see net.md_5.bungee.config.Configuration
  */
-public class BungeeScriptConfig {
+public class BungeeScriptConfig implements ScriptConfig {
 
     private final File configFile;
     private final String defaults;
@@ -48,20 +49,35 @@ public class BungeeScriptConfig {
         this.defaults = defaults;
     }
 
-    /**
-     * Get the file associated with this configuration.
-     * @return The file associated with this configuration
-     */
+    @Override
     public File getConfigFile() {
         return configFile;
     }
 
-    /**
-     * Get the absolute path of the file associated with this configuration.
-     * @return The path of the file
-     */
+    @Override
     public Path getConfigPath() {
         return Paths.get(configFile.getAbsolutePath());
+    }
+
+    @Override
+    public void load() throws IOException {
+        if (defaults != null) {
+            Configuration defaultConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(defaults);
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile, defaultConfig);
+        } else {
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+        }
+    }
+
+    @Override
+    public void reload() throws IOException {
+        load();
+    }
+
+    @Override
+    public void save() throws IOException {
+        ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, configFile);
+        reload();
     }
 
     /**
@@ -80,33 +96,11 @@ public class BungeeScriptConfig {
     }
 
     /**
-     * Loads the config from the configuration file. Will also set defaults for the configuration, if they were specified.
-     * @throws IOException If there was an exception when loading the file
+     * Gets the underlying BungeeCord {@link net.md_5.bungee.config.Configuration} object.
+     * @return The underlying config object
      */
-    public void load() throws IOException {
-        if (defaults != null) {
-            Configuration defaultConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(defaults);
-            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile, defaultConfig);
-        } else {
-            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
-        }
-    }
-
-    /**
-     * Reload the configuration. Will read all changes made to the configuration file since the configuration was last loaded/reloaded.
-     * @throws IOException If there was an exception when loading the file
-     */
-    public void reload() throws IOException {
-        load();
-    }
-
-    /**
-     * Save the configuration to its associated file. For continuity purposes, the configuration is also reloaded from the file after saving.
-     * @throws IOException If there is an IOException when saving the file
-     */
-    public void save() throws IOException {
-        ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, configFile);
-        reload();
+    public Configuration getUnderlyingConfig() {
+        return config;
     }
 
     /*------------------------------- Passthrough methods for consistency with Bukkit implementation -------------------------------*/

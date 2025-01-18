@@ -16,8 +16,8 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.config;
 
-import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.config.ConfigManager;
+import dev.magicmq.pyspigot.manager.config.ScriptConfig;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,7 +25,7 @@ import java.nio.file.Path;
 /**
  * The Bukkit-specific implementation of the config manager.
  */
-public class BukkitConfigManager extends ConfigManager<BukkitScriptConfig> {
+public class BukkitConfigManager extends ConfigManager {
 
     private static BukkitConfigManager instance;
 
@@ -34,14 +34,7 @@ public class BukkitConfigManager extends ConfigManager<BukkitScriptConfig> {
     }
 
     @Override
-    public BukkitScriptConfig loadConfig(String filePath) throws IOException, InvalidConfigurationException {
-        return loadConfig(filePath, null);
-    }
-
-    @Override
-    public BukkitScriptConfig loadConfig(String filePath, String defaults) throws IOException, InvalidConfigurationException {
-        Path configFile = createConfigIfNotExists(filePath);
-
+    protected ScriptConfig loadConfigImpl(Path configFile, String defaults) throws IOException {
         BukkitScriptConfig config = new BukkitScriptConfig(configFile.toFile(), defaults);
         config.load();
         return config;

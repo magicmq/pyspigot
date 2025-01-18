@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.config;
 
+import dev.magicmq.pyspigot.manager.config.ScriptConfig;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -28,7 +29,7 @@ import java.nio.file.Paths;
  * A class representing a script configuration file, for the Bukkit implementation.
  * @see org.bukkit.configuration.file.YamlConfiguration
  */
-public class BukkitScriptConfig extends YamlConfiguration {
+public class BukkitScriptConfig extends YamlConfiguration implements ScriptConfig {
 
     private final File configFile;
     private final String defaults;
@@ -43,20 +44,39 @@ public class BukkitScriptConfig extends YamlConfiguration {
         this.defaults = defaults;
     }
 
-    /**
-     * Get the file associated with this configuration.
-     * @return The file associated with this configuration
-     */
+    @Override
     public File getConfigFile() {
         return configFile;
     }
 
-    /**
-     * Get the absolute path of the file associated with this configuration.
-     * @return The path of the file
-     */
+    @Override
     public Path getConfigPath() {
         return Paths.get(configFile.getAbsolutePath());
+    }
+
+    @Override
+    public void load() throws IOException {
+        try {
+            super.load(configFile);
+            if (defaults != null) {
+                YamlConfiguration defaultConfig = new YamlConfiguration();
+                defaultConfig.loadFromString(defaults);
+                this.setDefaults(defaultConfig);
+            }
+        } catch (InvalidConfigurationException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void reload() throws IOException {
+        load();
+    }
+
+    @Override
+    public void save() throws IOException {
+        this.save(configFile);
+        reload();
     }
 
     /**
@@ -72,42 +92,5 @@ public class BukkitScriptConfig extends YamlConfiguration {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Loads the config from the configuration file. Will also set defaults for the configuration, if they were specified.
-     * @throws IOException If there was an exception when loading the file
-     * @throws dev.magicmq.pyspigot.exception.InvalidConfigurationException If there was an error when parsing the loaded file (invalid configuration)
-     */
-    public void load() throws IOException, dev.magicmq.pyspigot.exception.InvalidConfigurationException {
-        try {
-            super.load(configFile);
-            if (defaults != null) {
-                YamlConfiguration defaultConfig = new YamlConfiguration();
-                defaultConfig.loadFromString(defaults);
-                this.setDefaults(defaultConfig);
-            }
-        } catch (InvalidConfigurationException e) {
-            throw new dev.magicmq.pyspigot.exception.InvalidConfigurationException(e.getMessage(), e.getCause());
-        }
-    }
-
-    /**
-     * Reload the configuration. Will read all changes made to the configuration file since the configuration was last loaded/reloaded.
-     * @throws IOException If there was an exception when loading the file
-     * @throws dev.magicmq.pyspigot.exception.InvalidConfigurationException If there was an error when parsing the loaded file (invalid configuration)
-     */
-    public void reload() throws IOException, dev.magicmq.pyspigot.exception.InvalidConfigurationException {
-        load();
-    }
-
-    /**
-     * Save the configuration to its associated file. For continuity purposes, the configuration is also reloaded from the file after saving.
-     * @throws IOException If there is an IOException when saving the file
-     * @throws dev.magicmq.pyspigot.exception.InvalidConfigurationException If there was an error when parsing the file when reloading (invalid configuration)
-     */
-    public void save() throws IOException, dev.magicmq.pyspigot.exception.InvalidConfigurationException {
-        this.save(configFile);
-        reload();
     }
 }

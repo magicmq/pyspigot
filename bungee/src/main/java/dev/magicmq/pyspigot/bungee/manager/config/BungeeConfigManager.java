@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.bungee.manager.config;
 
 
 import dev.magicmq.pyspigot.manager.config.ConfigManager;
+import dev.magicmq.pyspigot.manager.config.ScriptConfig;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,7 +26,7 @@ import java.nio.file.Path;
 /**
  * The BungeeCord-specific implementation of the config manager.
  */
-public class BungeeConfigManager extends ConfigManager<BungeeScriptConfig> {
+public class BungeeConfigManager extends ConfigManager {
 
     private static BungeeConfigManager instance;
 
@@ -34,14 +35,7 @@ public class BungeeConfigManager extends ConfigManager<BungeeScriptConfig> {
     }
 
     @Override
-    public BungeeScriptConfig loadConfig(String filePath) throws IOException {
-        return loadConfig(filePath, null);
-    }
-
-    @Override
-    public BungeeScriptConfig loadConfig(String filePath, String defaults) throws IOException {
-        Path configFile = createConfigIfNotExists(filePath);
-
+    protected ScriptConfig loadConfigImpl(Path configFile, String defaults) throws IOException {
         BungeeScriptConfig config = new BungeeScriptConfig(configFile.toFile(), defaults);
         config.load();
         return config;

@@ -17,7 +17,6 @@
 package dev.magicmq.pyspigot.manager.config;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,9 +27,9 @@ import java.util.logging.Level;
 /**
  * Manager for scripts to interface with configuration files. Primarily used by scripts to load, write to, and save .yml files.
  */
-public abstract class ConfigManager<T> {
+public abstract class ConfigManager {
 
-    private static ConfigManager<?> instance;
+    private static ConfigManager instance;
 
     private final Path configFolder;
 
@@ -47,6 +46,8 @@ public abstract class ConfigManager<T> {
         }
     }
 
+    protected abstract ScriptConfig loadConfigImpl(Path configFile, String defaults) throws IOException;
+
     /**
      * Load a configuration file with the given path/name, relative to the {@code configs} folder. If the configuration file exists, it will load the existing file. If the configuration file does not exist, a new file will be created with the given path/name.
      * <p>
@@ -54,9 +55,10 @@ public abstract class ConfigManager<T> {
      * @param filePath The path of the configuration file to load, can be either the file name alone or a path (containing subfolders)
      * @return A ScriptConfig representing the configuration file that was loaded
      * @throws IOException If there was an IOException when attempting to load the configuration
-     * @throws InvalidConfigurationException If there was an error when parsing the loaded file (invalid configuration)
      */
-    public abstract T loadConfig(String filePath) throws IOException, InvalidConfigurationException;
+    public ScriptConfig loadConfig(String filePath) throws IOException {
+        return loadConfig(filePath, null);
+    }
 
     /**
      * Load a configuration file with the given path/name, relative to the {@code configs} folder. If the configuration file exists, it will load the existing file. If the configuration file does not exist, a new file will be created with the given path/name.
@@ -66,9 +68,11 @@ public abstract class ConfigManager<T> {
      * @param defaults A YAML-formatted string containing the desired default values for the configuration
      * @return A ScriptConfig representing the configuration file that was loaded
      * @throws IOException If there was an IOException when attempting to load the configuration
-     * @throws InvalidConfigurationException If there was an error when parsing the loaded file (invalid configuration)
      */
-    public abstract T loadConfig(String filePath, String defaults) throws IOException, InvalidConfigurationException;
+    public ScriptConfig loadConfig(String filePath, String defaults) throws IOException {
+        Path configFile = createConfigIfNotExists(filePath);
+        return loadConfigImpl(configFile, defaults);
+    }
 
     /**
      * Check if a configuration file exists with the given path/name, relative to the {@code configs} folder.
@@ -124,7 +128,7 @@ public abstract class ConfigManager<T> {
      * Get the singleton instance of this ConfigManager.
      * @return The instance
      */
-    public static ConfigManager<?> get() {
+    public static ConfigManager get() {
         return instance;
     }
 
