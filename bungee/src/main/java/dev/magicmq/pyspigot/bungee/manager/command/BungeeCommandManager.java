@@ -37,19 +37,19 @@ public class BungeeCommandManager extends CommandManager {
     }
 
     @Override
-    public ScriptCommand registerWithPlatform(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+    protected ScriptCommand registerWithPlatform(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         BungeeScriptCommand newCommand = new BungeeScriptCommand(script, commandFunction, tabFunction, name, aliases, permission);
         ProxyServer.getInstance().getPluginManager().registerCommand(PyBungee.get(), newCommand);
         return newCommand;
     }
 
     @Override
-    public void unregisterFromPlatform(ScriptCommand command) {
+    protected void unregisterFromPlatform(ScriptCommand command) {
         ProxyServer.getInstance().getPluginManager().unregisterCommand((BungeeScriptCommand) command);
     }
 
     @Override
-    public void unregisterFromPlatform(List<ScriptCommand> commands) {
+    protected void unregisterFromPlatform(List<ScriptCommand> commands) {
         commands.forEach(this::unregisterFromPlatform);
     }
 

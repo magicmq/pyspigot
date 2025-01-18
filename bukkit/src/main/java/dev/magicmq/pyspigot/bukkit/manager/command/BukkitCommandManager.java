@@ -61,7 +61,7 @@ public class BukkitCommandManager extends CommandManager {
     }
 
     @Override
-    public ScriptCommand registerWithPlatform(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+    protected ScriptCommand registerWithPlatform(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         BukkitScriptCommand newCommand = new BukkitScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
         if (!addCommandToBukkit(newCommand))
             script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");
@@ -71,14 +71,14 @@ public class BukkitCommandManager extends CommandManager {
     }
 
     @Override
-    public void unregisterFromPlatform(ScriptCommand command) {
+    protected void unregisterFromPlatform(ScriptCommand command) {
         removeCommandFromBukkit((BukkitScriptCommand) command);
         ((BukkitScriptCommand) command).removeHelp();
         syncBukkitCommands();
     }
 
     @Override
-    public void unregisterFromPlatform(List<ScriptCommand> commands) {
+    protected void unregisterFromPlatform(List<ScriptCommand> commands) {
         for (ScriptCommand command : commands) {
             removeCommandFromBukkit((BukkitScriptCommand) command);
             ((BukkitScriptCommand) command).removeHelp();
