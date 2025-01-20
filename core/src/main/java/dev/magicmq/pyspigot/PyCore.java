@@ -99,8 +99,10 @@ public class PyCore {
      * Shutdown the plugin.
      */
     public void shutdown() {
-        ScriptManager.get().shutdown();
-        LibraryManager.get().shutdown();
+        if (ScriptManager.get() != null)
+            ScriptManager.get().shutdown();
+        if (LibraryManager.get() != null)
+            LibraryManager.get().shutdown();
 
         adapter.shutdownMetrics();
 
