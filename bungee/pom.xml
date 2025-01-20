@@ -21,7 +21,10 @@
         <dependency>
             <groupId>dev.magicmq</groupId>
             <artifactId>pyspigot-core</artifactId>
-            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.magicmq</groupId>
+            <artifactId>jython-compiler</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -45,6 +48,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

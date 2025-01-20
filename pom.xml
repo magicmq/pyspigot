@@ -30,6 +30,13 @@
                 <groupId>dev.magicmq</groupId>
                 <artifactId>pyspigot-core</artifactId>
                 <version>${project.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>dev.magicmq</groupId>
+                <artifactId>jython-compiler</artifactId>
+                <version>1.0</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -50,11 +57,43 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.5.0</version>
+                    <executions>
+                        <execution>
+                            <id>compile-py-sources</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>java</goal>
+                            </goals>
+                            <configuration>
+                                <mainClass>dev.magicmq.jythoncompiler.Main</mainClass>
+                                <arguments>
+                                    <argument>${basedir}/src/main/resources/Lib/</argument>
+                                </arguments>
+                                <classpathScope>provided</classpathScope>
+                                <useMavenLogger>true</useMavenLogger>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.11.0</version>
                     <configuration>
                         <release>17</release>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                    <configuration>
+                        <nonFilteredFileExtensions>
+                            <nonFilteredFileExtension>class</nonFilteredFileExtension>
+                        </nonFilteredFileExtensions>
                     </configuration>
                 </plugin>
                 <plugin>

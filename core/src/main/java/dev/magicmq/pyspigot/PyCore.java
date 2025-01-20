@@ -81,7 +81,6 @@ public class PyCore {
         config.reload();
 
         initFolders();
-        initHelperLib();
 
         adapter.initCommands();
         adapter.initListeners();
@@ -267,49 +266,6 @@ public class PyCore {
             File file = new File(adapter.getDataFolder(), folder);
             if (!file.exists())
                 file.mkdirs();
-        }
-    }
-
-    private void initHelperLib() {
-        if (!config.shouldUpdatePySpigotLib()) {
-            return;
-        }
-
-        File pythonLibs = new File(adapter.getDataFolder(), "python-libs");
-        if (pythonLibs.exists()) {
-            File libFile = new File(pythonLibs, "pyspigot.py");
-            if (!libFile.exists()) {
-                saveResource("python-libs/pyspigot.py", true);
-            } else {
-                try {
-                    FileInputStream savedFile = new FileInputStream(libFile);
-
-                    URL url = adapter.getPluginClassLoader().getResource("python-libs/pyspigot.py");
-                    URLConnection connection = url.openConnection();
-                    connection.setUseCaches(false);
-                    InputStream jarFile = connection.getInputStream();
-
-                    if (!checkFilesEqual(savedFile, jarFile)) {
-                        saveResource("python-libs/pyspigot.py", true);
-                    }
-                } catch (IOException e) {
-                    adapter.getLogger().log(Level.SEVERE, "Error when initializing library files: ", e);
-                }
-            }
-        }
-    }
-
-    private boolean checkFilesEqual(InputStream is1, InputStream is2) {
-        try (BufferedInputStream bis1 = new BufferedInputStream(is1); BufferedInputStream bis2 = new BufferedInputStream(is2)) {
-            int ch;
-            while ((ch = bis1.read()) != -1) {
-                if (ch != bis2.read())
-                    return false;
-            }
-            return bis2.read() == -1;
-        } catch (IOException e) {
-            adapter.getLogger().log(Level.SEVERE, "Error when initializing library files: ", e);
-            return false;
         }
     }
 
