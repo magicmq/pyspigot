@@ -32,12 +32,6 @@
                 <version>${project.version}</version>
                 <scope>compile</scope>
             </dependency>
-            <dependency>
-                <groupId>dev.magicmq</groupId>
-                <artifactId>jython-compiler</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -67,16 +61,28 @@
                             <goals>
                                 <goal>java</goal>
                             </goals>
-                            <configuration>
-                                <mainClass>dev.magicmq.jythoncompiler.Main</mainClass>
-                                <arguments>
-                                    <argument>${basedir}/src/main/resources/Lib/</argument>
-                                </arguments>
-                                <classpathScope>provided</classpathScope>
-                                <useMavenLogger>true</useMavenLogger>
-                            </configuration>
                         </execution>
                     </executions>
+                    <configuration>
+                        <includeProjectDependencies>false</includeProjectDependencies>
+                        <includePluginDependencies>true</includePluginDependencies>
+                        <executableDependency>
+                            <groupId>dev.magicmq</groupId>
+                            <artifactId>jython-compiler</artifactId>
+                        </executableDependency>
+                        <mainClass>dev.magicmq.jythoncompiler.Main</mainClass>
+                        <arguments>
+                            <argument>${basedir}/src/main/resources/Lib/</argument>
+                        </arguments>
+                        <useMavenLogger>true</useMavenLogger>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>dev.magicmq</groupId>
+                            <artifactId>jython-compiler</artifactId>
+                            <version>1.0</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
