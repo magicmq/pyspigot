@@ -150,7 +150,9 @@ Building requires [Maven](https://maven.apache.org/) and [Git](https://git-scm.c
 1. Clone the repository: `git clone https://github.com/magicmq/PySpigot.git`
 2. Enter the repository root: `cd PySpigot`
 3. Build with Maven: `mvn clean package`
-4. Built files will be located in the `target` directory.
+4. Built JAR files will be located in the `target` directory of each module (core, bukkit, bungee). The `target` directory in the root of the project will contain aggregated sources and JavaDocs for all modules.
+
+Note that [JythonCompiler](https://github.com/magicmq/JythonCompiler), an application I authored to compile Jython source modules, is utilized when building PySpigot. It compiles the `pyspigot.py` helper module (as well as any other modules in `src/main/resources/Lib`) for distribution in the final JAR file. You do not need to install this manually; it is included as a dependency in the `pom.xml`.
 
 ## Issues/Suggestions
 
