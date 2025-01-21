@@ -119,8 +119,4 @@ public class BungeePluginConfig implements PluginConfig {
     public boolean shouldShowUpdateMessages() {
         return config.getBoolean("debug-options.show-update-messages");
     }
-
-    public boolean shouldUpdatePySpigotLib() {
-        return config.getBoolean("debug-options.auto-pyspigot-lib-update-enabled");
-    }
 }

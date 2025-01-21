@@ -56,6 +56,4 @@ public interface PluginConfig {
     boolean shouldPrintStackTraces();
 
     boolean shouldShowUpdateMessages();
-
-    boolean shouldUpdatePySpigotLib();
 }
