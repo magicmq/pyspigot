@@ -88,7 +88,8 @@ public class PyCore {
         adapter.initPlatformManagers();
         initCommonManagers();
 
-        adapter.setupMetrics();
+        if (config.getMetricsEnabled())
+            adapter.setupMetrics();
 
         fetchSpigotVersion();
         adapter.initVersionChecking();
