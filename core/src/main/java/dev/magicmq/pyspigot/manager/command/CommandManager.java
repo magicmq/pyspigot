@@ -50,6 +50,8 @@ public abstract class CommandManager {
     /**
      * Register a new command. May pass keyword arguments if desired.
      * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * <p>
      * Arguments:
      * <ul>
      * <li>{@code command_function} (Required): The command function that should be called when the command is executed</li>
@@ -60,8 +62,6 @@ public abstract class CommandManager {
      * <li>{@code aliases} (Optional): A List of String containing all the aliases for this command. Use an empty list for no aliases</li>
      * <li>{@code permission} (Optional): The required permission node to use this command. Can be null</li>
      * </ul>
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
      * @return A ScriptCommand representing the command that was registered
      */
     public ScriptCommand registerCommand(PyObject[] args, String[] keywords) {
@@ -102,12 +102,12 @@ public abstract class CommandManager {
     /**
      * Unregister a script's command. May pass keyword arguments if desired.
      * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * <p>
      * Arguments:
      * <ul>
      * <li>{@code command} (Required): The command to be unregistered</li>
      * </ul>
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
      */
     public void unregisterCommand(PyObject[] args, String[] keywords) {
         ArgParser argParser = new ArgParser("unregisterCommand", args, keywords, new String[]{"command"}, 1);
@@ -128,12 +128,12 @@ public abstract class CommandManager {
     /**
      * Unregister all commands belonging to a particular script.
      * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * <p>
      * Arguments:
      * <ul>
      * <li>{@code script} (Required): The script whose commands should be unregistered</li>
      * </ul>
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
      */
     public void unregisterCommands(PyObject[] args, String[] keywords) {
         ArgParser argParser = new ArgParser("unregisterCommands", args, keywords, new String[]{"script"}, 1);
@@ -157,13 +157,13 @@ public abstract class CommandManager {
     /**
      * Get a command associated with a particular script by the command name
      * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * <p>
      * Arguments:
      * <ul>
      * <li>{@code script} (Required): The script to which the command belongs</li>
      * <li>{@code name} (Required): The name of the command</li>
      * </ul>
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
      * @return The command with this name and associated with the script, or null if none was found
      */
     public ScriptCommand getCommand(PyObject[] args, String[] keywords) {
@@ -194,12 +194,12 @@ public abstract class CommandManager {
     /**
      * Get an immutable list containing all commands belonging to a particular script.
      * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * <p>
      * Arguments:
      * <ul>
      * <li>{@code script} (Required): The script to which the commands belong</li>
      * </ul>
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
      * @return An immutable list containing all commands belonging to the script. Will return null if no commands belong to the script
      */
     public List<ScriptCommand> getCommands(PyObject[] args, String[] keywords) {
