@@ -81,6 +81,9 @@ public class DatabaseManager {
      */
     public SqlDatabase connectSql(String uri) {
         HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.addDataSourceProperty("cachePrepStmts", true);
+        hikariConfig.addDataSourceProperty("prepStmtCacheSize", 250);
+        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
         hikariConfig.setJdbcUrl(uri);
 
         return connectSql(hikariConfig);
