@@ -28,7 +28,6 @@ import dev.magicmq.pyspigot.util.StringUtils;
 
 import java.io.*;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Path;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -85,6 +84,7 @@ public class PyCore {
         adapter.initCommands();
         adapter.initListeners();
 
+        LibraryManager.get();
         adapter.initPlatformManagers();
         initCommonManagers();
 
@@ -254,7 +254,6 @@ public class PyCore {
     }
 
     private void initCommonManagers() {
-        LibraryManager.get();
         GlobalVariables.get();
         DatabaseManager.get();
         RedisManager.get();
