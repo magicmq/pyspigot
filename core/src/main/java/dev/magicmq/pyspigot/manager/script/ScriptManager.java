@@ -310,12 +310,12 @@ public abstract class ScriptManager {
 
             return RunResult.SUCCESS;
         } catch (PySyntaxError | PyIndentationError e) {
-            handleScriptException(script, e, "Syntax/indentation error");
+            handleScriptException(script, e, null);
             script.getLogger().log(Level.SEVERE, "Script unloaded due to a syntax/indentation error.");
             unloadScript(script, true);
             return RunResult.FAIL_ERROR;
         } catch (PyException e) {
-            handleScriptException(script, e, "Runtime error");
+            handleScriptException(script, e, null);
             script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
             unloadScript(script, true);
             return RunResult.FAIL_ERROR;
@@ -382,7 +382,9 @@ public abstract class ScriptManager {
         boolean report = callScriptExceptionEvent(script, exception);
         if (report) {
             String toLog = "";
-            toLog += message + ": ";
+
+            if (message != null)
+                toLog += message + ": ";
 
             if (exception.getCause() != null) {
                 Throwable cause = exception.getCause();
