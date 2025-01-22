@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public interface PluginConfig {
 
@@ -56,4 +57,10 @@ public interface PluginConfig {
     boolean shouldPrintStackTraces();
 
     boolean shouldShowUpdateMessages();
+
+    boolean loadJythonOnStartup();
+
+    Properties getJythonProperties();
+
+    String[] getJythonArgs();
 }

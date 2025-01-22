@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.bungee.config;
 
 import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.config.PluginConfig;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -29,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 
 /**
@@ -118,5 +118,28 @@ public class BungeePluginConfig implements PluginConfig {
 
     public boolean shouldShowUpdateMessages() {
         return config.getBoolean("debug-options.show-update-messages");
+    }
+
+    @Override
+    public boolean loadJythonOnStartup() {
+        return config.getBoolean("jython-options.init-on-startup");
+    }
+
+    @Override
+    public Properties getJythonProperties() {
+        List<String> properties = config.getStringList("jython-options.properties");
+        Properties toReturn = new Properties();
+        for (String property : properties) {
+            String[] split = property.split("=", 2);
+            String key = split[0].trim();
+            String value = split[1].trim();
+            toReturn.setProperty(key, value);
+        }
+        return toReturn;
+    }
+
+    @Override
+    public String[] getJythonArgs() {
+        return config.getStringList("jython-options.args").toArray(new String[0]);
     }
 }

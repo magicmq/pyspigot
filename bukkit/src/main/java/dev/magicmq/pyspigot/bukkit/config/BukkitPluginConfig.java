@@ -18,13 +18,13 @@ package dev.magicmq.pyspigot.bukkit.config;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * The Bukkit-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retreiving values from the plugin config.yml.
@@ -109,5 +109,28 @@ public class BukkitPluginConfig implements PluginConfig {
 
     public boolean shouldShowUpdateMessages() {
         return config.getBoolean("debug-options.show-update-messages");
+    }
+
+    @Override
+    public boolean loadJythonOnStartup() {
+        return config.getBoolean("jython-options.init-on-startup");
+    }
+
+    @Override
+    public Properties getJythonProperties() {
+        List<String> properties = config.getStringList("jython-options.properties");
+        Properties toReturn = new Properties();
+        for (String property : properties) {
+            String[] split = property.split("=", 2);
+            String key = split[0].trim();
+            String value = split[1].trim();
+            toReturn.setProperty(key, value);
+        }
+        return toReturn;
+    }
+
+    @Override
+    public String[] getJythonArgs() {
+        return config.getStringList("jython-options.args").toArray(new String[0]);
     }
 }

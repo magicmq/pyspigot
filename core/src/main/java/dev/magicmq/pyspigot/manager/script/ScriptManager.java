@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
+import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
@@ -47,12 +48,19 @@ public abstract class ScriptManager {
     private final Path scriptsFolder;
     private final LinkedHashMap<String, Script> scripts;
 
+    private boolean sysInitialized;
+
     protected ScriptManager(ScriptInfo scriptInfo) {
         instance = this;
-        this.scriptInfo = scriptInfo;
 
-        scriptsFolder = PyCore.get().getDataFolderPath().resolve("scripts");
+        this.scriptInfo = scriptInfo;
+        this.scriptsFolder = PyCore.get().getDataFolderPath().resolve("scripts");
         this.scripts = new LinkedHashMap<>();
+
+        this.sysInitialized = false;
+        if (PyCore.get().getConfig().loadJythonOnStartup()) {
+            initJython();
+        }
 
         if (PyCore.get().getConfig().getScriptLoadDelay() > 0L)
             scheduleStartScriptTask();
@@ -142,6 +150,23 @@ public abstract class ScriptManager {
      * @param script The script to unregister
      */
     public abstract void unregisterFromPlatformManagers(Script script);
+
+    /**
+     * Initialize Jython. Will only initialize once; subsequent calls to this method have no effect.
+     */
+    public void initJython() {
+        if (!sysInitialized) {
+            PyCore.get().getLogger().log(Level.INFO, "Initializing Jython...");
+            PySystemState.initialize(
+                    System.getProperties(),
+                    PyCore.get().getConfig().getJythonProperties(),
+                    PyCore.get().getConfig().getJythonArgs(),
+                    LibraryManager.get().getClassLoader()
+            );
+            PyCore.get().getLogger().log(Level.INFO, "Jython initialized!");
+            sysInitialized = true;
+        }
+    }
 
     /**
      * Called on plugin unload or server shutdown. Gracefully stops and unloads all loaded and running scripts.

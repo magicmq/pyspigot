@@ -12,6 +12,16 @@ script-action-logging: true
 verbose-redis-logging: true
 # If true, scripts will be automatically unloaded if a plugin the script depends on is unloaded. This is especially useful to ensure script shutdown tasks that require a depending plugin complete successfully (prior to the plugin being unloaded).
 script-unload-on-plugin-disable: true
+# Options that pertain to Jython. Changing options in this section requires a server restart.
+jython-options:
+  # If true, the Jython runtime will be initialized during plugin load/server start. If false, the Jython runtime will not be initialized until the first script is loaded.
+  init-on-startup: true
+  # A list of system properties that will be passed to Jython. For a complete list, see https://javadoc.io/doc/org.python/jython-standalone/latest/org/python/core/RegistryKey.html
+  properties:
+    - 'python.cachedir.skip=true'
+  # A list of args to pass to Jython when initialized. Equivalent to sys.argv in Python.
+  args:
+    - ''
 # Default values for script options. If one or more options are not defined in the script_options.yml for the script, then PySpigot will fall back to these values.
 script-option-defaults:
   # Whether the script is enabled

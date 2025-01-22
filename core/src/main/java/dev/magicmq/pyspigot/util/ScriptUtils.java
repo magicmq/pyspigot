@@ -53,12 +53,14 @@ public final class ScriptUtils {
     }
 
     /**
-     * Initializes a new PySystemState for a new {@link org.python.util.PythonInterpreter} when a script is loaded.
+     * Initializes a new PySystemState for a new {@link org.python.util.PythonInterpreter} when a script is loaded. This method will also initialize Jython if it hasn't been initialized previously.
      * <p>
      * This method will also do the following with the new PySystemState: set its class loader to the class loader provided by the {@link LibraryManager}, and add "./plugins/PySpigot/python-libs/" and "./plugins/PySpigot/scripts/" to the path.
      * @return The PySystemState that was created
      */
     public static PySystemState initPySystemState() {
+        ScriptManager.get().initJython();
+
         PySystemState sys = new PySystemState();
         sys.setClassLoader(LibraryManager.get().getClassLoader());
         sys.path.append(new PyString(PyCore.get().getDataFolderPath().resolve("python-libs").toString()));
