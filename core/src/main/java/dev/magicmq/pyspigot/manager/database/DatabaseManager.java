@@ -6,7 +6,9 @@ import com.zaxxer.hikari.HikariConfig;
 import dev.magicmq.pyspigot.manager.database.mongo.MongoDatabase;
 import dev.magicmq.pyspigot.manager.database.sql.SqlDatabase;
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.util.ArgParser;
 import dev.magicmq.pyspigot.util.ScriptUtils;
+import org.python.core.PyObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +35,79 @@ public class DatabaseManager {
      */
     public HikariConfig newHikariConfig() {
         return new HikariConfig();
+    }
+
+    /**
+     * Open a new connection with an SQL database, using the specified options. At minimum, connection information must be specified via one of the following:
+     * <ul>
+     * <li>By setting the Jdbc URL in a HikariConfig (via {@link com.zaxxer.hikari.HikariConfig#setJdbcUrl}) and passing the HikariConfig</li>
+     * <li>By passing a Jdbc URL as the {@code uri} parameter</li>
+     * <li>By passing a host, port, database, username, and password via their respective arguments</li>
+     * </ul>
+     * <p>
+     * If connection information is specified in multiple ways simultaneously, parameters in the HikariConfig take precedence, followed by the URI parameter, and finally the host, port, database, username, and password parameters.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * <p>
+     * Arguments:
+     * <ul>
+     * <li>{@code hikari_config} (Optional): A {@link com.zaxxer.hikari.HikariConfig} object representing the configuration options for the connection</li>
+     * <li>{@code uri} (Optional): The connection string to define the connection. May include options</li>
+     * <li>{@code host} (Optional): The host URL or IP of the SQL database</li>
+     * <li>{@code port} (Optional): The port of the SQL database</li>
+     * <li>{@code database} (Optional): The name of the SQL database</li>
+     * <li>{@code username} (Optional): The username of the SQL database</li>
+     * <li>{@code password} (Optional): The password of the SQL database</li>
+     * </ul>
+     * @return An {@link SqlDatabase} object representing an open connection to the database
+     */
+    public SqlDatabase connectSql(PyObject[] args, String[] keywords) {
+        ArgParser argParser = new ArgParser(
+                "connectSql",
+                args,
+                keywords,
+                new String[]{
+                        "hikari_config",
+                        "uri",
+                        "host",
+                        "port",
+                        "database",
+                        "username",
+                        "password"
+                },
+                1
+        );
+
+        HikariConfig hikariConfig = argParser.getJavaObject(0, HikariConfig.class, null);
+        if (hikariConfig == null) {
+            hikariConfig = new HikariConfig();
+            hikariConfig.addDataSourceProperty("cachePrepStmts", true);
+            hikariConfig.addDataSourceProperty("prepStmtCacheSize", 250);
+            hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
+        }
+
+        if (hikariConfig.getJdbcUrl() == null) {
+            String uri = argParser.getString(1, null);
+            if (uri == null) {
+                String host = argParser.getString(2);
+                String port = argParser.getString(3);
+                String database = argParser.getString(4);
+                String username = argParser.getString(5);
+                String password = argParser.getString(6);
+                uri = String.format(DatabaseType.SQL.getUri(), host, port, database, username, password);
+                hikariConfig.setJdbcUrl(uri);
+            }
+        }
+
+        Script script = ScriptUtils.getScriptFromCallStack();
+
+        SqlDatabase connection = new SqlDatabase(script, hikariConfig);
+
+        if (connection.open()) {
+            addConnection(connection);
+            return connection;
+        } else
+            throw new RuntimeException("Failed to open a connection to the SQL database.");
     }
 
     /**
@@ -81,6 +156,9 @@ public class DatabaseManager {
      */
     public SqlDatabase connectSql(String uri) {
         HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.addDataSourceProperty("cachePrepStmts", true);
+        hikariConfig.addDataSourceProperty("prepStmtCacheSize", 250);
+        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
         hikariConfig.setJdbcUrl(uri);
 
         return connectSql(hikariConfig);
@@ -126,6 +204,80 @@ public class DatabaseManager {
      */
     public MongoClientSettings.Builder newMongoClientSettings() {
         return MongoClientSettings.builder();
+    }
+
+    /**
+     * Open a new connection with a Mongo database, using the specified options. At minimum, connection information must be specified via one of the following:
+     * <ul>
+     * <li>By setting the Jdbc URL in a {@link com.mongodb.MongoClientSettings} and passing the object</li>
+     * <li>By passing a Jdbc URL as the {@code uri} parameter</li>
+     * <li>By passing a host, port, username, and password via their respective arguments</li>
+     * </ul>
+     * <p>
+     * If connection information is specified in multiple ways simultaneously, the host, port, username, and password parameters take precedence, followed by the URI parameter, and finally the MongoClientSettings.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * <p>
+     * Arguments:
+     * <ul>
+     * <li>{@code mongo_settings} (Optional): A {@link com.mongodb.MongoClientSettings} object representing the configuration options for the client</li>
+     * <li>{@code uri} (Optional): The connection string to define the connection. May include options</li>
+     * <li>{@code host} (Optional): The host URL or IP of the Mongo database</li>
+     * <li>{@code port} (Optional): The port of the Mongo database</li>
+     * <li>{@code username} (Optional): The username of the Mongo database</li>
+     * <li>{@code password} (Optional): The password of the Mongo database</li>
+     * </ul>
+     * @return An {@link SqlDatabase} object representing an open connection to the database
+     */
+    public MongoDatabase connectMongo(PyObject[] args, String[] keywords) {
+        ArgParser argParser = new ArgParser(
+                "connectSql",
+                args,
+                keywords,
+                new String[]{
+                        "mongo_settings",
+                        "uri",
+                        "host",
+                        "port",
+                        "username",
+                        "password"
+                },
+                1
+        );
+
+        MongoClientSettings.Builder newBuilder;
+
+        MongoClientSettings clientSettings = argParser.getJavaObject(0, MongoClientSettings.class, null);
+        if (clientSettings == null)
+            newBuilder = MongoClientSettings.builder();
+        else
+            newBuilder = MongoClientSettings.builder(clientSettings);
+
+        String uri = argParser.getString(1, null);
+        if (uri != null) {
+            String host = argParser.getString(2, null);
+            if (host != null) {
+                String port = argParser.getString(3);
+                String username = argParser.getString(4, null);
+                String password = argParser.getString(5, null);
+                if (username == null)
+                    uri = String.format(DatabaseType.MONGO_DB_NO_AUTH.getUri(), host, port);
+                else
+                    uri = String.format(DatabaseType.MONGO_DB.getUri(), username, password, host, port);
+                newBuilder.applyConnectionString(new ConnectionString(uri));
+            } else
+                newBuilder.applyConnectionString(new ConnectionString(uri));
+        }
+
+        Script script = ScriptUtils.getScriptFromCallStack();
+
+        MongoDatabase connection = new MongoDatabase(script, newBuilder.build());
+
+        if (connection.open()) {
+            addConnection(connection);
+            return connection;
+        } else
+            throw new RuntimeException("Failed to open a connection to the Mongo database.");
     }
 
     /**
