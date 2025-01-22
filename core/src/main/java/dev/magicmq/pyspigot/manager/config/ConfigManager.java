@@ -87,6 +87,7 @@ public abstract class ConfigManager {
      * Check if a configuration file exists with the given path/name, relative to the {@code configs} folder.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
+     * <p>
      * Arguments:
      * <ul>
      * <li>{@code file_path} (Required): The path of the configuration file to check, can be either the file name alone or a path (containing subfolders)</li>
@@ -114,6 +115,7 @@ public abstract class ConfigManager {
      * Creates a config file with the given path if it did not previously exist.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
+     * <p>
      * Arguments:
      * <ul>
      * <li>{@code file_path} (Required): The file path for the config file to create, relative to the {@code configs} folder. Can be either the file name alone or a path (containing subfolders)</li>
@@ -149,6 +151,7 @@ public abstract class ConfigManager {
      * Delete a configuration file with the given path/name.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
+     * <p>
      * Arguments:
      * <ul>
      * <li>{@code file_path} (Required): The path of the configuration file to delete, relative to the {@code configs} folder. Can be either the file name alone or a path (containing subfolders)</li>
