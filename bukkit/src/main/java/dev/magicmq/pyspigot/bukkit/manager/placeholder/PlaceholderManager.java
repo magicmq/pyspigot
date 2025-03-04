@@ -40,16 +40,32 @@ public class PlaceholderManager {
     /**
      * Register a new script placeholder expansion.
      * <p>
+     * If you want to register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction)}
+     * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function that should be called when the placeholder is used
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction) {
-        return registerPlaceholder(placeholderFunction, "Script Author", "1.0.0");
+        return registerPlaceholder(placeholderFunction, null, "Script Author", "1.0.0");
     }
 
     /**
-     * Register a new script placeholder expansion.
+     * Register a new script placeholder expansion, including relational placeholders.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param placeholderFunction The function that should be called when the placeholder is used
+     * @param relPlaceholderFunction The function that should be called when the relational placeholder
+     * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
+     */
+    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction) {
+        return registerPlaceholder(placeholderFunction, relPlaceholderFunction, "Script Author", "1.0.0");
+    }
+
+    /**
+     * Register a new script placeholder expansion. including relational placeholders.
+     * <p>
+     * If you want to register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction, String, String)}
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function that should be called when the placeholder is used
@@ -58,9 +74,23 @@ public class PlaceholderManager {
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, String author, String version) {
+        return registerPlaceholder(placeholderFunction, null, author, version);
+    }
+
+    /**
+     * Register a new script placeholder expansion. including relational placeholders.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param placeholderFunction The function that should be called when the placeholder is used
+     * @param relPlaceholderFunction The function that should be called when the relational placeholder
+     * @param author The author of the placeholder
+     * @param version The version of the placeholder
+     * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
+     */
+    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction, String author, String version) {
         Script script = ScriptUtils.getScriptFromCallStack();
         if (!registeredPlaceholders.containsKey(script)) {
-            ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, author, version);
+            ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, relPlaceholderFunction, author, version);
             placeholder.register();
             registeredPlaceholders.put(script, placeholder);
             return placeholder;

@@ -19,7 +19,9 @@ package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.python.core.*;
 
 /**
@@ -28,10 +30,11 @@ import org.python.core.*;
  * A ScriptPlaceholder can have multiple individual placeholders. For example, a script with the name "test.py" could have "%script:test_placeholder1%" and "%script:test_placeholder2%". It will be up to the script to handle each individual placeholder.
  * @see me.clip.placeholderapi.expansion.PlaceholderExpansion
  */
-public class ScriptPlaceholder extends PlaceholderExpansion {
+public class ScriptPlaceholder extends PlaceholderExpansion implements Relational {
 
     private final Script script;
     private final PyFunction function;
+    private final PyFunction relFunction;
     private final String author;
     private final String version;
 
@@ -39,12 +42,14 @@ public class ScriptPlaceholder extends PlaceholderExpansion {
      *
      * @param script The script associated with this ScriptPlaceholder
      * @param function The function to call when the placeholder is used
+     * @param relFunction The function to call when the relational placeholder is used
      * @param author The author of this ScriptPlaceholder
      * @param version The version of this ScriptPlaceholder
      */
-    public ScriptPlaceholder(Script script, PyFunction function, String author, String version) {
+    public ScriptPlaceholder(Script script, PyFunction function, PyFunction relFunction, String author, String version) {
         this.script = script;
         this.function = function;
+        this.relFunction = relFunction;
         this.author = author;
         this.version = version;
     }
@@ -103,6 +108,10 @@ public class ScriptPlaceholder extends PlaceholderExpansion {
      */
     @Override
     public String onRequest(OfflinePlayer player, String params) {
+        if (function == null) {
+            return null;
+        }
+
         try {
             PyObject[] parameters = Py.javas2pys(player, params);
             PyObject result = function.__call__(parameters[0], parameters[1]);
@@ -111,6 +120,31 @@ public class ScriptPlaceholder extends PlaceholderExpansion {
             }
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing placeholder '" + getIdentifier() + "'");
+        }
+        return null;
+    }
+
+    /**
+     * Called internally when the ScriptPlaceholder is used in a relational fashion.
+     * @param playerOne The first {@link org.bukkit.entity.Player} used for the placeholder.
+     * @param playerTwo The second {@link org.bukkit.entity.Player} used for the placeholder.
+     * @param identifier The specific placeholder that was used, right after the relational aspect.
+     * @return The replaced text
+     */
+    @Override
+    public String onPlaceholderRequest(Player playerOne, Player playerTwo, String identifier) {
+        if (relFunction == null) {
+            return null;
+        }
+
+        try {
+            PyObject[] parameters = Py.javas2pys(playerOne, playerTwo, identifier);
+            PyObject result = function.__call__(parameters[0], parameters[1], parameters[2]);
+            if (result instanceof PyString) {
+                return ((PyString) result).getString();
+            }
+        } catch (PyException exception) {
+            ScriptManager.get().handleScriptException(script, exception, "Error when executing relational placeholder '" + getIdentifier() + "'");
         }
         return null;
     }
