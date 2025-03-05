@@ -21,6 +21,7 @@ import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.core.PyFunction;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Manager to interface with PlaceholderAPI. Primarily used by scripts to register and unregister placeholder expansions.
@@ -47,6 +48,8 @@ public class PlaceholderManager {
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction) {
+        Objects.requireNonNull(placeholderFunction);
+
         return registerPlaceholder(placeholderFunction, null, "Script Author", "1.0.0");
     }
 
@@ -63,7 +66,7 @@ public class PlaceholderManager {
     }
 
     /**
-     * Register a new script placeholder expansion. including relational placeholders.
+     * Register a new script placeholder expansion.
      * <p>
      * If you want to register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction, String, String)}
      * <p>
@@ -74,11 +77,13 @@ public class PlaceholderManager {
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, String author, String version) {
+        Objects.requireNonNull(placeholderFunction);
+
         return registerPlaceholder(placeholderFunction, null, author, version);
     }
 
     /**
-     * Register a new script placeholder expansion. including relational placeholders.
+     * Register a new script placeholder expansion, including relational placeholders.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function that should be called when the placeholder is used
