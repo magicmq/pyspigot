@@ -113,9 +113,9 @@ public class LibraryManager {
                     try {
                         long start = System.nanoTime();
                         LoadResult result = loadLibrary(library);
-                        long duration = System.nanoTime() - start;
+                        double duration = (System.nanoTime() - start) / 1000000.0;
                         if (result == LoadResult.SUCCESS)
-                            PyCore.get().getLogger().log(Level.INFO, "Loaded library " + libName + " in " + (duration / 1000000) + " ms");
+                            PyCore.get().getLogger().log(Level.INFO, "Loaded library " + libName + " in " + (Math.round(duration * 10.0) / 10.0) + " ms");
                     } catch (Throwable throwable) {
                         PyCore.get().getLogger().log(Level.SEVERE, "Unable to load library " + libName + "!", throwable);
                     }
