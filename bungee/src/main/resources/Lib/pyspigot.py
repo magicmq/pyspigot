@@ -1,7 +1,6 @@
-###
-# NOTE: This module is not meant to be edited. Any changes made will be overridden on plugin reload or server restart.
-###
-
+"""
+A helper module for more easy access to PySpigot's managers.
+"""
 from dev.magicmq.pyspigot.bungee import PyBungee
 from dev.magicmq.pyspigot.manager.script import ScriptManager
 from dev.magicmq.pyspigot.manager.script import GlobalVariables
