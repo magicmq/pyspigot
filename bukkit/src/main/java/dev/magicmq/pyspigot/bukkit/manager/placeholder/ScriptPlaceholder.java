@@ -143,7 +143,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
 
         try {
             PyObject[] parameters = Py.javas2pys(playerOne, playerTwo, identifier);
-            PyObject result = function.__call__(parameters[0], parameters[1], parameters[2]);
+            PyObject result = relFunction.__call__(parameters[0], parameters[1], parameters[2]);
             if (result instanceof PyString) {
                 return ((PyString) result).getString();
             }
