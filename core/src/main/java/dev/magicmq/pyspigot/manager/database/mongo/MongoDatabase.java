@@ -2,7 +2,13 @@ package dev.magicmq.pyspigot.manager.database.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.*;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.ListCollectionNamesIterable;
+import com.mongodb.client.ListCollectionsIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.UpdateOptions;

@@ -18,7 +18,11 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import org.python.core.*;
+import org.python.core.Py;
+import org.python.core.PyException;
+import org.python.core.PyFunction;
+import org.python.core.PyNone;
+import org.python.core.PyObject;
 
 import java.util.logging.Level;
 

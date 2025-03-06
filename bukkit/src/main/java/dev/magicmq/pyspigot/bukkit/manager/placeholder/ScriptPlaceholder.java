@@ -22,7 +22,11 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.python.core.*;
+import org.python.core.Py;
+import org.python.core.PyException;
+import org.python.core.PyFunction;
+import org.python.core.PyObject;
+import org.python.core.PyString;
 
 /**
  * A class that represents a script placeholder expansion.

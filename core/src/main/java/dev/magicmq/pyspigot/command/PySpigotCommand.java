@@ -17,7 +17,15 @@
 package dev.magicmq.pyspigot.command;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.command.subcommands.*;
+import dev.magicmq.pyspigot.command.subcommands.HelpCommand;
+import dev.magicmq.pyspigot.command.subcommands.InfoCommand;
+import dev.magicmq.pyspigot.command.subcommands.ListScriptsCommand;
+import dev.magicmq.pyspigot.command.subcommands.LoadCommand;
+import dev.magicmq.pyspigot.command.subcommands.LoadLibraryCommand;
+import dev.magicmq.pyspigot.command.subcommands.ReloadAllCommand;
+import dev.magicmq.pyspigot.command.subcommands.ReloadCommand;
+import dev.magicmq.pyspigot.command.subcommands.ReloadConfigCommand;
+import dev.magicmq.pyspigot.command.subcommands.UnloadCommand;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 

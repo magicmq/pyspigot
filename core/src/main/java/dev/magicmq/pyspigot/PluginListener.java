@@ -20,7 +20,11 @@ package dev.magicmq.pyspigot;
 import dev.magicmq.pyspigot.util.StringUtils;
 import dev.magicmq.pyspigot.util.player.PlayerAdapter;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 /**
  * The primary listener for PySpigot. Methods called in this class are called via platform-specific listeners.

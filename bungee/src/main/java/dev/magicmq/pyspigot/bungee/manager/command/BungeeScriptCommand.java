@@ -23,7 +23,11 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-import org.python.core.*;
+import org.python.core.Py;
+import org.python.core.PyException;
+import org.python.core.PyFunction;
+import org.python.core.PyList;
+import org.python.core.PyObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
