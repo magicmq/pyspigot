@@ -264,6 +264,7 @@
                         <link>https://javadoc.io/doc/org.mongodb/bson/latest/</link>
                         <link>https://javadoc.io/doc/org.mongodb/mongodb-driver-sync/latest/</link>
                         <link>https://javadoc.io/doc/io.lettuce/lettuce-core/latest/</link>
+                        <link>https://javadoc.io/doc/net.md-5/bungeecord-api/latest/</link>
                     </links>
                 </configuration>
                 <executions>
