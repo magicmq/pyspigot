@@ -47,7 +47,7 @@ public class ListScriptsCommand implements SubCommand {
                 if (page <= 0)
                     page = 1;
             } catch (NumberFormatException ignored) {
-                sender.sendMessage("&cThe page must be a number.");
+                sender.sendMessage(ChatColor.RED + "The page must be a number.");
             }
         }
 
@@ -72,7 +72,7 @@ public class ListScriptsCommand implements SubCommand {
         }
 
         List<String> toReturn = new ArrayList<>();
-        toReturn.add("&eList of scripts, page " + page + " of " + (pages > 0 ? pages : 1) + " (" + scripts.size() + " total scripts)");
+        toReturn.add(ChatColor.YELLOW + "List of scripts, page " + page + " of " + (pages > 0 ? pages : 1) + " (" + scripts.size() + " total scripts)");
         for (int i = startIndex; i < endIndex; i++) {
             Path script = scripts.get(i);
             String fileName = script.getFileName().toString();
@@ -81,7 +81,7 @@ public class ListScriptsCommand implements SubCommand {
             else
                 toReturn.add(ChatColor.RED + fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")");
         }
-        toReturn.add("&cRed = &escript unloaded, &aGreen = &escript loaded");
+        toReturn.add(ChatColor.RED + "Red = script unloaded, " + ChatColor.GREEN + "Green = script loaded");
         return toReturn;
     }
 }
