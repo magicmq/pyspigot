@@ -42,7 +42,7 @@ public class InfoCommand implements SubCommand {
         if (args.length > 0) {
             if (args[0].endsWith(".py")) {
                 if (ScriptManager.get().isScriptRunning(args[0])) {
-                    Script script = ScriptManager.get().getScript(args[0]);
+                    Script script = ScriptManager.get().getScriptByName(args[0]);
                     String scriptInfo = ScriptManager.get().getScriptInfo().printScriptInfo(script);
                     sender.sendMessage(scriptInfo);
                 } else {

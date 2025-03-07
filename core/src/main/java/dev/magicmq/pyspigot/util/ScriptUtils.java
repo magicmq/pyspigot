@@ -23,6 +23,7 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
 
+import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -45,8 +46,8 @@ public final class ScriptUtils {
     public static Script getScriptFromCallStack() {
         Optional<StackWalker.StackFrame> callingScript = STACK_WALKER.walk(stream -> stream.filter(frame -> frame.getClassName().contains("org.python.pycode") && frame.getMethodName().equals("call_function")).findFirst());
         if (callingScript.isPresent()) {
-            String scriptName = callingScript.get().getFileName();
-            return ScriptManager.get().getScript(scriptName);
+            String scriptFile = callingScript.get().getFileName();
+            return ScriptManager.get().getScriptByPath(Paths.get(scriptFile));
         } else {
             return null;
         }
