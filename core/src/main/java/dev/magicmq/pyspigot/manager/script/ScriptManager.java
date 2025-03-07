@@ -62,7 +62,8 @@ public abstract class ScriptManager {
 
     private final ScriptInfo scriptInfo;
     private final Path scriptsFolder;
-    private final LinkedHashMap<String, Script> scripts;
+    private final LinkedHashMap<Path, Script> scripts;
+    private final LinkedHashMap<String, Script> scriptNames;
 
     private boolean sysInitialized;
 
@@ -72,6 +73,7 @@ public abstract class ScriptManager {
         this.scriptInfo = scriptInfo;
         this.scriptsFolder = PyCore.get().getDataFolderPath().resolve("scripts");
         this.scripts = new LinkedHashMap<>();
+        this.scriptNames = new LinkedHashMap<>();
 
         this.sysInitialized = false;
         if (PyCore.get().getConfig().loadJythonOnStartup()) {
@@ -302,7 +304,7 @@ public abstract class ScriptManager {
      */
     public RunResult loadScript(Script script) throws IOException {
         //Check if another script is already running with the same name
-        if (scripts.containsKey(script.getName())) {
+        if (scripts.containsKey(script.getPath())) {
             PyCore.get().getLogger().log(Level.WARNING, "Attempted to load script '" + script.getName() + "', but there is already a loaded script with this name.");
             return RunResult.FAIL_DUPLICATE;
         }
@@ -327,13 +329,14 @@ public abstract class ScriptManager {
         if (PyCore.get().getConfig().doScriptActionLogging())
             PyCore.get().getLogger().log(Level.INFO, "Loading script '" + script.getName() + "'");
 
-        scripts.put(script.getName(), script);
+        scripts.put(script.getPath(), script);
+        scriptNames.put(script.getName(), script);
 
         script.prepare();
         try (FileInputStream scriptFileReader = new FileInputStream(script.getFile())) {
             initScriptPermissions(script);
 
-            script.getInterpreter().execfile(scriptFileReader, script.getName());
+            script.getInterpreter().execfile(scriptFileReader, script.getPath().toString());
 
             PyObject start = script.getInterpreter().get("start");
             if (start instanceof PyFunction startFunction) {
@@ -361,7 +364,8 @@ public abstract class ScriptManager {
             unloadScript(script, true);
             return RunResult.FAIL_ERROR;
         } catch (IOException e) {
-            scripts.remove(script.getName());
+            scripts.remove(script.getPath());
+            scriptNames.remove(script.getName());
             script.close();
             throw e;
         }
@@ -381,6 +385,7 @@ public abstract class ScriptManager {
                 PyCore.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
         }
         scripts.clear();
+        scriptNames.clear();
     }
 
     /**
@@ -389,7 +394,7 @@ public abstract class ScriptManager {
      * @return True if the script was successfully unloaded, false if otherwise
      */
     public boolean unloadScript(String name) {
-        return unloadScript(getScript(name), false);
+        return unloadScript(getScriptByName(name), false);
     }
 
     /**
@@ -403,7 +408,8 @@ public abstract class ScriptManager {
 
         boolean gracefulStop = stopScript(script, error);
 
-        scripts.remove(script.getName());
+        scripts.remove(script.getPath());
+        scriptNames.remove(script.getName());
 
         if (PyCore.get().getConfig().doScriptActionLogging())
             PyCore.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
@@ -456,7 +462,7 @@ public abstract class ScriptManager {
      * @return True if the script is running, false if otherwise
      */
     public boolean isScriptRunning(String name) {
-        return scripts.containsKey(name);
+        return scriptNames.containsKey(name);
     }
 
     /**
@@ -473,12 +479,21 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Get a {@link Script} object for a loaded and running script
+     * Get a {@link Script} object for a loaded and running script.
+     * @param path The path of the script to get
+     * @return The Script object for the script, null if no script is loaded and running with the given path
+     */
+    public Script getScriptByPath(Path path) {
+        return scripts.get(path);
+    }
+
+    /**
+     * Get a {@link Script} object for a loaded and running script.
      * @param name The name of the script to get. Name should contain the script file extension (.py)
      * @return The Script object for the script, null if no script is loaded and running with the given name
      */
-    public Script getScript(String name) {
-        return scripts.get(name);
+    public Script getScriptByName(String name) {
+        return scriptNames.get(name);
     }
 
     /**
@@ -494,7 +509,7 @@ public abstract class ScriptManager {
      * @return An immutable list containing the names of all loaded and running scripts
      */
     public Set<String> getLoadedScriptNames() {
-        return new HashSet<>(scripts.keySet());
+        return new HashSet<>(scriptNames.keySet());
     }
 
     /**
