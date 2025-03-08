@@ -40,6 +40,8 @@ public interface PluginConfig {
 
     boolean doScriptUnloadOnPluginDisable();
 
+    String scriptOptionMainScript();
+
     boolean scriptOptionEnabled();
 
     int scriptOptionLoadPriority();
