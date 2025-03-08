@@ -29,7 +29,7 @@ import java.util.List;
         command = "unload",
         aliases = {"stop"},
         permission = "pyspigot.command.unload",
-        description = "Unload a script with the specified name",
+        description = "Unload a script or project with the specified name",
         usage = "<scriptname>"
 )
 public class UnloadCommand implements SubCommand {
@@ -48,7 +48,15 @@ public class UnloadCommand implements SubCommand {
                     sender.sendMessage(ChatColor.RED + "No running script found with the name '" + args[0] + "'.");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "Script names must end in .py.");
+                if (ScriptManager.get().isScriptRunning(args[0])) {
+                    boolean success = ScriptManager.get().unloadScript(args[0]);
+                    if (success)
+                        sender.sendMessage(ChatColor.GREEN + "Successfully unloaded project '" + args[0] + "'.");
+                    else
+                        sender.sendMessage(ChatColor.RED + "There was an error when unloading project '" + args[0] + "'. See console for details.");
+                } else {
+                    sender.sendMessage(ChatColor.RED + "No running project found with the name '" + args[0] + "'.");
+                }
             }
             return true;
         }
