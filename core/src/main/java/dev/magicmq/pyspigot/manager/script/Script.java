@@ -35,6 +35,7 @@ public class Script implements Comparable<Script> {
     private final Path path;
     private final String name;
     private final ScriptOptions options;
+    private final boolean project;
 
     private PythonInterpreter interpreter;
     private ScriptLogger logger;
@@ -45,11 +46,13 @@ public class Script implements Comparable<Script> {
      * @param path The path that corresponds to the file where the script lives
      * @param name The name of this script. Should contain its extension (.py)
      * @param options The {@link ScriptOptions} for this script
+     * @param project True if this script is a multi-file project, false if it is a single-file script
      */
-    public Script(Path path, String name, ScriptOptions options) {
+    public Script(Path path, String name, ScriptOptions options, boolean project) {
         this.path = path;
         this.name = name;
         this.options = options;
+        this.project = project;
     }
 
     protected void prepare() {
@@ -90,7 +93,7 @@ public class Script implements Comparable<Script> {
     }
 
     /**
-     * Get the path corresponding to the script file.
+     * Get the path corresponding to the script file, or folder (if it is a multi-file project).
      * @return The path
      */
     public Path getPath() {
@@ -110,7 +113,10 @@ public class Script implements Comparable<Script> {
      * @return The simple name associated with this script. Will contain only the file name, without the extension (.py)
      */
     public String getSimpleName() {
-        return name.substring(0, name.length() - 3);
+        if (project)
+            return name;
+        else
+            return name.substring(0, name.length() - 3);
     }
 
     /**
@@ -119,6 +125,14 @@ public class Script implements Comparable<Script> {
      */
     public ScriptOptions getOptions() {
         return options;
+    }
+
+    /**
+     * Get if this Script represents a multi-script project or a single-file script.
+     * @return True if this Script is a project, false if it is not
+     */
+    public boolean isProject() {
+        return project;
     }
 
     /**

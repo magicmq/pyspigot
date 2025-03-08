@@ -24,6 +24,8 @@ jython-options:
     - ''
 # Default values for script options. If one or more options are not defined in the script_options.yml for the script, then PySpigot will fall back to these values.
 script-option-defaults:
+  # For projects, the main script file for the project.
+  main: 'main.py'
   # Whether the script is enabled
   enabled: true
   # An integer load priority for the script

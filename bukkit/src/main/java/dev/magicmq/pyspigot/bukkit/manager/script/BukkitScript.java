@@ -34,9 +34,10 @@ public class BukkitScript extends Script {
      * @param path The path that corresponds to the file where the script lives
      * @param name The name of this script. Should contain its extension (.py)
      * @param options The {@link ScriptOptions} for this script
+     * @param project True if this script is a multi-file project, false if it is a single-file script
      */
-    public BukkitScript(Path path, String name, BukkitScriptOptions options) {
-        super(path, name, options);
+    public BukkitScript(Path path, String name, BukkitScriptOptions options, boolean project) {
+        super(path, name, options, project);
     }
 
     /**
