@@ -23,6 +23,7 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -56,16 +57,19 @@ public final class ScriptUtils {
     /**
      * Initializes a new PySystemState for a new {@link org.python.util.PythonInterpreter} when a script is loaded. This method will also initialize Jython if it hasn't been initialized previously.
      * <p>
-     * This method will also do the following with the new PySystemState: set its class loader to the class loader provided by the {@link LibraryManager}, and add "./plugins/PySpigot/python-libs/" and "./plugins/PySpigot/scripts/" to the path.
+     * This method will also do the following with the new PySystemState: set its class loader to the class loader provided by the {@link LibraryManager}, and add "./plugins/PySpigot/python-libs/" to the path.
+     * @param projectPath The project's path to append to sys.path, if initializing a new PySystemState for a multi-file project. Pass null if initializing a new PySystemState for a single-file script
      * @return The PySystemState that was created
      */
-    public static PySystemState initPySystemState() {
+    public static PySystemState initPySystemState(Path projectPath) {
         ScriptManager.get().initJython();
 
         PySystemState sys = new PySystemState();
         sys.setClassLoader(LibraryManager.get().getClassLoader());
         sys.path.append(new PyString(PyCore.get().getDataFolderPath().resolve("python-libs").toString()));
-        sys.path.append(new PyString(PyCore.get().getDataFolderPath().resolve("scripts").toString()));
+        if (projectPath != null) {
+            sys.path.append(new PyString(projectPath.toString()));
+        }
         return sys;
     }
 }

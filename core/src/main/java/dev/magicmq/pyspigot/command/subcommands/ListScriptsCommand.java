@@ -23,15 +23,16 @@ import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 @SubCommandMeta(
         command = "listscripts",
-        aliases = {"list", "scriptslist", "ls"},
+        aliases = {"listprojects", "list", "scriptslist", "projectslist", "ls"},
         permission = "pyspigot.command.listscripts",
-        description = "List all scripts",
+        description = "List all scripts and projects",
         usage = "[page]"
 )
 public class ListScriptsCommand implements SubCommand {
@@ -58,6 +59,7 @@ public class ListScriptsCommand implements SubCommand {
 
     private List<String> getPage(int page) {
         List<Path> scripts = new ArrayList<>(ScriptManager.get().getAllScriptPaths());
+        scripts.addAll(ScriptManager.get().getAllProjectPaths());
         int totalEntries = scripts.size();
         int pages = totalEntries / ENTRIES_PER_PAGE;
         int startIndex, endIndex;
@@ -72,16 +74,27 @@ public class ListScriptsCommand implements SubCommand {
         }
 
         List<String> toReturn = new ArrayList<>();
-        toReturn.add(ChatColor.YELLOW + "List of scripts, page " + page + " of " + (pages > 0 ? pages : 1) + " (" + scripts.size() + " total scripts)");
+        toReturn.add(ChatColor.YELLOW + "List of scripts and projects, page " + page + " of " + (pages > 0 ? pages : 1) + " (" + scripts.size() + " total)");
         for (int i = startIndex; i < endIndex; i++) {
             Path script = scripts.get(i);
-            String fileName = script.getFileName().toString();
-            if (ScriptManager.get().isScriptRunning(fileName))
-                toReturn.add(ChatColor.GREEN + fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")");
-            else
-                toReturn.add(ChatColor.RED + fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")");
+            toReturn.add(synthesizeLine(script));
         }
-        toReturn.add(ChatColor.RED + "Red = script unloaded, " + ChatColor.GREEN + "Green = script loaded");
+        toReturn.add(ChatColor.RED + "Red = script/project unloaded, " + ChatColor.GREEN + "Green = script/project loaded");
         return toReturn;
+    }
+
+    private String synthesizeLine(Path script) {
+        String fileName = script.getFileName().toString();
+        if (Files.isDirectory(script)) {
+            if (ScriptManager.get().isScriptRunning(fileName))
+                return ChatColor.GREEN + fileName + " (Project, " + PyCore.get().getDataFolderPath().relativize(script) + ")";
+            else
+                return ChatColor.RED + fileName + " (Project, " + PyCore.get().getDataFolderPath().relativize(script) + ")";
+        } else {
+            if (ScriptManager.get().isScriptRunning(fileName))
+                return ChatColor.GREEN + fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")";
+            else
+                return ChatColor.RED + fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")";
+        }
     }
 }

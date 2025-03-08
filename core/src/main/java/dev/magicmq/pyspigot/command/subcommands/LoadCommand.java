@@ -31,7 +31,7 @@ import java.util.List;
         command = "load",
         aliases = {"start"},
         permission = "pyspigot.command.load",
-        description = "Load a script with the specified name",
+        description = "Load a script or project with the specified name",
         usage = "<scriptname>"
 )
 public class LoadCommand implements SubCommand {
@@ -61,7 +61,28 @@ public class LoadCommand implements SubCommand {
                     sender.sendMessage(ChatColor.RED + "There is already a loaded and running script with the name '" + args[0] + "'.");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "Script names must end in .py.");
+                if (!ScriptManager.get().isScriptRunning(args[0])) {
+                    try {
+                        RunResult result = ScriptManager.get().loadProject(args[0]);
+                        if (result == RunResult.SUCCESS)
+                            sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran project '" + args[0] + "'.");
+                        else if (result == RunResult.FAIL_PLUGIN_DEPENDENCY)
+                            sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run due to missing plugin dependencies. See console for details.");
+                        else if (result == RunResult.FAIL_DISABLED)
+                            sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run because it is disabled as per its options in its project.yml.");
+                        else if (result == RunResult.FAIL_NO_MAIN)
+                            sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run because the main script file was not found in the project folder.");
+                        else if (result == RunResult.FAIL_ERROR)
+                            sender.sendMessage(ChatColor.RED + "There was an error when running project '" + args[0] + "'. See console for details.");
+                        else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
+                            sender.sendMessage(ChatColor.RED + "No project found in the projects folder with the name '" + args[0] + "'.");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        sender.sendMessage(ChatColor.RED + "There was an error when loading project '" + args[0] + "'. See console for details.");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "There is already a loaded and running project with the name '" + args[0] + "'.");
+                }
             }
             return true;
         }

@@ -17,37 +17,42 @@
 package dev.magicmq.pyspigot.manager.script;
 
 /**
- * An enum class representing various outcomes of running a script, including run failures.
+ * An enum class representing various outcomes of running a script or project, including run failures.
  */
 public enum RunResult {
 
     /**
-     * Returned if the script loaded successfully.
+     * Returned if the script/project loaded successfully.
      */
     SUCCESS,
 
     /**
-     * Returned if the script was not loaded because it was disabled as per its script options in script_options.yml
+     * Returned if the script/project was not loaded because it was disabled as per its script options in script_options.yml
      */
     FAIL_DISABLED,
 
     /**
-     * Returned if the script was not loaded because it has one or more missing plugin dependencies.
+     * Returned if the script/project was not loaded because it has one or more missing plugin dependencies.
      */
     FAIL_PLUGIN_DEPENDENCY,
 
     /**
-     * Returned if the script was loaded but failed during runtime due to an error.
+     * Returned if the script/project was loaded but failed during runtime due to an error.
      */
     FAIL_ERROR,
 
     /**
-     * Returned if a script is already loaded with the same name.
+     * Returned if a script/project is already loaded with the same name.
      */
     FAIL_DUPLICATE,
 
     /**
-     * Returned if a script was not found with the given name.
+     * Returned if a script/project was not found with the given name.
      */
-    FAIL_SCRIPT_NOT_FOUND
+    FAIL_SCRIPT_NOT_FOUND,
+
+    /**
+     * Returned if a main script file was not found for a multi-file project.
+     */
+    FAIL_NO_MAIN
 }

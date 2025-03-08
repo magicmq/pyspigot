@@ -30,7 +30,7 @@ import java.util.List;
 @SubCommandMeta(
         command = "reload",
         permission = "pyspigot.command.reload",
-        description = "Reload a script with the specified name",
+        description = "Reload a script or project with the specified name",
         usage = "<scriptname>"
 )
 public class ReloadCommand implements SubCommand {
@@ -38,19 +38,19 @@ public class ReloadCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
-            if (args[0].endsWith(".py")) {
-                if (ScriptManager.get().isScriptRunning(args[0])) {
-                    boolean success = ScriptManager.get().unloadScript(args[0]);
-                    if (!success) {
-                        sender.sendMessage("&cThere was an error when unloading script '" + args[0] + "'. See console for details.");
-                        return true;
-                    }
+            if (ScriptManager.get().isScriptRunning(args[0])) {
+                boolean success = ScriptManager.get().unloadScript(args[0]);
+                if (!success) {
+                    sender.sendMessage("&cThere was an error when unloading script/project '" + args[0] + "'. See console for details.");
+                    return true;
                 }
+            }
 
+            if (args[0].endsWith(".py")) {
                 try {
                     RunResult result = ScriptManager.get().loadScript(args[0]);
                     if (result == RunResult.SUCCESS)
-                        sender.sendMessage(ChatColor.GREEN + "Successfully reloaded and script '" + args[0] + "'.");
+                        sender.sendMessage(ChatColor.GREEN + "Successfully reloaded script '" + args[0] + "'.");
                     else if (result == RunResult.FAIL_PLUGIN_DEPENDENCY)
                         sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not reloaded due to missing plugin dependencies. See console for details.");
                     else if (result == RunResult.FAIL_DISABLED)
@@ -64,7 +64,24 @@ public class ReloadCommand implements SubCommand {
                     sender.sendMessage(ChatColor.RED + "There was an error when reloading script '" + args[0] + "'. See console for details.");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "Script names must end in .py.");
+                try {
+                    RunResult result = ScriptManager.get().loadProject(args[0]);
+                    if (result == RunResult.SUCCESS)
+                        sender.sendMessage(ChatColor.GREEN + "Successfully reloaded project '" + args[0] + "'.");
+                    else if (result == RunResult.FAIL_PLUGIN_DEPENDENCY)
+                        sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not reloaded due to missing plugin dependencies. See console for details.");
+                    else if (result == RunResult.FAIL_DISABLED)
+                        sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run because it is disabled as per its options in its project.yml.");
+                    else if (result == RunResult.FAIL_NO_MAIN)
+                        sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run because the main script file was not found in the project folder.");
+                    else if (result == RunResult.FAIL_ERROR)
+                        sender.sendMessage(ChatColor.RED + "There was an error when reloading project '" + args[0] + "'. See console for details.");
+                    else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
+                        sender.sendMessage(ChatColor.RED + "No project found in the projects folder with the name '" + args[0] + "'.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "There was an error when reloading project '" + args[0] + "'. See console for details.");
+                }
             }
             return true;
         }

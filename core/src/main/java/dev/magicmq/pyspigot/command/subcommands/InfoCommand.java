@@ -30,9 +30,9 @@ import java.util.List;
 
 @SubCommandMeta(
         command = "info",
-        aliases = {"scriptinfo"},
+        aliases = {"scriptinfo", "projectinfo"},
         permission = "pyspigot.command.info",
-        description = "Print information about a script, including uptime, registered listeners, commands, and more info",
+        description = "Print information about a script or project, including uptime, registered listeners, commands, and more info",
         usage = "<scriptname>"
 )
 public class InfoCommand implements SubCommand {
@@ -40,12 +40,12 @@ public class InfoCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
-            if (args[0].endsWith(".py")) {
-                if (ScriptManager.get().isScriptRunning(args[0])) {
-                    Script script = ScriptManager.get().getScriptByName(args[0]);
-                    String scriptInfo = ScriptManager.get().getScriptInfo().printScriptInfo(script);
-                    sender.sendMessage(scriptInfo);
-                } else {
+            if (ScriptManager.get().isScriptRunning(args[0])) {
+                Script script = ScriptManager.get().getScriptByName(args[0]);
+                String scriptInfo = ScriptManager.get().getScriptInfo().printScriptInfo(script);
+                sender.sendMessage(scriptInfo);
+            } else {
+                if (args[0].endsWith(".py")) {
                     Path scriptPath = ScriptManager.get().getScriptPath(args[0]);
                     ScriptOptions options = ScriptManager.get().getScriptOptions(scriptPath);
                     if (options != null) {
@@ -53,9 +53,15 @@ public class InfoCommand implements SubCommand {
                         sender.sendMessage(scriptInfo);
                     } else
                         sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
+                } else {
+                    Path projectPath = ScriptManager.get().getProjectPath(args[0]);
+                    ScriptOptions options = ScriptManager.get().getScriptOptions(projectPath);
+                    if (options != null) {
+                        String projectInfo = ScriptManager.get().getScriptInfo().printOfflineScriptInfo(args[0], projectPath, options);
+                        sender.sendMessage(projectInfo);
+                    } else
+                        sender.sendMessage(ChatColor.RED + "No project found in the projects folder with the name '" + args[0] + "'.");
                 }
-            } else {
-                sender.sendMessage(ChatColor.RED + "Script names must end in .py.");
             }
             return true;
         }
