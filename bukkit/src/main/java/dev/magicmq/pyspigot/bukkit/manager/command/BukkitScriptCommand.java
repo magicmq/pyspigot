@@ -39,6 +39,7 @@ import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyList;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -101,8 +102,10 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(sender, label, args);
-            PyObject result = commandFunction.__call__(parameters[0], parameters[1], parameters[2]);
+            PyObject result = commandFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
             if (result instanceof PyBoolean)
                 return ((PyBoolean) result).getBooleanValue();
             else
@@ -119,8 +122,10 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
         if (tabFunction != null) {
             try {
+                Py.setSystemState(script.getInterpreter().getSystemState());
+                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                 PyObject[] parameters = Py.javas2pys(sender, alias, args);
-                PyObject result = tabFunction.__call__(parameters[0], parameters[1], parameters[2]);
+                PyObject result = tabFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
                 if (result instanceof PyList pyList) {
                     ArrayList<String> toReturn = new ArrayList<>();
                     for (Object object : pyList) {

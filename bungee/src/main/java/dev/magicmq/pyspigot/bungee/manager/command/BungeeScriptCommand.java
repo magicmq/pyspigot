@@ -28,6 +28,7 @@ import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyList;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,8 +73,10 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(sender, getName(), args);
-            commandFunction.__call__(parameters[0], parameters[1], parameters[2]);
+            commandFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + getName() + "'");
             //Mimic BungeeCord behavior
@@ -85,8 +88,10 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
         if (tabFunction != null) {
             try {
+                Py.setSystemState(script.getInterpreter().getSystemState());
+                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                 PyObject[] parameters = Py.javas2pys(sender, getName(), args);
-                PyObject result = tabFunction.__call__(parameters[0], parameters[1], parameters[2]);
+                PyObject result = tabFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
                 if (result instanceof PyList pyList) {
                     ArrayList<String> toReturn = new ArrayList<>();
                     for (Object object : pyList) {

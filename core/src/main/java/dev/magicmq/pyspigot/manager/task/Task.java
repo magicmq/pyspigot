@@ -23,6 +23,7 @@ import org.python.core.PyBaseCode;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 import java.util.Arrays;
 
@@ -69,11 +70,14 @@ public class Task implements Runnable {
     @Override
     public void run() {
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
+
             if (functionArgs != null) {
                 PyObject[] pyObjects = Py.javas2pys(functionArgs);
-                function.__call__(pyObjects);
+                function.__call__(threadState, pyObjects);
             } else {
-                function.__call__();
+                function.__call__(threadState);
             }
         } catch (PyException e) {
             ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + taskId);

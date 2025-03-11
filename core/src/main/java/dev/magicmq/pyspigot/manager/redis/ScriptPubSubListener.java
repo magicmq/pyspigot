@@ -16,10 +16,12 @@
 
 package dev.magicmq.pyspigot.manager.redis;
 
+import dev.magicmq.pyspigot.manager.script.Script;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import org.python.core.Py;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 /**
  * A wrapper class that wraps the RedisPubSubListener from lettuce for use by scripts.
@@ -27,15 +29,18 @@ import org.python.core.PyObject;
  */
 public class ScriptPubSubListener implements RedisPubSubListener<String, String> {
 
+    private final Script script;
     private final PyFunction function;
     private final String channel;
 
     /**
      *
+     * @param script The script that this PubSubListener belongs to
      * @param function The function that should be called when a message is received on the given channel
      * @param channel The channel to listen on
      */
-    public ScriptPubSubListener(PyFunction function, String channel) {
+    public ScriptPubSubListener(Script script, PyFunction function, String channel) {
+        this.script = script;
         this.function = function;
         this.channel = channel;
     }
@@ -48,8 +53,10 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
     @Override
     public void message(String channel, String message) {
         if (channel.equals(this.channel)) {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(channel, message);
-            function.__call__(parameters[0], parameters[1]);
+            function.__call__(threadState, parameters[0], parameters[1]);
         }
     }
 
@@ -84,7 +91,16 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
     public void punsubscribed(String s, long l) {}
 
     /**
-     * Implemented from {@link RedisPubSubListener}, but unused.
+     * Get the Script that this listener belongs to.
+     * @return The script
+     */
+    public Script getScript() {
+        return script;
+    }
+
+    /**
+     * Get the channel for this listener.
+     * @return The channel
      */
     public String getChannel() {
         return channel;

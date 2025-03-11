@@ -27,6 +27,7 @@ import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.core.PyString;
+import org.python.core.ThreadState;
 
 /**
  * A class that represents a script placeholder expansion.
@@ -117,8 +118,10 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
         }
 
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(player, params);
-            PyObject result = function.__call__(parameters[0], parameters[1]);
+            PyObject result = function.__call__(threadState, parameters[0], parameters[1]);
             if (result instanceof PyString) {
                 return ((PyString) result).getString();
             }
@@ -142,8 +145,10 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
         }
 
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(playerOne, playerTwo, identifier);
-            PyObject result = relFunction.__call__(parameters[0], parameters[1], parameters[2]);
+            PyObject result = relFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
             if (result instanceof PyString) {
                 return ((PyString) result).getString();
             }

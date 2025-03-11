@@ -26,6 +26,7 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 /**
  * A script listener that listens for BungeeCord packets.
@@ -60,8 +61,10 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
     @Override
     public void packetReceive(PacketReceiveEvent<T> event) {
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            receiveFunction.__call__(parameter);
+            receiveFunction.__call__(threadState, parameter);
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet receive listener");
         }
@@ -74,8 +77,10 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
     @Override
     public void packetSend(PacketSendEvent<T> event) {
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            sendFunction.__call__(parameter);
+            sendFunction.__call__(threadState, parameter);
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet send listener");
         }

@@ -32,6 +32,7 @@ import org.python.core.PyIndentationError;
 import org.python.core.PyObject;
 import org.python.core.PySyntaxError;
 import org.python.core.PySystemState;
+import org.python.core.ThreadState;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -337,11 +338,13 @@ public abstract class ScriptManager {
 
             PyObject start = script.getInterpreter().get("start");
             if (start instanceof PyFunction startFunction) {
+                Py.setSystemState(script.getInterpreter().getSystemState());
+                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                 int args = ((PyBaseCode) startFunction.__code__).co_argcount;
                 if (args == 0)
-                    startFunction.__call__();
+                    startFunction.__call__(threadState);
                 else
-                    startFunction.__call__(Py.java2py(script));
+                    startFunction.__call__(threadState, Py.java2py(script));
             }
 
             callScriptLoadEvent(script);
@@ -550,11 +553,13 @@ public abstract class ScriptManager {
             PyObject stop = script.getInterpreter().get("stop");
             if (stop instanceof PyFunction stopFunction) {
                 try {
+                    Py.setSystemState(script.getInterpreter().getSystemState());
+                    ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                     int args = ((PyBaseCode) stopFunction.__code__).co_argcount;
                     if (args == 0)
-                        stopFunction.__call__();
+                        stopFunction.__call__(threadState);
                     else
-                        stopFunction.__call__(Py.java2py(script));
+                        stopFunction.__call__(threadState, Py.java2py(script));
                 } catch (PyException e) {
                     handleScriptException(script, e, "Error when calling stop function");
                     gracefulStop = false;

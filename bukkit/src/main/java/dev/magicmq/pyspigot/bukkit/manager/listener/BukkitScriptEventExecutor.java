@@ -25,6 +25,7 @@ import org.bukkit.plugin.EventExecutor;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 /**
  * Represents a Bukkit event executor for script event listeners.
@@ -64,8 +65,10 @@ public class BukkitScriptEventExecutor implements EventExecutor {
             }
 
             try {
+                Py.setSystemState(scriptEventListener.getScript().getInterpreter().getSystemState());
+                ThreadState threadState = Py.getThreadState(scriptEventListener.getScript().getInterpreter().getSystemState());
                 PyObject parameter = Py.java2py(event);
-                scriptEventListener.getListenerFunction().__call__(parameter);
+                scriptEventListener.getListenerFunction().__call__(threadState, parameter);
             } catch (PyException exception) {
                 ScriptManager.get().handleScriptException(scriptEventListener.getScript(), exception, "Error when executing event listener");
             }

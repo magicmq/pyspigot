@@ -27,6 +27,7 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 /**
  * An abstract class designed to represent a basic script packet listener.
@@ -93,8 +94,10 @@ public abstract class ScriptPacketListener extends PacketAdapter {
      */
     public void callToScript(PacketEvent event) {
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            function.__call__(parameter);
+            function.__call__(threadState, parameter);
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet listener");
         }

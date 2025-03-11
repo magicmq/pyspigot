@@ -23,6 +23,7 @@ import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 import java.util.logging.Level;
 
@@ -53,12 +54,15 @@ public class SyncCallbackTask extends Task {
     @Override
     public void run() {
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
+
             PyObject outcome;
             if (functionArgs != null) {
                 PyObject[] pyObjects = Py.javas2pys(functionArgs);
-                outcome = function.__call__(pyObjects);
+                outcome = function.__call__(threadState, pyObjects);
             } else {
-                outcome = function.__call__();
+                outcome = function.__call__(threadState);
             }
 
             callback = new Callback(this, outcome);
@@ -123,11 +127,14 @@ public class SyncCallbackTask extends Task {
          */
         @Override
         public void run() {
+            Py.setSystemState(task.script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(task.script.getInterpreter().getSystemState());
+
             try {
                 if (outcome instanceof PyNone)
-                    task.callbackFunction.__call__();
+                    task.callbackFunction.__call__(threadState);
                 else
-                    task.callbackFunction.__call__(outcome);
+                    task.callbackFunction.__call__(threadState, outcome);
             } catch (PyException e) {
                 ScriptManager.get().handleScriptException(task.script, e, "Error when executing task #" + taskId);
             } finally {

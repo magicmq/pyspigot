@@ -25,6 +25,7 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
+import org.python.core.ThreadState;
 
 /**
  * A dummy BungeeCord Listener that holds an event a script is currently listening to.
@@ -68,8 +69,10 @@ public class BungeeScriptEventListener implements Listener {
         }
 
         try {
+            Py.setSystemState(script.getInterpreter().getSystemState());
+            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            listenerFunction.__call__(parameter);
+            listenerFunction.__call__(threadState, parameter);
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
         }
