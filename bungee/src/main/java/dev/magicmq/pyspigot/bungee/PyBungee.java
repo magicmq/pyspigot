@@ -119,7 +119,9 @@ public class PyBungee extends Plugin implements PlatformAdapter {
         BungeeCommandManager.get();
         BungeeTaskManager.get();
         BungeeConfigManager.get();
-        ProtocolManager.get();
+
+        if (isProtocolizeAvailable())
+            ProtocolManager.get();
     }
 
     @Override

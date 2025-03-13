@@ -97,8 +97,11 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
         BukkitCommandManager.get();
         BukkitTaskManager.get();
         BukkitConfigManager.get();
-        ProtocolManager.get();
-        PlaceholderManager.get();
+
+        if (isProtocolLibAvailable())
+            ProtocolManager.get();
+        if (isPlaceholderApiAvailable())
+            PlaceholderManager.get();
     }
 
     @Override
