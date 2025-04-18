@@ -77,7 +77,8 @@ public class PyBungee extends Plugin implements PlatformAdapter {
 
     @Override
     public void onDisable() {
-        PyCore.get().shutdown();
+        if (PyCore.get() != null)
+            PyCore.get().shutdown();
     }
 
     @Override

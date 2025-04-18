@@ -70,7 +70,8 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
 
     @Override
     public void onDisable() {
-        PyCore.get().shutdown();
+        if (PyCore.get() != null)
+            PyCore.get().shutdown();
     }
 
     @Override
