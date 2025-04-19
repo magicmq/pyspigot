@@ -58,38 +58,21 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <groupId>dev.magicmq</groupId>
+                    <artifactId>jython-compile-maven-plugin</artifactId>
+                    <version>1.1</version>
                     <executions>
                         <execution>
-                            <id>compile-py-sources</id>
-                            <phase>generate-resources</phase>
+                            <id>jython-compile</id>
+                            <phase>process-resources</phase>
                             <goals>
-                                <goal>java</goal>
+                                <goal>jython-compile</goal>
                             </goals>
                         </execution>
                     </executions>
                     <configuration>
-                        <includeProjectDependencies>false</includeProjectDependencies>
-                        <includePluginDependencies>true</includePluginDependencies>
-                        <executableDependency>
-                            <groupId>dev.magicmq</groupId>
-                            <artifactId>jython-compiler</artifactId>
-                        </executableDependency>
-                        <mainClass>dev.magicmq.jythoncompiler.Main</mainClass>
-                        <arguments>
-                            <argument>${basedir}/src/main/resources/Lib/</argument>
-                        </arguments>
-                        <useMavenLogger>true</useMavenLogger>
+                        <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>dev.magicmq</groupId>
-                            <artifactId>jython-compiler</artifactId>
-                            <version>1.0</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
