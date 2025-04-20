@@ -58,6 +58,8 @@ public interface PluginConfig {
 
     boolean shouldShowUpdateMessages();
 
+    String jythonLoggingLevel();
+
     boolean loadJythonOnStartup();
 
     Properties getJythonProperties();

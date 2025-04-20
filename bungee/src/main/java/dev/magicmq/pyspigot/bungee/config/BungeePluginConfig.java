@@ -122,6 +122,11 @@ public class BungeePluginConfig implements PluginConfig {
     }
 
     @Override
+    public String jythonLoggingLevel() {
+        return config.getString("debug-options.jython-logging-level");
+    }
+
+    @Override
     public boolean loadJythonOnStartup() {
         return config.getBoolean("jython-options.init-on-startup");
     }

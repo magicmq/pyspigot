@@ -23,6 +23,7 @@ import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
+import dev.magicmq.pyspigot.util.logging.JythonLogHandler;
 import org.python.core.Py;
 import org.python.core.PyBaseCode;
 import org.python.core.PyException;
@@ -48,6 +49,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -172,12 +174,18 @@ public abstract class ScriptManager {
     public void initJython() {
         if (!sysInitialized) {
             PyCore.get().getLogger().log(Level.INFO, "Initializing Jython...");
+
+            Logger jythonLogger = Logger.getLogger("org.python");
+            jythonLogger.setLevel(Level.parse(PyCore.get().getConfig().jythonLoggingLevel()));
+            jythonLogger.addHandler(new JythonLogHandler());
+
             PySystemState.initialize(
                     System.getProperties(),
                     PyCore.get().getConfig().getJythonProperties(),
                     PyCore.get().getConfig().getJythonArgs(),
                     LibraryManager.get().getClassLoader()
             );
+
             PyCore.get().getLogger().log(Level.INFO, "Jython initialized!");
             sysInitialized = true;
         }
