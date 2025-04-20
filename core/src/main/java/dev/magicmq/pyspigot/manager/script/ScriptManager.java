@@ -17,7 +17,6 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
@@ -137,9 +136,8 @@ public abstract class ScriptManager {
      * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions
      * @param scriptName The name of the script whose script options should be initialized
      * @return The new ScriptOptions
-     * @throws InvalidConfigurationException If
      */
-    public abstract ScriptOptions newScriptOptions(String scriptName) throws InvalidConfigurationException;
+    public abstract ScriptOptions newScriptOptions(String scriptName);
 
     /**
      * Initialize a new Script via a platform-specific implementation.
@@ -214,13 +212,7 @@ public abstract class ScriptManager {
         //Init scripts and parse options
         SortedSet<Script> toLoad = new TreeSet<>();
         for (Map.Entry<String, Path> entry : scriptFiles.entrySet()) {
-            ScriptOptions options;
-            try {
-                options = newScriptOptions(entry.getKey());
-            } catch (InvalidConfigurationException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + entry.getKey() + "', the default values will be used for this script.", e);
-                options = newScriptOptions();
-            }
+            ScriptOptions options = newScriptOptions(entry.getKey());
             Script script = newScript(entry.getValue(), entry.getKey(), options);
             toLoad.add(script);
         }
@@ -255,14 +247,7 @@ public abstract class ScriptManager {
     public ScriptOptions getScriptOptions(Path path) {
         if (path != null) {
             String fileName = path.getFileName().toString();
-            ScriptOptions options;
-            try {
-                options = newScriptOptions(fileName);
-            } catch (InvalidConfigurationException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used for this script.", e);
-                options = newScriptOptions();
-            }
-            return options;
+            return newScriptOptions(fileName);
         } else
             return null;
     }

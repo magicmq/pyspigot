@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.PlatformAdapter;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bukkit.command.BukkitPluginCommand;
 import dev.magicmq.pyspigot.bukkit.config.BukkitPluginConfig;
+import dev.magicmq.pyspigot.bukkit.config.BukkitScriptOptionsConfig;
 import dev.magicmq.pyspigot.bukkit.manager.command.BukkitCommandManager;
 import dev.magicmq.pyspigot.bukkit.manager.config.BukkitConfigManager;
 import dev.magicmq.pyspigot.bukkit.manager.listener.BukkitListenerManager;
@@ -27,6 +28,7 @@ import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.bukkit.manager.script.BukkitScriptManager;
 import dev.magicmq.pyspigot.bukkit.manager.task.BukkitTaskManager;
+import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bstats.bukkit.Metrics;
@@ -79,6 +81,11 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
         return new BukkitPluginConfig();
+    }
+
+    @Override
+    public ScriptOptionsConfig initScriptOptionsConfig() {
+        return new BukkitScriptOptionsConfig();
     }
 
     @Override

@@ -17,8 +17,6 @@
 package dev.magicmq.pyspigot.bukkit.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
-import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -47,11 +45,11 @@ public class BukkitScriptOptions extends ScriptOptions {
      * Initialize a new ScriptOptions using the appropriate values in the script_options.yml file, using the script name to search for the values.
      * @param scriptName The name of the script whose script options should be initialized
      */
-    public BukkitScriptOptions(String scriptName) throws InvalidConfigurationException {
+    public BukkitScriptOptions(String scriptName) {
         super(scriptName);
-        if (ScriptOptionsConfig.contains(scriptName)) {
-            this.permissionDefault = PermissionDefault.getByName(ScriptOptionsConfig.getPermissionDefault(scriptName, PyCore.get().getConfig().scriptOptionPermissionDefault()));
-            this.permissions = Permission.loadPermissions(ScriptOptionsConfig.getPermissions(scriptName, PyCore.get().getConfig().scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
+        if (PyCore.get().getScriptOptionsConfig().contains(scriptName)) {
+            this.permissionDefault = PermissionDefault.getByName(PyCore.get().getScriptOptionsConfig().getPermissionDefault(scriptName, PyCore.get().getConfig().scriptOptionPermissionDefault()));
+            this.permissions = Permission.loadPermissions(PyCore.get().getScriptOptionsConfig().getPermissions(scriptName, PyCore.get().getConfig().scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
         } else {
             this.permissionDefault = PermissionDefault.getByName(PyCore.get().getConfig().scriptOptionPermissionDefault());
             this.permissions = Permission.loadPermissions(PyCore.get().getConfig().scriptOptionPermissions(), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);

@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 /**
- * The BungeeCord-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retreiving values from the plugin config.yml.
+ * The BungeeCord-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retrieving values from the plugin config.yml.
  */
 public class BungeePluginConfig implements PluginConfig {
 
@@ -108,8 +108,9 @@ public class BungeePluginConfig implements PluginConfig {
         return config.getString("script-option-defaults.permission-default");
     }
 
-    public Map<?, ?> scriptOptionPermissions() {
-        return new HashMap<>();
+    public Map<String, Object> scriptOptionPermissions() {
+        //Plugin permissions are not implemented in BungeeCord
+        return null;
     }
 
     public boolean shouldPrintStackTraces() {

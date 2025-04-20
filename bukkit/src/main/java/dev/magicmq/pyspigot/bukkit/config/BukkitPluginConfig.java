@@ -18,16 +18,18 @@ package dev.magicmq.pyspigot.bukkit.config;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 /**
- * The Bukkit-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retreiving values from the plugin config.yml.
+ * The Bukkit-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retrieving values from the plugin config.yml.
  */
 public class BukkitPluginConfig implements PluginConfig {
 
@@ -99,8 +101,11 @@ public class BukkitPluginConfig implements PluginConfig {
         return config.getString("script-option-defaults.permission-default");
     }
 
-    public Map<?, ?> scriptOptionPermissions() {
-        return new HashMap<>();
+    public Map<String, Object> scriptOptionPermissions() {
+        if (config.contains("script-option-defaults.permissions"))
+            return getNestedMap(config.getConfigurationSection("script-option-defaults.permissions"));
+        else
+            return new HashMap<>();
     }
 
     public boolean shouldPrintStackTraces() {
@@ -132,5 +137,17 @@ public class BukkitPluginConfig implements PluginConfig {
     @Override
     public String[] getJythonArgs() {
         return config.getStringList("jython-options.args").toArray(new String[0]);
+    }
+
+    private Map<String, Object> getNestedMap(ConfigurationSection section) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        for (String key : section.getKeys(false)) {
+            Object value = section.get(key);
+            if (value instanceof ConfigurationSection)
+                result.put(key, getNestedMap((ConfigurationSection) value));
+            else
+                result.put(key, value);
+        }
+        return result;
     }
 }

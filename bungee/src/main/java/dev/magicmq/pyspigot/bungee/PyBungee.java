@@ -20,12 +20,14 @@ import dev.magicmq.pyspigot.PlatformAdapter;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bungee.command.BungeePluginCommand;
 import dev.magicmq.pyspigot.bungee.config.BungeePluginConfig;
+import dev.magicmq.pyspigot.bungee.config.BungeeScriptOptionsConfig;
 import dev.magicmq.pyspigot.bungee.manager.command.BungeeCommandManager;
 import dev.magicmq.pyspigot.bungee.manager.config.BungeeConfigManager;
 import dev.magicmq.pyspigot.bungee.manager.listener.BungeeListenerManager;
 import dev.magicmq.pyspigot.bungee.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.bungee.manager.script.BungeeScriptManager;
 import dev.magicmq.pyspigot.bungee.manager.task.BungeeTaskManager;
+import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import net.md_5.bungee.api.ProxyServer;
@@ -101,6 +103,11 @@ public class PyBungee extends Plugin implements PlatformAdapter {
             getLogger().log(Level.SEVERE, "Error when saving the default config file.", e);
             return null;
         }
+    }
+
+    @Override
+    public ScriptOptionsConfig initScriptOptionsConfig() {
+        return new BungeeScriptOptionsConfig();
     }
 
     @Override
