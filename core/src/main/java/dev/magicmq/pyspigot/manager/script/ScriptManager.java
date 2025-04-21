@@ -17,12 +17,14 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.exception.ScriptExitException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.magicmq.pyspigot.util.logging.JythonLogHandler;
 import org.python.core.Py;
 import org.python.core.PyBaseCode;
@@ -36,6 +38,7 @@ import org.python.core.ThreadState;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -408,42 +411,33 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Handles script errors/exceptions, particularly for script logging purposes. Will also attempt to get the traceback of the {@link org.python.core.PyException} that was thrown and print it (if it exists).
+     * Handles script errors/exceptions, particularly for script logging purposes. Also prints the traceback (and stack trace, if the exception originated in Java code) to the script's logger.
      * <p>
-     * <b>Note:</b> This method will always run synchronously. If it is called from an asynchronous context, it will run inside a synchronous task.
-     * @param script The script that threw the error
+     * If a {@link org.python.core.Py#SystemExit} is caught, the script will be unloaded.
+     * @param script The script that threw the exception
      * @param exception The PyException that was thrown
      * @param message The message associated with the exception
      */
     public void handleScriptException(Script script, PyException exception, String message) {
         boolean report = callScriptExceptionEvent(script, exception);
         if (report) {
-            String toLog = "";
+            try {
+                String toLog = "";
 
-            if (message != null)
-                toLog += message + ": ";
-
-            if (exception.getCause() != null) {
-                Throwable cause = exception.getCause();
-                toLog += cause;
-
-                if (cause.getCause() != null) {
-                    Throwable causeOfCause = cause.getCause();
-                    toLog += "\n" + "Caused by: " + causeOfCause;
+                if (message != null) {
+                    message += ":\n";
+                    toLog += message;
                 }
-            } else {
-                toLog += exception.getMessage();
-            }
 
-            if (exception.traceback != null) {
-                toLog += "\n\n" + exception.traceback.dumpStack();
-            }
+                toLog += ScriptUtils.handleException(exception);
 
-            script.getLogger().log(Level.SEVERE, toLog);
+                script.getLogger().log(Level.SEVERE, toLog);
+            } catch (ScriptExitException ignored) {
+                unloadScript(script, false);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                script.getLogger().log(Level.SEVERE, "Error when attempting to handle script exception", e);
+            }
         }
-
-        if (PyCore.get().getConfig().shouldPrintStackTraces())
-            exception.printStackTrace();
     }
 
     /**
