@@ -89,7 +89,7 @@ public class BukkitScriptManager extends ScriptManager {
     }
 
     @Override
-    public ScriptOptions newScriptOptions(Path scriptPath) throws InvalidConfigurationException {
+    public ScriptOptions newScriptOptions(Path scriptPath) {
         return new BukkitScriptOptions(scriptPath);
     }
 
@@ -123,6 +123,14 @@ public class BukkitScriptManager extends ScriptManager {
         if (PySpigot.get().isPlaceholderApiAvailable()) {
             PlaceholderManager.get().unregisterPlaceholder(script);
         }
+    }
+
+    @Override
+    public void unloadScriptOnMainThread(Script script, boolean error) {
+        if (!Bukkit.isPrimaryThread())
+            Bukkit.getScheduler().runTask(PySpigot.get(), () -> unloadScript(script, error));
+        else
+            unloadScript(script, error);
     }
 
     /**

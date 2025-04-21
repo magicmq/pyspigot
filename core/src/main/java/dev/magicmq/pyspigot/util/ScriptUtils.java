@@ -17,14 +17,23 @@
 package dev.magicmq.pyspigot.util;
 
 import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.exception.ScriptExitException;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import org.python.core.Options;
+import org.python.core.Py;
+import org.python.core.PyException;
+import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
+import org.python.core.StdoutWrapper;
+import org.python.core.ThreadState;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Optional;
 
 /**
@@ -33,9 +42,17 @@ import java.util.Optional;
 public final class ScriptUtils {
 
     private static final StackWalker STACK_WALKER;
+    private static final Method exceptionToString;
 
     static {
         STACK_WALKER = StackWalker.getInstance();
+
+        try {
+            exceptionToString = Py.class.getDeclaredMethod("exceptionToString", PyObject.class, PyObject.class, PyObject.class);
+            exceptionToString.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ScriptUtils() {}
@@ -71,5 +88,52 @@ public final class ScriptUtils {
             sys.path.append(new PyString(projectPath.toString()));
         }
         return sys;
+    }
+
+    /**
+     * Interacts with Jython to handle a caught Throwable when running script code.
+     * <p>
+     * Also uses reflection to call the {@code exceptionToString} method in the {@link org.python.core.Py} class to fetch and return a string representation of the throwable (including traceback and/or stack trace) for logging purposes.
+     * <p>
+     * If the {@code python.options.showJavaExceptions} property is {@code true}, then this method will print the Java stack trace to the script's stderr in addition to handling the exception and returning the exception string.
+     * @param throwable The exception that was thrown
+     * @return A String representing the exception, including a traceback and/or stack trace
+     * @throws ScriptExitException If the caught exception is a {@link org.python.core.Py#SystemExit}
+     * @throws InvocationTargetException If there was an error when accessing the {@code exceptionToString} method in the {@link org.python.core.Py} class (via reflection)
+     * @throws IllegalAccessException If there was an error when accessing the {@code exceptionToString} method in the {@link org.python.core.Py} class (via reflection)
+     */
+    public static synchronized String handleException(Throwable throwable) throws ScriptExitException, InvocationTargetException, IllegalAccessException {
+        StdoutWrapper stderr = Py.stderr;
+
+        if (Options.showJavaExceptions) {
+            stderr.println("Java Traceback:");
+            java.io.CharArrayWriter buf = new java.io.CharArrayWriter();
+            if (throwable instanceof PyException) {
+                ((PyException) throwable).super__printStackTrace(new java.io.PrintWriter(buf));
+            } else {
+                throwable.printStackTrace(new java.io.PrintWriter(buf));
+            }
+            stderr.print(buf.toString());
+        }
+
+        PyException exception = Py.JavaError(throwable);
+
+        if (exception.match(Py.SystemExit))
+            throw new ScriptExitException();
+
+        //Sets ThreadState.exception
+        Py.setException(exception, null);
+
+        ThreadState threadState = Py.getThreadState();
+        PySystemState sys = threadState.getSystemState();
+        sys.last_type = exception.type;
+        sys.last_value = exception.value;
+        sys.last_traceback = exception.traceback;
+
+        String exceptionString = (String) exceptionToString.invoke(null, exception.type, exception.value, exception.traceback);
+
+        threadState.exception = null;
+
+        return exceptionString;
     }
 }

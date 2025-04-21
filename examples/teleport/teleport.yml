@@ -1,0 +1,82 @@
+inventory:
+  size: 9
+  title: '&e&lClick to Teleport'
+items:
+  '0':
+    location:
+      world: 'world'
+      x: 0.5
+      y: 64
+      z: 0.5
+      yaw: 0
+      pitch: 0
+    location-name: 'Spawn'
+    item:
+      material: 'ENDER_PEARL'
+      amount: 1
+      name: '&c&lSpawn'
+      lore:
+        - '&6Click to teleport to spawn.'
+      glowing: true
+  '1':
+    location:
+      world: 'world'
+      x: 128
+      y: 64
+      z: 128
+      yaw: 0
+      pitch: 0
+    location-name: 'Warp Point 1'
+    item:
+      material: 'ENDER_PEARL'
+      amount: 1
+      name: '&c&lWarp Point 1'
+      lore:
+        - '&6Click to teleport to warp point 1.'
+  '2':
+    location:
+      world: 'world'
+      x: 256
+      y: 64
+      z: 256
+      yaw: 0
+      pitch: 0
+    location-name: 'Warp Point 2'
+    item:
+      material: 'ENDER_PEARL'
+      amount: 1
+      name: '&c&lWarp Point 2'
+      lore:
+        - '&6Click to teleport to warp point 2.'
+  '3':
+    location:
+      world: 'world'
+      x: 512
+      y: 64
+      z: 512
+      yaw: 0
+      pitch: 0
+    location-name: 'Warp Point 3'
+    item:
+      material: 'ENDER_PEARL'
+      amount: 1
+      name: '&c&lWarp Point 3'
+      lore:
+        - '&6Click to teleport to warp point 3.'
+  '4':
+    location:
+      world: 'world'
+      x: 1024
+      y: 64
+      z: 1024
+      yaw: 0
+      pitch: 0
+    location-name: 'Warp Point 4'
+    item:
+      material: 'ENDER_PEARL'
+      amount: 1
+      name: '&c&lWarp Point 4'
+      lore:
+        - '&6Click to teleport to warp point 4.'
+misc:
+  teleport-message: '&6You have been teleported to &e%name%&6.'

@@ -18,17 +18,21 @@ package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
+import dev.magicmq.pyspigot.exception.ScriptExitException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.logging.JythonLogHandler;
 import org.python.core.Py;
 import org.python.core.PyBaseCode;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyIndentationError;
+import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PySyntaxError;
 import org.python.core.PySystemState;
@@ -36,6 +40,7 @@ import org.python.core.ThreadState;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -49,6 +54,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -141,9 +147,8 @@ public abstract class ScriptManager {
      * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions
      * @param scriptPath The path of the script file whose script options should be initialized
      * @return The new ScriptOptions
-     * @throws InvalidConfigurationException If there was an error when parsing the script_options.yml file
      */
-    public abstract ScriptOptions newScriptOptions(Path scriptPath) throws InvalidConfigurationException;
+    public abstract ScriptOptions newScriptOptions(Path scriptPath);
 
     /**
      * Initialize a new ScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
@@ -184,17 +189,32 @@ public abstract class ScriptManager {
     public abstract void unregisterFromPlatformManagers(Script script);
 
     /**
+     * Unloads the script on the main thread by scheduling the unload operation with a platform-specific scheduler.
+     * <p>
+     * Used in conjunction with {@link #handleScriptException(Script, PyException, String)} to ensure if sys.exit is called from an asynchronous context, the script is unloaded synchronously.
+     * @param script The script to unload
+     * @param error If the script unload was due to an error, pass true. Otherwise, pass false
+     */
+    public abstract void unloadScriptOnMainThread(Script script, boolean error);
+
+    /**
      * Initialize Jython. Will only initialize once; subsequent calls to this method have no effect.
      */
     public void initJython() {
         if (!sysInitialized) {
             PyCore.get().getLogger().log(Level.INFO, "Initializing Jython...");
+
+            Logger jythonLogger = Logger.getLogger("org.python");
+            jythonLogger.setLevel(Level.parse(PyCore.get().getConfig().jythonLoggingLevel()));
+            jythonLogger.addHandler(new JythonLogHandler());
+
             PySystemState.initialize(
                     System.getProperties(),
                     PyCore.get().getConfig().getJythonProperties(),
                     PyCore.get().getConfig().getJythonArgs(),
                     LibraryManager.get().getClassLoader()
             );
+
             PyCore.get().getLogger().log(Level.INFO, "Jython initialized!");
             sysInitialized = true;
         }
@@ -271,15 +291,7 @@ public abstract class ScriptManager {
      */
     public ScriptOptions getScriptOptions(Path path) {
         if (path != null) {
-            String fileName = path.getFileName().toString();
-            ScriptOptions options;
-            try {
-                options = newScriptOptions(path);
-            } catch (InvalidConfigurationException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script '" + fileName + "', the default values will be used.", e);
-                options = newScriptOptions();
-            }
-            return options;
+            return newScriptOptions(path);
         } else
             return null;
     }
@@ -514,42 +526,35 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Handles script errors/exceptions, particularly for script logging purposes. Will also attempt to get the traceback of the {@link org.python.core.PyException} that was thrown and print it (if it exists).
+     * Handles script errors/exceptions, particularly for script logging purposes. Also prints the traceback (and stack trace, if the exception originated in Java code) to the script's logger.
      * <p>
-     * <b>Note:</b> This method will always run synchronously. If it is called from an asynchronous context, it will run inside a synchronous task.
-     * @param script The script that threw the error
+     * If a {@link org.python.core.Py#SystemExit} is caught, the script will be unloaded.
+     * @param script The script that threw the exception
      * @param exception The PyException that was thrown
      * @param message The message associated with the exception
      */
     public void handleScriptException(Script script, PyException exception, String message) {
         boolean report = callScriptExceptionEvent(script, exception);
         if (report) {
-            String toLog = "";
+            try {
+                String toLog = "";
 
-            if (message != null)
-                toLog += message + ": ";
-
-            if (exception.getCause() != null) {
-                Throwable cause = exception.getCause();
-                toLog += cause;
-
-                if (cause.getCause() != null) {
-                    Throwable causeOfCause = cause.getCause();
-                    toLog += "\n" + "Caused by: " + causeOfCause;
+                if (message != null) {
+                    message += ":\n";
+                    toLog += message;
                 }
-            } else {
-                toLog += exception.getMessage();
-            }
 
-            if (exception.traceback != null) {
-                toLog += "\n\n" + exception.traceback.dumpStack();
-            }
+                toLog += ScriptUtils.handleException(exception);
 
-            script.getLogger().log(Level.SEVERE, toLog);
+                script.getLogger().log(Level.SEVERE, toLog);
+            } catch (ScriptExitException ignored) {
+                String exitCode = getExitCode(exception);
+                script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
+                unloadScriptOnMainThread(script, false);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                script.getLogger().log(Level.SEVERE, "Error when attempting to handle script exception", e);
+            }
         }
-
-        if (PyCore.get().getConfig().shouldPrintStackTraces())
-            exception.printStackTrace();
     }
 
     /**
@@ -715,10 +720,17 @@ public abstract class ScriptManager {
             unloadScript(script, true);
             return RunResult.FAIL_ERROR;
         } catch (PyException e) {
-            handleScriptException(script, e, null);
-            script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
-            unloadScript(script, true);
-            return RunResult.FAIL_ERROR;
+            if (e.match(Py.SystemExit)) {
+                String exitCode = getExitCode(e);
+                script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
+                unloadScript(script, false);
+                return RunResult.SUCCESS;
+            } else {
+                handleScriptException(script, e, null);
+                script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
+                unloadScript(script, true);
+                return RunResult.FAIL_ERROR;
+            }
         } catch (IOException e) {
             scripts.remove(script.getMainScriptPath());
             scriptNames.remove(script.getName());
@@ -760,6 +772,24 @@ public abstract class ScriptManager {
         script.close();
 
         return gracefulStop;
+    }
+
+    private String getExitCode(PyException exception) {
+        PyObject value = exception.value;
+
+        if (PyException.isExceptionInstance(exception.value)) {
+            value = value.__findattr__("code");
+        }
+
+        String exitStatus;
+        if (value instanceof PyInteger) {
+            exitStatus = "" + value.asInt();
+        } else if (value != Py.None) {
+            exitStatus = value.toString();
+        } else {
+            exitStatus = "" + 0;
+        }
+        return exitStatus;
     }
 
     /**

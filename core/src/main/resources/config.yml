@@ -44,3 +44,5 @@ debug-options:
   print-stack-traces: false
   # If true, the plugin will show messages in console and on join (to players with the permission pyspigot.admin) when a newer version of PySpigot is available to download on spigotmc.org.
   show-update-messages: true
+  # The logging level for Jython internals. Can be useful to set this to FINE or ALL for debugging purposes. Note: the server's root logger will also need to be configured to accept debug messages for Jython's debug messages to show.
+  jython-logging-level: 'INFO'

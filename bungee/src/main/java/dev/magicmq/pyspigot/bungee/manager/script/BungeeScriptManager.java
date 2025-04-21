@@ -89,7 +89,7 @@ public class BungeeScriptManager extends ScriptManager {
     }
 
     @Override
-    public ScriptOptions newScriptOptions(Path scriptPath) throws InvalidConfigurationException {
+    public ScriptOptions newScriptOptions(Path scriptPath) {
         return new ScriptOptions(scriptPath);
     }
 
@@ -117,6 +117,12 @@ public class BungeeScriptManager extends ScriptManager {
     public void unregisterFromPlatformManagers(Script script) {
         if (PyBungee.get().isProtocolizeAvailable())
             ProtocolManager.get().unregisterPacketListeners(script);
+    }
+
+    @Override
+    public void unloadScriptOnMainThread(Script script, boolean error) {
+        //No "main thread" on BungeeCord
+        unloadScript(script, error);
     }
 
     /**

@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 /**
- * The BungeeCord-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retreiving values from the plugin config.yml.
+ * The BungeeCord-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retrieving values from the plugin config.yml.
  */
 public class BungeePluginConfig implements PluginConfig {
 
@@ -40,6 +40,7 @@ public class BungeePluginConfig implements PluginConfig {
 
     private DateTimeFormatter logTimestamp;
 
+    @Override
     public void reload() {
         try {
             Configuration defaultConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(PyBungee.get().getResourceAsStream("config.yml"));
@@ -51,14 +52,17 @@ public class BungeePluginConfig implements PluginConfig {
         logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format"));
     }
 
+    @Override
     public boolean getMetricsEnabled() {
         return config.getBoolean("metrics-enabled");
     }
 
+    @Override
     public long getScriptLoadDelay() {
         return config.getLong("script-load-delay");
     }
 
+    @Override
     public HashMap<String, String> getLibraryRelocations() {
         HashMap<String, String> toReturn = new HashMap<>();
         for (String string : config.getStringList("library-relocations")) {
@@ -68,22 +72,27 @@ public class BungeePluginConfig implements PluginConfig {
         return toReturn;
     }
 
+    @Override
     public DateTimeFormatter getLogTimestamp() {
         return logTimestamp;
     }
 
+    @Override
     public boolean doScriptActionLogging() {
         return config.getBoolean("script-action-logging");
     }
 
+    @Override
     public boolean doVerboseRedisLogging() {
         return config.getBoolean("verbose-redis-logging");
     }
 
+    @Override
     public boolean doScriptUnloadOnPluginDisable() {
         return config.getBoolean("script-unload-on-plugin-disable");
     }
 
+    @Override
     public String scriptOptionMainScript() {
         return config.getString("script-option-defaults.main");
     }
@@ -92,36 +101,50 @@ public class BungeePluginConfig implements PluginConfig {
         return config.getBoolean("script-option-defaults.enabled");
     }
 
+    @Override
     public int scriptOptionLoadPriority() {
         return config.getInt("script-option-defaults.load-priority");
     }
 
+    @Override
     public List<String> scriptOptionPluginDepend() {
         return config.getStringList("script-option-defaults.plugin-depend");
     }
 
+    @Override
     public boolean scriptOptionFileLoggingEnabled() {
         return config.getBoolean("script-option-defaults.file-logging-enabled");
     }
 
+    @Override
     public String scriptOptionMinLoggingLevel() {
         return config.getString("script-option-defaults.min-logging-level");
     }
 
+    @Override
     public String scriptOptionPermissionDefault() {
         return config.getString("script-option-defaults.permission-default");
     }
 
-    public Map<?, ?> scriptOptionPermissions() {
-        return new HashMap<>();
+    @Override
+    public Map<String, Object> scriptOptionPermissions() {
+        //Plugin permissions are not implemented in BungeeCord
+        return null;
     }
 
+    @Override
     public boolean shouldPrintStackTraces() {
         return config.getBoolean("debug-options.print-stack-traces");
     }
 
+    @Override
     public boolean shouldShowUpdateMessages() {
         return config.getBoolean("debug-options.show-update-messages");
+    }
+
+    @Override
+    public String jythonLoggingLevel() {
+        return config.getString("debug-options.jython-logging-level");
     }
 
     @Override

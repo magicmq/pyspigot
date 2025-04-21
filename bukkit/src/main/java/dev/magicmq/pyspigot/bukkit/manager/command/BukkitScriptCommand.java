@@ -139,7 +139,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
                     return toReturn;
                 }
             } catch (PyException exception) {
-                ScriptManager.get().handleScriptException(script, exception,  "Unhandled exception when tab completing command '" + bukkitCommand.getLabel() + "'");
+                ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when tab completing command '" + bukkitCommand.getLabel() + "'");
             }
         }
         return Collections.emptyList();

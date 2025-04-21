@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot;
 
 
+import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 
 import java.io.File;
@@ -30,8 +31,15 @@ public interface PlatformAdapter {
 
     /**
      * Initialize the config file via a platform-specific implementation, saving the default config file in the process if it does not already exist.
+     * @return A platform-specific implementation of the loaded plugin config.yml
      */
     PluginConfig initConfig();
+
+    /**
+     * Initializes the script options config file via a platform-specific implementation. A blank script_options.yml file is saved if no script_options.yml existed previously.
+     * @return A platform-specific implementation of the loaded script_options.yml
+     */
+    ScriptOptionsConfig initScriptOptionsConfig();
 
     /**
      * Initialize plugin commands via a platform-specific implementation.

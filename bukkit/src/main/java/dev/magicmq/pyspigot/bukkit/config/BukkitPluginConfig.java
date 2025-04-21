@@ -18,16 +18,18 @@ package dev.magicmq.pyspigot.bukkit.config;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 /**
- * The Bukkit-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retreiving values from the plugin config.yml.
+ * The Bukkit-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retrieving values from the plugin config.yml.
  */
 public class BukkitPluginConfig implements PluginConfig {
 
@@ -35,6 +37,7 @@ public class BukkitPluginConfig implements PluginConfig {
 
     private DateTimeFormatter logTimestamp;
 
+    @Override
     public void reload() {
         PySpigot.get().reloadConfig();
         config = PySpigot.get().getConfig();
@@ -42,14 +45,17 @@ public class BukkitPluginConfig implements PluginConfig {
         logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format"));
     }
 
+    @Override
     public boolean getMetricsEnabled() {
         return config.getBoolean("metrics-enabled");
     }
 
+    @Override
     public long getScriptLoadDelay() {
         return config.getLong("script-load-delay");
     }
 
+    @Override
     public HashMap<String, String> getLibraryRelocations() {
         HashMap<String, String> toReturn = new HashMap<>();
         for (String string : config.getStringList("library-relocations")) {
@@ -59,22 +65,27 @@ public class BukkitPluginConfig implements PluginConfig {
         return toReturn;
     }
 
+    @Override
     public DateTimeFormatter getLogTimestamp() {
         return logTimestamp;
     }
 
+    @Override
     public boolean doScriptActionLogging() {
         return config.getBoolean("script-action-logging");
     }
 
+    @Override
     public boolean doVerboseRedisLogging() {
         return config.getBoolean("verbose-redis-logging");
     }
 
+    @Override
     public boolean doScriptUnloadOnPluginDisable() {
         return config.getBoolean("script-unload-on-plugin-disable");
     }
 
+    @Override
     public String scriptOptionMainScript() {
         return config.getString("script-option-defaults.main");
     }
@@ -83,36 +94,52 @@ public class BukkitPluginConfig implements PluginConfig {
         return config.getBoolean("script-option-defaults.enabled");
     }
 
+    @Override
     public int scriptOptionLoadPriority() {
         return config.getInt("script-option-defaults.load-priority");
     }
 
+    @Override
     public List<String> scriptOptionPluginDepend() {
         return config.getStringList("script-option-defaults.plugin-depend");
     }
 
+    @Override
     public boolean scriptOptionFileLoggingEnabled() {
         return config.getBoolean("script-option-defaults.file-logging-enabled");
     }
 
+    @Override
     public String scriptOptionMinLoggingLevel() {
         return config.getString("script-option-defaults.min-logging-level");
     }
 
+    @Override
     public String scriptOptionPermissionDefault() {
         return config.getString("script-option-defaults.permission-default");
     }
 
-    public Map<?, ?> scriptOptionPermissions() {
-        return new HashMap<>();
+    @Override
+    public Map<String, Object> scriptOptionPermissions() {
+        if (config.contains("script-option-defaults.permissions"))
+            return getNestedMap(config.getConfigurationSection("script-option-defaults.permissions"));
+        else
+            return new HashMap<>();
     }
 
+    @Override
     public boolean shouldPrintStackTraces() {
         return config.getBoolean("debug-options.print-stack-traces");
     }
 
+    @Override
     public boolean shouldShowUpdateMessages() {
         return config.getBoolean("debug-options.show-update-messages");
+    }
+
+    @Override
+    public String jythonLoggingLevel() {
+        return config.getString("debug-options.jython-logging-level");
     }
 
     @Override
@@ -136,5 +163,17 @@ public class BukkitPluginConfig implements PluginConfig {
     @Override
     public String[] getJythonArgs() {
         return config.getStringList("jython-options.args").toArray(new String[0]);
+    }
+
+    private Map<String, Object> getNestedMap(ConfigurationSection section) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        for (String key : section.getKeys(false)) {
+            Object value = section.get(key);
+            if (value instanceof ConfigurationSection)
+                result.put(key, getNestedMap((ConfigurationSection) value));
+            else
+                result.put(key, value);
+        }
+        return result;
     }
 }

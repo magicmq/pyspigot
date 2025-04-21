@@ -54,11 +54,13 @@ public interface PluginConfig {
 
     String scriptOptionPermissionDefault();
 
-    Map<?, ?> scriptOptionPermissions();
+    Map<String, Object> scriptOptionPermissions();
 
     boolean shouldPrintStackTraces();
 
     boolean shouldShowUpdateMessages();
+
+    String jythonLoggingLevel();
 
     boolean loadJythonOnStartup();
 

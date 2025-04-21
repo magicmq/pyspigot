@@ -17,8 +17,8 @@
 package dev.magicmq.pyspigot;
 
 
-import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
+import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
@@ -49,6 +49,7 @@ public class PyCore {
 
     private boolean paper;
     private PluginConfig config;
+    private ScriptOptionsConfig scriptOptionsConfig;
     private volatile String spigotVersion;
 
     private PyCore(PlatformAdapter adapter) {
@@ -83,14 +84,17 @@ public class PyCore {
         config = adapter.initConfig();
         config.reload();
 
+        scriptOptionsConfig = adapter.initScriptOptionsConfig();
+        scriptOptionsConfig.reload();
+
         initFolders();
 
         adapter.initCommands();
         adapter.initListeners();
 
         LibraryManager.get();
-        adapter.initPlatformManagers();
         initCommonManagers();
+        adapter.initPlatformManagers();
 
         if (config.getMetricsEnabled())
             adapter.setupMetrics();
@@ -118,7 +122,7 @@ public class PyCore {
      */
     public void reloadConfigs() {
         config.reload();
-        ScriptOptionsConfig.reload();
+        scriptOptionsConfig.reload();
     }
 
     /**
@@ -183,6 +187,14 @@ public class PyCore {
      */
     public PluginConfig getConfig() {
         return config;
+    }
+
+    /**
+     * Get the script options configuration for PySpigot.
+     * @return The script options config
+     */
+    public ScriptOptionsConfig getScriptOptionsConfig() {
+        return scriptOptionsConfig;
     }
 
     /**

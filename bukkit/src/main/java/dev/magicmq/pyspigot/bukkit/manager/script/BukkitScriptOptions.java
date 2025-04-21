@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.bukkit.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bukkit.config.BukkitProjectOptionsConfig;
-import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import org.bukkit.permissions.Permission;
@@ -52,9 +51,9 @@ public class BukkitScriptOptions extends ScriptOptions {
     public BukkitScriptOptions(Path scriptPath) throws InvalidConfigurationException {
         super(scriptPath);
         String scriptName = scriptPath.getFileName().toString();
-        if (ScriptOptionsConfig.contains(scriptName)) {
-            this.permissionDefault = PermissionDefault.getByName(ScriptOptionsConfig.getPermissionDefault(scriptName, PyCore.get().getConfig().scriptOptionPermissionDefault()));
-            this.permissions = Permission.loadPermissions(ScriptOptionsConfig.getPermissions(scriptName, PyCore.get().getConfig().scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
+        if (PyCore.get().getScriptOptionsConfig().contains(scriptName)) {
+            this.permissionDefault = PermissionDefault.getByName(PyCore.get().getScriptOptionsConfig().getPermissionDefault(scriptName, PyCore.get().getConfig().scriptOptionPermissionDefault()));
+            this.permissions = Permission.loadPermissions(PyCore.get().getScriptOptionsConfig().getPermissions(scriptName, PyCore.get().getConfig().scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
         } else {
             this.permissionDefault = PermissionDefault.getByName(PyCore.get().getConfig().scriptOptionPermissionDefault());
             this.permissions = Permission.loadPermissions(PyCore.get().getConfig().scriptOptionPermissions(), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);

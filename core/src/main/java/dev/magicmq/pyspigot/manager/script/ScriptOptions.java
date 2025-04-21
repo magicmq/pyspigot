@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.config.ProjectOptionsConfig;
-import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 
 import java.nio.file.Path;
@@ -53,15 +52,15 @@ public class ScriptOptions {
      * Initialize a new ScriptOptions for a single-file script, using the appropriate values in the script_options.yml file.
      * @param scriptPath The path of the script file whose script options should be initialized
      */
-    public ScriptOptions(Path scriptPath) throws InvalidConfigurationException {
+    public ScriptOptions(Path scriptPath) {
         String scriptName = scriptPath.getFileName().toString();
-        if (ScriptOptionsConfig.contains(scriptName)) {
+        if (PyCore.get().getScriptOptionsConfig().contains(scriptName)) {
             this.mainScript = scriptPath.toString();
-            this.enabled = ScriptOptionsConfig.getEnabled(scriptName, PyCore.get().getConfig().scriptOptionEnabled());
-            this.loadPriority = ScriptOptionsConfig.getLoadPriority(scriptName, PyCore.get().getConfig().scriptOptionLoadPriority());
-            this.pluginDepend = ScriptOptionsConfig.getPluginDepend(scriptName, PyCore.get().getConfig().scriptOptionPluginDepend());
-            this.fileLoggingEnabled = ScriptOptionsConfig.getFileLoggingEnabled(scriptName, PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
-            this.minLoggingLevel = Level.parse(ScriptOptionsConfig.getMinLoggingLevel(scriptName, PyCore.get().getConfig().scriptOptionMinLoggingLevel()));
+            this.enabled = PyCore.get().getScriptOptionsConfig().getEnabled(scriptName, PyCore.get().getConfig().scriptOptionEnabled());
+            this.loadPriority = PyCore.get().getScriptOptionsConfig().getLoadPriority(scriptName, PyCore.get().getConfig().scriptOptionLoadPriority());
+            this.pluginDepend = PyCore.get().getScriptOptionsConfig().getPluginDepend(scriptName, PyCore.get().getConfig().scriptOptionPluginDepend());
+            this.fileLoggingEnabled = PyCore.get().getScriptOptionsConfig().getFileLoggingEnabled(scriptName, PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
+            this.minLoggingLevel = Level.parse(PyCore.get().getScriptOptionsConfig().getMinLoggingLevel(scriptName, PyCore.get().getConfig().scriptOptionMinLoggingLevel()));
         } else {
             this.mainScript = scriptPath.toString();
             this.enabled = PyCore.get().getConfig().scriptOptionEnabled();
