@@ -48,6 +48,7 @@ public class BungeeScriptOptionsConfig implements ScriptOptionsConfig {
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(PyBungee.get().getDataFolder(), "config.yml"));
         } catch (IOException e) {
             PyBungee.get().getLogger().log(Level.SEVERE, "There was an exception when loading the config file.", e);
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load("");
         }
     }
 
@@ -89,12 +90,18 @@ public class BungeeScriptOptionsConfig implements ScriptOptionsConfig {
         return scriptSection.getString("min-logging-level", defaultValue);
     }
 
+    /**
+     * No-op implementation
+     */
     @Override
     public String getPermissionDefault(String scriptName, String defaultValue) {
         //Plugin permissions are not implemented in BungeeCord
         return null;
     }
 
+    /**
+     * No-op implementation
+     */
     @Override
     public Map<String, Object> getPermissions(String scriptName, Map<String, Object> defaultValue) {
         //Plugin permissions are not implemented in BungeeCord
