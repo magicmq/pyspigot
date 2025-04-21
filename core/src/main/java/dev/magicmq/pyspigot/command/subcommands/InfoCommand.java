@@ -47,16 +47,16 @@ public class InfoCommand implements SubCommand {
             } else {
                 if (args[0].endsWith(".py")) {
                     Path scriptPath = ScriptManager.get().getScriptPath(args[0]);
-                    ScriptOptions options = ScriptManager.get().getScriptOptions(scriptPath);
-                    if (options != null) {
+                    if (scriptPath != null) {
+                        ScriptOptions options = ScriptManager.get().getScriptOptions(scriptPath);
                         String scriptInfo = ScriptManager.get().getScriptInfo().printOfflineScriptInfo(args[0], scriptPath, options);
                         sender.sendMessage(scriptInfo);
                     } else
                         sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
                 } else {
                     Path projectPath = ScriptManager.get().getProjectPath(args[0]);
-                    ScriptOptions options = ScriptManager.get().getScriptOptions(projectPath);
-                    if (options != null) {
+                    if (projectPath != null) {
+                        ScriptOptions options = ScriptManager.get().getProjectOptions(projectPath);
                         String projectInfo = ScriptManager.get().getScriptInfo().printOfflineScriptInfo(args[0], projectPath, options);
                         sender.sendMessage(projectInfo);
                     } else
