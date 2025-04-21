@@ -23,7 +23,6 @@ import dev.magicmq.pyspigot.bungee.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.bungee.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.bungee.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.bungee.manager.protocol.ProtocolManager;
-import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
@@ -94,7 +93,7 @@ public class BungeeScriptManager extends ScriptManager {
     }
 
     @Override
-    public ScriptOptions newProjectOptions(Path projectConfigPath) throws InvalidConfigurationException {
+    public ScriptOptions newProjectOptions(Path projectConfigPath) {
         return new ScriptOptions(new BungeeProjectOptionsConfig(projectConfigPath));
     }
 

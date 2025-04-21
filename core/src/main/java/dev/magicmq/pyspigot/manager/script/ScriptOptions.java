@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.config.ProjectOptionsConfig;
-import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -75,7 +74,7 @@ public class ScriptOptions {
      * Initialize a new ScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
      * @param config The project.yml file to parse that belongs to the project
      */
-    public ScriptOptions(ProjectOptionsConfig config) throws InvalidConfigurationException {
+    public ScriptOptions(ProjectOptionsConfig config) {
         this.mainScript = config.getMainScript(PyCore.get().getConfig().scriptOptionMainScript());
         this.enabled = config.getEnabled(PyCore.get().getConfig().scriptOptionEnabled());
         this.loadPriority = config.getLoadPriority(PyCore.get().getConfig().scriptOptionLoadPriority());

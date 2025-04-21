@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.bukkit.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bukkit.config.BukkitProjectOptionsConfig;
-import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -48,7 +47,7 @@ public class BukkitScriptOptions extends ScriptOptions {
      * Initialize a new BukkitScriptOptions for a single-file script, using the appropriate values in the script_options.yml file.
      * @param scriptPath The path of the script file whose script options should be initialized
      */
-    public BukkitScriptOptions(Path scriptPath) throws InvalidConfigurationException {
+    public BukkitScriptOptions(Path scriptPath) {
         super(scriptPath);
         String scriptName = scriptPath.getFileName().toString();
         if (PyCore.get().getScriptOptionsConfig().contains(scriptName)) {
@@ -64,7 +63,7 @@ public class BukkitScriptOptions extends ScriptOptions {
      * Initialize a new BukkitScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
      * @param config The project.yml file to parse that belongs to the project
      */
-    public BukkitScriptOptions(BukkitProjectOptionsConfig config) throws InvalidConfigurationException {
+    public BukkitScriptOptions(BukkitProjectOptionsConfig config) {
         super(config);
         this.permissionDefault = PermissionDefault.getByName(config.getPermissionDefault(PyCore.get().getConfig().scriptOptionPermissionDefault()));
         this.permissions = Permission.loadPermissions(config.getPermissions(PyCore.get().getConfig().scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);

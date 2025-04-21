@@ -24,7 +24,6 @@ import dev.magicmq.pyspigot.bukkit.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.bukkit.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
-import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
@@ -94,7 +93,7 @@ public class BukkitScriptManager extends ScriptManager {
     }
 
     @Override
-    public ScriptOptions newProjectOptions(Path projectConfigPath) throws InvalidConfigurationException {
+    public ScriptOptions newProjectOptions(Path projectConfigPath) {
         return new BukkitScriptOptions(new BukkitProjectOptionsConfig(projectConfigPath));
     }
 
