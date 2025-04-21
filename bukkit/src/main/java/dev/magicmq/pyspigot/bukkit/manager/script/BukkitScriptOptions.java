@@ -17,7 +17,7 @@
 package dev.magicmq.pyspigot.bukkit.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.config.ProjectOptionsConfig;
+import dev.magicmq.pyspigot.bukkit.config.BukkitProjectOptionsConfig;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
@@ -27,7 +27,6 @@ import org.bukkit.permissions.PermissionDefault;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * An extension of the base {@link ScriptOptions} class that includes Bukkit-specific code for parsing and registering script permissions.
@@ -66,7 +65,7 @@ public class BukkitScriptOptions extends ScriptOptions {
      * Initialize a new BukkitScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
      * @param config The project.yml file to parse that belongs to the project
      */
-    public BukkitScriptOptions(ProjectOptionsConfig config) throws InvalidConfigurationException {
+    public BukkitScriptOptions(BukkitProjectOptionsConfig config) throws InvalidConfigurationException {
         super(config);
         this.permissionDefault = PermissionDefault.getByName(config.getPermissionDefault(PyCore.get().getConfig().scriptOptionPermissionDefault()));
         this.permissions = Permission.loadPermissions(config.getPermissions(PyCore.get().getConfig().scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);

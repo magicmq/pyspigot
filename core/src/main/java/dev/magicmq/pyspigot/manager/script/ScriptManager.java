@@ -17,7 +17,6 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.config.ProjectOptionsConfig;
 import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
@@ -149,12 +148,12 @@ public abstract class ScriptManager {
     /**
      * Initialize a new ScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
      * <p>
-     * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions
-     * @param config The project.yml file to parse that belongs to the project
+     * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions and loading YAML configuration files is API-specific
+     * @param projectConfigPath The path of the project.yml file to parse that belongs to the project
      * @return The new ScriptOptions
      * @throws InvalidConfigurationException If there was an error when parsing the project's project.yml file
      */
-    public abstract ScriptOptions newScriptOptions(ProjectOptionsConfig config) throws InvalidConfigurationException;
+    public abstract ScriptOptions newProjectOptions(Path projectConfigPath) throws InvalidConfigurationException;
 
     /**
      * Initialize a new Script via a platform-specific implementation.
@@ -239,7 +238,7 @@ public abstract class ScriptManager {
             try {
                 if (project) {
                     Path projectConfigPath = entry.getValue().resolve("project.yml");
-                    options = newScriptOptions(new ProjectOptionsConfig(projectConfigPath));
+                    options = newProjectOptions(projectConfigPath);
                 } else
                     options = newScriptOptions(entry.getValue());
             } catch (InvalidConfigurationException e) {
@@ -297,7 +296,7 @@ public abstract class ScriptManager {
             if (Files.exists(projectConfigPath)) {
                 ScriptOptions options;
                 try {
-                    options = newScriptOptions(new ProjectOptionsConfig(projectConfigPath));
+                    options = newProjectOptions(projectConfigPath);
                 } catch (InvalidConfigurationException e) {
                     PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing project options for project '" + fileName + "', the default values will be used.", e);
                     options = newScriptOptions();
