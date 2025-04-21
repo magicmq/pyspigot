@@ -18,11 +18,13 @@ package dev.magicmq.pyspigot.bukkit.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bukkit.PySpigot;
+import dev.magicmq.pyspigot.bukkit.config.BukkitProjectOptionsConfig;
 import dev.magicmq.pyspigot.bukkit.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.bukkit.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.bukkit.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
+import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
@@ -87,13 +89,18 @@ public class BukkitScriptManager extends ScriptManager {
     }
 
     @Override
-    public ScriptOptions newScriptOptions(String scriptName) {
-        return new BukkitScriptOptions(scriptName);
+    public ScriptOptions newScriptOptions(Path scriptPath) {
+        return new BukkitScriptOptions(scriptPath);
     }
 
     @Override
-    public Script newScript(Path path, String name, ScriptOptions options) {
-        return new BukkitScript(path, name, (BukkitScriptOptions) options);
+    public ScriptOptions newProjectOptions(Path projectConfigPath) throws InvalidConfigurationException {
+        return new BukkitScriptOptions(new BukkitProjectOptionsConfig(projectConfigPath));
+    }
+
+    @Override
+    public Script newScript(Path path, String name, ScriptOptions options, boolean project) {
+        return new BukkitScript(path, name, (BukkitScriptOptions) options, project);
     }
 
     @Override

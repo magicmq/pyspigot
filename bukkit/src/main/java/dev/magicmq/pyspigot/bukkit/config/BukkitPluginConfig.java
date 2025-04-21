@@ -86,6 +86,10 @@ public class BukkitPluginConfig implements PluginConfig {
     }
 
     @Override
+    public String scriptOptionMainScript() {
+        return config.getString("script-option-defaults.main");
+    }
+
     public boolean scriptOptionEnabled() {
         return config.getBoolean("script-option-defaults.enabled");
     }

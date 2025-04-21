@@ -277,7 +277,7 @@ public class PyCore {
     }
 
     private void initFolders() {
-        String[] folders = new String[]{"java-libs", "python-libs", "scripts", "logs"};
+        String[] folders = new String[]{"java-libs", "python-libs", "scripts", "projects", "logs"};
         for (String folder : folders) {
             File file = new File(adapter.getDataFolder(), folder);
             if (!file.exists())

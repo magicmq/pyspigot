@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 import dev.magicmq.pyspigot.exception.ScriptExitException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
@@ -68,7 +69,9 @@ public abstract class ScriptManager {
 
     private final ScriptInfo scriptInfo;
     private final Path scriptsFolder;
-    private final LinkedHashMap<String, Script> scripts;
+    private final Path projectsFolder;
+    private final LinkedHashMap<Path, Script> scripts;
+    private final LinkedHashMap<String, Script> scriptNames;
 
     private boolean sysInitialized;
 
@@ -77,7 +80,9 @@ public abstract class ScriptManager {
 
         this.scriptInfo = scriptInfo;
         this.scriptsFolder = PyCore.get().getDataFolderPath().resolve("scripts");
+        this.projectsFolder = PyCore.get().getDataFolderPath().resolve("projects");
         this.scripts = new LinkedHashMap<>();
+        this.scriptNames = new LinkedHashMap<>();
 
         this.sysInitialized = false;
         if (PyCore.get().getConfig().loadJythonOnStartup()) {
@@ -137,22 +142,33 @@ public abstract class ScriptManager {
     public abstract ScriptOptions newScriptOptions();
 
     /**
-     * Initialize a new ScriptOptions using the appropriate values in the script_options.yml file, using the script name to search for the values.
+     * Initialize a new ScriptOptions for a single-file script, using the appropriate values in the script_options.yml file.
      * <p>
      * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions
-     * @param scriptName The name of the script whose script options should be initialized
+     * @param scriptPath The path of the script file whose script options should be initialized
      * @return The new ScriptOptions
      */
-    public abstract ScriptOptions newScriptOptions(String scriptName);
+    public abstract ScriptOptions newScriptOptions(Path scriptPath);
+
+    /**
+     * Initialize a new ScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
+     * <p>
+     * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions and loading YAML configuration files is API-specific
+     * @param projectConfigPath The path of the project.yml file to parse that belongs to the project
+     * @return The new ScriptOptions
+     * @throws InvalidConfigurationException If there was an error when parsing the project's project.yml file
+     */
+    public abstract ScriptOptions newProjectOptions(Path projectConfigPath) throws InvalidConfigurationException;
 
     /**
      * Initialize a new Script via a platform-specific implementation.
      * @param path The path that corresponds to the file where the script lives
      * @param name The name of this script. Should contain its extension (.py)
      * @param options The {@link ScriptOptions} for this script
+     * @param project True if the script is a multi-file project, false if it is a single-file script
      * @return The new script
      */
-    public abstract Script newScript(Path path, String name, ScriptOptions options);
+    public abstract Script newScript(Path path, String name, ScriptOptions options, boolean project);
 
     /**
      * Initialize script permissions via a platform-specific implementation.
@@ -219,45 +235,53 @@ public abstract class ScriptManager {
      * Loads and runs all scripts contained within the scripts folder. Called on plugin load (I.E. during server start). Loads in the appropriate load order (see {@link Script#compareTo(Script)}).
      */
     public void loadScripts() {
-        PyCore.get().getLogger().log(Level.INFO, "Loading scripts...");
+        PyCore.get().getLogger().log(Level.INFO, "Loading scripts/projects...");
+
+        SortedSet<Path> scriptPaths = getAllScriptPaths();
+        scriptPaths.addAll(getAllProjectPaths());
 
         //Init file names and paths, screen duplicate names
         HashMap<String, Path> scriptFiles = new HashMap<>();
-        for (Path path : getAllScriptPaths()) {
+        for (Path path : scriptPaths) {
             String fileName = path.getFileName().toString();
             Path existing = scriptFiles.putIfAbsent(fileName, path);
             if (existing != null)
-                PyCore.get().getLogger().log(Level.WARNING, "Duplicate script file name '" + fileName + "' with path '" + PyCore.get().getDataFolderPath().relativize(path) + "'. Conflicts with '" + PyCore.get().getDataFolderPath().relativize(existing) + "'.");
+                PyCore.get().getLogger().log(Level.WARNING, "Duplicate script/project '" + PyCore.get().getDataFolderPath().relativize(path) + "' conflicts with '" + PyCore.get().getDataFolderPath().relativize(existing) + "'.");
         }
 
         //Init scripts and parse options
         SortedSet<Script> toLoad = new TreeSet<>();
         for (Map.Entry<String, Path> entry : scriptFiles.entrySet()) {
-            ScriptOptions options = newScriptOptions(entry.getKey());
-            Script script = newScript(entry.getValue(), entry.getKey(), options);
+            boolean project = Files.isDirectory(entry.getValue());
+
+            ScriptOptions options;
+            try {
+                if (project) {
+                    Path projectConfigPath = entry.getValue().resolve("project.yml");
+                    options = newProjectOptions(projectConfigPath);
+                } else
+                    options = newScriptOptions(entry.getValue());
+            } catch (InvalidConfigurationException e) {
+                PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing script options for script/project '" + entry.getKey() + "', the default values will be used.", e);
+                options = newScriptOptions();
+            }
+            Script script = newScript(entry.getValue(), entry.getKey(), options, project);
             toLoad.add(script);
         }
 
         //Run scripts in order with respect to load priority
         for (Script script : toLoad) {
             try {
-                loadScript(script);
+                if (script.isProject())
+                    loadProject(script);
+                else
+                    loadScript(script);
             } catch (IOException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error when loading script '" + script.getName() + "': " + e.getMessage());
+                PyCore.get().getLogger().log(Level.SEVERE, "Error when loading script/project '" + script.getName() + "': " + e.getMessage());
             }
         }
 
-        PyCore.get().getLogger().log(Level.INFO, "Loaded " + scripts.size() + " script(s)!");
-    }
-
-    /**
-     * Get the {@link ScriptOptions} for a particular script from the script file name.
-     * @param name The name of the script to fetch options for. Name should contain the file extension (.py)
-     * @return A ScriptOptions object representing the options beloinging to the script, or null if no script file was found that matched the given name
-     */
-    public ScriptOptions getScriptOptions(String name) {
-        Path scriptPath = getScriptPath(name);
-        return getScriptOptions(scriptPath);
+        PyCore.get().getLogger().log(Level.INFO, "Loaded " + scripts.size() + " scripts/projects!");
     }
 
     /**
@@ -267,8 +291,31 @@ public abstract class ScriptManager {
      */
     public ScriptOptions getScriptOptions(Path path) {
         if (path != null) {
+            return newScriptOptions(path);
+        } else
+            return null;
+    }
+
+    /**
+     * Get the {@link ScriptOptions} for a particular project from the path pointing to the project folder.
+     * @param path The path pointing to the project folder to get script options for
+     * @return A ScriptOptions object representing the options beloinging to the project, or null if no project folder was found that matched the given path
+     */
+    public ScriptOptions getProjectOptions(Path path) {
+        if (path != null) {
             String fileName = path.getFileName().toString();
-            return newScriptOptions(fileName);
+            Path projectConfigPath = path.resolve("project.yml");
+            if (Files.exists(projectConfigPath)) {
+                ScriptOptions options;
+                try {
+                    options = newProjectOptions(projectConfigPath);
+                } catch (InvalidConfigurationException e) {
+                    PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing project options for project '" + fileName + "', the default values will be used.", e);
+                    options = newScriptOptions();
+                }
+                return options;
+            } else
+                return new ScriptOptions();
         } else
             return null;
     }
@@ -285,6 +332,17 @@ public abstract class ScriptManager {
     }
 
     /**
+     * Load a project with the given name.
+     * @param name The folder name of the project to load.
+     * @return A {@link RunResult} describing the outcome of the load operation
+     * @throws IOException If there was an IOException related to loading the project folder
+     */
+    public RunResult loadProject(String name) throws IOException {
+        Path projectPath = getProjectPath(name);
+        return loadProject(projectPath);
+    }
+
+    /**
      * Load a script with the given path.
      * @param path The absolute path pointing to the script file to load.
      * @return A {@link RunResult} describing the outcome of the load operation
@@ -294,9 +352,29 @@ public abstract class ScriptManager {
         if (path != null) {
             String fileName = path.getFileName().toString();
             ScriptOptions options = getScriptOptions(path);
-            Script script = newScript(path, fileName, options);
+            Script script = newScript(path, fileName, options, false);
 
             return loadScript(script);
+        } else
+            return RunResult.FAIL_SCRIPT_NOT_FOUND;
+    }
+
+    /**
+     * Load a project with the given path.
+     * @param path The absolute path pointing to the project folder to load.
+     * @return A {@link RunResult} describing the outcome of the load operation
+     * @throws IOException If there was an IOException related to loading the project folder
+     */
+    public RunResult loadProject(Path path) throws IOException {
+        if (path != null) {
+            String folderName = path.getFileName().toString();
+            ScriptOptions options = getProjectOptions(path);
+            Script script = newScript(path, folderName, options, true);
+
+            if (!Files.exists(script.getMainScriptPath()))
+                return RunResult.FAIL_NO_MAIN;
+
+            return loadProject(script);
         } else
             return RunResult.FAIL_SCRIPT_NOT_FOUND;
     }
@@ -308,9 +386,9 @@ public abstract class ScriptManager {
      * @throws IOException If there was an IOException related to loading the script file
      */
     public RunResult loadScript(Script script) throws IOException {
-        //Check if another script is already running with the same name
-        if (scripts.containsKey(script.getName())) {
-            PyCore.get().getLogger().log(Level.WARNING, "Attempted to load script '" + script.getName() + "', but there is already a loaded script with this name.");
+        //Check if another script/project is already running with the same name
+        if (scripts.containsKey(script.getPath())) {
+            PyCore.get().getLogger().log(Level.WARNING, "Attempted to load script '" + script.getName() + "', but there is another loaded script/project with this name.");
             return RunResult.FAIL_DUPLICATE;
         }
 
@@ -334,57 +412,67 @@ public abstract class ScriptManager {
         if (PyCore.get().getConfig().doScriptActionLogging())
             PyCore.get().getLogger().log(Level.INFO, "Loading script '" + script.getName() + "'");
 
-        scripts.put(script.getName(), script);
+        RunResult result = startScript(script);
 
-        script.prepare();
-        try (FileInputStream scriptFileReader = new FileInputStream(script.getFile())) {
-            initScriptPermissions(script);
-
-            script.getInterpreter().execfile(scriptFileReader, script.getName());
-
-            PyObject start = script.getInterpreter().get("start");
-            if (start instanceof PyFunction startFunction) {
-                Py.setSystemState(script.getInterpreter().getSystemState());
-                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                int args = ((PyBaseCode) startFunction.__code__).co_argcount;
-                if (args == 0)
-                    startFunction.__call__(threadState);
-                else
-                    startFunction.__call__(threadState, Py.java2py(script));
-            }
-
-            callScriptLoadEvent(script);
-
+        if (result == RunResult.SUCCESS) {
             if (PyCore.get().getConfig().doScriptActionLogging())
                 PyCore.get().getLogger().log(Level.INFO, "Loaded script '" + script.getName() + "'");
-
-            return RunResult.SUCCESS;
-        } catch (PySyntaxError | PyIndentationError e) {
-            handleScriptException(script, e, null);
-            script.getLogger().log(Level.SEVERE, "Script unloaded due to a syntax/indentation error.");
-            unloadScript(script, true);
-            return RunResult.FAIL_ERROR;
-        } catch (PyException e) {
-            if (e.match(Py.SystemExit)) {
-                String exitCode = getExitCode(e);
-                script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
-                unloadScript(script, false);
-                return RunResult.SUCCESS;
-            } else {
-                handleScriptException(script, e, null);
-                script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
-                unloadScript(script, true);
-                return RunResult.FAIL_ERROR;
-            }
-        } catch (IOException e) {
-            scripts.remove(script.getName());
-            script.close();
-            throw e;
         }
+
+        return result;
     }
 
     /**
-     * Unload all currently loaded scripts. Unloads in the reverse order that they were loaded (I.E. the opposite of the load order).
+     * Load the given project.
+     * @param script The script that should be loaded
+     * @return A {@link RunResult} describing the outcome of the load operation
+     * @throws IOException If there was an IOException related to loading the script file
+     */
+    public RunResult loadProject(Script script) throws IOException {
+        //Check if another script/project is already running with the same name
+        if (scripts.containsKey(script.getPath())) {
+            PyCore.get().getLogger().log(Level.WARNING, "Attempted to load project '" + script.getName() + "', but there is another loaded script/project with this name.");
+            return RunResult.FAIL_DUPLICATE;
+        }
+
+        //Check if the project is disabled as per its options in its project.yml
+        if (!script.getOptions().isEnabled()) {
+            return RunResult.FAIL_DISABLED;
+        }
+
+        //Check if the project's plugin depdendencies are all present on the server
+        List<String> unresolvedPluginDependencies = new ArrayList<>();
+        for (String dependency : script.getOptions().getPluginDependencies()) {
+            if (isPluginDependencyMissing(dependency)) {
+                unresolvedPluginDependencies.add(dependency);
+            }
+        }
+        if (!unresolvedPluginDependencies.isEmpty()) {
+            PyCore.get().getLogger().log(Level.WARNING,  "The following plugin dependencies for project '" + script.getName() + "' are missing: " + unresolvedPluginDependencies + ". This project will not be loaded.");
+            return RunResult.FAIL_PLUGIN_DEPENDENCY;
+        }
+
+        //Check if the project's main script exists
+        if (!Files.exists(script.getMainScriptPath())) {
+            PyCore.get().getLogger().log(Level.WARNING, "Attempted to load project '" + script.getName() + "', but the main script file '" + script.getMainScriptPath().toString() + "' was not found in the project folder.");
+            return RunResult.FAIL_NO_MAIN;
+        }
+
+        if (PyCore.get().getConfig().doScriptActionLogging())
+            PyCore.get().getLogger().log(Level.INFO, "Loading project '" + script.getName() + "'");
+
+        RunResult result = startScript(script);
+
+        if (result == RunResult.SUCCESS) {
+            if (PyCore.get().getConfig().doScriptActionLogging())
+                PyCore.get().getLogger().log(Level.INFO, "Loaded project '" + script.getName() + "'");
+        }
+
+        return result;
+    }
+
+    /**
+     * Unload all currently loaded scripts and projects. Unloads in the reverse order that they were loaded (I.E. the opposite of the load order).
      */
     public void unloadScripts() {
         List<Script> toUnload = new ArrayList<>(scripts.values());
@@ -393,36 +481,46 @@ public abstract class ScriptManager {
             callScriptUnloadEvent(script, false);
             stopScript(script, false);
 
-            if (PyCore.get().getConfig().doScriptActionLogging())
-                PyCore.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
+            if (PyCore.get().getConfig().doScriptActionLogging()) {
+                if (script.isProject())
+                    PyCore.get().getLogger().log(Level.INFO, "Unloaded project '" + script.getName() + "'");
+                else
+                    PyCore.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
+            }
         }
         scripts.clear();
+        scriptNames.clear();
     }
 
     /**
-     * Unload a script with the given name.
-     * @param name The name of the script to unload. Name should contain the script file extension (.py)
+     * Unload a script/project with the given name.
+     * @param name The name of the script/project to unload. Name should contain the script file extension (.py) if unloading a single-file script.
      * @return True if the script was successfully unloaded, false if otherwise
      */
     public boolean unloadScript(String name) {
-        return unloadScript(getScript(name), false);
+        return unloadScript(getScriptByName(name), false);
     }
 
     /**
-     * Unload a given script.
-     * @param script The script to unload
-     * @param error If the script unload was due to an error, pass true. Otherwise, pass false. This value will be passed on to a ScriptUnloadEvent
-     * @return True if the script was successfully unloaded, false if otherwise
+     * Unload a given script/project.
+     * @param script The script/project to unload
+     * @param error If the script/project unload was due to an error, pass true. Otherwise, pass false. This value will be passed on to a ScriptUnloadEvent
+     * @return True if the script/project was successfully unloaded, false if otherwise
      */
     public boolean unloadScript(Script script, boolean error) {
         callScriptUnloadEvent(script, error);
 
         boolean gracefulStop = stopScript(script, error);
 
-        scripts.remove(script.getName());
+        scripts.remove(script.getMainScriptPath());
+        scriptNames.remove(script.getName());
 
-        if (PyCore.get().getConfig().doScriptActionLogging())
-            PyCore.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
+        if (PyCore.get().getConfig().doScriptActionLogging()) {
+            if (script.isProject())
+                PyCore.get().getLogger().log(Level.INFO, "Unloaded project '" + script.getName() + "'");
+            else
+                PyCore.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
+        }
 
         return gracefulStop;
     }
@@ -465,7 +563,7 @@ public abstract class ScriptManager {
      * @return True if the script is running, false if otherwise
      */
     public boolean isScriptRunning(String name) {
-        return scripts.containsKey(name);
+        return scriptNames.containsKey(name);
     }
 
     /**
@@ -482,12 +580,34 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Get a {@link Script} object for a loaded and running script
+     * Attempts to resolve the absolute path for a project in the projects folder based on the project folder name.
+     * @param name The name of the project to search for
+     * @return The absolute path of the matching project folder, or null if no matching folder was found
+     */
+    public Path getProjectPath(String name) {
+        for (Path path : getAllProjectPaths()) {
+            if (path.getFileName().toString().equalsIgnoreCase(name))
+                return path;
+        }
+        return null;
+    }
+
+    /**
+     * Get a {@link Script} object for a loaded and running script.
+     * @param path The path of the script to get
+     * @return The Script object for the script, null if no script is loaded and running with the given path
+     */
+    public Script getScriptByPath(Path path) {
+        return scripts.get(path);
+    }
+
+    /**
+     * Get a {@link Script} object for a loaded and running script.
      * @param name The name of the script to get. Name should contain the script file extension (.py)
      * @return The Script object for the script, null if no script is loaded and running with the given name
      */
-    public Script getScript(String name) {
-        return scripts.get(name);
+    public Script getScriptByName(String name) {
+        return scriptNames.get(name);
     }
 
     /**
@@ -503,7 +623,7 @@ public abstract class ScriptManager {
      * @return An immutable list containing the names of all loaded and running scripts
      */
     public Set<String> getLoadedScriptNames() {
-        return new HashSet<>(scripts.keySet());
+        return new HashSet<>(scriptNames.keySet());
     }
 
     /**
@@ -523,6 +643,23 @@ public abstract class ScriptManager {
             }
         }
         return scripts;
+    }
+
+    /**
+     * Get a set of absolute paths corresponding to all script projects in the projects folder.
+     * @return An immutable {@link java.util.SortedSet} of Paths representing the absolute paths of all project folders
+     */
+    public SortedSet<Path> getAllProjectPaths() {
+        SortedSet<Path> projects = new TreeSet<>();
+
+        if (Files.exists(projectsFolder) && Files.isDirectory(projectsFolder)) {
+            try (Stream<Path> stream = Files.list(projectsFolder)) {
+                projects.addAll(stream.filter(Files::isDirectory).toList());
+            } catch (IOException e) {
+                PyCore.get().getLogger().log(Level.SEVERE, "Error fetching project folders", e);
+            }
+        }
+        return projects;
     }
 
     /**
@@ -551,6 +688,55 @@ public abstract class ScriptManager {
      */
     public ScriptInfo getScriptInfo() {
         return scriptInfo;
+    }
+
+    private RunResult startScript(Script script) throws IOException {
+        scripts.put(script.getMainScriptPath(), script);
+        scriptNames.put(script.getName(), script);
+
+        script.prepare();
+        try (FileInputStream scriptFileReader = new FileInputStream(script.getMainScriptPath().toFile())) {
+            initScriptPermissions(script);
+
+            script.getInterpreter().execfile(scriptFileReader, script.getMainScriptPath().toString());
+
+            PyObject start = script.getInterpreter().get("start");
+            if (start instanceof PyFunction startFunction) {
+                Py.setSystemState(script.getInterpreter().getSystemState());
+                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
+                int args = ((PyBaseCode) startFunction.__code__).co_argcount;
+                if (args == 0)
+                    startFunction.__call__(threadState);
+                else
+                    startFunction.__call__(threadState, Py.java2py(script));
+            }
+
+            callScriptLoadEvent(script);
+
+            return RunResult.SUCCESS;
+        } catch (PySyntaxError | PyIndentationError e) {
+            handleScriptException(script, e, null);
+            script.getLogger().log(Level.SEVERE, "Script unloaded due to a syntax/indentation error.");
+            unloadScript(script, true);
+            return RunResult.FAIL_ERROR;
+        } catch (PyException e) {
+            if (e.match(Py.SystemExit)) {
+                String exitCode = getExitCode(e);
+                script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
+                unloadScript(script, false);
+                return RunResult.SUCCESS;
+            } else {
+                handleScriptException(script, e, null);
+                script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
+                unloadScript(script, true);
+                return RunResult.FAIL_ERROR;
+            }
+        } catch (IOException e) {
+            scripts.remove(script.getMainScriptPath());
+            scriptNames.remove(script.getName());
+            script.close();
+            throw e;
+        }
     }
 
     private boolean stopScript(Script script, boolean error) {

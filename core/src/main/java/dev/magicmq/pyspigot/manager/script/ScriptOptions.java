@@ -17,7 +17,10 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.config.ProjectOptionsConfig;
+import dev.magicmq.pyspigot.exception.InvalidConfigurationException;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -26,6 +29,7 @@ import java.util.logging.Level;
  */
 public class ScriptOptions {
 
+    private final String mainScript;
     private final boolean enabled;
     private final int loadPriority;
     private final List<String> pluginDepend;
@@ -36,6 +40,7 @@ public class ScriptOptions {
      * Initialize a new ScriptOptions with the default values.
      */
     public ScriptOptions() {
+        this.mainScript = PyCore.get().getConfig().scriptOptionMainScript();
         this.enabled = PyCore.get().getConfig().scriptOptionEnabled();
         this.loadPriority = PyCore.get().getConfig().scriptOptionLoadPriority();
         this.pluginDepend = PyCore.get().getConfig().scriptOptionPluginDepend();
@@ -44,23 +49,47 @@ public class ScriptOptions {
     }
 
     /**
-     * Initialize a new ScriptOptions using the appropriate values in the script_options.yml file, using the script name to search for the values.
-     * @param scriptName The name of the script whose script options should be initialized
+     * Initialize a new ScriptOptions for a single-file script, using the appropriate values in the script_options.yml file.
+     * @param scriptPath The path of the script file whose script options should be initialized
      */
-    public ScriptOptions(String scriptName) {
+    public ScriptOptions(Path scriptPath) {
+        String scriptName = scriptPath.getFileName().toString();
         if (PyCore.get().getScriptOptionsConfig().contains(scriptName)) {
+            this.mainScript = scriptPath.toString();
             this.enabled = PyCore.get().getScriptOptionsConfig().getEnabled(scriptName, PyCore.get().getConfig().scriptOptionEnabled());
             this.loadPriority = PyCore.get().getScriptOptionsConfig().getLoadPriority(scriptName, PyCore.get().getConfig().scriptOptionLoadPriority());
             this.pluginDepend = PyCore.get().getScriptOptionsConfig().getPluginDepend(scriptName, PyCore.get().getConfig().scriptOptionPluginDepend());
             this.fileLoggingEnabled = PyCore.get().getScriptOptionsConfig().getFileLoggingEnabled(scriptName, PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
             this.minLoggingLevel = Level.parse(PyCore.get().getScriptOptionsConfig().getMinLoggingLevel(scriptName, PyCore.get().getConfig().scriptOptionMinLoggingLevel()));
         } else {
+            this.mainScript = scriptPath.toString();
             this.enabled = PyCore.get().getConfig().scriptOptionEnabled();
             this.loadPriority = PyCore.get().getConfig().scriptOptionLoadPriority();
             this.pluginDepend = PyCore.get().getConfig().scriptOptionPluginDepend();
             this.fileLoggingEnabled = PyCore.get().getConfig().scriptOptionFileLoggingEnabled();
             this.minLoggingLevel = Level.parse(PyCore.get().getConfig().scriptOptionMinLoggingLevel());
         }
+    }
+
+    /**
+     * Initialize a new ScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
+     * @param config The project.yml file to parse that belongs to the project
+     */
+    public ScriptOptions(ProjectOptionsConfig config) throws InvalidConfigurationException {
+        this.mainScript = config.getMainScript(PyCore.get().getConfig().scriptOptionMainScript());
+        this.enabled = config.getEnabled(PyCore.get().getConfig().scriptOptionEnabled());
+        this.loadPriority = config.getLoadPriority(PyCore.get().getConfig().scriptOptionLoadPriority());
+        this.pluginDepend = config.getPluginDepend(PyCore.get().getConfig().scriptOptionPluginDepend());
+        this.fileLoggingEnabled = config.getFileLoggingEnabled(PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
+        this.minLoggingLevel = Level.parse(config.getMinLoggingLevel(PyCore.get().getConfig().scriptOptionMinLoggingLevel()));
+    }
+
+    /**
+     * Get the main script file for this project.
+     * @return The main script file for this project
+     */
+    public String getMainScript() {
+        return mainScript;
     }
 
     /**

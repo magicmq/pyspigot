@@ -22,19 +22,22 @@ import dev.magicmq.pyspigot.util.logging.PrintStreamWrapper;
 import dev.magicmq.pyspigot.util.logging.ScriptLogger;
 import org.python.util.PythonInterpreter;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.logging.Level;
 
 /**
- * An object that represents a loaded script. Because this object is instantiated some time before the script is actually executed (in order to fetch its options and order scripts to load according to dependencies), there may be a brief time when this object represents a loaded <i>but not running </i> script. To check if this script object represents a running script, call {@link ScriptManager#isScriptRunning(String)}.
+ * An object that represents a loaded script or project. Because this object is instantiated some time before the script/project is actually executed (in order to fetch its options and order scripts to load according to dependencies), there may be a brief time when this object represents a loaded <i>but not running </i> script/project. To check if this script object represents a running script/project, call {@link ScriptManager#isScriptRunning(String)}.
+ * <p>
+ * Note that although most of the documentation of this class uses the word "script", this object encapsulates both single-file scripts and multi-file projects. "Script" and "Project" are interchangeable in this context.
  */
 public class Script implements Comparable<Script> {
 
     private final Path path;
+    private final Path mainScriptPath;
     private final String name;
     private final ScriptOptions options;
+    private final boolean project;
 
     private PythonInterpreter interpreter;
     private ScriptLogger logger;
@@ -42,18 +45,28 @@ public class Script implements Comparable<Script> {
 
     /**
      *
-     * @param path The path that corresponds to the file where the script lives
-     * @param name The name of this script. Should contain its extension (.py)
-     * @param options The {@link ScriptOptions} for this script
+     * @param path The path that corresponds to the file/folder where the script or project lives
+     * @param name The name of this script/project. If this is a single-file script, the name should contain the extension (.py)
+     * @param options The {@link ScriptOptions} for this script/project
+     * @param project True if this script is a multi-file project, false if it is a single-file script
      */
-    public Script(Path path, String name, ScriptOptions options) {
+    public Script(Path path, String name, ScriptOptions options, boolean project) {
         this.path = path;
+        if (project)
+            this.mainScriptPath = path.resolve(options.getMainScript());
+        else
+            this.mainScriptPath = path;
         this.name = name;
         this.options = options;
+        this.project = project;
     }
 
     protected void prepare() {
-        this.interpreter = new PythonInterpreter(null, ScriptUtils.initPySystemState());
+        if (project)
+            this.interpreter = new PythonInterpreter(null, ScriptUtils.initPySystemState(path));
+        else
+            this.interpreter = new PythonInterpreter(null, ScriptUtils.initPySystemState(null));
+
         this.interpreter.setOut(new PrintStreamWrapper(System.out, this, Level.INFO, "[STDOUT]"));
         this.interpreter.setErr(new PrintStreamWrapper(System.err, this, Level.SEVERE, "[STDERR]"));
 
@@ -82,19 +95,19 @@ public class Script implements Comparable<Script> {
     }
 
     /**
-     * Get the File associated with this script.
-     * @return The File associated with this script
-     */
-    public File getFile() {
-        return path.toFile();
-    }
-
-    /**
-     * Get the path corresponding to the script file.
+     * Get the path corresponding to the script file, or folder (if it is a multi-file project).
      * @return The path
      */
     public Path getPath() {
         return path;
+    }
+
+    /**
+     * Get the main script file path. For a single-file script, this will return the same value as {@link #getPath()}. For a multi-file project, this will return the Path resolved to the main script as defined in the project's project.yml file.
+     * @return The main script file path for this script
+     */
+    public Path getMainScriptPath() {
+        return mainScriptPath;
     }
 
     /**
@@ -110,7 +123,10 @@ public class Script implements Comparable<Script> {
      * @return The simple name associated with this script. Will contain only the file name, without the extension (.py)
      */
     public String getSimpleName() {
-        return name.substring(0, name.length() - 3);
+        if (project)
+            return name;
+        else
+            return name.substring(0, name.length() - 3);
     }
 
     /**
@@ -122,6 +138,14 @@ public class Script implements Comparable<Script> {
     }
 
     /**
+     * Get if this Script object represents a multi-file project or a single-file script.
+     * @return True if this Script is a multi-file project, false if it is not
+     */
+    public boolean isProject() {
+        return project;
+    }
+
+    /**
      * Get the {@link org.python.util.PythonInterpreter} associated wtih this script.
      * @return The {@link org.python.util.PythonInterpreter} associated with this script
      */
@@ -130,7 +154,7 @@ public class Script implements Comparable<Script> {
     }
 
     /**
-     * Get this scripts logger.
+     * Get this script's logger.
      * @return This script's logger
      * @see ScriptLogger
      */
@@ -147,7 +171,7 @@ public class Script implements Comparable<Script> {
     }
 
     /**
-     * Get the millisecond duration that this script has been loaded
+     * Get the millisecond duration that this script has been loaded.
      * @return The duration that the script has been loaded
      */
     public long getUptime() {
