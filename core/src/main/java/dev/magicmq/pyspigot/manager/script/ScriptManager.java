@@ -315,7 +315,7 @@ public abstract class ScriptManager {
                 }
                 return options;
             } else
-                return new ScriptOptions();
+                return newScriptOptions();
         } else
             return null;
     }
