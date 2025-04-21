@@ -303,7 +303,7 @@ public abstract class ScriptManager {
                 }
                 return options;
             } else
-                return null;
+                return new ScriptOptions();
         } else
             return null;
     }
