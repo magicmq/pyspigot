@@ -100,7 +100,6 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
 
     @Override
     public void initPlatformManagers() {
-        BukkitScriptManager.get();
         BukkitListenerManager.get();
         BukkitCommandManager.get();
         BukkitTaskManager.get();
@@ -110,6 +109,8 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
             ProtocolManager.get();
         if (isPlaceholderApiAvailable())
             PlaceholderManager.get();
+
+        BukkitScriptManager.get();
     }
 
     @Override

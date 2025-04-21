@@ -93,8 +93,8 @@ public class PyCore {
         adapter.initListeners();
 
         LibraryManager.get();
-        adapter.initPlatformManagers();
         initCommonManagers();
+        adapter.initPlatformManagers();
 
         if (config.getMetricsEnabled())
             adapter.setupMetrics();
