@@ -31,6 +31,7 @@ import org.python.core.PyBaseCode;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyIndentationError;
+import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PySyntaxError;
 import org.python.core.PySystemState;
@@ -170,6 +171,15 @@ public abstract class ScriptManager {
      * @param script The script to unregister
      */
     public abstract void unregisterFromPlatformManagers(Script script);
+
+    /**
+     * Unloads the script on the main thread by scheduling the unload operation with a platform-specific scheduler.
+     * <p>
+     * Used in conjunction with {@link #handleScriptException(Script, PyException, String)} to ensure if sys.exit is called from an asynchronous context, the script is unloaded synchronously.
+     * @param script The script to unload
+     * @param error If the script unload was due to an error, pass true. Otherwise, pass false
+     */
+    public abstract void unloadScriptOnMainThread(Script script, boolean error);
 
     /**
      * Initialize Jython. Will only initialize once; subsequent calls to this method have no effect.
@@ -355,10 +365,17 @@ public abstract class ScriptManager {
             unloadScript(script, true);
             return RunResult.FAIL_ERROR;
         } catch (PyException e) {
-            handleScriptException(script, e, null);
-            script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
-            unloadScript(script, true);
-            return RunResult.FAIL_ERROR;
+            if (e.match(Py.SystemExit)) {
+                String exitCode = getExitCode(e);
+                script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
+                unloadScript(script, false);
+                return RunResult.SUCCESS;
+            } else {
+                handleScriptException(script, e, null);
+                script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
+                unloadScript(script, true);
+                return RunResult.FAIL_ERROR;
+            }
         } catch (IOException e) {
             scripts.remove(script.getName());
             script.close();
@@ -433,7 +450,9 @@ public abstract class ScriptManager {
 
                 script.getLogger().log(Level.SEVERE, toLog);
             } catch (ScriptExitException ignored) {
-                unloadScript(script, false);
+                String exitCode = getExitCode(exception);
+                script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
+                unloadScriptOnMainThread(script, false);
             } catch (InvocationTargetException | IllegalAccessException e) {
                 script.getLogger().log(Level.SEVERE, "Error when attempting to handle script exception", e);
             }
@@ -567,6 +586,24 @@ public abstract class ScriptManager {
         script.close();
 
         return gracefulStop;
+    }
+
+    private String getExitCode(PyException exception) {
+        PyObject value = exception.value;
+
+        if (PyException.isExceptionInstance(exception.value)) {
+            value = value.__findattr__("code");
+        }
+
+        String exitStatus;
+        if (value instanceof PyInteger) {
+            exitStatus = "" + value.asInt();
+        } else if (value != Py.None) {
+            exitStatus = value.toString();
+        } else {
+            exitStatus = "" + 0;
+        }
+        return exitStatus;
     }
 
     /**

@@ -112,6 +112,12 @@ public class BungeeScriptManager extends ScriptManager {
             ProtocolManager.get().unregisterPacketListeners(script);
     }
 
+    @Override
+    public void unloadScriptOnMainThread(Script script, boolean error) {
+        //No "main thread" on BungeeCord
+        unloadScript(script, error);
+    }
+
     /**
      * Get the singleton instance of this BungeeScriptManager.
      * @return The instance

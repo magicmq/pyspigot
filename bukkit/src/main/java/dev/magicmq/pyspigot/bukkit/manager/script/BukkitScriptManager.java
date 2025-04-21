@@ -118,6 +118,14 @@ public class BukkitScriptManager extends ScriptManager {
         }
     }
 
+    @Override
+    public void unloadScriptOnMainThread(Script script, boolean error) {
+        if (!Bukkit.isPrimaryThread())
+            Bukkit.getScheduler().runTask(PySpigot.get(), () -> unloadScript(script, error));
+        else
+            unloadScript(script, error);
+    }
+
     /**
      * Get the singleton instance of this BukkitScriptManager.
      * @return The instance
