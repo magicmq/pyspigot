@@ -283,10 +283,7 @@ public abstract class ScriptManager {
      * @return A ScriptOptions object representing the options beloinging to the script, or null if no script file was found that matched the given path
      */
     public ScriptOptions getScriptOptions(Path path) {
-        if (path != null) {
-            return newScriptOptions(path);
-        } else
-            return null;
+        return newScriptOptions(path);
     }
 
     /**
@@ -295,14 +292,11 @@ public abstract class ScriptManager {
      * @return A ScriptOptions object representing the options beloinging to the project, or null if no project folder was found that matched the given path
      */
     public ScriptOptions getProjectOptions(Path path) {
-        if (path != null) {
-            Path projectConfigPath = path.resolve("project.yml");
-            if (Files.exists(projectConfigPath)) {
-                return newProjectOptions(projectConfigPath);
-            } else
-                return newScriptOptions();
+        Path projectConfigPath = path.resolve("project.yml");
+        if (Files.exists(projectConfigPath)) {
+            return newProjectOptions(projectConfigPath);
         } else
-            return null;
+            return newScriptOptions();
     }
 
     /**
@@ -313,7 +307,10 @@ public abstract class ScriptManager {
      */
     public RunResult loadScript(String name) throws IOException {
         Path scriptPath = getScriptPath(name);
-        return loadScript(scriptPath);
+        if (scriptPath != null)
+            return loadScript(scriptPath);
+        else
+            return RunResult.FAIL_SCRIPT_NOT_FOUND;
     }
 
     /**
@@ -324,7 +321,10 @@ public abstract class ScriptManager {
      */
     public RunResult loadProject(String name) throws IOException {
         Path projectPath = getProjectPath(name);
-        return loadProject(projectPath);
+        if (projectPath != null)
+            return loadProject(projectPath);
+        else
+            return RunResult.FAIL_SCRIPT_NOT_FOUND;
     }
 
     /**
@@ -334,14 +334,11 @@ public abstract class ScriptManager {
      * @throws IOException If there was an IOException related to loading the script file
      */
     public RunResult loadScript(Path path) throws IOException {
-        if (path != null) {
-            String fileName = path.getFileName().toString();
-            ScriptOptions options = getScriptOptions(path);
-            Script script = newScript(path, fileName, options, false);
+        String fileName = path.getFileName().toString();
+        ScriptOptions options = getScriptOptions(path);
+        Script script = newScript(path, fileName, options, false);
 
-            return loadScript(script);
-        } else
-            return RunResult.FAIL_SCRIPT_NOT_FOUND;
+        return loadScript(script);
     }
 
     /**
@@ -351,17 +348,14 @@ public abstract class ScriptManager {
      * @throws IOException If there was an IOException related to loading the project folder
      */
     public RunResult loadProject(Path path) throws IOException {
-        if (path != null) {
-            String folderName = path.getFileName().toString();
-            ScriptOptions options = getProjectOptions(path);
-            Script script = newScript(path, folderName, options, true);
+        String folderName = path.getFileName().toString();
+        ScriptOptions options = getProjectOptions(path);
+        Script script = newScript(path, folderName, options, true);
 
-            if (!Files.exists(script.getMainScriptPath()))
-                return RunResult.FAIL_NO_MAIN;
+        if (!Files.exists(script.getMainScriptPath()))
+            return RunResult.FAIL_NO_MAIN;
 
-            return loadProject(script);
-        } else
-            return RunResult.FAIL_SCRIPT_NOT_FOUND;
+        return loadProject(script);
     }
 
     /**
