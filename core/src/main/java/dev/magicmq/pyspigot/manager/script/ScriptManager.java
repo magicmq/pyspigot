@@ -135,26 +135,20 @@ public abstract class ScriptManager {
     protected abstract void callScriptUnloadEvent(Script script, boolean error);
 
     /**
-     * Initialize a new ScriptOptions with the default values.
-     * <p>
-     * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions
+     * Initialize a new ScriptOptions with the default values via a platform-specific implementation.
      * @return The new ScriptOptions
      */
     protected abstract ScriptOptions newScriptOptions();
 
     /**
-     * Initialize a new ScriptOptions for a single-file script, using the appropriate values in the script_options.yml file.
-     * <p>
-     * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions
+     * Initialize a new ScriptOptions for a single-file script via a platform-specific implementation, using the appropriate values in the script_options.yml file.
      * @param scriptPath The path of the script file whose script options should be initialized
      * @return The new ScriptOptions
      */
     protected abstract ScriptOptions newScriptOptions(Path scriptPath);
 
     /**
-     * Initialize a new ScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
-     * <p>
-     * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions and loading YAML configuration files is API-specific
+     * Initialize a new ScriptOptions for a multi-file project via a platform-specific implementation, using the appropriate values in the project's project.yml file.
      * @param projectConfigPath The path of the project.yml file to parse that belongs to the project
      * @return The new ScriptOptions
      */
