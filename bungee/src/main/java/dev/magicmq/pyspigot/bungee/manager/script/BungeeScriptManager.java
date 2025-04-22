@@ -47,79 +47,79 @@ public class BungeeScriptManager extends ScriptManager {
     }
 
     @Override
-    public void scheduleStartScriptTask() {
+    protected void scheduleStartScriptTask() {
         startScriptTask = ProxyServer.getInstance().getScheduler().schedule(PyBungee.get(), this::loadScripts, PyCore.get().getConfig().getScriptLoadDelay() * 50L, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public void cancelStartScriptTask() {
+    protected void cancelStartScriptTask() {
         if (startScriptTask != null) {
             startScriptTask.cancel();
         }
     }
 
     @Override
-    public boolean isPluginDependencyMissing(String dependency) {
+    protected boolean isPluginDependencyMissing(String dependency) {
         return ProxyServer.getInstance().getPluginManager().getPlugin(dependency) == null;
     }
 
     @Override
-    public boolean callScriptExceptionEvent(Script script, PyException exception) {
+    protected boolean callScriptExceptionEvent(Script script, PyException exception) {
         ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception);
         ProxyServer.getInstance().getPluginManager().callEvent(event);
         return event.doReportException();
     }
 
     @Override
-    public void callScriptLoadEvent(Script script) {
+    protected void callScriptLoadEvent(Script script) {
         ScriptLoadEvent event = new ScriptLoadEvent(script);
         ProxyServer.getInstance().getPluginManager().callEvent(event);
     }
 
     @Override
-    public void callScriptUnloadEvent(Script script, boolean error) {
+    protected void callScriptUnloadEvent(Script script, boolean error) {
         ScriptUnloadEvent event = new ScriptUnloadEvent(script, error);
         ProxyServer.getInstance().getPluginManager().callEvent(event);
     }
 
     @Override
-    public ScriptOptions newScriptOptions() {
+    protected ScriptOptions newScriptOptions() {
         return new ScriptOptions();
     }
 
     @Override
-    public ScriptOptions newScriptOptions(Path scriptPath) {
+    protected ScriptOptions newScriptOptions(Path scriptPath) {
         return new ScriptOptions(scriptPath);
     }
 
     @Override
-    public ScriptOptions newProjectOptions(Path projectConfigPath) {
+    protected ScriptOptions newProjectOptions(Path projectConfigPath) {
         return new ScriptOptions(new BungeeProjectOptionsConfig(projectConfigPath));
     }
 
     @Override
-    public Script newScript(Path path, String name, ScriptOptions options, boolean project) {
+    protected Script newScript(Path path, String name, ScriptOptions options, boolean project) {
         return new Script(path, name, options, project);
     }
 
     @Override
-    public void initScriptPermissions(Script script) {
+    protected void initScriptPermissions(Script script) {
         //Plugin permissions are not implemented in BungeeCord
     }
 
     @Override
-    public void removeScriptPermissions(Script script) {
+    protected void removeScriptPermissions(Script script) {
         //Plugin permissions are not implemented in BungeeCord
     }
 
     @Override
-    public void unregisterFromPlatformManagers(Script script) {
+    protected void unregisterFromPlatformManagers(Script script) {
         if (PyBungee.get().isProtocolizeAvailable())
             ProtocolManager.get().unregisterPacketListeners(script);
     }
 
     @Override
-    public void unloadScriptOnMainThread(Script script, boolean error) {
+    protected void unloadScriptOnMainThread(Script script, boolean error) {
         //No "main thread" on BungeeCord
         unloadScript(script, error);
     }

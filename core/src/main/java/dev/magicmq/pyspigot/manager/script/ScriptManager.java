@@ -97,19 +97,19 @@ public abstract class ScriptManager {
     /**
      * Schedules and starts the start script task for the script load delay via a platform-specific implementation.
      */
-    public abstract void scheduleStartScriptTask();
+    protected abstract void scheduleStartScriptTask();
 
     /**
      * Cancels the start script task via a platform-specific implementation.
      */
-    public abstract void cancelStartScriptTask();
+    protected abstract void cancelStartScriptTask();
 
     /**
      * Checks if a script plugin dependency is missing via a platform-specific implementation.
      * @param dependency The name of the dependency to check
      * @return True if the dependency is missing, false if it is present
      */
-    public abstract boolean isPluginDependencyMissing(String dependency);
+    protected abstract boolean isPluginDependencyMissing(String dependency);
 
     /**
      * Calls a ScriptExceptionEvent via a platform-specific implementation.
@@ -117,20 +117,20 @@ public abstract class ScriptManager {
      * @param exception The exception that was thrown
      * @return True if the exception should be reported, false if otherwise
      */
-    public abstract boolean callScriptExceptionEvent(Script script, PyException exception);
+    protected abstract boolean callScriptExceptionEvent(Script script, PyException exception);
 
     /**
      * Calls a ScriptLoadEvent via a platform-specific implementation.
      * @param script The script that was loaded
      */
-    public abstract void callScriptLoadEvent(Script script);
+    protected abstract void callScriptLoadEvent(Script script);
 
     /**
      * Calls a ScriptUnloadEvent via a platform-specific implementation.
      * @param script The script that was unloaded
      * @param error True if the unload was due to an error, false if it was not
      */
-    public abstract void callScriptUnloadEvent(Script script, boolean error);
+    protected abstract void callScriptUnloadEvent(Script script, boolean error);
 
     /**
      * Initialize a new ScriptOptions with the default values.
@@ -138,7 +138,7 @@ public abstract class ScriptManager {
      * This is done in a platform-specific implementation, as initializing script options for Bukkit initializes permissions
      * @return The new ScriptOptions
      */
-    public abstract ScriptOptions newScriptOptions();
+    protected abstract ScriptOptions newScriptOptions();
 
     /**
      * Initialize a new ScriptOptions for a single-file script, using the appropriate values in the script_options.yml file.
@@ -147,7 +147,7 @@ public abstract class ScriptManager {
      * @param scriptPath The path of the script file whose script options should be initialized
      * @return The new ScriptOptions
      */
-    public abstract ScriptOptions newScriptOptions(Path scriptPath);
+    protected abstract ScriptOptions newScriptOptions(Path scriptPath);
 
     /**
      * Initialize a new ScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
@@ -156,7 +156,7 @@ public abstract class ScriptManager {
      * @param projectConfigPath The path of the project.yml file to parse that belongs to the project
      * @return The new ScriptOptions
      */
-    public abstract ScriptOptions newProjectOptions(Path projectConfigPath);
+    protected abstract ScriptOptions newProjectOptions(Path projectConfigPath);
 
     /**
      * Initialize a new Script via a platform-specific implementation.
@@ -166,25 +166,25 @@ public abstract class ScriptManager {
      * @param project True if the script is a multi-file project, false if it is a single-file script
      * @return The new script
      */
-    public abstract Script newScript(Path path, String name, ScriptOptions options, boolean project);
+    protected abstract Script newScript(Path path, String name, ScriptOptions options, boolean project);
 
     /**
      * Initialize script permissions via a platform-specific implementation.
      * @param script The script whose permissions should be initialized
      */
-    public abstract void initScriptPermissions(Script script);
+    protected abstract void initScriptPermissions(Script script);
 
     /**
      * Remove script permissions from the server via a platform-specific implementation.
      * @param script The script whose permissions should be removed
      */
-    public abstract void removeScriptPermissions(Script script);
+    protected abstract void removeScriptPermissions(Script script);
 
     /**
      * Unregisters the script from any platform-specific managers.
      * @param script The script to unregister
      */
-    public abstract void unregisterFromPlatformManagers(Script script);
+    protected abstract void unregisterFromPlatformManagers(Script script);
 
     /**
      * Unloads the script on the main thread by scheduling the unload operation with a platform-specific scheduler.
@@ -193,7 +193,7 @@ public abstract class ScriptManager {
      * @param script The script to unload
      * @param error If the script unload was due to an error, pass true. Otherwise, pass false
      */
-    public abstract void unloadScriptOnMainThread(Script script, boolean error);
+    protected abstract void unloadScriptOnMainThread(Script script, boolean error);
 
     /**
      * Initialize Jython. Will only initialize once; subsequent calls to this method have no effect.

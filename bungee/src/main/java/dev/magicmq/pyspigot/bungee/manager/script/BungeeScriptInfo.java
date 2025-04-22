@@ -32,7 +32,7 @@ import java.util.List;
 public class BungeeScriptInfo extends ScriptInfo {
 
     @Override
-    public void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
+    protected void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
         if (PyBungee.get().isProtocolizeAvailable()) {
             List<ScriptPacketListener<?>> registeredPacketListeners = ProtocolManager.get().getPacketListeners(script);
             List<String> packetTypes = new ArrayList<>();

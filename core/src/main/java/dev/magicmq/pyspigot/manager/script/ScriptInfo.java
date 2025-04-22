@@ -43,7 +43,7 @@ public abstract class ScriptInfo {
      * @param script The script whose information should be printed
      * @param appendTo The info StringBuilder that platform-specific manager info should be appended to
      */
-    public abstract void printPlatformManagerInfo(Script script, StringBuilder appendTo);
+    protected abstract void printPlatformManagerInfo(Script script, StringBuilder appendTo);
 
     /**
      * Print a script's info (for the /pyspigot info command).

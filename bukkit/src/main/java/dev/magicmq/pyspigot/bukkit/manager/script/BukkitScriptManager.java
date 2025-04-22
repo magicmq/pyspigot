@@ -47,73 +47,73 @@ public class BukkitScriptManager extends ScriptManager {
     }
 
     @Override
-    public void scheduleStartScriptTask() {
+    protected void scheduleStartScriptTask() {
         startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get(), this::loadScripts, PyCore.get().getConfig().getScriptLoadDelay());
     }
 
     @Override
-    public void cancelStartScriptTask() {
+    protected void cancelStartScriptTask() {
         if (startScriptTask != null) {
             startScriptTask.cancel();
         }
     }
 
     @Override
-    public boolean isPluginDependencyMissing(String dependency) {
+    protected boolean isPluginDependencyMissing(String dependency) {
         return Bukkit.getPluginManager().getPlugin(dependency) == null;
     }
 
     @Override
-    public boolean callScriptExceptionEvent(Script script, PyException exception) {
+    protected boolean callScriptExceptionEvent(Script script, PyException exception) {
         ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception, !Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
         return event.doReportException();
     }
 
     @Override
-    public void callScriptLoadEvent(Script script) {
+    protected void callScriptLoadEvent(Script script) {
         ScriptLoadEvent event = new ScriptLoadEvent(script);
         Bukkit.getPluginManager().callEvent(event);
     }
 
     @Override
-    public void callScriptUnloadEvent(Script script, boolean error) {
+    protected void callScriptUnloadEvent(Script script, boolean error) {
         ScriptUnloadEvent event = new ScriptUnloadEvent(script, error);
         Bukkit.getPluginManager().callEvent(event);
     }
 
     @Override
-    public ScriptOptions newScriptOptions() {
+    protected ScriptOptions newScriptOptions() {
         return new BukkitScriptOptions();
     }
 
     @Override
-    public ScriptOptions newScriptOptions(Path scriptPath) {
+    protected ScriptOptions newScriptOptions(Path scriptPath) {
         return new BukkitScriptOptions(scriptPath);
     }
 
     @Override
-    public ScriptOptions newProjectOptions(Path projectConfigPath) {
+    protected ScriptOptions newProjectOptions(Path projectConfigPath) {
         return new BukkitScriptOptions(new BukkitProjectOptionsConfig(projectConfigPath));
     }
 
     @Override
-    public Script newScript(Path path, String name, ScriptOptions options, boolean project) {
+    protected Script newScript(Path path, String name, ScriptOptions options, boolean project) {
         return new BukkitScript(path, name, (BukkitScriptOptions) options, project);
     }
 
     @Override
-    public void initScriptPermissions(Script script) {
+    protected void initScriptPermissions(Script script) {
         ((BukkitScript) script).initPermissions();
     }
 
     @Override
-    public void removeScriptPermissions(Script script) {
+    protected void removeScriptPermissions(Script script) {
         ((BukkitScript) script).removePermissions();
     }
 
     @Override
-    public void unregisterFromPlatformManagers(Script script) {
+    protected void unregisterFromPlatformManagers(Script script) {
         if (PySpigot.get().isProtocolLibAvailable()) {
             ProtocolManager.get().unregisterPacketListeners(script);
             ProtocolManager.get().async().unregisterAsyncPacketListeners(script);
@@ -125,7 +125,7 @@ public class BukkitScriptManager extends ScriptManager {
     }
 
     @Override
-    public void unloadScriptOnMainThread(Script script, boolean error) {
+    protected void unloadScriptOnMainThread(Script script, boolean error) {
         if (!Bukkit.isPrimaryThread())
             Bukkit.getScheduler().runTask(PySpigot.get(), () -> unloadScript(script, error));
         else

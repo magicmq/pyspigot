@@ -34,7 +34,7 @@ import java.util.List;
 public class BukkitScriptInfo extends ScriptInfo {
 
     @Override
-    public void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
+    protected void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
         if (PySpigot.get().isPlaceholderApiAvailable()) {
             ScriptPlaceholder placeholder = PlaceholderManager.get().getPlaceholder(script);
             if (placeholder != null)
