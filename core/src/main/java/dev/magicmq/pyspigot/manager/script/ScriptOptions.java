@@ -137,6 +137,6 @@ public class ScriptOptions {
      */
     @Override
     public String toString() {
-        return String.format("ScriptOptions[Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
+        return String.format("ScriptOptions[Main: %s, Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", mainScript, enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
     }
 }
