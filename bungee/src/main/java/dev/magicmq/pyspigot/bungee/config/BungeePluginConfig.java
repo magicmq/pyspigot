@@ -133,11 +133,6 @@ public class BungeePluginConfig implements PluginConfig {
     }
 
     @Override
-    public boolean shouldPrintStackTraces() {
-        return config.getBoolean("debug-options.print-stack-traces");
-    }
-
-    @Override
     public boolean shouldShowUpdateMessages() {
         return config.getBoolean("debug-options.show-update-messages");
     }

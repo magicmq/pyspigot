@@ -56,8 +56,6 @@ public interface PluginConfig {
 
     Map<String, Object> scriptOptionPermissions();
 
-    boolean shouldPrintStackTraces();
-
     boolean shouldShowUpdateMessages();
 
     String jythonLoggingLevel();
