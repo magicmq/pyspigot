@@ -2,6 +2,7 @@
 [![Latest Snapshot](https://img.shields.io/badge/dynamic/xml?color=orange&label=Latest%20Snapshot&query=%2F%2Fmetadata%2Fversioning%2Fversions%2Fversion%5Blast()%5D&url=https%3A%2F%2Frepo.magicmq.dev%2Frepository%2Fmaven-snapshots%2Fdev%2Fmagicmq%2Fpyspigot%2Fmaven-metadata.xml)](https://repo.magicmq.dev/#browse/browse:maven-snapshots:dev%2Fmagicmq%2Fpyspigot)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/magicmq/PySpigot/maven.yml?branch=master)
 ![Apache 2.0 License](https://img.shields.io/github/license/magicmq/PySpigot)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9130219fc4f145d8a8dd12a4de96eb05)](https://app.codacy.com/gh/magicmq/pyspigot/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 # PySpigot
 PySpigot is a [Spigot/Bukkit](https://www.spigotmc.org/) plugin that can load, compile, and run Python scripts. These scripts can make use of Java standard libraries, as well as the Bukkit/Spigot API and APIs of any other loaded plugins.
