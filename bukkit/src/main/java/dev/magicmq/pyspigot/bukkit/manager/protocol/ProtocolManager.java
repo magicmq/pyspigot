@@ -20,6 +20,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.Location;
@@ -108,7 +109,7 @@ public class ProtocolManager {
             }
             return listener;
         } else
-            throw new RuntimeException("Script already has a packet listener for '" + type.name() + "' registered");
+            throw new ScriptRuntimeException(script, "Script already has a packet listener for '" + type.name() + "' registered");
     }
 
     /**

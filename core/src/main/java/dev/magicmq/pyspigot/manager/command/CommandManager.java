@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.manager.command;
 
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.core.PyFunction;
@@ -227,7 +228,7 @@ public abstract class CommandManager {
             addCommand(script, newCommand);
             return newCommand;
         } else
-            throw new RuntimeException("Command '" + name + "' is already registered");
+            throw new ScriptRuntimeException(script, "Command '" + name + "' is already registered");
     }
 
     /**

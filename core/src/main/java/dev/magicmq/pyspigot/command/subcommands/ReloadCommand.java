@@ -18,12 +18,12 @@ package dev.magicmq.pyspigot.command.subcommands;
 
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
+import dev.magicmq.pyspigot.exception.ScriptInitializationException;
 import dev.magicmq.pyspigot.manager.script.RunResult;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class ReloadCommand implements SubCommand {
                         sender.sendMessage(ChatColor.RED + "There was an error when reloading script '" + args[0] + "'. See console for details.");
                     else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
                         sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
-                } catch (IOException e) {
+                } catch (ScriptInitializationException e) {
                     e.printStackTrace();
                     sender.sendMessage(ChatColor.RED + "There was an error when reloading script '" + args[0] + "'. See console for details.");
                 }
@@ -78,7 +78,7 @@ public class ReloadCommand implements SubCommand {
                         sender.sendMessage(ChatColor.RED + "There was an error when reloading project '" + args[0] + "'. See console for details.");
                     else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
                         sender.sendMessage(ChatColor.RED + "No project found in the projects folder with the name '" + args[0] + "'.");
-                } catch (IOException e) {
+                } catch (ScriptInitializationException e) {
                     e.printStackTrace();
                     sender.sendMessage(ChatColor.RED + "There was an error when reloading project '" + args[0] + "'. See console for details.");
                 }

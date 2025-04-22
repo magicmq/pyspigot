@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot.util;
 
 import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.exception.ScriptExitException;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.script.Script;
@@ -51,7 +52,7 @@ public final class ScriptUtils {
             exceptionToString = Py.class.getDeclaredMethod("exceptionToString", PyObject.class, PyObject.class, PyObject.class);
             exceptionToString.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new PluginInitializationException("Error when initializing script exception handler", e);
         }
     }
 
@@ -100,13 +101,14 @@ public final class ScriptUtils {
      * Also uses reflection to call the {@code exceptionToString} method in the {@link org.python.core.Py} class to fetch and return a string representation of the throwable (including traceback and/or stack trace) for logging purposes.
      * <p>
      * If the {@code python.options.showJavaExceptions} property is {@code true}, then this method will print the Java stack trace to the script's stderr in addition to handling the exception and returning the exception string.
+     * @param script The script that threw or is associated with the exception
      * @param throwable The exception that was thrown
      * @return A String representing the exception, including a traceback and/or stack trace
      * @throws ScriptExitException If the caught exception is a {@link org.python.core.Py#SystemExit}
      * @throws InvocationTargetException If there was an error when accessing the {@code exceptionToString} method in the {@link org.python.core.Py} class (via reflection)
      * @throws IllegalAccessException If there was an error when accessing the {@code exceptionToString} method in the {@link org.python.core.Py} class (via reflection)
      */
-    public static synchronized String handleException(Throwable throwable) throws ScriptExitException, InvocationTargetException, IllegalAccessException {
+    public static synchronized String handleException(Script script, Throwable throwable) throws ScriptExitException, InvocationTargetException, IllegalAccessException {
         StdoutWrapper stderr = Py.stderr;
 
         if (Options.showJavaExceptions) {
@@ -123,7 +125,7 @@ public final class ScriptUtils {
         PyException exception = Py.JavaError(throwable);
 
         if (exception.match(Py.SystemExit))
-            throw new ScriptExitException();
+            throw new ScriptExitException(script);
 
         //Sets ThreadState.exception
         Py.setException(exception, null);

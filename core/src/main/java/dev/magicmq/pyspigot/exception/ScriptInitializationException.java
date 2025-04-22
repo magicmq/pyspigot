@@ -18,27 +18,33 @@ package dev.magicmq.pyspigot.exception;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 
-/**
- * Thrown if a {@link org.python.core.Py#SystemExit} is handled in {@link dev.magicmq.pyspigot.util.ScriptUtils#handleException(Script, Throwable)}.
- * <p>
- * Used to signal to the ScriptManager that the script should be unloaded.
- */
-@SuppressWarnings("serial")
-public class ScriptExitException extends Exception {
+import java.io.Serial;
 
+/**
+ * Thrown if an exception occurs when loading or running a script.
+ * <p>
+ * This is a wrapper class for checked exceptions such as {@link java.io.IOException}.
+ */
+public class ScriptInitializationException extends Exception {
+
+    @Serial
+    private static final long serialVersionUID = 3601572161262479369L;
     private final Script script;
 
     /**
      *
-     * @param script The script that exited
+     * @param script The script that was being loaded
+     * @param message The detail message
+     * @param cause The cause
      */
-    public ScriptExitException(Script script) {
+    public ScriptInitializationException(Script script, String message, Throwable cause) {
+        super(message, cause);
         this.script = script;
     }
 
     /**
-     * Get the script that exited.
-     * @return The script that exited
+     * Get the script that was being loaded.
+     * @return The script that was being loaded
      */
     public Script getScript() {
         return script;

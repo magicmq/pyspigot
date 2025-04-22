@@ -87,7 +87,7 @@ public class LibraryManager {
             else
                 return LoadResult.FAILED_FILE;
         } catch (Throwable throwable) {
-            PyCore.get().getLogger().log(Level.SEVERE, "Unable to load library '" + libName + "'!", throwable);
+            PyCore.get().getLogger().log(Level.SEVERE, "Unable to load library '" + libName + "'", throwable);
             return LoadResult.FAILED_ERROR;
         }
     }

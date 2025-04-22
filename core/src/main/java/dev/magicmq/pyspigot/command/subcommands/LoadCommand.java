@@ -16,16 +16,18 @@
 
 package dev.magicmq.pyspigot.command.subcommands;
 
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
+import dev.magicmq.pyspigot.exception.ScriptInitializationException;
 import dev.magicmq.pyspigot.manager.script.RunResult;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.md_5.bungee.api.ChatColor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 @SubCommandMeta(
         command = "load",
@@ -53,8 +55,8 @@ public class LoadCommand implements SubCommand {
                             sender.sendMessage(ChatColor.RED + "There was an error when running script '" + args[0] + "'. See console for details.");
                         else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
                             sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (ScriptInitializationException e) {
+                        PyCore.get().getLogger().log(Level.SEVERE, "Error when loading script '" + args[0] + "'", e);
                         sender.sendMessage(ChatColor.RED + "There was an error when loading script '" + args[0] + "'. See console for details.");
                     }
                 } else {
@@ -76,8 +78,8 @@ public class LoadCommand implements SubCommand {
                             sender.sendMessage(ChatColor.RED + "There was an error when running project '" + args[0] + "'. See console for details.");
                         else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
                             sender.sendMessage(ChatColor.RED + "No project found in the projects folder with the name '" + args[0] + "'.");
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (ScriptInitializationException e) {
+                        PyCore.get().getLogger().log(Level.SEVERE, "Error when loading project '" + args[0] + "'", e);
                         sender.sendMessage(ChatColor.RED + "There was an error when loading project '" + args[0] + "'. See console for details.");
                     }
                 } else {

@@ -16,7 +16,10 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.config;
 
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.config.ScriptConfig;
+import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -64,7 +67,8 @@ public class BukkitScriptConfig extends YamlConfiguration implements ScriptConfi
                 this.setDefaults(defaultConfig);
             }
         } catch (InvalidConfigurationException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            Script script = ScriptUtils.getScriptFromCallStack();
+            throw new ScriptRuntimeException(script, "Unhandled exception when loading configuration '" + configFile.getName() + "'", e);
         }
     }
 

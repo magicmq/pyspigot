@@ -29,6 +29,7 @@ import dev.magicmq.pyspigot.bungee.manager.script.BungeeScriptManager;
 import dev.magicmq.pyspigot.bungee.manager.task.BungeeTaskManager;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -61,20 +62,14 @@ public class PyBungee extends Plugin implements PlatformAdapter {
     public void onEnable() {
         instance = this;
 
-        boolean reflectionPassed;
         try {
             checkReflection();
-            reflectionPassed = true;
         } catch (NoSuchMethodException | NoSuchFieldException e) {
-            getLogger().log(Level.SEVERE, "Error when accessing BungeeCord via reflection (Are you on a supported version?), PyBungee will not work correctly.");
-            reflectionPassed = false;
-
+            throw new PluginInitializationException("Error when accessing BungeeCord via reflection, PyBungee will not be initialized.", e);
         }
 
-        if (reflectionPassed) {
-            PyCore.newInstance(this);
-            PyCore.get().init();
-        }
+        PyCore.newInstance(this);
+        PyCore.get().init();
     }
 
     @Override

@@ -52,18 +52,14 @@ public class JarClassLoader extends URLClassLoader {
      * @param file The Jar file to check
      * @return True if the Jar file is already in the classpath, false if otherwise
      */
-    public boolean isJarInClassPath(Path file) {
-        try {
-            URL jarURL = file.toUri().toURL();
-            URL[] loaded = getURLs();
-            for (URL url : loaded) {
-                if (url.equals(jarURL))
-                    return true;
-            }
-            return false;
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+    public boolean isJarInClassPath(Path file) throws MalformedURLException {
+        URL jarURL = file.toUri().toURL();
+        URL[] loaded = getURLs();
+        for (URL url : loaded) {
+            if (url.equals(jarURL))
+                return true;
         }
+        return false;
     }
 }
 

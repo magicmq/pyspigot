@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.manager.task;
 
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.python.core.Py;
@@ -24,8 +25,6 @@ import org.python.core.PyFunction;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.ThreadState;
-
-import java.util.logging.Level;
 
 /**
  * Represents an async task with a synchronous callback defined by a script.
@@ -71,8 +70,7 @@ public class SyncCallbackTask extends Task {
                 try {
                     this.wait();
                 } catch (InterruptedException e) {
-                    script.getLogger().log(Level.SEVERE, "Async thread was interrupted in callback task!");
-                    e.printStackTrace();
+                    throw new ScriptRuntimeException(script, "Async thread was interrupted in callback task", e);
                 }
             }
         } catch (PyException e) {

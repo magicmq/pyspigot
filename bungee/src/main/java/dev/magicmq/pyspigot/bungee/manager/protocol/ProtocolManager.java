@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bungee.manager.protocol;
 
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.simplix.protocolize.api.Direction;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Manager to interface with Protocolize. Primarily used by scripts to register and unregister packet listeners on the BungeeCord proxy.
@@ -79,7 +81,7 @@ public class ProtocolManager {
             Protocolize.listenerProvider().registerListener(listener);
             return listener;
         } else
-            throw new RuntimeException("Script already has a packet listener for '" + packet.getSimpleName() + "' registered");
+            throw new ScriptRuntimeException(script, "Script already has a packet listener for '" + packet.getSimpleName() + "' registered");
     }
 
     /**
@@ -135,29 +137,35 @@ public class ProtocolManager {
 
     /**
      * Send a Protocolize packet to the player with the given UUID.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param playerUUID The UUID of the player to send the packet to
      * @param packet The packet to send
      */
     public void sendPacket(UUID playerUUID, AbstractPacket packet) {
+        Script script = ScriptUtils.getScriptFromCallStack();
         ProtocolizePlayer player = Protocolize.playerProvider().player(playerUUID);
         if (player != null) {
             player.sendPacket(packet);
         } else {
-            throw new RuntimeException("No online player found with the UUID '" + playerUUID.toString() + "'");
+            script.getLogger().log(Level.WARNING, "Attempted to send a packet, but no player is online with the provided UUID");
         }
     }
 
     /**
      * Send a generic BungeeCord packet to the player with the given UUID.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param playerUUID The UUID of the player to send the packet to
      * @param packet The packet to send
      */
     public void sendPacket(UUID playerUUID, DefinedPacket packet) {
+        Script script = ScriptUtils.getScriptFromCallStack();
         ProtocolizePlayer player = Protocolize.playerProvider().player(playerUUID);
         if (player != null) {
             player.sendPacket(packet);
         } else {
-            throw new RuntimeException("No online player found with the UUID '" + playerUUID.toString() + "'");
+            script.getLogger().log(Level.WARNING, "Attempted to send a packet, but no player is online with the provided UUID");
         }
     }
 

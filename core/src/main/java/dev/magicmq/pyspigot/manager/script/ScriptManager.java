@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.exception.ScriptExitException;
+import dev.magicmq.pyspigot.exception.ScriptInitializationException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
@@ -94,6 +95,10 @@ public abstract class ScriptManager {
             scheduleStartScriptTask();
         else
             loadScripts();
+    }
+
+    public void testThrow() {
+        throw new RuntimeException("Test exception was thrown");
     }
 
     /**
@@ -265,8 +270,8 @@ public abstract class ScriptManager {
                     loadProject(script);
                 else
                     loadScript(script);
-            } catch (IOException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error when loading script/project '" + script.getName() + "': " + e.getMessage());
+            } catch (ScriptInitializationException e) {
+                PyCore.get().getLogger().log(Level.SEVERE, "Error when loading script/project '" + script.getName() + "'", e);
             }
         }
 
@@ -299,9 +304,9 @@ public abstract class ScriptManager {
      * Load a script with the given name.
      * @param name The file name of the script to load. Name should contain the file extension (.py)
      * @return A {@link RunResult} describing the outcome of the load operation
-     * @throws IOException If there was an IOException related to loading the script file
+     * @throws ScriptInitializationException If there was an error when initializing the script
      */
-    public RunResult loadScript(String name) throws IOException {
+    public RunResult loadScript(String name) throws ScriptInitializationException {
         Path scriptPath = getScriptPath(name);
         if (scriptPath != null)
             return loadScript(scriptPath);
@@ -313,9 +318,9 @@ public abstract class ScriptManager {
      * Load a project with the given name.
      * @param name The folder name of the project to load.
      * @return A {@link RunResult} describing the outcome of the load operation
-     * @throws IOException If there was an IOException related to loading the project folder
+     * @throws ScriptInitializationException If there was an error when initializing the project
      */
-    public RunResult loadProject(String name) throws IOException {
+    public RunResult loadProject(String name) throws ScriptInitializationException {
         Path projectPath = getProjectPath(name);
         if (projectPath != null)
             return loadProject(projectPath);
@@ -327,9 +332,9 @@ public abstract class ScriptManager {
      * Load a script with the given path.
      * @param path The absolute path pointing to the script file to load.
      * @return A {@link RunResult} describing the outcome of the load operation
-     * @throws IOException If there was an IOException related to loading the script file
+     * @throws ScriptInitializationException If there was an error when initializing the script
      */
-    public RunResult loadScript(Path path) throws IOException {
+    public RunResult loadScript(Path path) throws ScriptInitializationException {
         String fileName = path.getFileName().toString();
         ScriptOptions options = getScriptOptions(path);
         Script script = newScript(path, fileName, options, false);
@@ -341,9 +346,9 @@ public abstract class ScriptManager {
      * Load a project with the given path.
      * @param path The absolute path pointing to the project folder to load.
      * @return A {@link RunResult} describing the outcome of the load operation
-     * @throws IOException If there was an IOException related to loading the project folder
+     * @throws ScriptInitializationException If there was an error when initializing the project
      */
-    public RunResult loadProject(Path path) throws IOException {
+    public RunResult loadProject(Path path) throws ScriptInitializationException {
         String folderName = path.getFileName().toString();
         ScriptOptions options = getProjectOptions(path);
         Script script = newScript(path, folderName, options, true);
@@ -358,9 +363,9 @@ public abstract class ScriptManager {
      * Load the given script.
      * @param script The script that should be loaded
      * @return A {@link RunResult} describing the outcome of the load operation
-     * @throws IOException If there was an IOException related to loading the script file
+     * @throws ScriptInitializationException If there was an error when initializing the script
      */
-    public RunResult loadScript(Script script) throws IOException {
+    public RunResult loadScript(Script script) throws ScriptInitializationException {
         //Check if another script/project is already running with the same name
         if (scripts.containsKey(script.getPath())) {
             PyCore.get().getLogger().log(Level.WARNING, "Attempted to load script '" + script.getName() + "', but there is another loaded script/project with this name.");
@@ -401,9 +406,9 @@ public abstract class ScriptManager {
      * Load the given project.
      * @param script The script that should be loaded
      * @return A {@link RunResult} describing the outcome of the load operation
-     * @throws IOException If there was an IOException related to loading the script file
+     * @throws ScriptInitializationException If there was an error when initializing the script
      */
-    public RunResult loadProject(Script script) throws IOException {
+    public RunResult loadProject(Script script) throws ScriptInitializationException {
         //Check if another script/project is already running with the same name
         if (scripts.containsKey(script.getPath())) {
             PyCore.get().getLogger().log(Level.WARNING, "Attempted to load project '" + script.getName() + "', but there is another loaded script/project with this name.");
@@ -521,7 +526,7 @@ public abstract class ScriptManager {
                     toLog += message;
                 }
 
-                toLog += ScriptUtils.handleException(exception);
+                toLog += ScriptUtils.handleException(script, exception);
 
                 script.getLogger().log(Level.SEVERE, toLog);
             } catch (ScriptExitException ignored) {
@@ -678,11 +683,17 @@ public abstract class ScriptManager {
         return scriptInfo;
     }
 
-    private RunResult startScript(Script script) throws IOException {
+    private RunResult startScript(Script script) throws ScriptInitializationException {
         scripts.put(script.getMainScriptPath(), script);
         scriptNames.put(script.getName(), script);
 
-        script.prepare();
+        try {
+            script.prepare();
+        } catch (ScriptInitializationException e) {
+            scripts.remove(script.getMainScriptPath(), script);
+            scriptNames.remove(script.getName(), script);
+            throw e;
+        }
 
         script.getModules().forEach(module -> moduleMap.put(module, script.getMainScriptPath()));
 
@@ -727,7 +738,7 @@ public abstract class ScriptManager {
             scriptNames.remove(script.getName());
             script.getModules().forEach(moduleMap::remove);
             script.close();
-            throw e;
+            throw new ScriptInitializationException(script, "Error when loading script file", e);
         }
     }
 

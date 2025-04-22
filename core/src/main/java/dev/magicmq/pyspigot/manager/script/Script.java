@@ -16,7 +16,7 @@
 
 package dev.magicmq.pyspigot.manager.script;
 
-import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.exception.ScriptInitializationException;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.magicmq.pyspigot.util.logging.PrintStreamWrapper;
 import dev.magicmq.pyspigot.util.logging.ScriptLogger;
@@ -68,7 +68,7 @@ public class Script implements Comparable<Script> {
         this.modules = new HashSet<>();
     }
 
-    protected void prepare() {
+    protected void prepare() throws ScriptInitializationException {
         if (project)
             this.interpreter = new PythonInterpreter(null, ScriptUtils.initPySystemState(path));
         else
@@ -83,7 +83,8 @@ public class Script implements Comparable<Script> {
             try {
                 this.logger.initFileHandler();
             } catch (IOException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing log file for script " + name, e);
+                this.interpreter.close();
+                throw new ScriptInitializationException(this, "Error when initializing log file", e);
             }
         }
         interpreter.set("logger", logger);
@@ -95,7 +96,9 @@ public class Script implements Comparable<Script> {
                         .filter(path -> path.toString().endsWith(".py"))
                         .collect(Collectors.toSet()));
             } catch (IOException e) {
-                this.logger.log(Level.SEVERE, "Error when fetching project modules", e);
+                this.interpreter.close();
+                this.logger.closeFileHandler();
+                throw new ScriptInitializationException(this, "Error when fetching project modules", e);
             }
         } else
             this.modules.add(mainScriptPath);

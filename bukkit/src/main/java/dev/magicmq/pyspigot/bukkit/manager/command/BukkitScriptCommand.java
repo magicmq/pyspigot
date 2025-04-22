@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.bukkit.manager.command;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.bukkit.util.CommandAliasHelpTopic;
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
@@ -95,7 +96,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
             this.bukkitCommand = bukkitCommand;
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             //This should not happen, reflection checks done on plugin enable
-            throw new RuntimeException("Unhandled exception when initializing command '" + name + "'", e);
+            throw new ScriptRuntimeException(script, "Unhandled exception when initializing command '" + name + "'", e);
         }
     }
 
@@ -109,7 +110,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
             if (result instanceof PyBoolean)
                 return ((PyBoolean) result).getBooleanValue();
             else
-                script.getLogger().log(Level.WARNING, "Script command function '" + commandFunction.__name__ + "' should return a boolean!");
+                script.getLogger().log(Level.WARNING, "Script command function '" + commandFunction.__name__ + "' should return a boolean");
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + label + "'");
             //Mimic Bukkit behavior
@@ -132,7 +133,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
                         if (object instanceof String)
                             toReturn.add((String) object);
                         else {
-                            script.getLogger().log(Level.WARNING, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str!");
+                            script.getLogger().log(Level.WARNING, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str");
                             return Collections.emptyList();
                         }
                     }
@@ -192,7 +193,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
                 topics.set(aliases, aliasTopics);
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 //This should not happen, reflection checks done on plugin enable
-                throw new RuntimeException("Unhandled exception when initializing command '" + name + "'", e);
+                throw new ScriptRuntimeException(script, "Unhandled exception when initializing command '" + name + "'", e);
             }
         }
     }
@@ -210,7 +211,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
                 topics.set(aliases, aliasTopics);
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 //This should not happen, reflection checks done on plugin enable
-                throw new RuntimeException("Unhandled exception when unregistering command '" + name + "'", e);
+                throw new ScriptRuntimeException(script, "Unhandled exception when unregistering command '" + name + "'", e);
             }
         }
     }

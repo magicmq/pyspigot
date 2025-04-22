@@ -3,6 +3,7 @@ package dev.magicmq.pyspigot.manager.database;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.zaxxer.hikari.HikariConfig;
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.database.mongo.MongoDatabase;
 import dev.magicmq.pyspigot.manager.database.sql.SqlDatabase;
 import dev.magicmq.pyspigot.manager.script.Script;
@@ -118,7 +119,7 @@ public class DatabaseManager {
             addConnection(connection);
             return connection;
         } else
-            throw new RuntimeException("Failed to open a connection to the SQL database.");
+            throw new ScriptRuntimeException(script, "Failed to open a connection to the SQL database");
     }
 
     /**
@@ -212,7 +213,7 @@ public class DatabaseManager {
             addConnection(connection);
             return connection;
         } else
-            throw new RuntimeException("Failed to open a connection to the Mongo database.");
+            throw new ScriptRuntimeException(script, "Failed to open a connection to the Mongo database");
     }
 
     /**

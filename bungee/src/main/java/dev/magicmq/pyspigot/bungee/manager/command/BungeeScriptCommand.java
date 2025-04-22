@@ -98,7 +98,7 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
                         if (object instanceof String)
                             toReturn.add((String) object);
                         else {
-                            script.getLogger().log(Level.WARNING, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str!");
+                            script.getLogger().log(Level.WARNING, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str");
                             return Collections.emptyList();
                         }
                     }

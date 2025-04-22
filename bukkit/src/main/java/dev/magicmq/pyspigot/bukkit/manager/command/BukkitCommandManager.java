@@ -16,8 +16,9 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.command;
 
-import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bukkit.util.ReflectionUtils;
+import dev.magicmq.pyspigot.exception.PluginInitializationException;
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
@@ -56,7 +57,7 @@ public class BukkitCommandManager extends CommandManager {
             bKnownCommands = getKnownCommands(bCommandMap);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             //This should not happen, reflection checks done on plugin enable
-            PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing command manager:", e);
+            throw new PluginInitializationException("Error when initializing command manager, commands will not work correctly.", e);
         }
     }
 
@@ -65,7 +66,11 @@ public class BukkitCommandManager extends CommandManager {
         BukkitScriptCommand newCommand = new BukkitScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
         if (!addCommandToBukkit(newCommand))
             script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");
-        syncBukkitCommands();
+        try {
+            syncBukkitCommands();
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new ScriptRuntimeException(script, "Unhandled exception when syncing commands via Bukkit", e);
+        }
         newCommand.initHelp();
         return newCommand;
     }
@@ -74,7 +79,11 @@ public class BukkitCommandManager extends CommandManager {
     protected void unregisterCommandImpl(ScriptCommand command) {
         removeCommandFromBukkit((BukkitScriptCommand) command);
         ((BukkitScriptCommand) command).removeHelp();
-        syncBukkitCommands();
+        try {
+            syncBukkitCommands();
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new ScriptRuntimeException(command.getScript(), "Unhandled exception when syncing commands via Bukkit", e);
+        }
     }
 
     @Override
@@ -83,7 +92,11 @@ public class BukkitCommandManager extends CommandManager {
             removeCommandFromBukkit((BukkitScriptCommand) command);
             ((BukkitScriptCommand) command).removeHelp();
         }
-        syncBukkitCommands();
+        try {
+            syncBukkitCommands();
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Error when syncing commands via Bukkit", e);
+        }
     }
 
     private boolean addCommandToBukkit(BukkitScriptCommand command) {
@@ -97,14 +110,9 @@ public class BukkitCommandManager extends CommandManager {
             bKnownCommands.remove(alias);
     }
 
-    private void syncBukkitCommands() {
+    private void syncBukkitCommands() throws IllegalAccessException, InvocationTargetException {
         if (bSyncCommands != null) {
-            try {
-                bSyncCommands.invoke(Bukkit.getServer());
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                //This should not happen
-                throw new RuntimeException("Unhandled exception when syncing commands", e);
-            }
+            bSyncCommands.invoke(Bukkit.getServer());
         }
     }
 

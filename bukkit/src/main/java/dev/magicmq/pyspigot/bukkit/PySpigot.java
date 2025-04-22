@@ -30,6 +30,7 @@ import dev.magicmq.pyspigot.bukkit.manager.script.BukkitScriptManager;
 import dev.magicmq.pyspigot.bukkit.manager.task.BukkitTaskManager;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -43,7 +44,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Level;
 
 /**
  * Entry point of PySpigot for Bukkit servers.
@@ -62,8 +62,7 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
         try {
             checkReflection();
         } catch (NoSuchMethodException | NoSuchFieldException e) {
-            getLogger().log(Level.SEVERE, "Error when accessing CraftBukkit (Are you running a supported version?), PySpigot will not work correctly.");
-            Bukkit.getPluginManager().disablePlugin(this);
+            throw new PluginInitializationException("Error when accessing Bukkit via reflection, PySpigot will not be initialized.", e);
         }
 
         PyCore.newInstance(this);

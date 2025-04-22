@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.python.core.PyFunction;
@@ -100,7 +101,7 @@ public class PlaceholderManager {
             registeredPlaceholders.put(script, placeholder);
             return placeholder;
         } else
-            throw new RuntimeException("Script already has a placeholder expansion registered");
+            throw new ScriptRuntimeException(script, "Script already has a placeholder expansion registered");
     }
 
     /**

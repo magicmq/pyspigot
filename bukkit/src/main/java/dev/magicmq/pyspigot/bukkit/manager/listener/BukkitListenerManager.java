@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot.bukkit.manager.listener;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
@@ -24,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.IllegalPluginAccessException;
 import org.python.core.PyFunction;
 
 import java.lang.reflect.InvocationTargetException;
@@ -66,14 +68,19 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
             addListener(script, listener);
             return listener;
         } else {
-            throw new RuntimeException("Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
+            throw new ScriptRuntimeException(script, "Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
         }
     }
 
     @Override
     public void unregisterListener(BukkitScriptEventListener listener) {
-        removeFromHandlers(listener);
-        removeListener(listener.getScript(), listener);
+        try {
+            removeFromHandlers(listener);
+            removeListener(listener.getScript(), listener);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            //This should not happen, because all events *should* have getHandlerList defined
+            throw new ScriptRuntimeException(listener.getScript(), "Unhandled exception when unregistering listener for event '" + listener.getEvent().getSimpleName() + "'", e);
+        }
     }
 
     @Override
@@ -81,7 +88,12 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
         List<BukkitScriptEventListener> associatedListeners = getListeners(script);
         if (associatedListeners != null) {
             for (BukkitScriptEventListener eventListener : associatedListeners) {
-                removeFromHandlers(eventListener);
+                try {
+                    removeFromHandlers(eventListener);
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    //This should not happen, because all events *should* have getHandlerList defined
+                    throw new ScriptRuntimeException(script, "Unhandled exception when unregistering listener for event '" + eventListener.getEvent().getSimpleName() + "'", e);
+                }
             }
             removeListeners(script);
         }
@@ -99,16 +111,11 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
         return null;
     }
 
-    private void removeFromHandlers(BukkitScriptEventListener listener) {
-        try {
-            Method method = getRegistrationClass(listener.getEvent()).getDeclaredMethod("getHandlerList");
-            method.setAccessible(true);
-            HandlerList list = (HandlerList) method.invoke(null);
-            list.unregister(listener);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            //This should not happen, because all events *should* have getHandlerList defined
-            throw new RuntimeException("Unhandled exception when unregistering listener for event '" + listener.getEvent().getSimpleName() + "'", e);
-        }
+    private void removeFromHandlers(BukkitScriptEventListener listener) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method method = getRegistrationClass(listener.getEvent()).getDeclaredMethod("getHandlerList");
+        method.setAccessible(true);
+        HandlerList list = (HandlerList) method.invoke(null);
+        list.unregister(listener);
     }
 
     //Copied from org.bukkit.plugin.SimplePluginManager#getRegistrationClass. Resolves getHandlerList for events, including those where getHandlerList is defined in a superclass (such as BlockBreakEvent)
@@ -122,7 +129,7 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
                     && Event.class.isAssignableFrom(clazz.getSuperclass())) {
                 return getRegistrationClass(clazz.getSuperclass().asSubclass(Event.class));
             } else {
-                throw new RuntimeException("Unable to find handler list for event " + clazz.getName() + ". Static getHandlerList method required!");
+                throw new IllegalPluginAccessException("Unable to find handler list for event '" + clazz.getName() + "'. Static getHandlerList method required!");
             }
         }
     }

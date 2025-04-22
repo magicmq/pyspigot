@@ -17,8 +17,9 @@
 package dev.magicmq.pyspigot.bungee.manager.listener;
 
 import com.google.common.collect.Multimap;
-import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bungee.PyBungee;
+import dev.magicmq.pyspigot.exception.PluginInitializationException;
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
@@ -40,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
-import java.util.logging.Level;
 
 /**
  * The BungeeCord-specific implementation of the listener manager.
@@ -81,7 +81,8 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
             this.bakeHandlers = eventBusClass.getDeclaredMethod("bakeHandlers", Class.class);
             this.bakeHandlers.setAccessible(true);
         } catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException e) {
-            PyCore.get().getLogger().log(Level.SEVERE, "Error when initializing listener manager", e);
+            //This should not happen, reflection checks done on plugin enable
+            throw new PluginInitializationException("Error when initializing listener manager, event listeners will not work correctly.", e);
         }
     }
 
@@ -100,7 +101,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
             addListener(script, listener);
             return listener;
         } else {
-            throw new RuntimeException("Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
+            throw new ScriptRuntimeException(script, "Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
         }
     }
 
@@ -151,7 +152,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
             methods.add(BungeeScriptEventListener.class.getDeclaredMethod("callToScript", Object.class));
         } catch (NoSuchMethodException e) {
             //This should not happen
-            listener.getScript().getLogger().log(Level.SEVERE, "Unhandled exception when registering listener for event '" + listener.getEvent().getSimpleName() + "'", e);
+            throw new ScriptRuntimeException(listener.getScript(), "Unhandled exception when registering listener for event '" + listener.getEvent().getSimpleName() + "'", e);
         }
         Map<Byte, Set<Method>> prioritiesMap = new HashMap<>();
         prioritiesMap.put(listener.getPriority(), methods);
@@ -172,7 +173,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
                 try {
                     bakeHandlers.invoke(eventBus, e.getKey());
                 } catch (IllegalAccessException | InvocationTargetException exception) {
-                    listener.getScript().getLogger().log(Level.SEVERE,  "Unhandled exception when registering listener for event '" + listener.getEvent().getSimpleName() + "'", exception);
+                    throw new ScriptRuntimeException(listener.getScript(), "Unhandled exception when registering listener for event '" + listener.getEvent().getSimpleName() + "'", exception);
                 }
             }
         } finally {
@@ -204,7 +205,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
                 try {
                     bakeHandlers.invoke(eventBus, e.getKey());
                 } catch (IllegalAccessException | InvocationTargetException exception) {
-                    listener.getScript().getLogger().log(Level.SEVERE,  "Unhandled exception when unregistering listener for event '" + listener.getEvent().getSimpleName() + "'", exception);
+                    throw new ScriptRuntimeException(listener.getScript(), "Unhandled exception when unregistering listener for event '" + listener.getEvent().getSimpleName() + "'", exception);
                 }
             }
         } finally {
