@@ -62,7 +62,11 @@ public final class ScriptUtils {
      * @return The script associated with the method call, or null if no script was found in the call stack
      */
     public static Script getScriptFromCallStack() {
-        Optional<StackWalker.StackFrame> callingScript = STACK_WALKER.walk(stream -> stream.filter(frame -> frame.getClassName().contains("org.python.pycode") && frame.getMethodName().equals("call_function")).findFirst());
+        Optional<StackWalker.StackFrame> callingScript = STACK_WALKER.walk(stream -> stream.filter(frame -> {
+            String className = frame.getClassName();
+            String methodName = frame.getMethodName();
+            return (className.contains("org.python.pycode") || className.contains("$py")) && methodName.equals("call_function");
+        }).findFirst());
         if (callingScript.isPresent()) {
             String scriptFile = callingScript.get().getFileName();
             return ScriptManager.get().getScriptByPath(Paths.get(scriptFile));

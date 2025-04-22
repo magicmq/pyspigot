@@ -23,8 +23,13 @@ import dev.magicmq.pyspigot.util.logging.ScriptLogger;
 import org.python.util.PythonInterpreter;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * An object that represents a loaded script or project. Because this object is instantiated some time before the script/project is actually executed (in order to fetch its options and order scripts to load according to dependencies), there may be a brief time when this object represents a loaded <i>but not running </i> script/project. To check if this script object represents a running script/project, call {@link ScriptManager#isScriptRunning(String)}.
@@ -38,6 +43,7 @@ public class Script implements Comparable<Script> {
     private final String name;
     private final ScriptOptions options;
     private final boolean project;
+    private final Set<Path> modules;
 
     private PythonInterpreter interpreter;
     private ScriptLogger logger;
@@ -59,6 +65,7 @@ public class Script implements Comparable<Script> {
         this.name = name;
         this.options = options;
         this.project = project;
+        this.modules = new HashSet<>();
     }
 
     protected void prepare() {
@@ -80,6 +87,18 @@ public class Script implements Comparable<Script> {
             }
         }
         interpreter.set("logger", logger);
+
+        if (project) {
+            try (Stream<Path> walk = Files.walk(path)) {
+                this.modules.addAll(walk
+                        .filter(Files::isRegularFile)
+                        .filter(path -> path.toString().endsWith(".py"))
+                        .collect(Collectors.toSet()));
+            } catch (IOException e) {
+                this.logger.log(Level.SEVERE, "Error when fetching project modules", e);
+            }
+        } else
+            this.modules.add(mainScriptPath);
 
         loadTime = System.currentTimeMillis();
     }
@@ -143,6 +162,14 @@ public class Script implements Comparable<Script> {
      */
     public boolean isProject() {
         return project;
+    }
+
+    /**
+     * Get all modules belonging to this script/project.
+     * @return An immutable set containing all modules belonging to this script/project. If this is a single-file script, the set will only contain the script itself.
+     */
+    public Set<Path> getModules() {
+        return new HashSet<>(modules);
     }
 
     /**

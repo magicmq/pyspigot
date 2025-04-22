@@ -71,6 +71,7 @@ public abstract class ScriptManager {
     private final Path projectsFolder;
     private final LinkedHashMap<Path, Script> scripts;
     private final LinkedHashMap<String, Script> scriptNames;
+    private final HashMap<Path, Path> moduleMap;
 
     private boolean sysInitialized;
 
@@ -82,6 +83,7 @@ public abstract class ScriptManager {
         this.projectsFolder = PyCore.get().getDataFolderPath().resolve("projects");
         this.scripts = new LinkedHashMap<>();
         this.scriptNames = new LinkedHashMap<>();
+        this.moduleMap = new HashMap<>();
 
         this.sysInitialized = false;
         if (PyCore.get().getConfig().loadJythonOnStartup()) {
@@ -469,6 +471,7 @@ public abstract class ScriptManager {
         }
         scripts.clear();
         scriptNames.clear();
+        moduleMap.clear();
     }
 
     /**
@@ -493,6 +496,7 @@ public abstract class ScriptManager {
 
         scripts.remove(script.getMainScriptPath());
         scriptNames.remove(script.getName());
+        script.getModules().forEach(moduleMap::remove);
 
         if (PyCore.get().getConfig().doScriptActionLogging()) {
             if (script.isProject())
@@ -572,12 +576,23 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Get a {@link Script} object for a loaded and running script.
-     * @param path The path of the script to get
-     * @return The Script object for the script, null if no script is loaded and running with the given path
+     * Get a {@link Script} object for a loaded and running script (or module, if the module belongs to a project).
+     * @param path The path of the script/module to get
+     * @return The Script object for the script/module, or null if there is no script
      */
     public Script getScriptByPath(Path path) {
-        return scripts.get(path);
+        //First just try searching scripts
+        Script script = scripts.get(path);
+
+        //Path is a non-main module in a project. Need to fetch the project's main module from the moduleMap
+        if (script == null) {
+            Path mainPath = moduleMap.get(path);
+            if (mainPath != null)
+                return scripts.get(mainPath);
+            else
+                return null;
+        } else
+            return script;
     }
 
     /**
@@ -674,6 +689,9 @@ public abstract class ScriptManager {
         scriptNames.put(script.getName(), script);
 
         script.prepare();
+
+        script.getModules().forEach(module -> moduleMap.put(module, script.getMainScriptPath()));
+
         try (FileInputStream scriptFileReader = new FileInputStream(script.getMainScriptPath().toFile())) {
             initScriptPermissions(script);
 
@@ -713,6 +731,7 @@ public abstract class ScriptManager {
         } catch (IOException e) {
             scripts.remove(script.getMainScriptPath());
             scriptNames.remove(script.getName());
+            script.getModules().forEach(moduleMap::remove);
             script.close();
             throw e;
         }
