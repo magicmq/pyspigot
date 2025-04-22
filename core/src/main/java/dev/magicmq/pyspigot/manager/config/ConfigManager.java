@@ -46,6 +46,13 @@ public abstract class ConfigManager {
         }
     }
 
+    /**
+     * Load a config using the platform-specific API.
+     * @param configFile The path of the configuration file to load, can be either the file name alone or a path (containing subfolders)
+     * @param defaults A YAML-formatted string containing the desired default values for the configuration
+     * @return A ScriptConfig representing the configuration file that was loaded
+     * @throws IOException If there was an IOException when attempting to load the configuration
+     */
     protected abstract ScriptConfig loadConfigImpl(Path configFile, String defaults) throws IOException;
 
     /**

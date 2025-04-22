@@ -39,11 +39,31 @@ public abstract class CommandManager {
         registeredCommands = new HashMap<>();
     }
 
-    protected abstract ScriptCommand registerWithPlatform(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission);
+    /**
+     * Register a command with a platform's API.
+     * @param script The script registering the command
+     * @param commandFunction The command function that should be called when the command is executed
+     * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
+     * @param name The name of the command to register
+     * @param description The description of the command. Can be null (or an empty string)
+     * @param usage The usage message for the command. Can be null (or an empty string)
+     * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
+     * @param permission The required permission node to use this command. Can be null
+     * @return A ScriptCommand representing the command that was registered
+     */
+    protected abstract ScriptCommand registerCommandImpl(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission);
 
-    protected abstract void unregisterFromPlatform(ScriptCommand command);
+    /**
+     * Unregister a command from a platform's API.
+     * @param command The command to unregister
+     */
+    protected abstract void unregisterCommandImpl(ScriptCommand command);
 
-    protected abstract void unregisterFromPlatform(List<ScriptCommand> commands);
+    /**
+     * Unregister a list of commands from a platform's API.
+     * @param commands The list of commands to unregister
+     */
+    protected abstract void unregisterCommandsImpl(List<ScriptCommand> commands);
 
     /**
      * Register a new command.
@@ -203,7 +223,7 @@ public abstract class CommandManager {
         Script script = ScriptUtils.getScriptFromCallStack();
         ScriptCommand command = getCommand(script, name);
         if (command == null) {
-            ScriptCommand newCommand = registerWithPlatform(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
+            ScriptCommand newCommand = registerCommandImpl(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
             addCommand(script, newCommand);
             return newCommand;
         } else
@@ -217,7 +237,7 @@ public abstract class CommandManager {
      * @param command The command to be unregistered
      */
     public void unregisterCommand(ScriptCommand command) {
-        unregisterFromPlatform(command);
+        unregisterCommandImpl(command);
         removeCommand(command.getScript(), command);
     }
 
@@ -228,7 +248,7 @@ public abstract class CommandManager {
     public void unregisterCommands(Script script) {
         List<ScriptCommand> associatedCommands = getCommands(script);
         if (associatedCommands != null) {
-            unregisterFromPlatform(associatedCommands);
+            unregisterCommandsImpl(associatedCommands);
             removeCommands(script);
         }
     }

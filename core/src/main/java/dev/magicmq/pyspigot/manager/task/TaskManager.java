@@ -39,28 +39,76 @@ public abstract class TaskManager {
         activeTasks = new HashMap<>();
     }
 
+    /**
+     * Schedule a new synchronous task using the platform-specific scheduler.
+     * @param task The task to schedule
+     */
     protected abstract void runTaskImpl(Task task);
 
+    /**
+     * Schedule a new asynchronous task using the platform-specific scheduler.
+     * @param task The task to schedule
+     */
     protected abstract void runTaskAsyncImpl(Task task);
 
+    /**
+     * Schedule a new synchronous task to run at a later point in time using the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the task
+     */
     protected abstract void runTaskLaterImpl(Task task, long delay);
 
+    /**
+     * Schedule a new asynchronous task to run at a later point in time using the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the task
+     */
     protected abstract void runTaskLaterAsyncImpl(Task task, long delay);
 
+    /**
+     * Schedule a new synchronous repeating task using the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the task
+     * @param interval The interval, in ticks, that the task should be executed
+     */
     protected abstract void scheduleRepeatingTaskImpl(RepeatingTask task, long delay, long interval);
 
+    /**
+     * Schedule a new asynchronous repeating task using the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the task
+     * @param interval The interval, in ticks, that the task should be executed
+     */
     protected abstract void scheduleAsyncRepeatingTaskImpl(RepeatingTask task, long delay, long interval);
 
+    /**
+     * Schedule a new asynchronous task with a synchronous callback using the platform-specific scheduler.
+     * @param task The task to schedule
+     */
     protected abstract void runSyncCallbackTaskImpl(SyncCallbackTask task);
 
+    /**
+     * Schedule a new asynchronous task with a synchronous callback to run at a later point in time using the platform-specific scheduler.
+     * @param task The task to schedule
+     * @param delay The delay, in ticks, that the scheduler should wait before executing the task
+     */
     protected abstract void runSyncCallbackTaskLaterImpl(SyncCallbackTask task, long delay);
 
+    /**
+     * Run the synchronous callback portionof a SyncCallbackTask using the platform-specific scheduler.
+     * @param runnable The synchronous callback
+     * @return The ID of the task that was scheduled
+     */
     protected abstract int runSyncCallbackImpl(Runnable runnable);
 
+    /**
+     * Stop a task using the platform-specific scheduler.
+     * @param taskId The ID of the task to stop
+     */
     protected abstract void stopTaskImpl(int taskId);
 
     /**
-     * Schedule a new synchronous task via a platform-specific implementation.
+     * Schedule a new synchronous task.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the synchronous task executes
@@ -76,7 +124,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Schedule a new asynchronous task via a platform-specific implementation.
+     * Schedule a new asynchronous task.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the asynchronous task executes
@@ -92,7 +140,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Schedule a new synchronous task to run at a later point in time via a platform-specific implementation.
+     * Schedule a new synchronous task to run at a later point in time.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the synchronous task executes
@@ -109,7 +157,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Schedule a new asynchronous task to run at a later point in time via a platform-specific implementation.
+     * Schedule a new asynchronous task to run at a later point in time.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the asynchronous task executes
@@ -126,7 +174,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Schedule a new synchronous repeating task via a platform-specific implementation.
+     * Schedule a new synchronous repeating task.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called each time the synchronous task executes
@@ -144,7 +192,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Schedule a new asynchronous repeating task via a platform-specific implementation.
+     * Schedule a new asynchronous repeating task.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called each time the asynchronous task executes
@@ -162,7 +210,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Schedule a new asynchronous task with a synchronous callback via a platform-specific implementation. Data returned from the initially called function (asynchronous portion) is automatically passed to the synchronous callback function as a function argument.
+     * Schedule a new asynchronous task with a synchronous callback. Data returned from the initially called function (asynchronous portion) is automatically passed to the synchronous callback function as a function argument.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the asynchronous task executes
@@ -179,7 +227,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Schedule a new asynchronous task with a synchronous callback to run at a later point in time via a platform-specific implementation. Data returned from the initially called function (asynchronous portion) is automatically passed to the synchronous callback function as a function argument.
+     * Schedule a new asynchronous task with a synchronous callback to run at a later point in time. Data returned from the initially called function (asynchronous portion) is automatically passed to the synchronous callback function as a function argument.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when the asynchronous task executes
@@ -197,7 +245,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Terminate a task with the given task ID via a platform-specific implementation.
+     * Terminate a task with the given task ID.
      * @param taskId The ID of the task to terminate
      */
     public synchronized void stopTask(int taskId) {
@@ -207,7 +255,7 @@ public abstract class TaskManager {
     }
 
     /**
-     * Terminate all scheduled tasks belonging to a script via a platform-specific implementation.
+     * Terminate all scheduled tasks belonging to a script.
      * @param script The script whose scheduled tasks should be terminated
      */
     public synchronized void stopTasks(Script script) {
