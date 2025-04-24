@@ -46,3 +46,5 @@ debug-options:
   show-update-messages: true
   # The logging level for Jython internals. Can be useful to set this to FINE or ALL for debugging purposes. Note: the server's root logger will also need to be configured to accept debug messages for Jython's debug messages to show.
   jython-logging-level: 'INFO'
+  # If true, PySpigot will patch the threading module on script unload (if it's being used in the script) in order to prevent the server from hanging. For more information, see https://github.com/magicmq/pyspigot/issues/18#issue-3012022678
+  patch-threading: true

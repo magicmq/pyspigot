@@ -60,6 +60,8 @@ public interface PluginConfig {
 
     String jythonLoggingLevel();
 
+    boolean patchThreading();
+
     boolean loadJythonOnStartup();
 
     Properties getJythonProperties();

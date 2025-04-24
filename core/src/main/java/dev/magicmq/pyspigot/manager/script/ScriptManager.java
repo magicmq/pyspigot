@@ -744,6 +744,10 @@ public abstract class ScriptManager {
 
     private boolean stopScript(Script script, boolean error) {
         boolean gracefulStop = true;
+
+        if (PyCore.get().getConfig().patchThreading())
+            ScriptUtils.patchThreading(script.getInterpreter());
+
         if (!error) {
             PyObject stop = script.getInterpreter().get("stop");
             if (stop instanceof PyFunction stopFunction) {

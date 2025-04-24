@@ -30,6 +30,7 @@ import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.core.StdoutWrapper;
 import org.python.core.ThreadState;
+import org.python.util.PythonInterpreter;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +45,7 @@ public final class ScriptUtils {
 
     private static final StackWalker STACK_WALKER = StackWalker.getInstance();
     private static final Method EXCEPTION_TO_STRING;
+    private static final String THREADING_PATCH = "import threading_patch;threading_patch._patch();";
 
     static {
         try {
@@ -139,5 +141,15 @@ public final class ScriptUtils {
         threadState.exception = null;
 
         return exceptionString;
+    }
+
+    /**
+     * Patches the {@code _pickSomeNonDaemonThread} function in the threading module to avoid a server hang when a script uses the threading module in an asynchronous context.
+     * <p>
+     * For a complete description about why this is necessary, see <a href="https://github.com/magicmq/pyspigot/issues/18#issue-3012022678">this GitHub issue report</a>.
+     * @param interpreter The script's interpreter, used to execute code that applies the patch
+     */
+    public static void patchThreading(PythonInterpreter interpreter) {
+        interpreter.exec(THREADING_PATCH);
     }
 }

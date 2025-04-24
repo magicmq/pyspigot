@@ -138,6 +138,11 @@ public class BungeePluginConfig implements PluginConfig {
     }
 
     @Override
+    public boolean patchThreading() {
+        return config.getBoolean("debug-options.patch-threading");
+    }
+
+    @Override
     public String jythonLoggingLevel() {
         return config.getString("debug-options.jython-logging-level");
     }
