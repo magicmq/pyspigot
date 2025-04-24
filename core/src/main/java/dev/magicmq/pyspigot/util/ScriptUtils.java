@@ -42,15 +42,13 @@ import java.util.Optional;
  */
 public final class ScriptUtils {
 
-    private static final StackWalker STACK_WALKER;
-    private static final Method exceptionToString;
+    private static final StackWalker STACK_WALKER = StackWalker.getInstance();
+    private static final Method EXCEPTION_TO_STRING;
 
     static {
-        STACK_WALKER = StackWalker.getInstance();
-
         try {
-            exceptionToString = Py.class.getDeclaredMethod("exceptionToString", PyObject.class, PyObject.class, PyObject.class);
-            exceptionToString.setAccessible(true);
+            EXCEPTION_TO_STRING = Py.class.getDeclaredMethod("exceptionToString", PyObject.class, PyObject.class, PyObject.class);
+            EXCEPTION_TO_STRING.setAccessible(true);
         } catch (NoSuchMethodException e) {
             throw new PluginInitializationException("Error when initializing script exception handler", e);
         }
@@ -136,7 +134,7 @@ public final class ScriptUtils {
         sys.last_value = exception.value;
         sys.last_traceback = exception.traceback;
 
-        String exceptionString = (String) exceptionToString.invoke(null, exception.type, exception.value, exception.traceback);
+        String exceptionString = (String) EXCEPTION_TO_STRING.invoke(null, exception.type, exception.value, exception.traceback);
 
         threadState.exception = null;
 
