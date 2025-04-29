@@ -16,7 +16,6 @@
 
 package dev.magicmq.pyspigot;
 
-
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
@@ -61,6 +60,7 @@ public class PyCore {
      * <p>
      * Called from the {@code onEnable} method of the platform-specific plugin class (PySpigot for Bukkit, for example).
      * @param adapter The platform-specific adapter.
+     * @throws UnsupportedOperationException if PyCore has already been initialized
      */
     public static void newInstance(PlatformAdapter adapter) {
         if (instance != null) {
@@ -74,6 +74,7 @@ public class PyCore {
      * Initialize the plugin.
      */
     public void init() {
+        // Check for Paper platform
         try {
             Class.forName("com.destroystokyo.paper.ParticleBuilder");
             paper = true;
@@ -81,6 +82,7 @@ public class PyCore {
             paper = false;
         }
 
+        // Initialize configurations
         config = adapter.initConfig();
         config.reload();
 
@@ -89,15 +91,19 @@ public class PyCore {
 
         initFolders();
 
+        // Initialize commands and listeners
         adapter.initCommands();
         adapter.initListeners();
 
+        // Initialize managers
         LibraryManager.get();
         initCommonManagers();
         adapter.initPlatformManagers();
 
-        if (config.getMetricsEnabled())
+        // Metrics and version checking
+        if (config.getMetricsEnabled()) {
             adapter.setupMetrics();
+        }
 
         fetchSpigotVersion();
         adapter.initVersionChecking();
@@ -107,13 +113,15 @@ public class PyCore {
      * Shutdown the plugin.
      */
     public void shutdown() {
-        if (ScriptManager.get() != null)
+        // Shutdown managers in proper order
+        if (ScriptManager.get() != null) {
             ScriptManager.get().shutdown();
-        if (LibraryManager.get() != null)
+        }
+        if (LibraryManager.get() != null) {
             LibraryManager.get().shutdown();
+        }
 
         adapter.shutdownMetrics();
-
         adapter.shutdownVersionChecking();
     }
 
@@ -199,7 +207,7 @@ public class PyCore {
 
     /**
      * Get the latest available plugin version on Spigot.
-     * @return The latest available version on Spigot
+     * @return The latest available version on Spigot, or null if not fetched
      */
     public String getSpigotVersion() {
         return spigotVersion;
@@ -209,9 +217,13 @@ public class PyCore {
      * Fetch the latest available plugin version from SpigotMC.
      */
     public void fetchSpigotVersion() {
-        try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/").openStream(); Scanner scanner = new Scanner(is)) {
-            if (scanner.hasNext())
-                spigotVersion = scanner.next();
+        try {
+            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/");
+            try (InputStream is = url.openStream(); Scanner scanner = new Scanner(is)) {
+                if (scanner.hasNext()) {
+                    spigotVersion = scanner.next();
+                }
+            }
         } catch (IOException e) {
             adapter.getLogger().log(Level.WARNING, "Error when attempting to get latest plugin version from Spigot.", e);
         }
@@ -235,6 +247,7 @@ public class PyCore {
      * Save a resource from the plugin JAR file to the plugin data folder.
      * @param resourcePath The path of the resource to save
      * @param replace True if the file should be replaced (if it already exists in the data folder), false if it should not
+     * @throws IllegalArgumentException if resourcePath is null or empty
      */
     public void saveResource(String resourcePath, boolean replace) {
         if (resourcePath == null || resourcePath.isEmpty()) {
@@ -242,31 +255,32 @@ public class PyCore {
         }
 
         resourcePath = resourcePath.replace('\\', '/');
-        InputStream in = getResourceAsStream(resourcePath);
+        try (InputStream in = getResourceAsStream(resourcePath)) {
+            if (in == null) {
+                throw new IllegalArgumentException("The resource '" + resourcePath + "' could not be found");
+            }
 
-        File outFile = new File(adapter.getDataFolder(), resourcePath);
-        int lastIndex = resourcePath.lastIndexOf('/');
-        File outDir = new File(adapter.getDataFolder(), resourcePath.substring(0, Math.max(lastIndex, 0)));
+            File outFile = new File(adapter.getDataFolder(), resourcePath);
+            int lastIndex = resourcePath.lastIndexOf('/');
+            File outDir = new File(adapter.getDataFolder(), resourcePath.substring(0, Math.max(lastIndex, 0)));
 
-        if (!outDir.exists()) {
-            outDir.mkdirs();
-        }
+            if (!outDir.exists() && !outDir.mkdirs()) {
+                throw new IOException("Failed to create directory " + outDir);
+            }
 
-        try {
             if (!outFile.exists() || replace) {
-                OutputStream out = new FileOutputStream(outFile);
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
+                try (OutputStream out = new FileOutputStream(outFile)) {
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
                 }
-                out.close();
-                in.close();
             } else {
                 adapter.getLogger().log(Level.WARNING, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
             }
         } catch (IOException ex) {
-            adapter.getLogger().log(Level.SEVERE, "Could not save " + outFile.getName() + " to " + outFile, ex);
+            adapter.getLogger().log(Level.SEVERE, "Could not save " + resourcePath + " to " + adapter.getDataFolder(), ex);
         }
     }
 
@@ -280,8 +294,9 @@ public class PyCore {
         String[] folders = new String[]{"java-libs", "python-libs", "scripts", "projects", "logs"};
         for (String folder : folders) {
             File file = new File(adapter.getDataFolder(), folder);
-            if (!file.exists())
-                file.mkdirs();
+            if (!file.exists() && !file.mkdirs()) {
+                adapter.getLogger().log(Level.WARNING, "Failed to create directory: " + file.getAbsolutePath());
+            }
         }
     }
 
@@ -289,7 +304,15 @@ public class PyCore {
         return adapter.getPluginClassLoader().getResourceAsStream(name);
     }
 
+    /**
+     * Get the PyCore instance.
+     * @return The PyCore instance
+     * @throws IllegalStateException if PyCore has not been initialized
+     */
     public static PyCore get() {
+        if (instance == null) {
+            throw new IllegalStateException("PyCore has not been initialized");
+        }
         return instance;
     }
 }
