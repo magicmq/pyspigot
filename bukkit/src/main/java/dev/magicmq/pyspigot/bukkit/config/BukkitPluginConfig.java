@@ -138,6 +138,11 @@ public class BukkitPluginConfig implements PluginConfig {
     }
 
     @Override
+    public boolean patchThreading() {
+        return config.getBoolean("debug-options.patch-threading");
+    }
+
+    @Override
     public boolean loadJythonOnStartup() {
         return config.getBoolean("jython-options.init-on-startup");
     }
