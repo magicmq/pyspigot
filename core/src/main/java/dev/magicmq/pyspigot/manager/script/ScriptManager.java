@@ -532,7 +532,7 @@ public abstract class ScriptManager {
             } catch (ScriptExitException ignored) {
                 String exitCode = getExitCode(exception);
                 script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
-                unloadScriptOnMainThread(script, false);
+                unloadScriptOnMainThread(script, exitCode.equals("1"));
             } catch (InvocationTargetException | IllegalAccessException e) {
                 script.getLogger().log(Level.SEVERE, "Error when attempting to handle script exception", e);
             }
@@ -725,8 +725,8 @@ public abstract class ScriptManager {
             if (e.match(Py.SystemExit)) {
                 String exitCode = getExitCode(e);
                 script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
-                unloadScript(script, false);
-                return RunResult.SUCCESS;
+                unloadScript(script, exitCode.equals("1"));
+                return exitCode.equals("1") ? RunResult.FAIL_ERROR : RunResult.SUCCESS;
             } else {
                 handleScriptException(script, e, null);
                 script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
