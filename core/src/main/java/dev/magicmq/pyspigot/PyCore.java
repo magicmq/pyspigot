@@ -245,7 +245,7 @@ public class PyCore {
 
         resourcePath = resourcePath.replace('\\', '/');
         try (InputStream in = getResourceAsStream(resourcePath)) {
-            if (in == null) {
+            if ( in == null) {
                 throw new IllegalArgumentException("The resource '" + resourcePath + "' could not be found");
             }
 
@@ -261,7 +261,7 @@ public class PyCore {
                 try (OutputStream out = new FileOutputStream(outFile)) {
                     byte[] buf = new byte[1024];
                     int len;
-                    while ((len = in.read(buf)) > 0) {
+                    while ((len = in .read(buf)) > 0) {
                         out.write(buf, 0, len);
                     }
                 }
@@ -280,8 +280,14 @@ public class PyCore {
     }
 
     private void initFolders() {
-        String[] folders = new String[]{"java-libs", "python-libs", "scripts", "projects", "logs"};
-        for (String folder : folders) {
+        String[] folders = new String[] {
+            "java-libs",
+            "python-libs",
+            "scripts",
+            "projects",
+            "logs"
+        };
+        for (String folder: folders) {
             File file = new File(adapter.getDataFolder(), folder);
             if (!file.exists() && !file.mkdirs()) {
                 adapter.getLogger().log(Level.WARNING, "Failed to create directory: " + file.getAbsolutePath());
