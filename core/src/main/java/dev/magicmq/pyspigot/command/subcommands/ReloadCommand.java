@@ -31,7 +31,7 @@ import java.util.List;
         command = "reload",
         permission = "pyspigot.command.reload",
         description = "Reload a script or project with the specified name",
-        usage = "<scriptname>"
+        usage = "<scriptname/projectname>"
 )
 public class ReloadCommand implements SubCommand {
 

@@ -34,7 +34,7 @@ import java.util.logging.Level;
         aliases = {"start"},
         permission = "pyspigot.command.load",
         description = "Load a script or project with the specified name",
-        usage = "<scriptname>"
+        usage = "<scriptname/projectname>"
 )
 public class LoadCommand implements SubCommand {
 
