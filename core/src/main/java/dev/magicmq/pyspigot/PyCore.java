@@ -36,10 +36,6 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Core class of PySpigot for all platform-specific implementations. Platform-specific code is implemented via the PlatformAdapter.
- * @see PlatformAdapter
- */
 public class PyCore {
 
     private static PyCore instance;
@@ -55,26 +51,14 @@ public class PyCore {
         this.adapter = adapter;
     }
 
-    /**
-     * Initialize the PyCore instance.
-     * <p>
-     * Called from the {@code onEnable} method of the platform-specific plugin class (PySpigot for Bukkit, for example).
-     * @param adapter The platform-specific adapter.
-     * @throws UnsupportedOperationException if PyCore has already been initialized
-     */
     public static void newInstance(PlatformAdapter adapter) {
         if (instance != null) {
             throw new UnsupportedOperationException("PyCore has already been initialized");
         }
-
         instance = new PyCore(adapter);
     }
 
-    /**
-     * Initialize the plugin.
-     */
     public void init() {
-        // Check for Paper platform
         try {
             Class.forName("com.destroystokyo.paper.ParticleBuilder");
             paper = true;
@@ -82,7 +66,6 @@ public class PyCore {
             paper = false;
         }
 
-        // Initialize configurations
         config = adapter.initConfig();
         config.reload();
 
@@ -91,131 +74,75 @@ public class PyCore {
 
         initFolders();
 
-        // Initialize commands and listeners
         adapter.initCommands();
         adapter.initListeners();
 
-        // Initialize managers
         LibraryManager.get();
         initCommonManagers();
         adapter.initPlatformManagers();
 
-        // Metrics and version checking
-        if (config.getMetricsEnabled()) {
+        if (config.getMetricsEnabled())
             adapter.setupMetrics();
-        }
 
         fetchSpigotVersion();
         adapter.initVersionChecking();
     }
 
-    /**
-     * Shutdown the plugin.
-     */
     public void shutdown() {
-        // Shutdown managers in proper order
-        if (ScriptManager.get() != null) {
+        if (ScriptManager.get() != null)
             ScriptManager.get().shutdown();
-        }
-        if (LibraryManager.get() != null) {
+        if (LibraryManager.get() != null)
             LibraryManager.get().shutdown();
-        }
 
         adapter.shutdownMetrics();
         adapter.shutdownVersionChecking();
     }
 
-    /**
-     * Reload the plugin config and the script options config.
-     */
     public void reloadConfigs() {
         config.reload();
         scriptOptionsConfig.reload();
     }
 
-    /**
-     * Get the logger for PySpigot.
-     * @return The logger
-     */
     public Logger getLogger() {
         return adapter.getLogger();
     }
 
-    /**
-     * Get the data folder for PySpigot.
-     * @return The data folder
-     */
     public File getDataFolder() {
         return adapter.getDataFolder();
     }
 
-    /**
-     * Get the path of the data folder for PySpigot.
-     * @return A path representing the data folder
-     */
     public Path getDataFolderPath() {
         return adapter.getDataFolderPath();
     }
 
-    /**
-     * Get the {@link ClassLoader} for PySpigot.
-     * @return The ClassLoader
-     */
     public ClassLoader getPluginClassLoader() {
         return adapter.getPluginClassLoader();
     }
 
-    /**
-     * Get the version of the plugin.
-     * @return The version
-     */
     public String getVersion() {
         return adapter.getVersion();
     }
 
-    /**
-     * Get the identifier of the plugin.
-     * @return The plugin identifier
-     */
     public String getPluginIdentifier() {
         return adapter.getPluginIdentifier();
     }
 
-    /**
-     * Get if the server is running paper.
-     * @return True if the server is running paper, false if otherwise
-     */
     public boolean isPaper() {
         return paper;
     }
 
-    /**
-     * Get the plugin configuration for PySpigot.
-     * @return The PySpigot plugin config
-     */
     public PluginConfig getConfig() {
         return config;
     }
 
-    /**
-     * Get the script options configuration for PySpigot.
-     * @return The script options config
-     */
     public ScriptOptionsConfig getScriptOptionsConfig() {
         return scriptOptionsConfig;
     }
 
-    /**
-     * Get the latest available plugin version on Spigot.
-     * @return The latest available version on Spigot, or null if not fetched
-     */
     public String getSpigotVersion() {
         return spigotVersion;
     }
 
-    /**
-     * Fetch the latest available plugin version from SpigotMC.
-     */
     public void fetchSpigotVersion() {
         try {
             URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/");
@@ -229,9 +156,6 @@ public class PyCore {
         }
     }
 
-    /**
-     * Compare the current loaded plugin version with the cached latest SpigotMC plugin version, and log a message to console if the current version is detected as outdated.
-     */
     public void compareVersions() {
         if (spigotVersion != null && config.shouldShowUpdateMessages()) {
             StringUtils.Version currentVersion = new StringUtils.Version(adapter.getVersion());
@@ -243,12 +167,6 @@ public class PyCore {
         }
     }
 
-    /**
-     * Save a resource from the plugin JAR file to the plugin data folder.
-     * @param resourcePath The path of the resource to save
-     * @param replace True if the file should be replaced (if it already exists in the data folder), false if it should not
-     * @throws IllegalArgumentException if resourcePath is null or empty
-     */
     public void saveResource(String resourcePath, boolean replace) {
         if (resourcePath == null || resourcePath.isEmpty()) {
             throw new IllegalArgumentException("ResourcePath cannot be null or empty");
@@ -304,11 +222,6 @@ public class PyCore {
         return adapter.getPluginClassLoader().getResourceAsStream(name);
     }
 
-    /**
-     * Get the PyCore instance.
-     * @return The PyCore instance
-     * @throws IllegalStateException if PyCore has not been initialized
-     */
     public static PyCore get() {
         if (instance == null) {
             throw new IllegalStateException("PyCore has not been initialized");
