@@ -30,8 +30,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -207,8 +212,27 @@ public class PyCore {
      * Fetch the latest available plugin version from SpigotMC.
      */
     public void fetchSpigotVersion() {
+        // Modern HTTP client implementation with timeout
         try {
-            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/");
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spigotmc.org/legacy/update.php?resource=111006"))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200 && !response.body().isEmpty()) {
+                spigotVersion = response.body().trim();
+                return;
+            }
+        } catch (Exception e) {
+            // Fall through to legacy implementation
+        }
+
+        // Legacy implementation as fallback
+        try {
+            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006");
             try (InputStream is = url.openStream(); Scanner scanner = new Scanner(is)) {
                 if (scanner.hasNext()) {
                     spigotVersion = scanner.next();
@@ -245,7 +269,7 @@ public class PyCore {
 
         resourcePath = resourcePath.replace('\\', '/');
         try (InputStream in = getResourceAsStream(resourcePath)) {
-            if ( in == null) {
+            if (in == null) {
                 throw new IllegalArgumentException("The resource '" + resourcePath + "' could not be found");
             }
 
@@ -261,7 +285,7 @@ public class PyCore {
                 try (OutputStream out = new FileOutputStream(outFile)) {
                     byte[] buf = new byte[1024];
                     int len;
-                    while ((len = in .read(buf)) > 0) {
+                    while ((len = in.read(buf)) > 0) {
                         out.write(buf, 0, len);
                     }
                 }
@@ -280,14 +304,8 @@ public class PyCore {
     }
 
     private void initFolders() {
-        String[] folders = new String[] {
-            "java-libs",
-            "python-libs",
-            "scripts",
-            "projects",
-            "logs"
-        };
-        for (String folder: folders) {
+        String[] folders = new String[]{"java-libs", "python-libs", "scripts", "projects", "logs"};
+        for (String folder : folders) {
             File file = new File(adapter.getDataFolder(), folder);
             if (!file.exists() && !file.mkdirs()) {
                 adapter.getLogger().log(Level.WARNING, "Failed to create directory: " + file.getAbsolutePath());
