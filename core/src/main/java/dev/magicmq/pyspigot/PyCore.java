@@ -31,13 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -212,7 +210,6 @@ public class PyCore {
      * Fetch the latest available plugin version from SpigotMC.
      */
     public void fetchSpigotVersion() {
-        // Modern HTTP client implementation with timeout
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -224,21 +221,8 @@ public class PyCore {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200 && !response.body().isEmpty()) {
                 spigotVersion = response.body().trim();
-                return;
             }
         } catch (Exception e) {
-            // Fall through to legacy implementation
-        }
-
-        // Legacy implementation as fallback
-        try {
-            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006");
-            try (InputStream is = url.openStream(); Scanner scanner = new Scanner(is)) {
-                if (scanner.hasNext()) {
-                    spigotVersion = scanner.next();
-                }
-            }
-        } catch (IOException e) {
             adapter.getLogger().log(Level.WARNING, "Error when attempting to get latest plugin version from Spigot.", e);
         }
     }
