@@ -36,7 +36,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A collection of utility methods related to scripts.
@@ -63,17 +67,18 @@ public final class ScriptUtils {
      * @return The script associated with the method call, or null if no script was found in the call stack
      */
     public static Script getScriptFromCallStack() {
-        Optional<StackWalker.StackFrame> callingScript = STACK_WALKER.walk(stream -> stream.filter(frame -> {
-            String className = frame.getClassName();
-            String methodName = frame.getMethodName();
-            return (className.contains("org.python.pycode") || className.contains("$py")) && methodName.equals("call_function");
-        }).findFirst());
-        if (callingScript.isPresent()) {
-            String scriptFile = callingScript.get().getFileName();
-            return ScriptManager.get().getScriptByPath(Paths.get(scriptFile));
-        } else {
-            return null;
-        }
+        return STACK_WALKER.walk(stream ->
+                stream.filter(frame -> {
+                    String className = frame.getClassName();
+                    String methodName = frame.getMethodName();
+                    return (className.contains("org.python.pycode") || className.contains("$py")) && methodName.equals("call_function");
+                }).map(frame -> {
+                    String scriptFile = frame.getFileName();
+                    return ScriptManager.get().getScriptByPath(Paths.get(scriptFile));
+                }).filter(Objects::nonNull)
+                  .findFirst()
+                  .orElse(null)
+        );
     }
 
     /**
