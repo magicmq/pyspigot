@@ -140,12 +140,6 @@ public abstract class ScriptManager {
     protected abstract void callScriptUnloadEvent(Script script, boolean error);
 
     /**
-     * Initialize a new ScriptOptions with the default values via a platform-specific implementation.
-     * @return The new ScriptOptions
-     */
-    protected abstract ScriptOptions newScriptOptions();
-
-    /**
      * Initialize a new ScriptOptions for a single-file script via a platform-specific implementation, using the appropriate values in the script_options.yml file.
      * @param scriptPath The path of the script file whose script options should be initialized
      * @return The new ScriptOptions
@@ -154,7 +148,8 @@ public abstract class ScriptManager {
 
     /**
      * Initialize a new ScriptOptions for a multi-file project via a platform-specific implementation, using the appropriate values in the project's project.yml file.
-     * @param projectConfigPath The path of the project.yml file to parse that belongs to the project
+     * @param projectConfigPath The path of the project.yml file to parse that belongs to the project.
+     *                          If the project.yml. If the project does not have a project.yml file, pass null, and the default values will be used
      * @return The new ScriptOptions
      */
     protected abstract ScriptOptions newProjectOptions(Path projectConfigPath);
@@ -297,7 +292,7 @@ public abstract class ScriptManager {
         if (Files.exists(projectConfigPath)) {
             return newProjectOptions(projectConfigPath);
         } else
-            return newScriptOptions();
+            return newProjectOptions(null);
     }
 
     /**

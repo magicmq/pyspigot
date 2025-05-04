@@ -83,18 +83,16 @@ public class BukkitScriptManager extends ScriptManager {
     }
 
     @Override
-    protected ScriptOptions newScriptOptions() {
-        return new BukkitScriptOptions();
-    }
-
-    @Override
     protected ScriptOptions newScriptOptions(Path scriptPath) {
         return new BukkitScriptOptions(scriptPath);
     }
 
     @Override
     protected ScriptOptions newProjectOptions(Path projectConfigPath) {
-        return new BukkitScriptOptions(new BukkitProjectOptionsConfig(projectConfigPath));
+        if (projectConfigPath != null)
+            return new BukkitScriptOptions(new BukkitProjectOptionsConfig(projectConfigPath));
+        else
+            return new BukkitScriptOptions((BukkitProjectOptionsConfig) null);
     }
 
     @Override

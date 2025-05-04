@@ -35,15 +35,6 @@ public class BukkitScriptOptions extends ScriptOptions {
     private final List<Permission> permissions;
 
     /**
-     * Initialize a new BukkitScriptOptions with the default values.
-     */
-    public BukkitScriptOptions() {
-        super();
-        this.permissionDefault = PermissionDefault.getByName(PyCore.get().getConfig().scriptOptionPermissionDefault());
-        this.permissions = Permission.loadPermissions(PyCore.get().getConfig().scriptOptionPermissions(), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
-    }
-
-    /**
      * Initialize a new BukkitScriptOptions for a single-file script, using the appropriate values in the script_options.yml file.
      * @param scriptPath The path of the script file whose script options should be initialized
      */
@@ -61,12 +52,18 @@ public class BukkitScriptOptions extends ScriptOptions {
 
     /**
      * Initialize a new BukkitScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
-     * @param config The project.yml file to parse that belongs to the project
+     * @param config The project.yml file to parse that belongs to the project.
+     *               If the project does not have a project.yml file, pass null, and the default values will be used
      */
     public BukkitScriptOptions(BukkitProjectOptionsConfig config) {
         super(config);
-        this.permissionDefault = PermissionDefault.getByName(config.getPermissionDefault(PyCore.get().getConfig().scriptOptionPermissionDefault()));
-        this.permissions = Permission.loadPermissions(config.getPermissions(PyCore.get().getConfig().scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
+        if (config != null) {
+            this.permissionDefault = PermissionDefault.getByName(config.getPermissionDefault(PyCore.get().getConfig().scriptOptionPermissionDefault()));
+            this.permissions = Permission.loadPermissions(config.getPermissions(PyCore.get().getConfig().scriptOptionPermissions()), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
+        } else {
+            this.permissionDefault = PermissionDefault.getByName(PyCore.get().getConfig().scriptOptionPermissionDefault());
+            this.permissions = Permission.loadPermissions(PyCore.get().getConfig().scriptOptionPermissions(), "Permission node '%s' in config.yml for default script permissions is invalid", permissionDefault);
+        }
     }
 
     /**

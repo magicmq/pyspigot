@@ -28,6 +28,8 @@ import java.util.logging.Level;
  */
 public class ScriptOptions {
 
+    private final boolean project;
+
     private final String mainScript;
     private final boolean enabled;
     private final int loadPriority;
@@ -36,32 +38,22 @@ public class ScriptOptions {
     private final Level minLoggingLevel;
 
     /**
-     * Initialize a new ScriptOptions with the default values.
-     */
-    public ScriptOptions() {
-        this.mainScript = PyCore.get().getConfig().scriptOptionMainScript();
-        this.enabled = PyCore.get().getConfig().scriptOptionEnabled();
-        this.loadPriority = PyCore.get().getConfig().scriptOptionLoadPriority();
-        this.pluginDepend = PyCore.get().getConfig().scriptOptionPluginDepend();
-        this.fileLoggingEnabled = PyCore.get().getConfig().scriptOptionFileLoggingEnabled();
-        this.minLoggingLevel = Level.parse(PyCore.get().getConfig().scriptOptionMinLoggingLevel());
-    }
-
-    /**
      * Initialize a new ScriptOptions for a single-file script, using the appropriate values in the script_options.yml file.
      * @param scriptPath The path of the script file whose script options should be initialized
      */
     public ScriptOptions(Path scriptPath) {
+        this.project = false;
+
         String scriptName = scriptPath.getFileName().toString();
         if (PyCore.get().getScriptOptionsConfig().contains(scriptName)) {
-            this.mainScript = scriptPath.toString();
+            this.mainScript = null;
             this.enabled = PyCore.get().getScriptOptionsConfig().getEnabled(scriptName, PyCore.get().getConfig().scriptOptionEnabled());
             this.loadPriority = PyCore.get().getScriptOptionsConfig().getLoadPriority(scriptName, PyCore.get().getConfig().scriptOptionLoadPriority());
             this.pluginDepend = PyCore.get().getScriptOptionsConfig().getPluginDepend(scriptName, PyCore.get().getConfig().scriptOptionPluginDepend());
             this.fileLoggingEnabled = PyCore.get().getScriptOptionsConfig().getFileLoggingEnabled(scriptName, PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
             this.minLoggingLevel = Level.parse(PyCore.get().getScriptOptionsConfig().getMinLoggingLevel(scriptName, PyCore.get().getConfig().scriptOptionMinLoggingLevel()));
         } else {
-            this.mainScript = scriptPath.toString();
+            this.mainScript = null;
             this.enabled = PyCore.get().getConfig().scriptOptionEnabled();
             this.loadPriority = PyCore.get().getConfig().scriptOptionLoadPriority();
             this.pluginDepend = PyCore.get().getConfig().scriptOptionPluginDepend();
@@ -72,15 +64,27 @@ public class ScriptOptions {
 
     /**
      * Initialize a new ScriptOptions for a multi-file project, using the appropriate values in the project's project.yml file.
-     * @param config The project.yml file to parse that belongs to the project
+     * @param config The project.yml file to parse that belongs to the project.
+     *               If the project does not have a project.yml file, pass null, and the default values will be used
      */
     public ScriptOptions(ProjectOptionsConfig config) {
-        this.mainScript = config.getMainScript(PyCore.get().getConfig().scriptOptionMainScript());
-        this.enabled = config.getEnabled(PyCore.get().getConfig().scriptOptionEnabled());
-        this.loadPriority = config.getLoadPriority(PyCore.get().getConfig().scriptOptionLoadPriority());
-        this.pluginDepend = config.getPluginDepend(PyCore.get().getConfig().scriptOptionPluginDepend());
-        this.fileLoggingEnabled = config.getFileLoggingEnabled(PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
-        this.minLoggingLevel = Level.parse(config.getMinLoggingLevel(PyCore.get().getConfig().scriptOptionMinLoggingLevel()));
+        this.project = true;
+
+        if (config != null) {
+            this.mainScript = config.getMainScript(PyCore.get().getConfig().scriptOptionMainScript());
+            this.enabled = config.getEnabled(PyCore.get().getConfig().scriptOptionEnabled());
+            this.loadPriority = config.getLoadPriority(PyCore.get().getConfig().scriptOptionLoadPriority());
+            this.pluginDepend = config.getPluginDepend(PyCore.get().getConfig().scriptOptionPluginDepend());
+            this.fileLoggingEnabled = config.getFileLoggingEnabled(PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
+            this.minLoggingLevel = Level.parse(config.getMinLoggingLevel(PyCore.get().getConfig().scriptOptionMinLoggingLevel()));
+        } else {
+            this.mainScript = PyCore.get().getConfig().scriptOptionMainScript();
+            this.enabled = PyCore.get().getConfig().scriptOptionEnabled();
+            this.loadPriority = PyCore.get().getConfig().scriptOptionLoadPriority();
+            this.pluginDepend = PyCore.get().getConfig().scriptOptionPluginDepend();
+            this.fileLoggingEnabled = PyCore.get().getConfig().scriptOptionFileLoggingEnabled();
+            this.minLoggingLevel = Level.parse(PyCore.get().getConfig().scriptOptionMinLoggingLevel());
+        }
     }
 
     /**
@@ -137,6 +141,9 @@ public class ScriptOptions {
      */
     @Override
     public String toString() {
-        return String.format("ScriptOptions[Main: %s, Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", mainScript, enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
+        if (project)
+            return String.format("ProjectOptions[Main: %s, Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", mainScript, enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
+        else
+            return String.format("ScriptOptions[Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
     }
 }

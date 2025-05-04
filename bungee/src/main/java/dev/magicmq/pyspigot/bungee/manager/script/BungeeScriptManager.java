@@ -23,6 +23,7 @@ import dev.magicmq.pyspigot.bungee.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.bungee.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.bungee.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.bungee.manager.protocol.ProtocolManager;
+import dev.magicmq.pyspigot.config.ProjectOptionsConfig;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
@@ -83,18 +84,16 @@ public class BungeeScriptManager extends ScriptManager {
     }
 
     @Override
-    protected ScriptOptions newScriptOptions() {
-        return new ScriptOptions();
-    }
-
-    @Override
     protected ScriptOptions newScriptOptions(Path scriptPath) {
         return new ScriptOptions(scriptPath);
     }
 
     @Override
     protected ScriptOptions newProjectOptions(Path projectConfigPath) {
-        return new ScriptOptions(new BungeeProjectOptionsConfig(projectConfigPath));
+        if (projectConfigPath != null)
+            return new ScriptOptions(new BungeeProjectOptionsConfig(projectConfigPath));
+        else
+            return new ScriptOptions((ProjectOptionsConfig) null);
     }
 
     @Override
