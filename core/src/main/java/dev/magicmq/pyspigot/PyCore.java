@@ -16,7 +16,6 @@
 
 package dev.magicmq.pyspigot;
 
-
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
@@ -31,9 +30,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Path;
-import java.util.Scanner;
+import java.time.Duration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -113,7 +115,6 @@ public class PyCore {
             LibraryManager.get().shutdown();
 
         adapter.shutdownMetrics();
-
         adapter.shutdownVersionChecking();
     }
 
@@ -209,10 +210,19 @@ public class PyCore {
      * Fetch the latest available plugin version from SpigotMC.
      */
     public void fetchSpigotVersion() {
-        try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=111006/").openStream(); Scanner scanner = new Scanner(is)) {
-            if (scanner.hasNext())
-                spigotVersion = scanner.next();
-        } catch (IOException e) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spigotmc.org/legacy/update.php?resource=111006"))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200 && !response.body().isEmpty()) {
+                spigotVersion = response.body().trim();
+            }
+        } catch (Exception e) {
             adapter.getLogger().log(Level.WARNING, "Error when attempting to get latest plugin version from Spigot.", e);
         }
     }
@@ -242,31 +252,32 @@ public class PyCore {
         }
 
         resourcePath = resourcePath.replace('\\', '/');
-        InputStream in = getResourceAsStream(resourcePath);
+        try (InputStream in = getResourceAsStream(resourcePath)) {
+            if (in == null) {
+                throw new IllegalArgumentException("The resource '" + resourcePath + "' could not be found");
+            }
 
-        File outFile = new File(adapter.getDataFolder(), resourcePath);
-        int lastIndex = resourcePath.lastIndexOf('/');
-        File outDir = new File(adapter.getDataFolder(), resourcePath.substring(0, Math.max(lastIndex, 0)));
+            File outFile = new File(adapter.getDataFolder(), resourcePath);
+            int lastIndex = resourcePath.lastIndexOf('/');
+            File outDir = new File(adapter.getDataFolder(), resourcePath.substring(0, Math.max(lastIndex, 0)));
 
-        if (!outDir.exists()) {
-            outDir.mkdirs();
-        }
+            if (!outDir.exists() && !outDir.mkdirs()) {
+                throw new IOException("Failed to create directory " + outDir);
+            }
 
-        try {
             if (!outFile.exists() || replace) {
-                OutputStream out = new FileOutputStream(outFile);
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
+                try (OutputStream out = new FileOutputStream(outFile)) {
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
                 }
-                out.close();
-                in.close();
             } else {
                 adapter.getLogger().log(Level.WARNING, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
             }
         } catch (IOException ex) {
-            adapter.getLogger().log(Level.SEVERE, "Could not save " + outFile.getName() + " to " + outFile, ex);
+            adapter.getLogger().log(Level.SEVERE, "Could not save " + resourcePath + " to " + adapter.getDataFolder(), ex);
         }
     }
 
@@ -280,8 +291,9 @@ public class PyCore {
         String[] folders = new String[]{"java-libs", "python-libs", "scripts", "projects", "logs"};
         for (String folder : folders) {
             File file = new File(adapter.getDataFolder(), folder);
-            if (!file.exists())
-                file.mkdirs();
+            if (!file.exists() && !file.mkdirs()) {
+                adapter.getLogger().log(Level.WARNING, "Failed to create directory: " + file.getAbsolutePath());
+            }
         }
     }
 
@@ -290,6 +302,9 @@ public class PyCore {
     }
 
     public static PyCore get() {
+        if (instance == null) {
+            throw new IllegalStateException("PyCore has not been initialized");
+        }
         return instance;
     }
 }
