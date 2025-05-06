@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>pyspigot-core</artifactId>
+    <description>The core of PySpigot, which houses common, platform-independent portions of the project as well an abstract framework for implementation on different server platforms.</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
