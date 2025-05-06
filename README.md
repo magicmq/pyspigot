@@ -13,8 +13,9 @@ PySpigot utilizes [Jython](https://www.jython.org/), a Java implementation of Py
 
 PySpigot has many features, including:
 
+- Full support for wrinting single-file scripts and more complex multi-file projects
 - Load scripts on server start and via commands
-- Stop, reload, and unload server scripts via commands
+- Load, unload, and reload scripts in real time, no server restart required
 - Register event listeners
 - Register commands
 - Schedule tasks (synchronous and asynchronous)
@@ -22,10 +23,14 @@ PySpigot has many features, including:
 - Register ProtocolLib packet listeners
 - Register PlaceholderAPI placeholder expansions
 - Comprehensive logging of errors and exceptions on a per-script basis, to file
-- Load Java libraries you'd like to work with at runtime
+- Support for adding and using external Java libraries and Python modules
 - Write scripts in Python syntax
-- Scripts have complete access to the Bukkit/Spigot API, as well as APIs of other plugins, so anything is possible.
+- Scripts have complete access to the Bukkit/Spigot API, as well as APIs of other plugins
+- Support for autocomplete/code suggestions in your Python IDE of choice
+- Full BungeeCord support (with plans to add Velocity support in the future)
 - And more!
+
+For detailed instructions on how to make use of all these features, check out the [PySpigot documentation](https://pyspigot-docs.magicmq.dev).
 
 ## Using PySpigot
 
