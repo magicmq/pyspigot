@@ -1,4 +1,4 @@
-[![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/dev.magicmq/pyspigot?nexusVersion=3&server=https%3A%2F%2Frepo.magicmq.dev&label=Latest%20Release)](https://repo.magicmq.dev/#browse/browse:maven-releases:dev%2Fmagicmq%2Fpyspigot)
+[![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/dev.magicmq/pyspigot?nexusVersion=3&server=https%3A%2F%2Frepo.magicmq.dev&label=Latest%20Release)](https://github.com/magicmq/pyspigot/releases/latest)
 [![Latest Snapshot](https://img.shields.io/badge/dynamic/xml?color=orange&label=Latest%20Snapshot&query=%2F%2Fmetadata%2Fversioning%2Fversions%2Fversion%5Blast()%5D&url=https%3A%2F%2Frepo.magicmq.dev%2Frepository%2Fmaven-snapshots%2Fdev%2Fmagicmq%2Fpyspigot%2Fmaven-metadata.xml)](https://ci.magicmq.dev/job/PySpigot/)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/magicmq/PySpigot/maven.yml?branch=master)
 ![Apache 2.0 License](https://img.shields.io/github/license/magicmq/PySpigot)
