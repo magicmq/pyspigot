@@ -1,4 +1,4 @@
-name: ${project.name}
+name: ${project.pluginName}
 version: ${project.version}
 author: magicmq
 main: dev.magicmq.pyspigot.bungee.PyBungee
