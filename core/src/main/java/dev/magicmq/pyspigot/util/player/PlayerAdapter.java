@@ -17,7 +17,7 @@
 package dev.magicmq.pyspigot.util.player;
 
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.text.Component;
 
 /**
  * A utility class that wraps a platform-specific player object.
@@ -35,6 +35,6 @@ public interface PlayerAdapter {
      * Send a message to the player via a platform-specific implementation.
      * @param message The message to send
      */
-    void sendMessage(BaseComponent[] message);
+    void sendMessage(Component message);
 
 }

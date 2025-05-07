@@ -26,7 +26,10 @@ import dev.magicmq.pyspigot.manager.redis.client.ScriptRedisClient;
 import dev.magicmq.pyspigot.manager.task.Task;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.StringUtils;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -41,60 +44,69 @@ public abstract class ScriptInfo {
     /**
      * Print platform-specific manager information for a script.
      * @param script The script whose information should be printed
-     * @param appendTo The info StringBuilder that platform-specific manager info should be appended to
+     * @param appendTo The TextComponent that platform-specific manager info should be appended to
      */
-    protected abstract void printPlatformManagerInfo(Script script, StringBuilder appendTo);
+    protected abstract void printPlatformManagerInfo(Script script, TextComponent.Builder appendTo);
 
     /**
      * Print a script's info (for the /pyspigot info command).
      * @param script The script whose information should be printed
      * @return The info for the script
      */
-    public String printScriptInfo(Script script) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(ChatColor.GOLD.toString() + ChatColor.BOLD + ChatColor.UNDERLINE + "Information about " + script.getName() + "\n");
+    public TextComponent printScriptInfo(Script script) {
+        TextComponent.Builder builder = Component.text();
+
+        builder.append(Component.text("Information about " + script.getName(), NamedTextColor.GOLD, TextDecoration.BOLD, TextDecoration.UNDERLINED));
+        builder.appendNewline();
 
         Path relativePath = PyCore.get().getDataFolderPath().relativize(script.getPath());
-        builder.append(ChatColor.GOLD + "Location: " + ChatColor.RESET + relativePath + "\n");
+        builder.append(Component.text().append(Component.text("Location: ", NamedTextColor.GOLD)).append(Component.text(relativePath.toString())));
+        builder.appendNewline();
 
         Duration uptime = Duration.ofMillis(script.getUptime());
-        builder.append(ChatColor.GOLD + "Uptime: " + ChatColor.RESET + StringUtils.formatDuration(uptime) + "\n");
+        builder.append(Component.text().append(Component.text("Uptime: ", NamedTextColor.GOLD)).append(Component.text(StringUtils.formatDuration(uptime))));
+        builder.appendNewline();
 
         List<?> registeredCommands = CommandManager.get().getCommands(script);
         List<String> commandNames = new ArrayList<>();
         if (registeredCommands != null)
             registeredCommands.forEach(command -> commandNames.add(command.toString()));
-        builder.append(ChatColor.GOLD + "Registered commands: " + ChatColor.RESET + commandNames + "\n");
+        builder.append(Component.text().append(Component.text("Registered commands: ", NamedTextColor.GOLD)).append(Component.text(commandNames.toString())));
+        builder.appendNewline();
 
         List<?> registeredListeners = ListenerManager.get().getListeners(script);
         List<String> eventsListening = new ArrayList<>();
         if (registeredListeners != null)
             registeredListeners.forEach(listener -> eventsListening.add(listener.toString()));
-        builder.append(ChatColor.GOLD + "Listening to events: " + ChatColor.RESET + eventsListening + "\n");
+        builder.append(Component.text().append(Component.text("Listening to events: ", NamedTextColor.GOLD)).append(Component.text(eventsListening.toString())));
+        builder.appendNewline();
 
         List<Task> scriptTasks = TaskManager.get().getTasks(script);
         List<String> tasksInfo = new ArrayList<>();
         if (scriptTasks != null)
             scriptTasks.forEach(task -> tasksInfo.add(task.toString()));
-        builder.append(ChatColor.GOLD + "Running tasks: " + ChatColor.RESET + tasksInfo + "\n");
+        builder.append(Component.text().append(Component.text("Running tasks: ", NamedTextColor.GOLD)).append(Component.text(tasksInfo.toString())));
+        builder.appendNewline();
 
         List<Database> scriptDatabases = DatabaseManager.get().getConnections(script);
         List<String> databasesInfo = new ArrayList<>();
         if (scriptDatabases != null)
             scriptDatabases.forEach(database -> databasesInfo.add(database.toString()));
-        builder.append(ChatColor.GOLD + "Database connections: " + ChatColor.RESET + databasesInfo + "\n");
+        builder.append(Component.text().append(Component.text("Database connections: ", NamedTextColor.GOLD)).append(Component.text(databasesInfo.toString())));
+        builder.appendNewline();
 
         List<ScriptRedisClient> scriptRedisClients = RedisManager.get().getRedisClients(script);
         List<String> redisInfo = new ArrayList<>();
         if (scriptRedisClients != null)
             scriptRedisClients.forEach(redisClient -> redisInfo.add(redisClient.toString()));
-        builder.append(ChatColor.GOLD + "Redis clients: " + ChatColor.RESET + redisInfo + "\n");
+        builder.append(Component.text().append(Component.text("Redis client: ", NamedTextColor.GOLD)).append(Component.text(redisInfo.toString())));
+        builder.appendNewline();
 
         printPlatformManagerInfo(script, builder);
 
-        builder.append(ChatColor.GOLD + "Script options: " + ChatColor.RESET + script.getOptions().toString());
+        builder.append(Component.text().append(Component.text("Script options: ", NamedTextColor.GOLD)).append(Component.text(script.getOptions().toString())));
 
-        return builder.toString();
+        return builder.build();
     }
 
     /**
@@ -104,17 +116,21 @@ public abstract class ScriptInfo {
      * @param options The options of the script
      * @return The info for the script
      */
-    public String printOfflineScriptInfo(String scriptName, Path scriptPath, ScriptOptions options) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(ChatColor.GOLD.toString() + ChatColor.BOLD + ChatColor.UNDERLINE + "Information about " + scriptName + "\n");
+    public TextComponent printOfflineScriptInfo(String scriptName, Path scriptPath, ScriptOptions options) {
+        TextComponent.Builder builder = Component.text();
+
+        builder.append(Component.text("Information about " + scriptName, NamedTextColor.GOLD, TextDecoration.BOLD, TextDecoration.UNDERLINED));
+        builder.appendNewline();
 
         Path relativePath = PyCore.get().getDataFolderPath().relativize(scriptPath);
-        builder.append(ChatColor.GOLD + "Location: " + ChatColor.RESET + relativePath + "\n");
+        builder.append(Component.text().append(Component.text("Location: ", NamedTextColor.GOLD)).append(Component.text(relativePath.toString())));
+        builder.appendNewline();
 
-        builder.append(ChatColor.GOLD + "Uptime: " + ChatColor.RESET + "Currently not loaded" + "\n");
+        builder.append(Component.text().append(Component.text("Uptime: ", NamedTextColor.GOLD)).append(Component.text("Not loaded")));
+        builder.appendNewline();
 
-        builder.append(ChatColor.GOLD + "Script options: " + ChatColor.RESET + options.toString());
+        builder.append(Component.text().append(Component.text("Script options: ", NamedTextColor.GOLD)).append(Component.text(options.toString())));
 
-        return builder.toString();
+        return builder.build();
     }
 }

@@ -20,7 +20,8 @@ import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 @SubCommandMeta(
         command = "loadlibrary",
@@ -36,13 +37,13 @@ public class LoadLibraryCommand implements SubCommand {
         if (args.length > 0) {
             LibraryManager.LoadResult result = LibraryManager.get().loadLibrary(args[0]);
             if (result == LibraryManager.LoadResult.FAILED_FILE)
-                sender.sendMessage(ChatColor.RED + "File '" + args[0] + "' not found. Did you make sure to include the extension (.jar)?");
+                sender.sendMessage(Component.text("File '" + args[0] + "' not found. Did you make sure to include the extension (.jar)?", NamedTextColor.RED));
             else if (result == LibraryManager.LoadResult.FAILED_LOADED)
-                sender.sendMessage(ChatColor.RED + "This library appears to be already loaded.");
+                sender.sendMessage(Component.text("This library appears to be already loaded.", NamedTextColor.RED));
             else if (result == LibraryManager.LoadResult.FAILED_ERROR)
-                sender.sendMessage(ChatColor.RED + "Loading library failed unexpectedly. Please see console for details.");
+                sender.sendMessage(Component.text("Loading library failed unexpectedly. Please see console for details.", NamedTextColor.RED));
             else
-                sender.sendMessage(ChatColor.GREEN + "Successfully loaded library '" + args[0] + "'. Scripts can now use this library.");
+                sender.sendMessage(Component.text("Successfully loaded library '" + args[0] + "'. Scripts can now use this library.", NamedTextColor.GREEN));
             return true;
         }
         return false;

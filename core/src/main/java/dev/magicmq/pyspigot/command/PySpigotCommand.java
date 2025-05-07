@@ -27,7 +27,10 @@ import dev.magicmq.pyspigot.command.subcommands.ReloadCommand;
 import dev.magicmq.pyspigot.command.subcommands.ReloadConfigCommand;
 import dev.magicmq.pyspigot.command.subcommands.UnloadCommand;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,9 +38,15 @@ import java.util.List;
 
 public class PySpigotCommand {
 
-    private static final String PLUGIN_PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.GOLD + PyCore.get().getPluginIdentifier() + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
-    private static final String HELP_CMD_HEADER = ChatColor.translateAlternateColorCodes('&', PLUGIN_PREFIX + "&a&lCommand Syntax:");
-    private static final String HELP_CMD_FORMAT = ChatColor.translateAlternateColorCodes('&', "&6/%maincommand% %subcommand% &7- %description%");
+    public static final Component PLUGIN_PREFIX = Component.text()
+            .append(Component.text("[", NamedTextColor.DARK_GRAY))
+            .append(Component.text(PyCore.get().getPluginIdentifier(), NamedTextColor.GOLD))
+            .append(Component.text("] ", NamedTextColor.DARK_GRAY))
+            .build();
+    private static final Component HELP_CMD_HEADER = Component.text()
+            .append(PLUGIN_PREFIX)
+            .append(Component.text("Command Syntax:", NamedTextColor.GREEN, TextDecoration.BOLD))
+            .build();
 
     private final List<SubCommand> subCommands;
 
@@ -64,7 +73,7 @@ public class PySpigotCommand {
             if (sender.hasPermission("pyspigot.command.listcmds")) {
                 printHelp(sender, label);
             } else {
-                sender.sendMessage(ChatColor.RED + "You must specify an argument!");
+                sender.sendMessage(Component.text("You must specify an argument!", NamedTextColor.RED));
             }
             return true;
         }
@@ -75,7 +84,7 @@ public class PySpigotCommand {
             if (sender.hasPermission("pyspigot.command.listcmds")) {
                 printHelp(sender, label);
             } else {
-                sender.sendMessage(ChatColor.RED + "Unrecognized argument " + args[0]);
+                sender.sendMessage(Component.text("Unrecognized argument " + args[0], NamedTextColor.RED));
             }
             return true;
         }
@@ -83,20 +92,20 @@ public class PySpigotCommand {
         SubCommandMeta subCommandMeta = subCommand.getClass().getAnnotation(SubCommandMeta.class);
 
         if (!subCommandMeta.permission().isEmpty() && !sender.hasPermission(subCommandMeta.permission())) {
-            sender.sendMessage(ChatColor.RED + "Insufficient permissions!");
+            sender.sendMessage(Component.text("Insufficient permissions!", NamedTextColor.RED));
             return true;
         }
 
         if (subCommandMeta.playerOnly()) {
             if (!sender.isPlayer()) {
-                sender.sendMessage(ChatColor.RED + "This command can only be executed by a player.");
+                sender.sendMessage(Component.text("This command can only be executed by a player.", NamedTextColor.RED));
                 return true;
             }
         }
 
         String[] adjustedArgs = Arrays.copyOfRange(args, 1, args.length);
         if (!subCommand.onCommand(sender, adjustedArgs)) {
-            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " " + args[0] + " " + subCommandMeta.usage());
+            sender.sendMessage(Component.text("Usage: /" + label + " " + args[0] + " " + subCommandMeta.usage(), NamedTextColor.RED));
         }
         return true;
     }
@@ -151,17 +160,24 @@ public class PySpigotCommand {
     }
 
     private void printHelp(CommandSenderAdapter sender, String label) {
-        sender.sendMessage(HELP_CMD_HEADER);
+        TextComponent.Builder builder = Component.text();
+        builder.append(HELP_CMD_HEADER);
+        builder.appendNewline();
+
         subCommands.forEach(subCommand -> {
             SubCommandMeta subCommandMeta = subCommand.getClass().getAnnotation(SubCommandMeta.class);
             if (sender.hasPermission(subCommandMeta.permission()) || subCommandMeta.permission().isEmpty()) {
                 if (!subCommandMeta.playerOnly() || sender.isPlayer()) {
-                    sender.sendMessage(HELP_CMD_FORMAT
-                            .replace("%maincommand%", label)
-                            .replace("%subcommand%", subCommandMeta.usage().isEmpty() ? subCommandMeta.command() : subCommandMeta.command() + " " + subCommandMeta.usage())
-                            .replace("%description%", subCommandMeta.description()));
+                    String subCommandString = subCommandMeta.usage().isEmpty() ? subCommandMeta.command() : subCommandMeta.command() + " " + subCommandMeta.usage();
+                    builder.append(Component.text()
+                                    .append(Component.text("/" + label + " " + subCommandString + " ", NamedTextColor.GOLD))
+                                    .append(Component.text("- " + subCommandMeta.description(), NamedTextColor.GRAY))
+                                    .build());
+                    builder.appendNewline();
                 }
             }
         });
+
+        sender.sendMessage(builder.build());
     }
 }

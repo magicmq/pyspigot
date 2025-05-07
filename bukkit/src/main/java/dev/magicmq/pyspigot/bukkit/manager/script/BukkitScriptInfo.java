@@ -23,7 +23,9 @@ import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ScriptPacketListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptInfo;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +36,16 @@ import java.util.List;
 public class BukkitScriptInfo extends ScriptInfo {
 
     @Override
-    protected void printPlatformManagerInfo(Script script, StringBuilder appendTo) {
+    protected void printPlatformManagerInfo(Script script, TextComponent.Builder appendTo) {
         if (PySpigot.get().isPlaceholderApiAvailable()) {
             ScriptPlaceholder placeholder = PlaceholderManager.get().getPlaceholder(script);
-            if (placeholder != null)
-                appendTo.append(ChatColor.GOLD + "Registered placeholder: " + ChatColor.RESET + placeholder + "\n");
-            else
-                appendTo.append(ChatColor.GOLD + "Registered placeholder: " + ChatColor.RESET + "None" + "\n");
+            if (placeholder != null) {
+                appendTo.append(Component.text().append(Component.text("Registered placeholders: ", NamedTextColor.GOLD)).append(Component.text(placeholder.toString())));
+                appendTo.appendNewline();
+            } else {
+                appendTo.append(Component.text().append(Component.text("Registered placeholders: ", NamedTextColor.GOLD)).append(Component.text("None")));
+                appendTo.appendNewline();
+            }
         }
 
         if (PySpigot.get().isProtocolLibAvailable()) {
@@ -48,13 +53,15 @@ public class BukkitScriptInfo extends ScriptInfo {
             List<String> packetTypes = new ArrayList<>();
             if (registeredPacketListeners != null)
                 registeredPacketListeners.forEach(listener -> packetTypes.add(listener.toString()));
-            appendTo.append(ChatColor.GOLD + "Listening to packet types: " + ChatColor.RESET + packetTypes + "\n");
+            appendTo.append(Component.text().append(Component.text("Listening to packet types: ", NamedTextColor.GOLD)).append(Component.text(packetTypes.toString())));
+            appendTo.appendNewline();
 
             List<ScriptPacketListener> registeredPacketListenersAsync = ProtocolManager.get().async().getAsyncPacketListeners(script);
             List<String> packetTypesAsync = new ArrayList<>();
             if (registeredPacketListenersAsync != null)
                 registeredPacketListenersAsync.forEach(listener -> packetTypesAsync.add(listener.toString()));
-            appendTo.append(ChatColor.GOLD + "Listening to packet types (async): " + ChatColor.RESET + packetTypesAsync + "\n");
+            appendTo.append(Component.text().append(Component.text("Listening to packet types (async): ", NamedTextColor.GOLD)).append(Component.text(packetTypesAsync.toString())));
+            appendTo.appendNewline();
         }
     }
 }

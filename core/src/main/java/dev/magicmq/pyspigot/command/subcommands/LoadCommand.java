@@ -23,7 +23,8 @@ import dev.magicmq.pyspigot.exception.ScriptInitializationException;
 import dev.magicmq.pyspigot.manager.script.RunResult;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,44 +47,44 @@ public class LoadCommand implements SubCommand {
                     try {
                         RunResult result = ScriptManager.get().loadScript(args[0]);
                         if (result == RunResult.SUCCESS)
-                            sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran script '" + args[0] + "'.");
+                            sender.sendMessage(Component.text("Successfully loaded and ran script '" + args[0] + "'.", NamedTextColor.GREEN));
                         else if (result == RunResult.FAIL_PLUGIN_DEPENDENCY)
-                            sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not run due to missing plugin dependencies. See console for details.");
+                            sender.sendMessage(Component.text("Script '" + args[0] + "' was not run due to missing plugin dependencies. See console for details.", NamedTextColor.RED));
                         else if (result == RunResult.FAIL_DISABLED)
-                            sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not run because it is disabled as per its options in script_options.yml.");
+                            sender.sendMessage(Component.text("Script '" + args[0] + "' was not run because it is disabled as per its options in script_options.yml.", NamedTextColor.RED));
                         else if (result == RunResult.FAIL_ERROR)
-                            sender.sendMessage(ChatColor.RED + "There was an error when running script '" + args[0] + "'. See console for details.");
+                            sender.sendMessage(Component.text("There was an error when running script '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                         else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
-                            sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
+                            sender.sendMessage(Component.text("No script found in the scripts folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                     } catch (ScriptInitializationException e) {
                         PyCore.get().getLogger().log(Level.SEVERE, "Error when loading script '" + args[0] + "'", e);
-                        sender.sendMessage(ChatColor.RED + "There was an error when loading script '" + args[0] + "'. See console for details.");
+                        sender.sendMessage(Component.text("There was an error when loading script '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + "There is already a loaded and running script with the name '" + args[0] + "'.");
+                    sender.sendMessage(Component.text("There is already a loaded and running script with the name '" + args[0] + "'.", NamedTextColor.RED));
                 }
             } else {
                 if (!ScriptManager.get().isScriptRunning(args[0])) {
                     try {
                         RunResult result = ScriptManager.get().loadProject(args[0]);
                         if (result == RunResult.SUCCESS)
-                            sender.sendMessage(ChatColor.GREEN + "Successfully loaded and ran project '" + args[0] + "'.");
+                            sender.sendMessage(Component.text("Successfully loaded and ran project '" + args[0] + "'.", NamedTextColor.GREEN));
                         else if (result == RunResult.FAIL_PLUGIN_DEPENDENCY)
-                            sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run due to missing plugin dependencies. See console for details.");
+                            sender.sendMessage(Component.text("Project '" + args[0] + "' was not run due to missing plugin dependencies. See console for details.", NamedTextColor.RED));
                         else if (result == RunResult.FAIL_DISABLED)
-                            sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run because it is disabled as per its options in its project.yml.");
+                            sender.sendMessage(Component.text("Project '" + args[0] + "' was not run because it is disabled as per its options in its project.yml.", NamedTextColor.RED));
                         else if (result == RunResult.FAIL_NO_MAIN)
-                            sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run because the main script file was not found in the project folder.");
+                            sender.sendMessage(Component.text("Project '" + args[0] + "' was not run because the main script file was not found in the project folder.", NamedTextColor.RED));
                         else if (result == RunResult.FAIL_ERROR)
-                            sender.sendMessage(ChatColor.RED + "There was an error when running project '" + args[0] + "'. See console for details.");
+                            sender.sendMessage(Component.text("There was an error when running project '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                         else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
-                            sender.sendMessage(ChatColor.RED + "No project found in the projects folder with the name '" + args[0] + "'.");
+                            sender.sendMessage(Component.text("No project found in the projects folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                     } catch (ScriptInitializationException e) {
                         PyCore.get().getLogger().log(Level.SEVERE, "Error when loading project '" + args[0] + "'", e);
-                        sender.sendMessage(ChatColor.RED + "There was an error when loading project '" + args[0] + "'. See console for details.");
+                        sender.sendMessage(Component.text("There was an error when loading project '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + "There is already a loaded and running project with the name '" + args[0] + "'.");
+                    sender.sendMessage(Component.text("There is already a loaded and running project with the name '" + args[0] + "'.", NamedTextColor.RED));
                 }
             }
             return true;

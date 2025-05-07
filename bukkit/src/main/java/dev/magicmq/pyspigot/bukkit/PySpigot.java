@@ -32,6 +32,7 @@ import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -52,6 +53,7 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
 
     private static PySpigot instance;
 
+    private BukkitAudiences adventure;
     private Metrics metrics;
     private BukkitTask versionCheckTask;
 
@@ -110,6 +112,11 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
             PlaceholderManager.get();
 
         BukkitScriptManager.get();
+    }
+
+    @Override
+    public void initAdventure() {
+        adventure = BukkitAudiences.create(this);
     }
 
     @Override
@@ -179,6 +186,14 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
      */
     public boolean isPlaceholderApiAvailable() {
         return Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+    }
+
+    /**
+     * Get the adventure API for the Bukkit platform.
+     * @return The adventure API
+     */
+    public BukkitAudiences getAdventure() {
+        return adventure;
     }
 
     private void checkReflection() throws NoSuchMethodException, NoSuchFieldException {

@@ -22,7 +22,8 @@ import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 @SubCommandMeta(
         command = "reloadall",
@@ -38,7 +39,7 @@ public class ReloadAllCommand implements SubCommand {
         PyCore.get().reloadConfigs();
         LibraryManager.get().reload();
         ScriptManager.get().loadScripts();
-        sender.sendMessage(ChatColor.GREEN + "All scripts, plugin config, and script_options.yml have been reloaded.");
+        sender.sendMessage(Component.text("All scripts, plugin config, and script_options.yml have been reloaded.", NamedTextColor.GREEN));
         return true;
     }
 }

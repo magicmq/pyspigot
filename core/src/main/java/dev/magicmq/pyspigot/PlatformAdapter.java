@@ -42,6 +42,11 @@ public interface PlatformAdapter {
     ScriptOptionsConfig initScriptOptionsConfig();
 
     /**
+     * Initializes adventure using the platform-specific adventure adapter.
+     */
+    void initAdventure();
+
+    /**
      * Initialize plugin commands via a platform-specific implementation.
      */
     void initCommands();

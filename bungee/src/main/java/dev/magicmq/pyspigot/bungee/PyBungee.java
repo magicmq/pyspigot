@@ -31,6 +31,7 @@ import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
@@ -55,6 +56,7 @@ public class PyBungee extends Plugin implements PlatformAdapter {
 
     private static PyBungee instance;
 
+    private BungeeAudiences adventure;
     private Metrics metrics;
     private ScheduledTask versionCheckTask;
 
@@ -129,6 +131,11 @@ public class PyBungee extends Plugin implements PlatformAdapter {
     }
 
     @Override
+    public void initAdventure() {
+        adventure = BungeeAudiences.create(this);
+    }
+
+    @Override
     public void initVersionChecking() {
         ProxyServer.getInstance().getScheduler().schedule(this, PyCore.get()::compareVersions, 1L, TimeUnit.SECONDS);
         versionCheckTask = ProxyServer.getInstance().getScheduler().schedule(this, PyCore.get()::fetchSpigotVersion, 12L, 12L, TimeUnit.HOURS);
@@ -187,6 +194,14 @@ public class PyBungee extends Plugin implements PlatformAdapter {
      */
     public boolean isProtocolizeAvailable() {
         return ProxyServer.getInstance().getPluginManager().getPlugin("Protocolize") != null;
+    }
+
+    /**
+     * Get the adventure API for the BungeeCord platform.
+     * @return The adventure API
+     */
+    public BungeeAudiences getAdventure() {
+        return adventure;
     }
 
     private void checkReflection() throws NoSuchMethodException, NoSuchFieldException {

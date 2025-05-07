@@ -22,7 +22,8 @@ import dev.magicmq.pyspigot.exception.ScriptInitializationException;
 import dev.magicmq.pyspigot.manager.script.RunResult;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ReloadCommand implements SubCommand {
             if (ScriptManager.get().isScriptRunning(args[0])) {
                 boolean success = ScriptManager.get().unloadScript(args[0]);
                 if (!success) {
-                    sender.sendMessage("&cThere was an error when unloading script/project '" + args[0] + "'. See console for details.");
+                    sender.sendMessage(Component.text("There was an error when unloading script/project '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                     return true;
                 }
             }
@@ -50,37 +51,37 @@ public class ReloadCommand implements SubCommand {
                 try {
                     RunResult result = ScriptManager.get().loadScript(args[0]);
                     if (result == RunResult.SUCCESS)
-                        sender.sendMessage(ChatColor.GREEN + "Successfully reloaded script '" + args[0] + "'.");
+                        sender.sendMessage(Component.text("Successfully reloaded script '" + args[0] + "'.", NamedTextColor.GREEN));
                     else if (result == RunResult.FAIL_PLUGIN_DEPENDENCY)
-                        sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not reloaded due to missing plugin dependencies. See console for details.");
+                        sender.sendMessage(Component.text("Script '" + args[0] + "' was not reloaded due to missing plugin dependencies. See console for details.", NamedTextColor.RED));
                     else if (result == RunResult.FAIL_DISABLED)
-                        sender.sendMessage(ChatColor.RED + "Script '" + args[0] + "' was not reloaded because it is disabled as per its options in script_options.yml.");
+                        sender.sendMessage(Component.text("Script '" + args[0] + "' was not reloaded because it is disabled as per its options in script_options.yml.", NamedTextColor.RED));
                     else if (result == RunResult.FAIL_ERROR)
-                        sender.sendMessage(ChatColor.RED + "There was an error when reloading script '" + args[0] + "'. See console for details.");
+                        sender.sendMessage(Component.text("There was an error when reloading script '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                     else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
-                        sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
+                        sender.sendMessage(Component.text("No script found in the scripts folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                 } catch (ScriptInitializationException e) {
                     e.printStackTrace();
-                    sender.sendMessage(ChatColor.RED + "There was an error when reloading script '" + args[0] + "'. See console for details.");
+                    sender.sendMessage(Component.text("There was an error when reloading script '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                 }
             } else {
                 try {
                     RunResult result = ScriptManager.get().loadProject(args[0]);
                     if (result == RunResult.SUCCESS)
-                        sender.sendMessage(ChatColor.GREEN + "Successfully reloaded project '" + args[0] + "'.");
+                        sender.sendMessage(Component.text("Successfully reloaded project '" + args[0] + "'.", NamedTextColor.GREEN));
                     else if (result == RunResult.FAIL_PLUGIN_DEPENDENCY)
-                        sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not reloaded due to missing plugin dependencies. See console for details.");
+                        sender.sendMessage(Component.text("Project '" + args[0] + "' was not reloaded due to missing plugin dependencies. See console for details.", NamedTextColor.RED));
                     else if (result == RunResult.FAIL_DISABLED)
-                        sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run because it is disabled as per its options in its project.yml.");
+                        sender.sendMessage(Component.text("Project '" + args[0] + "' was not run because it is disabled as per its options in its project.yml.", NamedTextColor.RED));
                     else if (result == RunResult.FAIL_NO_MAIN)
-                        sender.sendMessage(ChatColor.RED + "Project '" + args[0] + "' was not run because the main script file was not found in the project folder.");
+                        sender.sendMessage(Component.text("Project '" + args[0] + "' was not run because the main script file was not found in the project folder.", NamedTextColor.RED));
                     else if (result == RunResult.FAIL_ERROR)
-                        sender.sendMessage(ChatColor.RED + "There was an error when reloading project '" + args[0] + "'. See console for details.");
+                        sender.sendMessage(Component.text("There was an error when reloading project '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                     else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
-                        sender.sendMessage(ChatColor.RED + "No project found in the projects folder with the name '" + args[0] + "'.");
+                        sender.sendMessage(Component.text("No project found in the projects folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                 } catch (ScriptInitializationException e) {
                     e.printStackTrace();
-                    sender.sendMessage(ChatColor.RED + "There was an error when reloading project '" + args[0] + "'. See console for details.");
+                    sender.sendMessage(Component.text("There was an error when reloading project '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                 }
             }
             return true;

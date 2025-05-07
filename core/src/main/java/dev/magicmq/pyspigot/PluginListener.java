@@ -19,12 +19,11 @@ package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.util.StringUtils;
 import dev.magicmq.pyspigot.util.player.PlayerAdapter;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 /**
  * The primary listener for PySpigot. Methods called in this class are called via platform-specific listeners.
@@ -46,16 +45,17 @@ public class PluginListener {
         }
     }
 
-    private BaseComponent[] buildMessage(String version) {
-        TextComponent pluginPage = new TextComponent("Download the latest version here.");
-        pluginPage.setColor(net.md_5.bungee.api.ChatColor.RED);
-        pluginPage.setUnderlined(true);
-        pluginPage.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://spigotmc.org/resources/pyspigot.111006/"));
-        pluginPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Click to go to the PySpigot plugin page"))));
+    private Component buildMessage(String version) {
+        Component pluginPage = Component.text("Download the latest version here.")
+                .color(NamedTextColor.RED)
+                .decorate(TextDecoration.UNDERLINED)
+                .clickEvent(ClickEvent.openUrl("https://spigotmc.org/resources/pyspigot.111006/"))
+                .hoverEvent(HoverEvent.showText(Component.text("Click to go to the PySpigot plugin page", NamedTextColor.GOLD)));
 
-        ComponentBuilder builder = new ComponentBuilder("");
-        builder.append("You're running an outdated version of PySpigot. The latest version is " + version + ". ").color(net.md_5.bungee.api.ChatColor.RED).append(pluginPage);
-        return builder.create();
+        return Component.text()
+                .append(Component.text("You're running an outdated version of PySpigot. The latest version is " + version + ". ", NamedTextColor.RED))
+                .append(pluginPage)
+                .build();
     }
 
 }

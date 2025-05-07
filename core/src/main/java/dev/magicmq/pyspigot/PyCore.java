@@ -83,6 +83,8 @@ public class PyCore {
             paper = false;
         }
 
+        adapter.initAdventure();
+
         config = adapter.initConfig();
         config.reload();
 

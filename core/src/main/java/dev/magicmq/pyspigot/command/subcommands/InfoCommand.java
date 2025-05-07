@@ -22,7 +22,9 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ import java.util.List;
         aliases = {"scriptinfo", "projectinfo"},
         permission = "pyspigot.command.info",
         description = "Print information about a script or project, including uptime, registered listeners, commands, and more info",
-        usage = "<scriptname>"
+        usage = "<scriptname/projectname>"
 )
 public class InfoCommand implements SubCommand {
 
@@ -42,25 +44,25 @@ public class InfoCommand implements SubCommand {
         if (args.length > 0) {
             if (ScriptManager.get().isScriptRunning(args[0])) {
                 Script script = ScriptManager.get().getScriptByName(args[0]);
-                String scriptInfo = ScriptManager.get().getScriptInfo().printScriptInfo(script);
+                TextComponent scriptInfo = ScriptManager.get().getScriptInfo().printScriptInfo(script);
                 sender.sendMessage(scriptInfo);
             } else {
                 if (args[0].endsWith(".py")) {
                     Path scriptPath = ScriptManager.get().getScriptPath(args[0]);
                     if (scriptPath != null) {
                         ScriptOptions options = ScriptManager.get().getScriptOptions(scriptPath);
-                        String scriptInfo = ScriptManager.get().getScriptInfo().printOfflineScriptInfo(args[0], scriptPath, options);
+                        TextComponent scriptInfo = ScriptManager.get().getScriptInfo().printOfflineScriptInfo(args[0], scriptPath, options);
                         sender.sendMessage(scriptInfo);
                     } else
-                        sender.sendMessage(ChatColor.RED + "No script found in the scripts folder with the name '" + args[0] + "'.");
+                        sender.sendMessage(Component.text("No script found in the scripts folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                 } else {
                     Path projectPath = ScriptManager.get().getProjectPath(args[0]);
                     if (projectPath != null) {
                         ScriptOptions options = ScriptManager.get().getProjectOptions(projectPath);
-                        String projectInfo = ScriptManager.get().getScriptInfo().printOfflineScriptInfo(args[0], projectPath, options);
+                        TextComponent projectInfo = ScriptManager.get().getScriptInfo().printOfflineScriptInfo(args[0], projectPath, options);
                         sender.sendMessage(projectInfo);
                     } else
-                        sender.sendMessage(ChatColor.RED + "No project found in the projects folder with the name '" + args[0] + "'.");
+                        sender.sendMessage(Component.text("No project found in the projects folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                 }
             }
             return true;

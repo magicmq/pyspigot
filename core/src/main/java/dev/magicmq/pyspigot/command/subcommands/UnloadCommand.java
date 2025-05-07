@@ -20,7 +20,8 @@ import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,21 +42,21 @@ public class UnloadCommand implements SubCommand {
                 if (ScriptManager.get().isScriptRunning(args[0])) {
                     boolean success = ScriptManager.get().unloadScript(args[0]);
                     if (success)
-                        sender.sendMessage(ChatColor.GREEN + "Successfully unloaded script '" + args[0] + "'.");
+                        sender.sendMessage(Component.text("Successfully unloaded script '" + args[0] + "'.", NamedTextColor.GREEN));
                     else
-                        sender.sendMessage(ChatColor.RED + "There was an error when unloading script '" + args[0] + "'. See console for details.");
+                        sender.sendMessage(Component.text("There was an error when unloading script '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                 } else {
-                    sender.sendMessage(ChatColor.RED + "No running script found with the name '" + args[0] + "'.");
+                    sender.sendMessage(Component.text("No running script found with the name '" + args[0] + "'.", NamedTextColor.RED));
                 }
             } else {
                 if (ScriptManager.get().isScriptRunning(args[0])) {
                     boolean success = ScriptManager.get().unloadScript(args[0]);
                     if (success)
-                        sender.sendMessage(ChatColor.GREEN + "Successfully unloaded project '" + args[0] + "'.");
+                        sender.sendMessage(Component.text("Successfully unloaded project '" + args[0] + "'.", NamedTextColor.GREEN));
                     else
-                        sender.sendMessage(ChatColor.RED + "There was an error when unloading project '" + args[0] + "'. See console for details.");
+                        sender.sendMessage(Component.text("There was an error when unloading project '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                 } else {
-                    sender.sendMessage(ChatColor.RED + "No running project found with the name '" + args[0] + "'.");
+                    sender.sendMessage(Component.text("No running project found with the name '" + args[0] + "'.", NamedTextColor.RED));
                 }
             }
             return true;

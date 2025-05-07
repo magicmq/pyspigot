@@ -21,7 +21,8 @@ import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,23 +42,23 @@ public class ListScriptsCommand implements SubCommand {
 
     @Override
     public boolean onCommand(CommandSenderAdapter sender, String[] args) {
-        int page = 1;
+        int pageNum = 1;
         if (args.length > 0) {
             try {
-                page = Integer.parseInt(args[0]);
-                if (page <= 0)
-                    page = 1;
+                pageNum = Integer.parseInt(args[0]);
+                if (pageNum <= 0)
+                    pageNum = 1;
             } catch (NumberFormatException ignored) {
-                sender.sendMessage(ChatColor.RED + "The page must be a number.");
+                sender.sendMessage(Component.text("The page must be a number.", NamedTextColor.RED));
             }
         }
 
-        List<String> pages = getPage(page);
-        pages.forEach(sender::sendMessage);
+        List<Component> page = getPage(pageNum);
+        page.forEach(sender::sendMessage);
         return true;
     }
 
-    private List<String> getPage(int page) {
+    private List<Component> getPage(int page) {
         List<Path> scripts = new ArrayList<>(ScriptManager.get().getAllScriptPaths());
         scripts.addAll(ScriptManager.get().getAllProjectPaths());
         int totalEntries = scripts.size();
@@ -73,28 +74,28 @@ public class ListScriptsCommand implements SubCommand {
             endIndex = scripts.size();
         }
 
-        List<String> toReturn = new ArrayList<>();
-        toReturn.add(ChatColor.YELLOW + "List of scripts and projects, page " + page + " of " + (pages > 0 ? pages : 1) + " (" + scripts.size() + " total)");
+        List<Component> toReturn = new ArrayList<>();
+        toReturn.add(Component.text("List of scripts and projects, page " + page + " of " + (pages > 0 ? pages : 1) + " (" + scripts.size() + " total)", NamedTextColor.YELLOW));
         for (int i = startIndex; i < endIndex; i++) {
             Path script = scripts.get(i);
             toReturn.add(synthesizeLine(script));
         }
-        toReturn.add(ChatColor.RED + "Red = script/project unloaded, " + ChatColor.GREEN + "Green = script/project loaded");
+        toReturn.add(Component.text().append(Component.text("Red = script/project unloaded, ", NamedTextColor.RED)).append(Component.text("Green = script/project loaded", NamedTextColor.GREEN)).build());
         return toReturn;
     }
 
-    private String synthesizeLine(Path script) {
+    private Component synthesizeLine(Path script) {
         String fileName = script.getFileName().toString();
         if (Files.isDirectory(script)) {
             if (ScriptManager.get().isScriptRunning(fileName))
-                return ChatColor.GREEN + fileName + " (Project, " + PyCore.get().getDataFolderPath().relativize(script) + ")";
+                return Component.text(fileName + " (Project, " + PyCore.get().getDataFolderPath().relativize(script) + ")", NamedTextColor.GREEN);
             else
-                return ChatColor.RED + fileName + " (Project, " + PyCore.get().getDataFolderPath().relativize(script) + ")";
+                return Component.text(fileName + " (Project, " + PyCore.get().getDataFolderPath().relativize(script) + ")", NamedTextColor.RED);
         } else {
             if (ScriptManager.get().isScriptRunning(fileName))
-                return ChatColor.GREEN + fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")";
+                return Component.text(fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")", NamedTextColor.GREEN);
             else
-                return ChatColor.RED + fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")";
+                return Component.text(fileName + " (" + PyCore.get().getDataFolderPath().relativize(script) + ")", NamedTextColor.RED);
         }
     }
 }

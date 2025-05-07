@@ -20,7 +20,8 @@ import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 @SubCommandMeta(
         command = "reloadconfig",
@@ -33,7 +34,7 @@ public class ReloadConfigCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSenderAdapter sender, String[] args) {
         PyCore.get().reloadConfigs();
-        sender.sendMessage(ChatColor.GREEN + "Configuration has been reloaded.");
+        sender.sendMessage(Component.text("Configuration has been reloaded.", NamedTextColor.GREEN));
         return true;
     }
 }
