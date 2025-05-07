@@ -21,7 +21,12 @@ jobs:
       - name: Maven cleanup
         run: mvn --batch-mode --update-snapshots verify
       - name: Copy artifacts to staging directory
-        run: mkdir staging && rsync -ar --exclude 'original*' target/*.jar **/target/*.jar staging
+        run: mkdir staging && rsync -ar --exclude 'core/target/*-shaded.jar' target/*-shaded.jar **/target/*-shaded.jar staging
+      - name: Rename artifacts in staging directory
+        run: |
+          for file in staging/*-shaded.jar; do
+            mv "$file" "${file/-shaded.jar/.jar}"
+          done
       - name: Fetch tag name
         id: tagname
         uses: actions/github-script@v7

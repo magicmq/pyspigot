@@ -112,7 +112,8 @@
                     </executions>
                     <configuration>
                         <createDependencyReducedPom>false</createDependencyReducedPom>
-                        <finalName>${project.artifactId}-${project.version}</finalName>
+                        <shadedArtifactAttached>true</shadedArtifactAttached>
+                        <shadedClassifierName>shaded</shadedClassifierName>
                         <relocations>
                             <relocation>
                                 <pattern>io.netty</pattern>
