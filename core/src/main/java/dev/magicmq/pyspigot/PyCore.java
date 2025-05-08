@@ -87,13 +87,13 @@ public class PyCore {
 
         adapter.initAdventure();
 
+        initFolders();
+
         config = adapter.initConfig();
         config.reload();
 
         scriptOptionsConfig = adapter.initScriptOptionsConfig();
         scriptOptionsConfig.reload();
-
-        initFolders();
 
         adapter.initCommands();
         adapter.initListeners();
