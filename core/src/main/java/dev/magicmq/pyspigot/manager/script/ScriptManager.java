@@ -246,10 +246,9 @@ public abstract class ScriptManager {
 
             ScriptOptions options;
             if (project) {
-                Path projectConfigPath = entry.getValue().resolve("project.yml");
-                options = newProjectOptions(projectConfigPath);
+                options = getProjectOptions(entry.getValue());
             } else
-                options = newScriptOptions(entry.getValue());
+                options = getScriptOptions(entry.getValue());
             Script script = newScript(entry.getValue(), entry.getKey(), options, project);
             toLoad.add(script);
         }
