@@ -83,24 +83,7 @@ public class PyBungee extends Plugin implements PlatformAdapter {
 
     @Override
     public PluginConfig initConfig() {
-        try {
-            File dataFolder = getDataFolder();
-            if (!dataFolder.exists())
-                dataFolder.mkdirs();
-
-            File configFile = new File(getDataFolder(), "config.yml");
-            if (!configFile.exists()) {
-                FileOutputStream outputStream = new FileOutputStream(configFile);
-                try (InputStream in = getResourceAsStream("config.yml")) {
-                    in.transferTo(outputStream);
-                }
-            }
-
-            return new BungeePluginConfig();
-        } catch (IOException e) {
-            getPlatformLogger().error("Error when saving the default config file.", e);
-            return null;
-        }
+        return new BungeePluginConfig();
     }
 
     @Override

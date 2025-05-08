@@ -35,6 +35,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 
@@ -89,6 +90,7 @@ public class PyCore {
 
         initFolders();
 
+        saveDefaultConfig();
         config = adapter.initConfig();
         config.reload();
 
@@ -281,8 +283,12 @@ public class PyCore {
                 logger.warn("Could not save {} to {} because {} already exists.", outFile.getName(), outFile, outFile.getName());
             }
         } catch (IOException ex) {
-            logger.warn("Could not save {} to {}", resourcePath, adapter.getDataFolder(), ex);
+            logger.error("Could not save {} to {}", resourcePath, adapter.getDataFolder(), ex);
         }
+    }
+
+    private InputStream getResourceAsStream(String name) {
+        return adapter.getPluginClassLoader().getResourceAsStream(name);
     }
 
     private void initCommonManagers() {
@@ -301,8 +307,10 @@ public class PyCore {
         }
     }
 
-    private InputStream getResourceAsStream(String name) {
-        return adapter.getPluginClassLoader().getResourceAsStream(name);
+    private void saveDefaultConfig() {
+        Path configPath = adapter.getDataFolderPath().resolve("config.yml");
+        if (!Files.exists(configPath))
+            saveResource("config.yml", false);
     }
 
     public static PyCore get() {

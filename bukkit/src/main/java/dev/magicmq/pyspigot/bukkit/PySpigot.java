@@ -82,7 +82,6 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
     @Override
     public PluginConfig initConfig() {
         getConfig().options().copyDefaults(true);
-        saveDefaultConfig();
         return new BukkitPluginConfig();
     }
 
