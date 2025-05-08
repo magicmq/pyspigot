@@ -117,35 +117,35 @@
                         <relocations>
                             <relocation>
                                 <pattern>io.netty</pattern>
-                                <shadedPattern>dev.magicmq.pyspigot.libs.io.netty</shadedPattern>
+                                <shadedPattern>dev.magicmq.libs.io.netty</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>me.lucko</pattern>
-                                <shadedPattern>dev.magicmq.pyspigot.libs.me.lucko</shadedPattern>
+                                <shadedPattern>dev.magicmq.libs.me.lucko</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>com.zaxxer</pattern>
-                                <shadedPattern>dev.magicmq.pyspigot.libs.com.zaxxer</shadedPattern>
+                                <shadedPattern>dev.magicmq.libs.com.zaxxer</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>com.mongodb</pattern>
-                                <shadedPattern>dev.magicmq.pyspigot.libs.com.mongodb</shadedPattern>
+                                <shadedPattern>dev.magicmq.libs.com.mongodb</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>org.bson</pattern>
-                                <shadedPattern>dev.magicmq.pyspigot.libs.org.bson</shadedPattern>
+                                <shadedPattern>dev.magicmq.libs.org.bson</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>io.lettuce</pattern>
-                                <shadedPattern>dev.magicmq.pyspigot.libs.io.lettuce</shadedPattern>
+                                <shadedPattern>dev.magicmq.libs.io.lettuce</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>org.bstats</pattern>
-                                <shadedPattern>dev.magicmq.pyspigot.libs.org.bstats</shadedPattern>
+                                <shadedPattern>dev.magicmq.libs.org.bstats</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>net.kyori</pattern>
-                                <shadedPattern>dev.magicmq.pyspigot.libs.net.kyori</shadedPattern>
+                                <shadedPattern>dev.magicmq.libs.net.kyori</shadedPattern>
                             </relocation>
                         </relocations>
                         <filters>
