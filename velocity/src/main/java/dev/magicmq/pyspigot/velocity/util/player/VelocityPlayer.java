@@ -14,22 +14,28 @@
  *    limitations under the License.
  */
 
-package dev.magicmq.pyspigot.velocity;
+package dev.magicmq.pyspigot.velocity.util.player;
 
 
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
-import dev.magicmq.pyspigot.PluginListener;
+import com.velocitypowered.api.proxy.Player;
 import dev.magicmq.pyspigot.util.player.PlayerAdapter;
-import dev.magicmq.pyspigot.velocity.util.player.VelocityPlayer;
+import net.kyori.adventure.text.Component;
 
-import java.util.concurrent.TimeUnit;
+public class VelocityPlayer implements PlayerAdapter {
 
-public class VelocityListener extends PluginListener {
+    private final Player player;
 
-    @Subscribe
-    public void onJoin(PlayerChooseInitialServerEvent event) {
-        PlayerAdapter velocityPlayer = new VelocityPlayer(event.getPlayer());
-        PyVelocity.get().getProxy().getScheduler().buildTask(PyVelocity.get(), () -> this.onJoin(velocityPlayer)).delay(1L, TimeUnit.SECONDS).schedule();
+    public VelocityPlayer(Player player) {
+        this.player = player;
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return player.hasPermission(permission);
+    }
+
+    @Override
+    public void sendMessage(Component message) {
+        player.sendMessage(message);
     }
 }
