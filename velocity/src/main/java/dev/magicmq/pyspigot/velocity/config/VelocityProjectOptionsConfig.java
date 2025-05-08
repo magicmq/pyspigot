@@ -71,7 +71,7 @@ public class VelocityProjectOptionsConfig implements ProjectOptionsConfig {
         try {
             return config.node("plugin-depend").getList(String.class, defaultValue);
         } catch (SerializationException e) {
-            PyVelocity.get().getPlatformLogger().error("Error when fetching plugin dependencies", e);
+            PyVelocity.get().getPlatformLogger().error("Error when fetching plugin dependencies from project.yml", e);
             return defaultValue;
         }
     }
@@ -91,7 +91,7 @@ public class VelocityProjectOptionsConfig implements ProjectOptionsConfig {
      */
     @Override
     public String getPermissionDefault(String defaultValue) {
-        //Plugin permissions are not implemented in BungeeCord
+        //Plugin permissions are not implemented in Velocity
         return null;
     }
 
@@ -100,7 +100,7 @@ public class VelocityProjectOptionsConfig implements ProjectOptionsConfig {
      */
     @Override
     public Map<String, Object> getPermissions(Map<String, Object> defaultValue) {
-        //Plugin permissions are not implemented in BungeeCord
+        //Plugin permissions are not implemented in Velocity
         return null;
     }
 }
