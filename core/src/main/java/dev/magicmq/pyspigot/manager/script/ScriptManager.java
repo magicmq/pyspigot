@@ -196,7 +196,7 @@ public abstract class ScriptManager {
      */
     public void initJython() {
         if (!sysInitialized) {
-            PyCore.get().getLogger().log(Level.INFO, "Initializing Jython...");
+            PyCore.get().getLogger().info("Initializing Jython...");
 
             Logger jythonLogger = Logger.getLogger("org.python");
             jythonLogger.setLevel(Level.parse(PyCore.get().getConfig().jythonLoggingLevel()));
@@ -209,7 +209,7 @@ public abstract class ScriptManager {
                     LibraryManager.get().getClassLoader()
             );
 
-            PyCore.get().getLogger().log(Level.INFO, "Jython initialized!");
+            PyCore.get().getLogger().info("Jython initialized!");
             sysInitialized = true;
         }
     }
@@ -229,7 +229,7 @@ public abstract class ScriptManager {
      * Loads and runs all scripts contained within the scripts folder. Called on plugin load (I.E. during server start). Loads in the appropriate load order (see {@link Script#compareTo(Script)}).
      */
     public void loadScripts() {
-        PyCore.get().getLogger().log(Level.INFO, "Loading scripts/projects...");
+        PyCore.get().getLogger().info("Loading scripts/projects...");
 
         SortedSet<Path> scriptPaths = getAllScriptPaths();
         scriptPaths.addAll(getAllProjectPaths());
@@ -240,7 +240,7 @@ public abstract class ScriptManager {
             String fileName = path.getFileName().toString();
             Path existing = scriptFiles.putIfAbsent(fileName, path);
             if (existing != null)
-                PyCore.get().getLogger().log(Level.WARNING, "Duplicate script/project '" + PyCore.get().getDataFolderPath().relativize(path) + "' conflicts with '" + PyCore.get().getDataFolderPath().relativize(existing) + "'.");
+                PyCore.get().getLogger().warn("Duplicate script/project '{}' conflicts with '{}'.", PyCore.get().getDataFolderPath().relativize(path), PyCore.get().getDataFolderPath().relativize(existing));
         }
 
         //Init scripts and parse options
@@ -266,11 +266,11 @@ public abstract class ScriptManager {
                 else
                     loadScript(script);
             } catch (ScriptInitializationException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error when loading script/project '" + script.getName() + "'", e);
+                PyCore.get().getLogger().error("Error when loading script/project '{}'", script.getName(), e);
             }
         }
 
-        PyCore.get().getLogger().log(Level.INFO, "Loaded " + scripts.size() + " scripts/projects!");
+        PyCore.get().getLogger().info("Loaded {} scripts/projects!", scripts.size());
     }
 
     /**
@@ -363,7 +363,7 @@ public abstract class ScriptManager {
     public RunResult loadScript(Script script) throws ScriptInitializationException {
         //Check if another script/project is already running with the same name
         if (scripts.containsKey(script.getPath())) {
-            PyCore.get().getLogger().log(Level.WARNING, "Attempted to load script '" + script.getName() + "', but there is another loaded script/project with this name.");
+            PyCore.get().getLogger().warn("Attempted to load script '{}', but there is another loaded script/project with this name.", script.getName());
             return RunResult.FAIL_DUPLICATE;
         }
 
@@ -380,18 +380,18 @@ public abstract class ScriptManager {
             }
         }
         if (!unresolvedPluginDependencies.isEmpty()) {
-            PyCore.get().getLogger().log(Level.WARNING,  "The following plugin dependencies for script '" + script.getName() + "' are missing: " + unresolvedPluginDependencies + ". This script will not be loaded.");
+            PyCore.get().getLogger().warn("The following plugin dependencies for script '{}' are missing: {}. This script will not be loaded.", script.getName(), unresolvedPluginDependencies);
             return RunResult.FAIL_PLUGIN_DEPENDENCY;
         }
 
         if (PyCore.get().getConfig().doScriptActionLogging())
-            PyCore.get().getLogger().log(Level.INFO, "Loading script '" + script.getName() + "'");
+            PyCore.get().getLogger().info("Loading script '{}'", script.getName());
 
         RunResult result = startScript(script);
 
         if (result == RunResult.SUCCESS) {
             if (PyCore.get().getConfig().doScriptActionLogging())
-                PyCore.get().getLogger().log(Level.INFO, "Loaded script '" + script.getName() + "'");
+                PyCore.get().getLogger().info("Loaded script '{}'", script.getName());
         }
 
         return result;
@@ -406,7 +406,7 @@ public abstract class ScriptManager {
     public RunResult loadProject(Script script) throws ScriptInitializationException {
         //Check if another script/project is already running with the same name
         if (scripts.containsKey(script.getPath())) {
-            PyCore.get().getLogger().log(Level.WARNING, "Attempted to load project '" + script.getName() + "', but there is another loaded script/project with this name.");
+            PyCore.get().getLogger().warn("Attempted to load project '{}', but there is another loaded script/project with this name.", script.getName());
             return RunResult.FAIL_DUPLICATE;
         }
 
@@ -423,24 +423,24 @@ public abstract class ScriptManager {
             }
         }
         if (!unresolvedPluginDependencies.isEmpty()) {
-            PyCore.get().getLogger().log(Level.WARNING,  "The following plugin dependencies for project '" + script.getName() + "' are missing: " + unresolvedPluginDependencies + ". This project will not be loaded.");
+            PyCore.get().getLogger().warn("The following plugin dependencies for project '{}' are missing: {}. This project will not be loaded.", script.getName(), unresolvedPluginDependencies);
             return RunResult.FAIL_PLUGIN_DEPENDENCY;
         }
 
         //Check if the project's main script exists
         if (!Files.exists(script.getMainScriptPath())) {
-            PyCore.get().getLogger().log(Level.WARNING, "Attempted to load project '" + script.getName() + "', but the main script file '" + script.getMainScriptPath().toString() + "' was not found in the project folder.");
+            PyCore.get().getLogger().warn("Attempted to load project '{}', but the main script file '{}' was not found in the project folder.", script.getName(), script.getMainScriptPath().toString());
             return RunResult.FAIL_NO_MAIN;
         }
 
         if (PyCore.get().getConfig().doScriptActionLogging())
-            PyCore.get().getLogger().log(Level.INFO, "Loading project '" + script.getName() + "'");
+            PyCore.get().getLogger().info("Loading project '{}'", script.getName());
 
         RunResult result = startScript(script);
 
         if (result == RunResult.SUCCESS) {
             if (PyCore.get().getConfig().doScriptActionLogging())
-                PyCore.get().getLogger().log(Level.INFO, "Loaded project '" + script.getName() + "'");
+                PyCore.get().getLogger().info("Loaded project '{}'", script.getName());
         }
 
         return result;
@@ -458,9 +458,9 @@ public abstract class ScriptManager {
 
             if (PyCore.get().getConfig().doScriptActionLogging()) {
                 if (script.isProject())
-                    PyCore.get().getLogger().log(Level.INFO, "Unloaded project '" + script.getName() + "'");
+                    PyCore.get().getLogger().info("Unloaded project '{}'", script.getName());
                 else
-                    PyCore.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
+                    PyCore.get().getLogger().info("Unloaded script '{}'", script.getName());
             }
         }
         scripts.clear();
@@ -494,9 +494,9 @@ public abstract class ScriptManager {
 
         if (PyCore.get().getConfig().doScriptActionLogging()) {
             if (script.isProject())
-                PyCore.get().getLogger().log(Level.INFO, "Unloaded project '" + script.getName() + "'");
+                PyCore.get().getLogger().info("Unloaded project '{}'", script.getName());
             else
-                PyCore.get().getLogger().log(Level.INFO, "Unloaded script '" + script.getName() + "'");
+                PyCore.get().getLogger().info("Unloaded script '{}'", script.getName());
         }
 
         return gracefulStop;
@@ -523,13 +523,13 @@ public abstract class ScriptManager {
 
                 toLog += ScriptUtils.handleException(script, exception);
 
-                script.getLogger().log(Level.SEVERE, toLog);
+                script.getLogger().error(toLog);
             } catch (ScriptExitException ignored) {
                 String exitCode = getExitCode(exception);
-                script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
+                script.getLogger().info("Script exited with exit code '{}'", exitCode);
                 unloadScriptOnMainThread(script, exitCode.equals("1"));
             } catch (InvocationTargetException | IllegalAccessException e) {
-                script.getLogger().log(Level.SEVERE, "Error when attempting to handle script exception", e);
+                script.getLogger().error("Error when attempting to handle script exception", e);
             }
         }
     }
@@ -627,7 +627,7 @@ public abstract class ScriptManager {
                         .filter(path -> path.toString().endsWith(".py"))
                         .forEach(scripts::add);
             } catch (IOException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error fetching script files from scripts folder", e);
+                PyCore.get().getLogger().error("Error fetching script files from scripts folder", e);
             }
         }
         return scripts;
@@ -644,7 +644,7 @@ public abstract class ScriptManager {
             try (Stream<Path> stream = Files.list(projectsFolder)) {
                 projects.addAll(stream.filter(Files::isDirectory).toList());
             } catch (IOException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error fetching project folders", e);
+                PyCore.get().getLogger().error("Error fetching project folders", e);
             }
         }
         return projects;
@@ -664,7 +664,7 @@ public abstract class ScriptManager {
                         .map(path -> path.getFileName().toString())
                         .forEach(scripts::add);
             } catch (IOException e) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error fetching script files from scripts folder", e);
+                PyCore.get().getLogger().error("Error fetching script files from scripts folder", e);
             }
         }
         return scripts;
@@ -713,18 +713,18 @@ public abstract class ScriptManager {
             return RunResult.SUCCESS;
         } catch (PySyntaxError | PyIndentationError e) {
             handleScriptException(script, e, null);
-            script.getLogger().log(Level.SEVERE, "Script unloaded due to a syntax/indentation error.");
+            script.getLogger().error("Script unloaded due to a syntax/indentation error.");
             unloadScript(script, true);
             return RunResult.FAIL_ERROR;
         } catch (PyException e) {
             if (e.match(Py.SystemExit)) {
                 String exitCode = getExitCode(e);
-                script.getLogger().log(Level.INFO, "Script exited with exit code '" + exitCode + "'");
+                script.getLogger().info("Script exited with exit code '{}'", exitCode);
                 unloadScript(script, exitCode.equals("1"));
                 return exitCode.equals("1") ? RunResult.FAIL_ERROR : RunResult.SUCCESS;
             } else {
                 handleScriptException(script, e, null);
-                script.getLogger().log(Level.SEVERE, "Script unloaded due to a runtime error.");
+                script.getLogger().error("Script unloaded due to a runtime error.");
                 unloadScript(script, true);
                 return RunResult.FAIL_ERROR;
             }

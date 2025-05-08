@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Represents a registered Bukkit command belonging to a script.
@@ -110,7 +109,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
             if (result instanceof PyBoolean)
                 return ((PyBoolean) result).getBooleanValue();
             else
-                script.getLogger().log(Level.WARNING, "Script command function '" + commandFunction.__name__ + "' should return a boolean");
+                script.getLogger().warn("Script command function '{}' should return a boolean", commandFunction.__name__);
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + label + "'");
             //Mimic Bukkit behavior
@@ -133,7 +132,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
                         if (object instanceof String)
                             toReturn.add((String) object);
                         else {
-                            script.getLogger().log(Level.WARNING, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str");
+                            script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
                             return Collections.emptyList();
                         }
                     }

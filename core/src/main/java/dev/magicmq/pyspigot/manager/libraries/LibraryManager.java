@@ -28,7 +28,6 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 
 /**
  * A manager class to help with dynamically loading Jar files into the classpath at runtime. Most commonly, scripts will not use this directly and PySpigot will be the primary user of this manager.
@@ -63,7 +62,7 @@ public class LibraryManager {
         try {
             classLoader.close();
         } catch (IOException e) {
-            PyCore.get().getLogger().log(Level.SEVERE, "Exception when closing JarClassLoader", e);
+            PyCore.get().getLogger().error("Exception when closing JarClassLoader", e);
         }
     }
 
@@ -87,7 +86,7 @@ public class LibraryManager {
             else
                 return LoadResult.FAILED_FILE;
         } catch (Throwable throwable) {
-            PyCore.get().getLogger().log(Level.SEVERE, "Unable to load library '" + libName + "'", throwable);
+            PyCore.get().getLogger().error("Unable to load library '{}'", libName, throwable);
             return LoadResult.FAILED_ERROR;
         }
     }
@@ -115,9 +114,9 @@ public class LibraryManager {
                         LoadResult result = loadLibrary(library);
                         double duration = (System.nanoTime() - start) / 1000000.0;
                         if (result == LoadResult.SUCCESS)
-                            PyCore.get().getLogger().log(Level.INFO, "Loaded library " + libName + " in " + (Math.round(duration * 10.0) / 10.0) + " ms");
+                            PyCore.get().getLogger().info("Loaded library '{}' in {} ms", libName, Math.round(duration * 10.0) / 10.0);
                     } catch (Throwable throwable) {
-                        PyCore.get().getLogger().log(Level.SEVERE, "Unable to load library " + libName + "!", throwable);
+                        PyCore.get().getLogger().error("Unable to load library '{}'!", libName, throwable);
                     }
                 }
             }

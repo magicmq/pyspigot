@@ -24,6 +24,7 @@ import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.script.GlobalVariables;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.StringUtils;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,8 +37,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Core class of PySpigot for all platform-specific implementations. Platform-specific code is implemented via the PlatformAdapter.
@@ -50,6 +49,7 @@ public class PyCore {
     private final PlatformAdapter adapter;
 
     private boolean paper;
+    private Logger logger;
     private PluginConfig config;
     private ScriptOptionsConfig scriptOptionsConfig;
     private volatile String spigotVersion;
@@ -76,6 +76,8 @@ public class PyCore {
      * Initialize the plugin.
      */
     public void init() {
+        logger = adapter.getPlatformLogger();
+
         try {
             Class.forName("com.destroystokyo.paper.ParticleBuilder");
             paper = true;
@@ -129,11 +131,11 @@ public class PyCore {
     }
 
     /**
-     * Get the logger for PySpigot.
+     * Get the logger for PySpigot, furnished by the server.
      * @return The logger
      */
     public Logger getLogger() {
-        return adapter.getLogger();
+        return adapter.getPlatformLogger();
     }
 
     /**
@@ -225,7 +227,7 @@ public class PyCore {
                 spigotVersion = response.body().trim();
             }
         } catch (Exception e) {
-            adapter.getLogger().log(Level.WARNING, "Error when attempting to get latest plugin version from Spigot.", e);
+            logger.warn("Error when attempting to get latest plugin version from Spigot.", e);
         }
     }
 
@@ -237,8 +239,8 @@ public class PyCore {
             StringUtils.Version currentVersion = new StringUtils.Version(adapter.getVersion());
             StringUtils.Version latestVersion = new StringUtils.Version(spigotVersion);
             if (currentVersion.compareTo(latestVersion) < 0) {
-                getLogger().log(Level.WARNING, "You're running an outdated version of PySpigot. The latest version is " + spigotVersion + ".");
-                getLogger().log(Level.WARNING, "Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
+                logger.warn("You're running an outdated version of PySpigot. The latest version is {}.", spigotVersion);
+                logger.warn("Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
             }
         }
     }
@@ -276,10 +278,10 @@ public class PyCore {
                     }
                 }
             } else {
-                adapter.getLogger().log(Level.WARNING, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
+                logger.warn("Could not save {} to {} because {} already exists.", outFile.getName(), outFile, outFile.getName());
             }
         } catch (IOException ex) {
-            adapter.getLogger().log(Level.SEVERE, "Could not save " + resourcePath + " to " + adapter.getDataFolder(), ex);
+            logger.warn("Could not save {} to {}", resourcePath, adapter.getDataFolder(), ex);
         }
     }
 
@@ -294,7 +296,7 @@ public class PyCore {
         for (String folder : folders) {
             File file = new File(adapter.getDataFolder(), folder);
             if (!file.exists() && !file.mkdirs()) {
-                adapter.getLogger().log(Level.WARNING, "Failed to create directory: " + file.getAbsolutePath());
+                logger.warn("Failed to create directory: {}", file.getAbsolutePath());
             }
         }
     }

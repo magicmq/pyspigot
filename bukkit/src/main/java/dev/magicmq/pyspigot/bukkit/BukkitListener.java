@@ -28,8 +28,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 
-import java.util.logging.Level;
-
 /**
  * The Bukkit listener.
  */
@@ -41,7 +39,7 @@ public class BukkitListener extends PluginListener implements Listener {
             for (Script script : ScriptManager.get().getLoadedScripts()) {
                 for (String depend : script.getOptions().getPluginDependencies()) {
                     if (event.getPlugin().getName().equals(depend)) {
-                        PyCore.get().getLogger().log(Level.WARNING, "Unloading script '" + script.getName() + "' because its plugin dependency '" + event.getPlugin().getName() + "' was unloaded.");
+                        PyCore.get().getLogger().warn("Unloading script '{}' because its plugin dependency '{}' was unloaded.", script.getName(), event.getPlugin().getName());
                         ScriptManager.get().unloadScript(script, false);
                     }
                 }

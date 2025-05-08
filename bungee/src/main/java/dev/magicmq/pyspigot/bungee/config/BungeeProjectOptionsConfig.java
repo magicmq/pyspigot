@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 /**
  * The Bungee-specific implementation of the {@link dev.magicmq.pyspigot.config.ProjectOptionsConfig} class, for retrieving values from a project's project.yml file.
@@ -39,7 +38,7 @@ public class BungeeProjectOptionsConfig implements ProjectOptionsConfig {
         try {
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configPath.toFile());
         } catch (IOException e) {
-            PyBungee.get().getLogger().log(Level.SEVERE, "Error when loading the project.yml file", e);
+            PyBungee.get().getPlatformLogger().error("Error when loading the project.yml file", e);
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load("");
         }
     }

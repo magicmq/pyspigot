@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 
 /**
  * The BungeeCord-specific implementation of the {@link dev.magicmq.pyspigot.config.PluginConfig} class, for retrieving values from the plugin config.yml.
@@ -46,7 +45,7 @@ public class BungeePluginConfig implements PluginConfig {
             Configuration defaultConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(PyBungee.get().getResourceAsStream("config.yml"));
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(PyBungee.get().getDataFolder(), "config.yml"), defaultConfig);
         } catch (IOException e) {
-            PyBungee.get().getLogger().log(Level.SEVERE, "There was an exception when loading the config file.", e);
+            PyBungee.get().getPlatformLogger().error("There was an exception when loading the config file.", e);
         }
 
         logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format"));

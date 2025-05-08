@@ -16,126 +16,452 @@
 
 package dev.magicmq.pyspigot.util.logging;
 
-import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.manager.script.Script;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 /**
- * A subclass of Logger that represents a script's logger.
+ * A wrapper class that contains a {@link java.util.logging.Logger} to handle logging script log messages to file, as well as a {@link org.slf4j.Logger} for logging to console and the console log file.
+ * <p>
+ * This class contains methods which pass through to SLF4J's logger, but these methoods additionally log messages to the script's log file.
  * @see Logger
  */
-public class ScriptLogger extends Logger {
+public class ScriptLogger {
 
-    private final String prefix;
-    private final Path logFilePath;
-    private FileHandler handler;
+    private final Logger logger;
+    private ScriptFileLogger fileLogger;
 
     /**
      *
-     * @param script The script associated with this logger
+     * @param script The script associated with this ScriptLogger
      */
     public ScriptLogger(Script script) {
-        super("PySpigot/" + script.getName(), null);
-        this.setParent(PyCore.get().getLogger());
+        this.logger = LoggerFactory.getLogger("PySpigot/" + script.getName());
 
-        this.prefix = "[PySpigot/" + script.getName() + "] ";
-
-        Path scriptLogsFolder = PyCore.get().getDataFolderPath().resolve("logs");
-        this.logFilePath = scriptLogsFolder.resolve(script.getLogFileName());
-    }
-
-    /**
-     * Initializes the FileHandler to log script log messages to its respective log file.
-     * @throws IOException If there was an IOException when initializing the FileHandler for this logger
-     */
-    public void initFileHandler() throws IOException {
-        this.handler = new FileHandler(logFilePath.toString(), true);
-        handler.setFormatter(new ScriptLogFormatter());
-        handler.setEncoding("UTF-8");
-        this.addHandler(handler);
-    }
-
-    /**
-     * Closes the FileHandler for this logger. Should only be called if script file logging is enabled.
-     */
-    public void closeFileHandler() {
-        if (handler != null)
-            handler.close();
-    }
-
-    /**
-     * A convenience method added for a script to print debug information to console and its log file.
-     * @param logText The message to print
-     */
-    public void print(String logText) {
-        super.log(Level.INFO, logText);
-    }
-
-    /**
-     * A convenience method added for a script to print debug information to console and its log file.
-     * @param logText The message to print
-     */
-    public void debug(String logText) {
-        super.log(Level.INFO, logText);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void log(LogRecord logRecord) {
-        if (!PyCore.get().isPaper()) {
-            logRecord.setMessage(prefix + logRecord.getMessage());
-        }
-        super.log(logRecord);
-    }
-
-    /**
-     * A {@link Formatter} to log script messages to their respective log file.
-     */
-    private static class ScriptLogFormatter extends Formatter {
-
-        /**
-         * Formats a LogRecord into an appropriate format for the script's log file.
-         * @param record The log record to be formatted.
-         * @return A String of formatted text that will be logged to the script's log file
-         */
-        @Override
-        public String format(LogRecord record) {
-            StringBuilder builder = new StringBuilder();
-
-            ZonedDateTime zdt = ZonedDateTime.ofInstant(record.getInstant(), ZoneId.systemDefault());
-            builder.append("[" + zdt.format(PyCore.get().getConfig().getLogTimestamp()) + "] ");
-
-            builder.append("[" + record.getLevel().getLocalizedName() + "] ");
-
-            builder.append(super.formatMessage(record));
-
-            String throwable = "";
-            if (record.getThrown() != null) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                pw.println();
-                record.getThrown().printStackTrace(pw);
-                pw.close();
-                throwable = sw.toString();
-            } else {
-                throwable += "\n";
+        if (script.getOptions().isFileLoggingEnabled()) {
+            try {
+                this.fileLogger = new ScriptFileLogger(script);
+                this.fileLogger.setLevel(script.getOptions().getMinLoggingLevel());
+            } catch (IOException e) {
+                this.logger.error("Error when initializing the log file, skipping file logging.", e);
+                this.fileLogger = null;
             }
-            builder.append(throwable);
+        }
+    }
 
-            return builder.toString();
+    /**
+     * Closes the ScriptFileLogger by closing its FileHandler.
+     */
+    public void close() {
+        if (fileLogger != null)
+            fileLogger.closeFileHandler();
+    }
+
+    /**
+     * Get the underlying SLF4J logger which backs this ScriptLogger.
+     * @return The SLF4JLogger
+     */
+    public Logger getSLF4JLogger() {
+        return logger;
+    }
+
+    /**
+     * Log a message at the TRACE level.
+     *
+     * @param msg the message string to be logged
+     */
+    public void trace(String msg) {
+        logger.trace(msg);
+        logToFileLogger(Level.FINEST, msg);
+    }
+
+    /**
+     * Log a message at the TRACE level according to the specified format
+     * and argument.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the TRACE level. </p>
+     *
+     * @param format the format string
+     * @param arg    the argument
+     */
+    public void trace(String format, Object arg) {
+        logger.trace(format, arg);
+        logToFileLogger(Level.FINEST, format, arg);
+    }
+
+    /**
+     * Log a message at the TRACE level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the TRACE level. </p>
+     *
+     * @param format the format string
+     * @param arg1   the first argument
+     * @param arg2   the second argument
+     */
+    public void trace(String format, Object arg1, Object arg2) {
+        logger.trace(format, arg1, arg2);
+        logToFileLogger(Level.FINEST, format, arg1, arg2);
+    }
+
+    /**
+     * Log a message at the TRACE level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous string concatenation when the logger
+     * is disabled for the TRACE level. However, this variant incurs the hidden
+     * (and relatively small) cost of creating an <code>Object[]</code> before invoking the method,
+     * even if this logger is disabled for TRACE. The variants taking {@link #trace(String, Object) one} and
+     * {@link #trace(String, Object, Object) two} arguments exist solely in order to avoid this hidden cost.</p>
+     *
+     * @param format    the format string
+     * @param arguments a list of 3 or more arguments
+     */
+    public void trace(String format, Object... arguments) {
+        logger.trace(format, arguments);
+        logToFileLogger(Level.FINEST, format, arguments);
+    }
+
+    /**
+     * Log an exception (throwable) at the TRACE level with an
+     * accompanying message.
+     *
+     * @param msg the message accompanying the exception
+     * @param t   the exception (throwable) to log
+     */
+    public void trace(String msg, Throwable t) {
+        logger.trace(msg, t);
+        logToFileLogger(Level.FINEST, msg, t);
+    }
+
+    /**
+     * Log a message at the DEBUG level.
+     *
+     * @param msg the message string to be logged
+     */
+    public void debug(String msg) {
+        logger.debug(msg);
+        logToFileLogger(Level.FINE, msg);
+    }
+
+    /**
+     * Log a message at the DEBUG level according to the specified format
+     * and argument.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the DEBUG level. </p>
+     *
+     * @param format the format string
+     * @param arg    the argument
+     */
+    public void debug(String format, Object arg) {
+        logger.debug(format, arg);
+        logToFileLogger(Level.FINE, format, arg);
+    }
+
+    /**
+     * Log a message at the DEBUG level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the DEBUG level. </p>
+     *
+     * @param format the format string
+     * @param arg1   the first argument
+     * @param arg2   the second argument
+     */
+    public void debug(String format, Object arg1, Object arg2) {
+        logger.debug(format, arg1, arg2);
+        logToFileLogger(Level.FINE, format, arg1, arg2);
+    }
+
+    /**
+     * Log a message at the DEBUG level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous string concatenation when the logger
+     * is disabled for the DEBUG level. However, this variant incurs the hidden
+     * (and relatively small) cost of creating an <code>Object[]</code> before invoking the method,
+     * even if this logger is disabled for DEBUG. The variants taking
+     * {@link #debug(String, Object) one} and {@link #debug(String, Object, Object) two}
+     * arguments exist solely in order to avoid this hidden cost.</p>
+     *
+     * @param format    the format string
+     * @param arguments a list of 3 or more arguments
+     */
+    public void debug(String format, Object... arguments) {
+        logger.debug(format, arguments);
+        logToFileLogger(Level.FINE, format, arguments);
+    }
+
+    /**
+     * Log an exception (throwable) at the DEBUG level with an
+     * accompanying message.
+     *
+     * @param msg the message accompanying the exception
+     * @param t   the exception (throwable) to log
+     */
+    public void debug(String msg, Throwable t) {
+        logger.debug(msg, t);
+        logToFileLogger(Level.FINE, msg, t);
+    }
+
+    /**
+     * Log a message at the INFO level.
+     *
+     * @param msg the message string to be logged
+     */
+    public void info(String msg) {
+        logger.info(msg);
+        logToFileLogger(Level.INFO, msg);
+    }
+
+    /**
+     * Log a message at the INFO level according to the specified format
+     * and argument.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the INFO level. </p>
+     *
+     * @param format the format string
+     * @param arg    the argument
+     */
+    public void info(String format, Object arg) {
+        logger.info(format, arg);
+        logToFileLogger(Level.INFO, format, arg);
+    }
+
+    /**
+     * Log a message at the INFO level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the INFO level. </p>
+     *
+     * @param format the format string
+     * @param arg1   the first argument
+     * @param arg2   the second argument
+     */
+    public void info(String format, Object arg1, Object arg2) {
+        logger.info(format);
+        logToFileLogger(Level.INFO, format, arg1, arg2);
+    }
+
+    /**
+     * Log a message at the INFO level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous string concatenation when the logger
+     * is disabled for the INFO level. However, this variant incurs the hidden
+     * (and relatively small) cost of creating an <code>Object[]</code> before invoking the method,
+     * even if this logger is disabled for INFO. The variants taking
+     * {@link #info(String, Object) one} and {@link #info(String, Object, Object) two}
+     * arguments exist solely in order to avoid this hidden cost.</p>
+     *
+     * @param format    the format string
+     * @param arguments a list of 3 or more arguments
+     */
+    public void info(String format, Object... arguments) {
+        logger.info(format, arguments);
+        logToFileLogger(Level.INFO, format, arguments);
+    }
+
+    /**
+     * Log an exception (throwable) at the INFO level with an
+     * accompanying message.
+     *
+     * @param msg the message accompanying the exception
+     * @param t   the exception (throwable) to log
+     */
+    public void info(String msg, Throwable t) {
+        logger.info(msg, t);
+        logToFileLogger(Level.INFO, msg, t);
+    }
+
+    /**
+     * Log a message at the WARN level.
+     *
+     * @param msg the message string to be logged
+     */
+    public void warn(String msg) {
+        logger.warn(msg);
+        logToFileLogger(Level.WARNING, msg);
+    }
+
+    /**
+     * Log a message at the WARN level according to the specified format
+     * and argument.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the WARN level. </p>
+     *
+     * @param format the format string
+     * @param arg    the argument
+     */
+    public void warn(String format, Object arg) {
+        logger.warn(format, arg);
+        logToFileLogger(Level.WARNING, format, arg);
+    }
+
+    /**
+     * Log a message at the WARN level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous string concatenation when the logger
+     * is disabled for the WARN level. However, this variant incurs the hidden
+     * (and relatively small) cost of creating an <code>Object[]</code> before invoking the method,
+     * even if this logger is disabled for WARN. The variants taking
+     * {@link #warn(String, Object) one} and {@link #warn(String, Object, Object) two}
+     * arguments exist solely in order to avoid this hidden cost.</p>
+     *
+     * @param format    the format string
+     * @param arguments a list of 3 or more arguments
+     */
+    public void warn(String format, Object... arguments) {
+        logger.warn(format, arguments);
+        logToFileLogger(Level.WARNING, format, arguments);
+    }
+
+    /**
+     * Log a message at the WARN level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the WARN level. </p>
+     *
+     * @param format the format string
+     * @param arg1   the first argument
+     * @param arg2   the second argument
+     */
+    public void warn(String format, Object arg1, Object arg2) {
+        logger.warn(format, arg1, arg2);
+        logToFileLogger(Level.WARNING, format, arg1, arg2);
+    }
+
+    /**
+     * Log an exception (throwable) at the WARN level with an
+     * accompanying message.
+     *
+     * @param msg the message accompanying the exception
+     * @param t   the exception (throwable) to log
+     */
+    public void warn(String msg, Throwable t) {
+        logger.warn(msg, t);
+        logToFileLogger(Level.WARNING, msg, t);
+    }
+
+    /**
+     * Log a message at the ERROR level.
+     *
+     * @param msg the message string to be logged
+     */
+    public void error(String msg) {
+        logger.error(msg);
+        logToFileLogger(Level.SEVERE, msg);
+    }
+
+    /**
+     * Log a message at the ERROR level according to the specified format
+     * and argument.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the ERROR level. </p>
+     *
+     * @param format the format string
+     * @param arg    the argument
+     */
+    public void error(String format, Object arg) {
+        logger.error(format, arg);
+        logToFileLogger(Level.SEVERE, format, arg);
+    }
+
+    /**
+     * Log a message at the ERROR level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the ERROR level. </p>
+     *
+     * @param format the format string
+     * @param arg1   the first argument
+     * @param arg2   the second argument
+     */
+    public void error(String format, Object arg1, Object arg2) {
+        logger.error(format, arg1, arg2);
+        logToFileLogger(Level.SEVERE, format, arg1, arg2);
+    }
+
+    /**
+     * Log a message at the ERROR level according to the specified format
+     * and arguments.
+     * <p/>
+     * <p>This form avoids superfluous string concatenation when the logger
+     * is disabled for the ERROR level. However, this variant incurs the hidden
+     * (and relatively small) cost of creating an <code>Object[]</code> before invoking the method,
+     * even if this logger is disabled for ERROR. The variants taking
+     * {@link #error(String, Object) one} and {@link #error(String, Object, Object) two}
+     * arguments exist solely in order to avoid this hidden cost.</p>
+     *
+     * @param format    the format string
+     * @param arguments a list of 3 or more arguments
+     */
+    public void error(String format, Object... arguments) {
+        logger.error(format, arguments);
+        logToFileLogger(Level.SEVERE, format, arguments);
+    }
+
+    /**
+     * Log an exception (throwable) at the ERROR level with an
+     * accompanying message.
+     *
+     * @param msg the message accompanying the exception
+     * @param t   the exception (throwable) to log
+     */
+    public void error(String msg, Throwable t) {
+        logger.error(msg, t);
+        if (fileLogger != null)
+            logToFileLogger(Level.SEVERE, msg, t);
+    }
+
+    private void logToFileLogger(Level level, String message) {
+        if (fileLogger != null && fileLogger.getLevel().intValue() >= level.intValue())
+            fileLogger.log(level, message);
+    }
+
+    private void logToFileLogger(Level level, String format, Object arg) {
+        if (fileLogger != null && fileLogger.getLevel().intValue() >= level.intValue()) {
+            FormattingTuple tuple = MessageFormatter.format(format, arg);
+            if (tuple.getThrowable() != null)
+                fileLogger.log(level, tuple.getMessage(), tuple.getThrowable());
+            else
+                fileLogger.log(level, tuple.getMessage());
+        }
+    }
+
+    private void logToFileLogger(Level level, String format, Object arg1, Object arg2) {
+        if (fileLogger != null && fileLogger.getLevel().intValue() >= level.intValue()) {
+            FormattingTuple tuple = MessageFormatter.format(format, arg1, arg2);
+            if (tuple.getThrowable() != null)
+                fileLogger.log(level, tuple.getMessage(), tuple.getThrowable());
+            else
+                fileLogger.log(level, tuple.getMessage());
+        }
+    }
+
+    private void logToFileLogger(Level level, String format, Object[] argArray) {
+        if (fileLogger != null && fileLogger.getLevel().intValue() >= level.intValue()) {
+            FormattingTuple tuple = MessageFormatter.arrayFormat(format, argArray);
+            if (tuple.getThrowable() != null)
+                fileLogger.log(level, tuple.getMessage(), tuple.getThrowable());
+            else
+                fileLogger.log(level, tuple.getMessage());
         }
     }
 }

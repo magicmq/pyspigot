@@ -33,7 +33,6 @@ import org.python.core.ThreadState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Represents a registered BungeeCord command belonging to a script.
@@ -98,7 +97,7 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
                         if (object instanceof String)
                             toReturn.add((String) object);
                         else {
-                            script.getLogger().log(Level.WARNING, "Script tab complete function '" + tabFunction.__name__ + "' should return a list of str");
+                            script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
                             return Collections.emptyList();
                         }
                     }

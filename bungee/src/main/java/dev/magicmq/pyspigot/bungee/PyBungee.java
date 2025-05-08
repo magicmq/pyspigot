@@ -39,6 +39,8 @@ import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventBus;
 import org.bstats.bungeecord.Metrics;
 import org.bstats.charts.SimplePie;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,7 +49,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /**
  * Entry point of PySpigot for the BungeeCord servers.
@@ -97,7 +98,7 @@ public class PyBungee extends Plugin implements PlatformAdapter {
 
             return new BungeePluginConfig();
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Error when saving the default config file.", e);
+            getPlatformLogger().error("Error when saving the default config file.", e);
             return null;
         }
     }
@@ -166,6 +167,11 @@ public class PyBungee extends Plugin implements PlatformAdapter {
     public void shutdownVersionChecking() {
         if (versionCheckTask != null)
             versionCheckTask.cancel();
+    }
+
+    @Override
+    public Logger getPlatformLogger() {
+        return LoggerFactory.getLogger(getLogger().getName());
     }
 
     @Override

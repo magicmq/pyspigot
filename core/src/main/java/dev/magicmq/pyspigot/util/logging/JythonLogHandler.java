@@ -20,6 +20,7 @@ package dev.magicmq.pyspigot.util.logging;
 import dev.magicmq.pyspigot.PyCore;
 
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 /**
@@ -30,23 +31,25 @@ public class JythonLogHandler extends Handler {
     private static final String LOG_MESSAGE_FORMAT = "[%s] %s";
 
     /**
-     * Intercepts a log record, modifies the LogRecord, and forwards it to PySpigot's logger.
-     * The following modifications are made to the LogRecord:
-     * <ul>
-     *     <li>The logger name of the LogRecord is changed to the name of PySpigot's logger.</li>
-     *     <li>The original logger name (a Jython logger) is inserted at the beginning of the log message in square brackets.</li>
-     * </ul>
+     * Intercepts a log record, modifies the message, and forwards it to PySpigot's logger.
+     * <p>
+     * The original logger name is inserted at the beginning of the log message in square brackets to denote the message originated from a Jython logger.
      * @param record The LogRecord to forward
      */
     @Override
     public void publish(LogRecord record) {
-        String jythonLoggerName = record.getLoggerName();
-        String message = record.getMessage();
+        record.setMessage(String.format(LOG_MESSAGE_FORMAT, record.getLoggerName(), record.getMessage()));
 
-        record.setLoggerName(PyCore.get().getLogger().getName());
-        record.setMessage(String.format(LOG_MESSAGE_FORMAT, jythonLoggerName, message));
-
-        PyCore.get().getLogger().log(record);
+        if (record.getLevel() == Level.FINEST || record.getLevel() == Level.FINER || record.getLevel() == Level.FINE)
+            PyCore.get().getLogger().trace(record.getMessage(), record.getThrown());
+        else if (record.getLevel() == Level.CONFIG)
+            PyCore.get().getLogger().debug(record.getMessage(), record.getThrown());
+        else if (record.getLevel() == Level.INFO)
+            PyCore.get().getLogger().info(record.getMessage(), record.getThrown());
+        else if (record.getLevel() == Level.WARNING)
+            PyCore.get().getLogger().warn(record.getMessage(), record.getThrown());
+        else
+            PyCore.get().getLogger().error(record.getMessage(), record.getThrown());
     }
 
     /**

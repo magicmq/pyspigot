@@ -32,7 +32,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * The Bukkit-specific implementation of the command manager.
@@ -65,7 +64,7 @@ public class BukkitCommandManager extends CommandManager {
     protected ScriptCommand registerCommandImpl(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         BukkitScriptCommand newCommand = new BukkitScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
         if (!addCommandToBukkit(newCommand))
-            script.getLogger().log(Level.WARNING, "Used fallback prefix (script name) when registering command '" + name + "'");
+            script.getLogger().warn("Used fallback prefix (script name) when registering command '{}'", name);
         try {
             syncBukkitCommands();
         } catch (IllegalAccessException | InvocationTargetException e) {

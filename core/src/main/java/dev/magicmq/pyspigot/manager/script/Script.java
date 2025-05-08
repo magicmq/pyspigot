@@ -78,15 +78,7 @@ public class Script implements Comparable<Script> {
         this.interpreter.setErr(new PrintStreamWrapper(System.err, this, Level.SEVERE, "[STDERR]"));
 
         this.logger = new ScriptLogger(this);
-        this.logger.setLevel(options.getMinLoggingLevel());
-        if (options.isFileLoggingEnabled()) {
-            try {
-                this.logger.initFileHandler();
-            } catch (IOException e) {
-                this.interpreter.close();
-                throw new ScriptInitializationException(this, "Error when initializing log file", e);
-            }
-        }
+
         interpreter.set("logger", logger);
 
         if (project) {
@@ -97,7 +89,7 @@ public class Script implements Comparable<Script> {
                         .collect(Collectors.toSet()));
             } catch (IOException e) {
                 this.interpreter.close();
-                this.logger.closeFileHandler();
+                this.logger.close();
                 throw new ScriptInitializationException(this, "Error when fetching project modules", e);
             }
         } else
@@ -111,9 +103,7 @@ public class Script implements Comparable<Script> {
      */
     public void close() {
         interpreter.close();
-
-        if (options.isFileLoggingEnabled())
-            logger.closeFileHandler();
+        logger.close();
     }
 
     /**
@@ -186,7 +176,6 @@ public class Script implements Comparable<Script> {
     /**
      * Get this script's logger.
      * @return This script's logger
-     * @see ScriptLogger
      */
     public ScriptLogger getLogger() {
         return logger;

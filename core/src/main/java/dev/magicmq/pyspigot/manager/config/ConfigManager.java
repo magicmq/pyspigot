@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Level;
 
 /**
  * Manager for scripts to interface with configuration files. Primarily used by scripts to load, write to, and save .yml files.
@@ -41,7 +40,7 @@ public abstract class ConfigManager {
             try {
                 Files.createDirectories(configFolder);
             } catch (IOException exception) {
-                PyCore.get().getLogger().log(Level.SEVERE, "Error when creating configs folder for script config files", exception);
+                PyCore.get().getLogger().error("Error when creating configs folder for script config files", exception);
             }
         }
     }

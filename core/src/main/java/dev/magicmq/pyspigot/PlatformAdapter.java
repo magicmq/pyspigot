@@ -19,10 +19,10 @@ package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.logging.Logger;
 
 /**
  * An adapter class that wraps platform-specific code for plugin initialization, shutdown, and other plugin-related activities.
@@ -87,7 +87,7 @@ public interface PlatformAdapter {
      * Get the logger for the plugin via a platform-specific implementation.
      * @return The logger
      */
-    Logger getLogger();
+    Logger getPlatformLogger();
 
     /**
      * Get the data folder for the plugin via a platform-specific implementation.

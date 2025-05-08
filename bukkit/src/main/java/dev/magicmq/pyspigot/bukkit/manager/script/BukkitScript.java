@@ -22,7 +22,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.permissions.Permission;
 
 import java.nio.file.Path;
-import java.util.logging.Level;
 
 /**
  * An extension of the base {@link Script} class that includes Bukkit-specific code for initializing script permissions.
@@ -49,7 +48,7 @@ public class BukkitScript extends Script {
             try {
                 Bukkit.getPluginManager().addPermission(permission);
             } catch (IllegalArgumentException exception) {
-                getLogger().log(Level.WARNING, "The permission '" + permission.getName() + "' is already defined by another plugin/script.");
+                getLogger().warn("The permission '{}' is already defined by another plugin/script.", permission.getName());
             }
         }
     }

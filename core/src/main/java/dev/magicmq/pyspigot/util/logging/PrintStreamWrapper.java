@@ -58,7 +58,10 @@ public class PrintStreamWrapper extends PrintStream {
         byte[] toLog = Arrays.copyOfRange(buf, off, len);
         String string = new String(toLog, StandardCharsets.UTF_8);
         string = string.replaceAll("\\R$", "");
-        script.getLogger().log(level, prefix + " " + string);
+        if (level == Level.INFO)
+            script.getLogger().info(prefix + " " + string);
+        else if (level == Level.SEVERE)
+            script.getLogger().error(prefix + " " + string);
     }
 
     /**

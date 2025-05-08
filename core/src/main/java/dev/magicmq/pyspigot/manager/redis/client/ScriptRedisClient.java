@@ -23,7 +23,6 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * A wrapper class that wraps the RedisClient from lettuce for use by scripts.
@@ -63,7 +62,7 @@ public class ScriptRedisClient {
         client.getResources().eventBus().get().subscribe(event -> {
             if (PyCore.get().getConfig().doVerboseRedisLogging() || event.getClass().getSimpleName().equals("ReconnectAttemptEvent") || event.getClass().getSimpleName().equals("ReconnectFailedEvent")) {
                 String logMessage = "Event captured on redis event bus for client #" + clientId + ": " + event.getClass().getSimpleName();
-                script.getLogger().log(Level.INFO, logMessage);
+                script.getLogger().info(logMessage);
             }
         });
     }

@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 
 /**
  * Manager to interface with Protocolize. Primarily used by scripts to register and unregister packet listeners on the BungeeCord proxy.
@@ -148,7 +147,7 @@ public class ProtocolManager {
         if (player != null) {
             player.sendPacket(packet);
         } else {
-            script.getLogger().log(Level.WARNING, "Attempted to send a packet, but no player is online with the provided UUID");
+            script.getLogger().warn("Attempted to send a packet, but no player is online with the provided UUID");
         }
     }
 
@@ -165,7 +164,7 @@ public class ProtocolManager {
         if (player != null) {
             player.sendPacket(packet);
         } else {
-            script.getLogger().log(Level.WARNING, "Attempted to send a packet, but no player is online with the provided UUID");
+            script.getLogger().warn("Attempted to send a packet, but no player is online with the provided UUID");
         }
     }
 

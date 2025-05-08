@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 /**
  * The BungeeCord-specific implementation of the {@link dev.magicmq.pyspigot.config.ScriptOptionsConfig} class, for retrieving values from the script_options.yml file.
@@ -47,7 +46,7 @@ public class BungeeScriptOptionsConfig implements ScriptOptionsConfig {
         try {
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(PyBungee.get().getDataFolder(), "config.yml"));
         } catch (IOException e) {
-            PyBungee.get().getLogger().log(Level.SEVERE, "There was an exception when loading the config file.", e);
+            PyBungee.get().getPlatformLogger().error("There was an exception when loading the config file.", e);
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load("");
         }
     }

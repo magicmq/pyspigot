@@ -42,6 +42,8 @@ import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -150,6 +152,14 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
     public void shutdownVersionChecking() {
         if (versionCheckTask != null)
             versionCheckTask.cancel();
+    }
+
+    @Override
+    public Logger getPlatformLogger() {
+        if (PyCore.get().isPaper())
+            return getSLF4JLogger();
+        else
+            return LoggerFactory.getLogger(getLogger().getName());
     }
 
     @Override

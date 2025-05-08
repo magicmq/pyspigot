@@ -28,7 +28,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 @SubCommandMeta(
         command = "load",
@@ -57,7 +56,7 @@ public class LoadCommand implements SubCommand {
                         else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
                             sender.sendMessage(Component.text("No script found in the scripts folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                     } catch (ScriptInitializationException e) {
-                        PyCore.get().getLogger().log(Level.SEVERE, "Error when loading script '" + args[0] + "'", e);
+                        PyCore.get().getLogger().error("Error when loading script '{}'", args[0], e);
                         sender.sendMessage(Component.text("There was an error when loading script '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                     }
                 } else {
@@ -80,7 +79,7 @@ public class LoadCommand implements SubCommand {
                         else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
                             sender.sendMessage(Component.text("No project found in the projects folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                     } catch (ScriptInitializationException e) {
-                        PyCore.get().getLogger().log(Level.SEVERE, "Error when loading project '" + args[0] + "'", e);
+                        PyCore.get().getLogger().error("Error when loading project '{}'", args[0], e);
                         sender.sendMessage(Component.text("There was an error when loading project '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                     }
                 } else {
