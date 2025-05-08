@@ -97,10 +97,6 @@ public abstract class ScriptManager {
             loadScripts();
     }
 
-    public void testThrow() {
-        throw new RuntimeException("Test exception was thrown");
-    }
-
     /**
      * Schedules and starts the start script task for the script load delay via a platform-specific implementation.
      */
