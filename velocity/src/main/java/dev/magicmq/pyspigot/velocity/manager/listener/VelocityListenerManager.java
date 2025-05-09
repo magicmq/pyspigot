@@ -68,18 +68,20 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
     }
 
     /**
-     * <b>DO NOT USE.</b>
+     * <b>Unsupported operation.</b>
      * <p>
-     * Velocity events do not support ignoreCancelled, so this method will not work.
+     * Velocity events do not support ignoreCancelled, so this method will not work. Instead, use {@link VelocityListenerManager#registerAsyncListener(PyFunction, Class, EventTaskType)}
+     * @throws UnsupportedOperationException always
      */
     public VelocityScriptListener<?> registerAsyncListener(PyFunction function, Class<?> eventClass, boolean ignoreCancelled, EventTaskType eventTaskType) {
         throw new UnsupportedOperationException("Velocity does not support ignoreCancelled for event listeners.");
     }
 
     /**
-     * <b>DO NOT USE.</b>
+     * <b>Unsupported operation.</b>
      * <p>
-     * Velocity events do not support ignoreCancelled, so this method will not work.
+     * Velocity events do not support ignoreCancelled, so this method will not work. Instead, use {@link VelocityListenerManager#registerAsyncListener(PyFunction, Class, Short, EventTaskType)}
+     * @throws UnsupportedOperationException always
      */
     public VelocityScriptListener<?> registerAsyncListener(PyFunction function, Class<?> eventClass, Short priority, boolean ignoreCancelled, EventTaskType eventTaskType) {
         throw new UnsupportedOperationException("Velocity does not support ignoreCancelled for event listeners.");
@@ -102,9 +104,10 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
     }
 
     /**
-     * <b>DO NOT USE.</b>
+     * <b>Unsupported operation.</b>
      * <p>
-     * Velocity events do not support ignoreCancelled, so this method will not work.
+     * Velocity events do not support ignoreCancelled, so this method will not work. Instead, use {@link VelocityListenerManager#registerListener(PyFunction, Class)}
+     * @throws UnsupportedOperationException always
      */
     @Override
     public VelocityScriptListener<?> registerListener(PyFunction function, Class<?> eventClass, boolean ignoreCancelled) {
@@ -112,9 +115,10 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
     }
 
     /**
-     * <b>DO NOT USE.</b>
+     * <b>Unsupported operation.</b>
      * <p>
-     * Velocity events do not support ignoreCancelled, so this method will not work.
+     * Velocity events do not support ignoreCancelled, so this method will not work. Instead, use {@link VelocityListenerManager#registerListener(PyFunction, Class, Short)}
+     * @throws UnsupportedOperationException always
      */
     @Override
     public VelocityScriptListener<?> registerListener(PyFunction function, Class<?> eventClass, Short priority, boolean ignoreCancelled) {
