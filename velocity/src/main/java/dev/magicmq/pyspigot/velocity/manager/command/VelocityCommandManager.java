@@ -85,7 +85,7 @@ public class VelocityCommandManager extends CommandManager {
      * @return A ScriptCommand representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, boolean asyncTabComplete, String name, List<String> aliases, String permission) {
-        return registerCommand(commandFunction, tabFunction, asyncTabComplete, name, "", "", aliases, null);
+        return registerCommand(commandFunction, tabFunction, asyncTabComplete, name, "", "", aliases, permission);
     }
 
     /**
