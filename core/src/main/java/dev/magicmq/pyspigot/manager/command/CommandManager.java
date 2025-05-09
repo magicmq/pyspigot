@@ -284,7 +284,7 @@ public abstract class CommandManager {
             return null;
     }
 
-    private void addCommand(Script script, ScriptCommand command) {
+    protected void addCommand(Script script, ScriptCommand command) {
         if (registeredCommands.containsKey(script))
             registeredCommands.get(script).add(command);
         else {
