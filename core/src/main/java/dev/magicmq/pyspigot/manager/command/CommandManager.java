@@ -129,7 +129,7 @@ public abstract class CommandManager {
      * @return A ScriptCommand representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission) {
-        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
+        return registerCommand(commandFunction, null, name, "", "", aliases, permission);
     }
 
     /**
@@ -144,7 +144,7 @@ public abstract class CommandManager {
      * @return A ScriptCommand representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
-        return registerCommand(commandFunction, tabFunction, name, "", "", aliases, null);
+        return registerCommand(commandFunction, tabFunction, name, "", "", aliases, permission);
     }
 
     /**
