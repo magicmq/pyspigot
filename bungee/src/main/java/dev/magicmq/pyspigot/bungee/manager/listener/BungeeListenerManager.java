@@ -106,9 +106,10 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     }
 
     /**
-     * <b>DO NOT USE.</b>
+     * <b>Unsupported operation.</b>
      * <p>
-     * BungeeCord events do not support ignoreCancelled, so this method will not work.
+     * BungeeCord events do not support ignoreCancelled, so this method will not work. Instead, use {@link BungeeListenerManager#registerListener(PyFunction, Class)}
+     * @throws UnsupportedOperationException always
      */
     @Override
     public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
@@ -116,9 +117,10 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     }
 
     /**
-     * <b>DO NOT USE.</b>
+     * <b>Unsupported operation.</b>
      * <p>
-     * BungeeCord events do not support ignoreCancelled, so this method will not work.
+     * BungeeCord events do not support ignoreCancelled, so this method will not work. Instead, use {@link BungeeListenerManager#registerListener(PyFunction, Class, Byte)}
+     * @throws UnsupportedOperationException always
      */
     @Override
     public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, Byte priority, boolean ignoreCancelled) {
