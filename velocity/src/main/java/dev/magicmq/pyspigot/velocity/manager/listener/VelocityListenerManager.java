@@ -145,7 +145,7 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
     @Override
     public VelocityScriptListener<?> getListener(Script script, Class<?> eventClass) {
         List<VelocityScriptListener<?>> scriptListeners = getListeners(script);
-        if (scriptListeners != null) {
+        if (!scriptListeners.isEmpty()) {
             for (VelocityScriptListener<?> listener : scriptListeners) {
                 if (listener.getEvent().equals(eventClass))
                     return listener;
