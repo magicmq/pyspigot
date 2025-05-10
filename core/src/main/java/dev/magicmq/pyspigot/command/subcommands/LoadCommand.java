@@ -94,9 +94,9 @@ public class LoadCommand implements SubCommand {
     @Override
     public List<String> onTabComplete(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
-            return new ArrayList<>(ScriptManager.get().getAllScriptNames());
+            return List.copyOf(ScriptManager.get().getAllScriptNames());
         } else {
-            return null;
+            return List.of();
         }
     }
 }

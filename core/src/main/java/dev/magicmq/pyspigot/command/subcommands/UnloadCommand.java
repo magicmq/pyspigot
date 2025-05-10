@@ -67,9 +67,9 @@ public class UnloadCommand implements SubCommand {
     @Override
     public List<String> onTabComplete(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
-            return new ArrayList<>(ScriptManager.get().getLoadedScriptNames());
+            return List.copyOf(ScriptManager.get().getLoadedScriptNames());
         } else {
-            return null;
+            return List.of();
         }
     }
 }
