@@ -26,8 +26,9 @@ import org.python.core.ThreadState;
 
 /**
  * Represents a repeating task defined by a script.
+ * @param <T> The platform-specific scheduled task type. For example, {@code BukkitTask} for Bukkit, and {@code ScheduledTask} for BungeeCord
  */
-public class RepeatingTask extends Task {
+public class RepeatingTask<T> extends Task<T> {
 
     private final long interval;
 
@@ -61,7 +62,7 @@ public class RepeatingTask extends Task {
                 function.__call__(threadState);
             }
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + taskId);
+            ScriptManager.get().handleScriptException(script, e, "Error while executing repeating task");
         }
     }
 
@@ -71,6 +72,6 @@ public class RepeatingTask extends Task {
      */
     @Override
     public String toString() {
-        return String.format("RepeatingTask[Task ID: %d, Async: %b, Delay: %d, Interval: %d]", taskId, async, (int) delay, (int) interval);
+        return String.format("RepeatingTask[Platform Task: %s, Async: %b, Delay: %d, Interval: %d]", TaskManager.<T>getTyped().describeTask(platformTask), async, (int) delay, (int) interval);
     }
 }

@@ -29,8 +29,9 @@ import java.util.Arrays;
 
 /**
  * Represents a task defined by a script.
+ * @param <T> The platform-specific scheduled task type. For example, {@code BukkitTask} for Bukkit, and {@code ScheduledTask} for BungeeCord
  */
-public class Task implements Runnable {
+public class Task<T> implements Runnable {
 
     protected final Script script;
     protected final PyFunction function;
@@ -38,7 +39,7 @@ public class Task implements Runnable {
     protected final boolean async;
     protected final long delay;
 
-    protected int taskId;
+    protected T platformTask;
 
     /**
      *
@@ -80,9 +81,9 @@ public class Task implements Runnable {
                 function.__call__(threadState);
             }
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + taskId);
+            ScriptManager.get().handleScriptException(script, e, "Error while executing task");
         } finally {
-            TaskManager.get().taskFinished(this);
+            TaskManager.<T>getTyped().taskFinished(this);
         }
     }
 
@@ -95,19 +96,26 @@ public class Task implements Runnable {
     }
 
     /**
-     * Get the ID for this task.
-     * @return The task ID for this task
+     * Get the platform-specific task object for this task.
+     * @return The platform-specific task object
      */
-    public int getTaskId() {
-        return taskId;
+    public T getPlatformTask() {
+        return platformTask;
     }
 
     /**
-     * Set the task ID for this task.
-     * @param taskId The task ID to set
+     * Set the platform-specific task object for this task.
+     * @param platformTask The platform-specific task object to set
      */
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
+    protected void setPlatformTask(T platformTask) {
+        this.platformTask = platformTask;
+    }
+
+    /**
+     * Cancel this task. Any current execution will continue, but future executions will not occur.
+     */
+    public void cancel() {
+        TaskManager.<T>getTyped().stopTask(this);
     }
 
     /**
@@ -116,6 +124,6 @@ public class Task implements Runnable {
      */
     @Override
     public String toString() {
-        return String.format("Task[Task ID: %d, Async: %b, Delay: %d]", taskId, async, (int) delay);
+        return String.format("Task[Platform Task: %s, Async: %b, Delay: %d]", TaskManager.<T>getTyped().describeTask(platformTask), async, (int) delay);
     }
 }

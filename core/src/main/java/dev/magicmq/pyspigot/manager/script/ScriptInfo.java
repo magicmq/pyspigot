@@ -81,7 +81,7 @@ public abstract class ScriptInfo {
         builder.append(Component.text().append(Component.text("Listening to events: ", NamedTextColor.GOLD)).append(Component.text(eventsListening.toString())));
         builder.appendNewline();
 
-        List<Task> scriptTasks = TaskManager.get().getTasks(script);
+        List<? extends Task<?>> scriptTasks = TaskManager.get().getTasks(script);
         List<String> tasksInfo = new ArrayList<>();
         if (scriptTasks != null)
             scriptTasks.forEach(task -> tasksInfo.add(task.toString()));
