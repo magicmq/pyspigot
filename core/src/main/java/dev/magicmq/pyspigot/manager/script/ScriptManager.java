@@ -46,7 +46,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -598,7 +597,7 @@ public abstract class ScriptManager {
      * @return An immutable set containing all loaded and running scripts
      */
     public Set<Script> getLoadedScripts() {
-        return new HashSet<>(scripts.values());
+        return Set.copyOf(scripts.values());
     }
 
     /**
@@ -606,12 +605,12 @@ public abstract class ScriptManager {
      * @return An immutable list containing the names of all loaded and running scripts
      */
     public Set<String> getLoadedScriptNames() {
-        return new HashSet<>(scriptNames.keySet());
+        return Set.copyOf(scriptNames.keySet());
     }
 
     /**
      * Get a set of absolute paths corresponding to all script files in the scripts folder (including in subfolders).
-     * @return An immutable {@link java.util.SortedSet} of Paths representing the absolute paths of all script files
+     * @return A {@link java.util.SortedSet} of Paths representing the absolute paths of all script files. Sorting is based on the {@link Comparable} implementation of Path.
      */
     public SortedSet<Path> getAllScriptPaths() {
         SortedSet<Path> scripts = new TreeSet<>();
@@ -630,7 +629,7 @@ public abstract class ScriptManager {
 
     /**
      * Get a set of absolute paths corresponding to all script projects in the projects folder.
-     * @return An immutable {@link java.util.SortedSet} of Paths representing the absolute paths of all project folders
+     * @return An {@link java.util.SortedSet} of Paths representing the absolute paths of all project folders. Sorting is based on the {@link Comparable} implementation of Path.
      */
     public SortedSet<Path> getAllProjectPaths() {
         SortedSet<Path> projects = new TreeSet<>();
@@ -647,7 +646,7 @@ public abstract class ScriptManager {
 
     /**
      * Get a set of file names corresponding to all script files in the scripts folder (including in subfolders). This only returns the names of the files, and does not include the subfolder.
-     * @return An immutable {@link java.util.SortedSet} of Strings representing the names of all script files (including in subfolders)
+     * @return An {@link java.util.SortedSet} of Strings representing the names of all script files (including in subfolders). Sorting is performed in alphabetical order.
      */
     public SortedSet<String> getAllScriptNames() {
         SortedSet<String> scripts = new TreeSet<>();

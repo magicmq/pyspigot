@@ -120,21 +120,17 @@ public class PlaceholderManager {
      * <p>
      * Similar to {@link #unregisterPlaceholder(ScriptPlaceholder)}, except this method can be called from outside a script to unregister a script's placeholder expansion (for example when the script is unloaded and stopped).
      * @param script The script whose placeholder should be unregistered
-     * @return True if a placeholder was unregistered, false if the script did not have a placeholder registered previously
      */
-    public boolean unregisterPlaceholder(Script script) {
+    public void unregisterPlaceholder(Script script) {
         ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
-        if (placeholder != null) {
+        if (placeholder != null)
             unregisterPlaceholder(placeholder);
-            return true;
-        }
-        return false;
     }
 
     /**
      * Get a script's placeholder expansion.
      * @param script The script to get the placeholder expansion from
-     * @return The script's placeholder expansion, null if the script does not have a placeholder expansion registered
+     * @return The script's placeholder expansion, or null if the script does not have a placeholder expansion registered
      */
     public ScriptPlaceholder getPlaceholder(Script script) {
         return registeredPlaceholders.get(script);

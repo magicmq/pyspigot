@@ -248,30 +248,24 @@ public class DatabaseManager {
     /**
      * Get all database connnections belonging to a script.
      * @param script The script to get database connections from
-     * @return An immutable List of {@link Database} containing all database connections associated with the script. Will return null if there are no open database connections associated with the script
+     * @return An immutable List of {@link Database} containing all database connections associated with the script. Will return an empty list if there are no open database connections associated with the script
      */
     public List<Database> getConnections(Script script) {
         List<Database> scriptConnections = activeConnections.get(script);
-        if (scriptConnections != null)
-            return new ArrayList<>(scriptConnections);
-        else
-            return null;
+        return scriptConnections != null ? List.copyOf(scriptConnections) : List.of();
     }
 
     /**
      * Get all database connnections belonging to a script of the given type.
      * @param script The script to get database connections from
      * @param type The type of database connection to filter by
-     * @return An immutable List of {@link Database} containing all database connections of the given type associated with the script. Will return null if there are no open database connections of the given type associated with the script
+     * @return An immutable List of {@link Database} containing all database connections of the given type associated with the script. Will return an empty list if there are no open database connections of the given type associated with the script
      */
     public List<Database> getConnections(Script script, DatabaseType type) {
-        List<Database> scriptConnections = getConnections(script);
-        if (scriptConnections != null) {
-            List<Database> toReturn = new ArrayList<>(scriptConnections);
-            toReturn.removeIf(connection -> connection.getClass() != type.getDbClass());
-            return toReturn;
-        } else
-            return null;
+        return getConnections(script)
+                .stream()
+                .filter(connection -> connection.getClass() == type.getDbClass())
+                .toList();
     }
 
     private void addConnection(Database connection) {

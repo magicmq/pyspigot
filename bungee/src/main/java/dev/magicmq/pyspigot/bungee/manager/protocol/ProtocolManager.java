@@ -99,8 +99,8 @@ public class ProtocolManager {
      * @param script The script whose normal packet listeners should be unregistered
      */
     public void unregisterPacketListeners(Script script) {
-        List<ScriptPacketListener<?>> scriptPacketListeners = registeredListeners.get(script);
-        if (scriptPacketListeners != null) {
+        List<ScriptPacketListener<?>> scriptPacketListeners = getPacketListeners(script);
+        if (!scriptPacketListeners.isEmpty()) {
             for (ScriptPacketListener<?> listener : scriptPacketListeners) {
                 Protocolize.listenerProvider().unregisterListener(listener);
             }
@@ -111,10 +111,11 @@ public class ProtocolManager {
     /**
      * Get all packet listeners associated with a script.
      * @param script The script to get normal packet listeners from
-     * @return A List of {@link ScriptPacketListener} containing all packet listeners associated with this script. Will return null if there are no packet listeners associated with the script
+     * @return An immutable list of {@link ScriptPacketListener} containing all packet listeners associated with this script. Will return an empty list if there are no packet listeners associated with the script
      */
     public List<ScriptPacketListener<?>> getPacketListeners(Script script) {
-        return registeredListeners.get(script);
+        List<ScriptPacketListener<?>> scriptPacketListeners = registeredListeners.get(script);
+        return scriptPacketListeners != null ? List.copyOf(scriptPacketListeners) : List.of();
     }
 
     /**
@@ -124,8 +125,8 @@ public class ProtocolManager {
      * @return The {@link ScriptPacketListener} associated with the script and packet type, null if there is none
      */
     public ScriptPacketListener<?> getPacketListener(Script script, Class<?> packet) {
-        List<ScriptPacketListener<?>> scriptPacketListeners = registeredListeners.get(script);
-        if (scriptPacketListeners != null) {
+        List<ScriptPacketListener<?>> scriptPacketListeners = getPacketListeners(script);
+        if (!scriptPacketListeners.isEmpty()) {
             for (ScriptPacketListener<?> listener : scriptPacketListeners) {
                 if (listener.type() == packet)
                     return listener;

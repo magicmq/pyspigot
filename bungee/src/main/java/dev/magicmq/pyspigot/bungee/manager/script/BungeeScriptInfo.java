@@ -18,14 +18,12 @@ package dev.magicmq.pyspigot.bungee.manager.script;
 
 import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.bungee.manager.protocol.ProtocolManager;
-import dev.magicmq.pyspigot.bungee.manager.protocol.ScriptPacketListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptInfo;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,10 +34,10 @@ public class BungeeScriptInfo extends ScriptInfo {
     @Override
     protected void printPlatformManagerInfo(Script script, TextComponent.Builder appendTo) {
         if (PyBungee.get().isProtocolizeAvailable()) {
-            List<ScriptPacketListener<?>> registeredPacketListeners = ProtocolManager.get().getPacketListeners(script);
-            List<String> packetTypes = new ArrayList<>();
-            if (registeredPacketListeners != null)
-                registeredPacketListeners.forEach(listener -> packetTypes.add(listener.toString()));
+            List<String> packetTypes = ProtocolManager.get().getPacketListeners(script)
+                    .stream()
+                    .map(Object::toString)
+                    .toList();
             appendTo.append(Component.text().append(Component.text("Listening to packets: ", NamedTextColor.GOLD)).append(Component.text(packetTypes.toString())));
             appendTo.appendNewline();
         }

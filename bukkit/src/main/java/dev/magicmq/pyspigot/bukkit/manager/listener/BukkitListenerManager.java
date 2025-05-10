@@ -86,7 +86,7 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
     @Override
     public void unregisterListeners(Script script) {
         List<BukkitScriptEventListener> associatedListeners = getListeners(script);
-        if (associatedListeners != null) {
+        if (!associatedListeners.isEmpty()) {
             for (BukkitScriptEventListener eventListener : associatedListeners) {
                 try {
                     removeFromHandlers(eventListener);
@@ -101,12 +101,9 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
 
     @Override
     public BukkitScriptEventListener getListener(Script script, Class<? extends Event> eventClass) {
-        List<BukkitScriptEventListener> scriptListeners = getListeners(script);
-        if (scriptListeners != null) {
-            for (BukkitScriptEventListener listener : scriptListeners) {
-                if (listener.getEvent().equals(eventClass))
-                    return listener;
-            }
+        for (BukkitScriptEventListener listener : getListeners(script)) {
+            if (listener.getEvent().equals(eventClass))
+                return listener;
         }
         return null;
     }

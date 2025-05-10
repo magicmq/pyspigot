@@ -274,7 +274,7 @@ public abstract class TaskManager<T> {
      */
     public synchronized void stopTasks(Script script) {
         List<Task<T>> associatedTasks = getTasks(script);
-        if (associatedTasks != null) {
+        if (!associatedTasks.isEmpty()) {
             for (Task<T> task : associatedTasks) {
                 stopTaskImpl(task.getPlatformTask());
             }
@@ -285,14 +285,11 @@ public abstract class TaskManager<T> {
     /**
      * Get all scheduled tasks associated with a script.
      * @param script The script whose scheduled tasks should be gotten
-     * @return An immutable list containing all scheduled tasks associated with the script. Returns null if the script has no scheduled tasks
+     * @return An immutable list containing all scheduled tasks associated with the script. Will return an empty list if the script has no scheduled tasks
      */
     public synchronized List<Task<T>> getTasks(Script script) {
         List<Task<T>> scriptTasks = activeTasks.get(script);
-        if (scriptTasks != null)
-            return new ArrayList<>(scriptTasks);
-        else
-            return null;
+        return scriptTasks != null ? List.copyOf(scriptTasks) : List.of();
     }
 
     protected synchronized void taskFinished(Task<T> task) {

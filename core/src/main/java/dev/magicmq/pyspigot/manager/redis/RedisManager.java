@@ -193,24 +193,24 @@ public class RedisManager {
     /**
      * Get all open ScriptRedisClients belonging to a script.
      * @param script The script to get ScriptRedisClients from
-     * @return A List of {@link ScriptRedisClient} containing all clients associated with the script. Will return an empty list if there are no clients associated with the script
+     * @return An immutable list of {@link ScriptRedisClient} containing all clients associated with the script. Will return an empty list if there are no clients associated with the script
      */
     public List<ScriptRedisClient> getRedisClients(Script script) {
         List<ScriptRedisClient> scriptClients = activeClients.get(script);
-        if (scriptClients != null)
-            return new ArrayList<>(scriptClients);
-        else
-            return null;
+        return scriptClients != null ? List.copyOf(scriptClients) : List.of();
     }
 
+    /**
+     * Get all ScriptRedisClients belonging to a script of the given client type.
+     * @param script The script to get ScriptRedisClients from
+     * @param type The type of redis client to filter by
+     * @return An immutable List of {@link ScriptRedisClient} containing all ScriptRedisClients of the given type associated with the script. Will return an empty list if there are no clients of the given type associated with the script
+     */
     public List<ScriptRedisClient> getRedisClients(Script script, ClientType type) {
-        List<ScriptRedisClient> scriptClients = getRedisClients(script);
-        if (scriptClients != null) {
-            List<ScriptRedisClient> toReturn = new ArrayList<>(scriptClients);
-            toReturn.removeIf(connection -> connection.getClass() != type.getClientClass());
-            return toReturn;
-        } else
-            return null;
+        return getRedisClients(script)
+                .stream()
+                .filter(connection -> connection.getClass() == type.getClientClass())
+                .toList();
     }
 
     private void addClient(ScriptRedisClient client) {

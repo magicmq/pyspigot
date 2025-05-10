@@ -162,8 +162,8 @@ public class AsyncProtocolManager {
      * @param script The script whose asynchronous packet listeners should be unregistered
      */
     public void unregisterAsyncPacketListeners(Script script) {
-        List<ScriptPacketListener> scriptPacketListeners = registeredAsyncListeners.get(script);
-        if (scriptPacketListeners != null) {
+        List<ScriptPacketListener> scriptPacketListeners = getAsyncPacketListeners(script);
+        if (!scriptPacketListeners.isEmpty()) {
             for (ScriptPacketListener listener : scriptPacketListeners) {
                 if (listener.getListenerType() == ListenerType.ASYNCHRONOUS)
                     asynchronousManager.unregisterAsyncHandler(listener);
@@ -177,25 +177,23 @@ public class AsyncProtocolManager {
     /**
      * Get all asynchronous packet listeners associated with a script
      * @param script The script to get asynchronous packet listeners from
-     * @return A List of {@link ScriptPacketListener} containing all asynchronous packet listeners associated with this script. Will return null if there are no asynchronous packet listeners associated with the script
+     * @return An immutable list of {@link ScriptPacketListener} containing all asynchronous packet listeners associated with this script. Will return an empty list if there are no asynchronous packet listeners associated with the script
      */
     public List<ScriptPacketListener> getAsyncPacketListeners(Script script) {
-        return registeredAsyncListeners.get(script);
+        List<ScriptPacketListener> scriptPacketListeners = registeredAsyncListeners.get(script);
+        return scriptPacketListeners != null ? List.copyOf(scriptPacketListeners) : List.of();
     }
 
     /**
      * Get the asynchronous packet listener for a particular packet type associated with a script
      * @param script The script
      * @param packetType The packet type
-     * @return The {@link ScriptPacketListener} associated with the script and packet type, null if there is none
+     * @return The {@link ScriptPacketListener} associated with the script and packet type, or null if there is none
      */
     public ScriptPacketListener getAsyncPacketListener(Script script, PacketType packetType) {
-        List<ScriptPacketListener> scriptAsyncPacketListeners = registeredAsyncListeners.get(script);
-        if (scriptAsyncPacketListeners != null) {
-            for (ScriptPacketListener listener : scriptAsyncPacketListeners) {
-                if (listener.getPacketType() == packetType)
-                    return listener;
-            }
+        for (ScriptPacketListener listener : getAsyncPacketListeners(script)) {
+            if (listener.getPacketType() == packetType)
+                return listener;
         }
         return null;
     }

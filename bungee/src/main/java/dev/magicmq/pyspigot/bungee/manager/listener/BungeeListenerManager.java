@@ -137,7 +137,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     @Override
     public void unregisterListeners(Script script) {
         List<BungeeScriptEventListener> associatedListeners = getListeners(script);
-        if (associatedListeners != null) {
+        if (!associatedListeners.isEmpty()) {
             for (BungeeScriptEventListener eventListener : associatedListeners) {
                 unregisterWithBungee(eventListener);
             }
@@ -147,12 +147,9 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
 
     @Override
     public BungeeScriptEventListener getListener(Script script, Class<? extends Event> eventClass) {
-        List<BungeeScriptEventListener> scriptListeners = getListeners(script);
-        if (scriptListeners != null) {
-            for (BungeeScriptEventListener listener : scriptListeners) {
-                if (listener.getEvent().equals(eventClass))
-                    return listener;
-            }
+        for (BungeeScriptEventListener listener : getListeners(script)) {
+            if (listener.getEvent().equals(eventClass))
+                return listener;
         }
         return null;
     }

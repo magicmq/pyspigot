@@ -110,14 +110,11 @@ public abstract class ListenerManager<T, S, U> {
     /**
      * Get all event listeners associated with a script
      * @param script The script to get event listeners from
-     * @return An immutable List of listeners containing all event listeners associated with the script. Will return null if there are no event listeners associated with the script
+     * @return An immutable List of listeners containing all event listeners associated with the script. Will return an empty list if there are no event listeners associated with the script
      */
     public List<T> getListeners(Script script) {
         List<T> scriptListeners = registeredListeners.get(script);
-        if (scriptListeners != null)
-            return new ArrayList<>(scriptListeners);
-        else
-            return null;
+        return scriptListeners != null ? List.copyOf(scriptListeners) : List.of();
     }
 
     protected void addListener(Script script, T listener) {
