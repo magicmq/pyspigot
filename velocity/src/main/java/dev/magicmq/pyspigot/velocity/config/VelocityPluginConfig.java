@@ -140,9 +140,13 @@ public class VelocityPluginConfig implements PluginConfig {
         return config.node("script-option-defaults").node("min-logging-level").getString();
     }
 
+    /**
+     * No-op implementation
+     */
     @Override
     public String scriptOptionPermissionDefault() {
-        return config.node("script-option-defaults").node("permission-default").getString();
+        //Plugin permissions are not implemented in Velocity
+        return null;
     }
 
     /**

@@ -31,6 +31,7 @@ import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.velocity.command.VelocityPluginCommand;
 import dev.magicmq.pyspigot.velocity.config.VelocityPluginConfig;
+import dev.magicmq.pyspigot.velocity.config.VelocityScriptOptionsConfig;
 import dev.magicmq.pyspigot.velocity.manager.command.VelocityCommandManager;
 import dev.magicmq.pyspigot.velocity.manager.listener.VelocityListenerManager;
 import dev.magicmq.pyspigot.velocity.manager.script.VelocityScriptManager;
@@ -91,7 +92,7 @@ public class PyVelocity implements PlatformAdapter {
 
     @Override
     public ScriptOptionsConfig initScriptOptionsConfig() {
-        return null;
+        return new VelocityScriptOptionsConfig();
     }
 
     /**
