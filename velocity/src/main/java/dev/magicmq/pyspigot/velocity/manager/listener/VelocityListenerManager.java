@@ -93,7 +93,7 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
     }
 
     @Override
-    public VelocitySyncScriptListener<?> registerListener(PyFunction function, Class<?> eventClass, Short priority) {
+    public VelocityScriptListener<?> registerListener(PyFunction function, Class<?> eventClass, Short priority) {
         Script script = ScriptUtils.getScriptFromCallStack();
         VelocityScriptListener<?> listener = getListener(script, eventClass);
         if (listener == null) {
