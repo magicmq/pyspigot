@@ -168,7 +168,7 @@ public class VelocityCommandManager extends CommandManager {
                 .aliases(aliases.toArray(new String[0]))
                 .plugin(PyVelocity.get())
                 .build();
-        VelocityScriptCommand command = new VelocityScriptCommand(commandMeta, script, commandFunction, tabFunction, asyncTabComplete, name, permission);
+        VelocityScriptCommand command = new VelocityScriptCommand(commandMeta, script, commandFunction, tabFunction, asyncTabComplete, name, aliases, permission);
         commandManager.register(commandMeta, command);
 
         return command;

@@ -93,4 +93,13 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
             return null;
         }
     }
+
+    /**
+     * Prints a representation of this VelocityAsyncScriptListener in string format, including the event being listened to by the listener
+     * @return A string representation of the VelocityAsyncScriptListener
+     */
+    @Override
+    public String toString() {
+        return String.format("VelocityAsyncScriptListener[Event: %s, Task Type: %s]", event.getName(), eventTaskType.name());
+    }
 }

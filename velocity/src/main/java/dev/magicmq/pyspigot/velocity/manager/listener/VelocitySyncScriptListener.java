@@ -55,4 +55,13 @@ public class VelocitySyncScriptListener<E> extends VelocityScriptListener<E> imp
             ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
         }
     }
+
+    /**
+     * Prints a representation of this VelocitySyncScriptListener in string format, including the event being listened to by the listener
+     * @return A string representation of the VelocityAsyncScriptListener
+     */
+    @Override
+    public String toString() {
+        return String.format("VelocitySyncScriptListener[Event: %s]", event.getName());
+    }
 }

@@ -44,6 +44,7 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
     private final PyFunction tabFunction;
     private final boolean asyncTabComplete;
     private final String name;
+    private final List<String> aliases;
     private final String permission;
 
     /**
@@ -54,15 +55,17 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
      * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
      * @param asyncTabComplete Whether the tab function should be executed asynchronously
      * @param name The name of the command to register
+     * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null
      */
-    public VelocityScriptCommand(CommandMeta commandMeta, Script script, PyFunction commandFunction, PyFunction tabFunction, boolean asyncTabComplete, String name, String permission) {
+    public VelocityScriptCommand(CommandMeta commandMeta, Script script, PyFunction commandFunction, PyFunction tabFunction, boolean asyncTabComplete, String name, List<String> aliases, String permission) {
         this.commandMeta = commandMeta;
         this.script = script;
         this.commandFunction = commandFunction;
         this.tabFunction = tabFunction;
         this.asyncTabComplete = asyncTabComplete;
         this.name = name;
+        this.aliases = aliases;
         this.permission = permission;
     }
 
@@ -134,5 +137,18 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
     @Override
     public boolean hasPermission(Invocation invocation) {
         return invocation.source().hasPermission(permission);
+    }
+
+    /**
+     * Prints a representation of this VelocityScriptCommand in string format, including all variables that pertain to the command (such as name, label, description, etc.)
+     * @return A string representation of the VelocityScriptCommand
+     */
+    @Override
+    public String toString() {
+        return String.format("VelocityScriptCommand[Name: %s, Async Tab Complete: %b, Aliases: %s, Permission: %s]",
+                name,
+                asyncTabComplete,
+                aliases,
+                permission);
     }
 }
