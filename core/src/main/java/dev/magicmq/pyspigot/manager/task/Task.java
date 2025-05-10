@@ -106,8 +106,12 @@ public class Task<T> implements Runnable {
     /**
      * Set the platform-specific task object for this task.
      * @param platformTask The platform-specific task object to set
+     * @throws UnsupportedOperationException If the platform-specific task object was already set for this task
      */
-    protected void setPlatformTask(T platformTask) {
+    public void setPlatformTask(T platformTask) {
+        if (this.platformTask != null)
+            throw new UnsupportedOperationException("The platformTask has already been set for this task");
+
         this.platformTask = platformTask;
     }
 

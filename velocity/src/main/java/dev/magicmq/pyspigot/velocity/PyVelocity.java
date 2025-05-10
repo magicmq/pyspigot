@@ -34,6 +34,7 @@ import dev.magicmq.pyspigot.velocity.config.VelocityPluginConfig;
 import dev.magicmq.pyspigot.velocity.manager.command.VelocityCommandManager;
 import dev.magicmq.pyspigot.velocity.manager.listener.VelocityListenerManager;
 import dev.magicmq.pyspigot.velocity.manager.script.VelocityScriptManager;
+import dev.magicmq.pyspigot.velocity.manager.task.VelocityTaskManager;
 import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
@@ -121,6 +122,7 @@ public class PyVelocity implements PlatformAdapter {
     public void initPlatformManagers() {
         VelocityListenerManager.get();
         VelocityCommandManager.get();
+        VelocityTaskManager.get();
 
         VelocityScriptManager.get();
     }
