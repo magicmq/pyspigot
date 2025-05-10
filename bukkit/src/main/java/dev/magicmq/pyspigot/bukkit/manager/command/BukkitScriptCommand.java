@@ -222,7 +222,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
      */
     @Override
     public String toString() {
-        return String.format("ScriptCommand[Name: %s, Label: %s, Description: %s, Usage: %s, Aliases: %s, Permission: %s, Permission Message: %s]",
+        return String.format("BukkitScriptCommand[Name: %s, Label: %s, Description: %s, Usage: %s, Aliases: %s, Permission: %s, Permission Message: %s]",
                 name,
                 bukkitCommand.getLabel(),
                 bukkitCommand.getDescription(),

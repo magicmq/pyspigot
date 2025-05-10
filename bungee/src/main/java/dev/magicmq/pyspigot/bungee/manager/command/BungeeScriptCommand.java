@@ -46,6 +46,9 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
     private final Script script;
     private final PyFunction commandFunction;
     private final PyFunction tabFunction;
+    private final String name;
+    private final List<String> aliases;
+    private final String permission;
 
     /**
      *
@@ -61,6 +64,9 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
         this.script = script;
         this.commandFunction = commandFunction;
         this.tabFunction = tabFunction;
+        this.name = name;
+        this.aliases = aliases;
+        this.permission = permission;
     }
 
     /**
@@ -110,5 +116,14 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
             }
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Prints a representation of this BungeeScriptCommand in string format, including all variables that pertain to the command (such as name, label, description, etc.)
+     * @return A string representation of the BungeeScriptCommand
+     */
+    @Override
+    public String toString() {
+        return String.format("BungeeScriptCommand[Name: %s, Aliases: %s, Permission: %s]", name, aliases, permission);
     }
 }

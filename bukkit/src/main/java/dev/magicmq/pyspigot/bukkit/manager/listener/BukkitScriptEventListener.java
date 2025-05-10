@@ -85,6 +85,6 @@ public class BukkitScriptEventListener implements Listener {
      */
     @Override
     public String toString() {
-        return String.format("ScriptEventListener[Event: %s]", event.getName());
+        return String.format("BukkitScriptEventListener[Event: %s]", event.getName());
     }
 }

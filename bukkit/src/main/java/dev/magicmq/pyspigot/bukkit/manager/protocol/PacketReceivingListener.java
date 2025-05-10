@@ -47,4 +47,16 @@ public class PacketReceivingListener extends ScriptPacketListener {
     public void onPacketReceiving(PacketEvent event) {
         super.callToScript(event);
     }
+
+    /**
+     * Prints a representation of this PacketReceivingListener in string format, including the packet type listened to by the listener
+     * @return A string representation of the PacketReceivingListener
+     */
+    @Override
+    public String toString() {
+        String superString = super.toString();
+        superString = superString.substring(0, superString.length() - 1);
+
+        return String.format("%s, Listener Type: PacketReceivingListener]", superString);
+    }
 }

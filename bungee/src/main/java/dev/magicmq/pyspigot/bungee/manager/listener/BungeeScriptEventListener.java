@@ -118,6 +118,6 @@ public class BungeeScriptEventListener implements Listener {
      */
     @Override
     public String toString() {
-        return String.format("ScriptEventListener[Event: %s]", event.getName());
+        return String.format("BungeeScriptEventListener[Event: %s]", event.getName());
     }
 }
