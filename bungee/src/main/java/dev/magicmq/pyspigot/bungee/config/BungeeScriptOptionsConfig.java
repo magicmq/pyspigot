@@ -44,9 +44,9 @@ public class BungeeScriptOptionsConfig implements ScriptOptionsConfig {
         }
 
         try {
-            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(PyBungee.get().getDataFolder(), "config.yml"));
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(PyBungee.get().getDataFolder(), "script_options.yml"));
         } catch (IOException e) {
-            PyBungee.get().getPlatformLogger().error("There was an exception when loading the config file.", e);
+            PyBungee.get().getPlatformLogger().error("An error occurred when attempting to load the script_options.yml file", e);
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load("");
         }
     }

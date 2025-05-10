@@ -45,7 +45,7 @@ public class BungeePluginConfig implements PluginConfig {
             Configuration defaultConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(PyBungee.get().getResourceAsStream("config.yml"));
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(PyBungee.get().getDataFolder(), "config.yml"), defaultConfig);
         } catch (IOException e) {
-            PyBungee.get().getPlatformLogger().error("There was an exception when loading the config file.", e);
+            PyBungee.get().getPlatformLogger().error("An error occurred when attempting to load the config.yml file", e);
         }
 
         logTimestamp = DateTimeFormatter.ofPattern(config.getString("log-timestamp-format"));
