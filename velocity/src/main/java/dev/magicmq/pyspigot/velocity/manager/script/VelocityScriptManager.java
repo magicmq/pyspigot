@@ -111,11 +111,17 @@ public class VelocityScriptManager extends ScriptManager {
         return new Script(path, name, options, project);
     }
 
+    /**
+     * No-op implementation
+     */
     @Override
     protected void initScriptPermissions(Script script) {
         //Plugin permissions are not implemented in Velocity
     }
 
+    /**
+     * No-op implementation
+     */
     @Override
     protected void removeScriptPermissions(Script script) {
         //Plugin permissions are not implemented in Velocity
