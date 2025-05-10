@@ -28,12 +28,14 @@ import org.python.core.ThreadState;
 
 /**
  * Represents an async task with a synchronous callback defined by a script.
+ * @param <T> The platform-specific scheduled task type. For example, {@code BukkitTask} for Bukkit, and {@code ScheduledTask} for BungeeCord
  */
-public class SyncCallbackTask extends Task {
+public class SyncCallbackTask<T> extends Task<T> {
 
     private final PyFunction callbackFunction;
 
-    private Callback callback;
+    private volatile boolean cancelled;
+    private Callback<T> callback;
 
     /**
      *
@@ -45,6 +47,8 @@ public class SyncCallbackTask extends Task {
     public SyncCallbackTask(Script script, PyFunction function, PyFunction callbackFunction, Object[] functionArgs, long delay) {
         super(script, function, functionArgs, true, delay);
         this.callbackFunction = callbackFunction;
+
+        this.cancelled = false;
     }
 
     /**
@@ -64,20 +68,29 @@ public class SyncCallbackTask extends Task {
                 outcome = function.__call__(threadState);
             }
 
-            callback = new Callback(this, outcome);
-            callback.setTaskId(TaskManager.get().runSyncCallbackImpl(callback));
-            synchronized (this) {
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    throw new ScriptRuntimeException(script, "Async thread was interrupted in callback task", e);
+            if (!cancelled) {
+                callback = new Callback<>(this, outcome);
+                callback.setPlatformTask(TaskManager.<T>getTyped().runSyncCallbackImpl(callback));
+                synchronized (this) {
+                    try {
+                        this.wait();
+                    } catch (InterruptedException e) {
+                        throw new ScriptRuntimeException(script, "Async thread was interrupted while executing callback task", e);
+                    }
                 }
             }
         } catch (PyException e) {
-            ScriptManager.get().handleScriptException(script, e, "Error when executing task #" + taskId);
+            ScriptManager.get().handleScriptException(script, e, "Error while executing callback task");
         } finally {
-            TaskManager.get().taskFinished(this);
+            if (!cancelled)
+                TaskManager.<T>getTyped().taskFinished(this);
         }
+    }
+
+    @Override
+    public void cancel() {
+        cancelled = true;
+        super.cancel();
     }
 
     /**
@@ -87,37 +100,38 @@ public class SyncCallbackTask extends Task {
     @Override
     public String toString() {
         if (callback == null)
-            return String.format("SyncCallbackTask[Task ID: %d, Async: %b, Delay: %d]", taskId, async, (int) delay);
+            return String.format("SyncCallbackTask[Platform Task: %s, Async: %b, Delay: %d]", TaskManager.<T>getTyped().describeTask(platformTask), async, (int) delay);
         else
-            return String.format("SyncCallbackTask[Task ID: %d, Async: %b, Delay: %d, Callback: %s]", taskId, async, (int) delay, callback.toString());
+            return String.format("SyncCallbackTask[Platform Task: %s, Async: %b, Delay: %d, Callback: %s]", TaskManager.<T>getTyped().describeTask(platformTask), async, (int) delay, callback);
     }
 
     /**
      * The synchronous callback, which runs after the asynchronous task finishes
+     * @param <T> The platform-specific task object
      */
-    private static class Callback implements Runnable {
+    private static class Callback<T> implements Runnable {
 
-        private final SyncCallbackTask task;
+        private final SyncCallbackTask<T> task;
         private final PyObject outcome;
 
-        private int taskId;
+        private T platformTask;
 
         /**
          *
          * @param task The asynchronous portion of the task
          * @param outcome The value(s) returned from the function called during the asynchronous portion of the task
          */
-        private Callback(SyncCallbackTask task, PyObject outcome) {
+        private Callback(SyncCallbackTask<T> task, PyObject outcome) {
             this.task = task;
             this.outcome = outcome;
         }
 
         /**
-         * Set the task ID for this task.
-         * @param taskId The task ID to set
+         * Set the platform-specific task object for this task.
+         * @param platformTask The platform-specific task object to set
          */
-        public void setTaskId(int taskId) {
-            this.taskId = taskId;
+        public void setPlatformTask(T platformTask) {
+            this.platformTask = platformTask;
         }
 
         /**
@@ -134,7 +148,7 @@ public class SyncCallbackTask extends Task {
                 else
                     task.callbackFunction.__call__(threadState, outcome);
             } catch (PyException e) {
-                ScriptManager.get().handleScriptException(task.script, e, "Error when executing task #" + taskId);
+                ScriptManager.get().handleScriptException(task.script, e, "Error while executing callback task");
             } finally {
                 synchronized (task) {
                     task.notify();
@@ -148,7 +162,7 @@ public class SyncCallbackTask extends Task {
          */
         @Override
         public String toString() {
-            return String.format("Callback[Task ID: %d]", taskId);
+            return String.format("Callback[%s]", TaskManager.<T>getTyped().describeTask(platformTask));
         }
     }
 }

@@ -129,7 +129,7 @@ public abstract class CommandManager {
      * @return A ScriptCommand representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, String name, List<String> aliases, String permission) {
-        return registerCommand(commandFunction, null, name, "", "", new ArrayList<>(), null);
+        return registerCommand(commandFunction, null, name, "", "", aliases, permission);
     }
 
     /**
@@ -144,7 +144,7 @@ public abstract class CommandManager {
      * @return A ScriptCommand representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
-        return registerCommand(commandFunction, tabFunction, name, "", "", aliases, null);
+        return registerCommand(commandFunction, tabFunction, name, "", "", aliases, permission);
     }
 
     /**
@@ -248,7 +248,7 @@ public abstract class CommandManager {
      */
     public void unregisterCommands(Script script) {
         List<ScriptCommand> associatedCommands = getCommands(script);
-        if (associatedCommands != null) {
+        if (!associatedCommands.isEmpty()) {
             unregisterCommandsImpl(associatedCommands);
             removeCommands(script);
         }
@@ -262,11 +262,9 @@ public abstract class CommandManager {
      */
     public ScriptCommand getCommand(Script script, String name) {
         List<ScriptCommand> scriptCommands = getCommands(script);
-        if (scriptCommands != null) {
-            for (ScriptCommand command : scriptCommands) {
-                if (command.getName().equalsIgnoreCase(name))
-                    return command;
-            }
+        for (ScriptCommand command : scriptCommands) {
+            if (command.getName().equalsIgnoreCase(name))
+                return command;
         }
         return null;
     }
@@ -274,14 +272,11 @@ public abstract class CommandManager {
     /**
      * Get an immutable list containing all commands belonging to a particular script.
      * @param script The script to get commands from
-     * @return An immutable list containing all commands belonging to the script. Will return null if no commands belong to the script
+     * @return An immutable list containing all commands belonging to the script. Will return an empty list if no commands belong to the script
      */
     public List<ScriptCommand> getCommands(Script script) {
         List<ScriptCommand> scriptCommands = registeredCommands.get(script);
-        if (scriptCommands != null)
-            return new ArrayList<>(scriptCommands);
-        else
-            return null;
+        return scriptCommands != null ? List.copyOf(scriptCommands) : List.of();
     }
 
     protected void addCommand(Script script, ScriptCommand command) {

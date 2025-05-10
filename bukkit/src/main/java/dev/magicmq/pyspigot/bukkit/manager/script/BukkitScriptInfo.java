@@ -20,14 +20,12 @@ import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.ScriptPlaceholder;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
-import dev.magicmq.pyspigot.bukkit.manager.protocol.ScriptPacketListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptInfo;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,17 +47,17 @@ public class BukkitScriptInfo extends ScriptInfo {
         }
 
         if (PySpigot.get().isProtocolLibAvailable()) {
-            List<ScriptPacketListener> registeredPacketListeners = ProtocolManager.get().getPacketListeners(script);
-            List<String> packetTypes = new ArrayList<>();
-            if (registeredPacketListeners != null)
-                registeredPacketListeners.forEach(listener -> packetTypes.add(listener.toString()));
+            List<String> packetTypes = ProtocolManager.get().getPacketListeners(script)
+                    .stream()
+                    .map(Object::toString)
+                    .toList();
             appendTo.append(Component.text().append(Component.text("Listening to packet types: ", NamedTextColor.GOLD)).append(Component.text(packetTypes.toString())));
             appendTo.appendNewline();
 
-            List<ScriptPacketListener> registeredPacketListenersAsync = ProtocolManager.get().async().getAsyncPacketListeners(script);
-            List<String> packetTypesAsync = new ArrayList<>();
-            if (registeredPacketListenersAsync != null)
-                registeredPacketListenersAsync.forEach(listener -> packetTypesAsync.add(listener.toString()));
+            List<String> packetTypesAsync = ProtocolManager.get().async().getAsyncPacketListeners(script)
+                    .stream()
+                    .map(Object::toString)
+                    .toList();
             appendTo.append(Component.text().append(Component.text("Listening to packet types (async): ", NamedTextColor.GOLD)).append(Component.text(packetTypesAsync.toString())));
             appendTo.appendNewline();
         }

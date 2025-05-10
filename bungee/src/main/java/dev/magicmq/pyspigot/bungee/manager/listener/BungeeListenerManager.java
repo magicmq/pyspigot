@@ -49,11 +49,11 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
 
     private static BungeeListenerManager instance;
 
-    private Multimap<Plugin, Listener> listenersByPlugin;
-    private Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority;
-    private Lock lock;
-    private EventBus eventBus;
-    private Method bakeHandlers;
+    private final Multimap<Plugin, Listener> listenersByPlugin;
+    private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority;
+    private final Lock lock;
+    private final EventBus eventBus;
+    private final Method bakeHandlers;
 
     private BungeeListenerManager() {
         super();
@@ -105,11 +105,23 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
         }
     }
 
+    /**
+     * <b>Unsupported operation.</b>
+     * <p>
+     * BungeeCord events do not support ignoreCancelled, so this method will not work. Instead, use {@link BungeeListenerManager#registerListener(PyFunction, Class)}
+     * @throws UnsupportedOperationException always
+     */
     @Override
     public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
         throw new UnsupportedOperationException("BungeeCord does not support ignoreCancelled for event listeners.");
     }
 
+    /**
+     * <b>Unsupported operation.</b>
+     * <p>
+     * BungeeCord events do not support ignoreCancelled, so this method will not work. Instead, use {@link BungeeListenerManager#registerListener(PyFunction, Class, Byte)}
+     * @throws UnsupportedOperationException always
+     */
     @Override
     public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, Byte priority, boolean ignoreCancelled) {
         throw new UnsupportedOperationException("BungeeCord does not support ignoreCancelled for event listeners.");
@@ -125,7 +137,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     @Override
     public void unregisterListeners(Script script) {
         List<BungeeScriptEventListener> associatedListeners = getListeners(script);
-        if (associatedListeners != null) {
+        if (!associatedListeners.isEmpty()) {
             for (BungeeScriptEventListener eventListener : associatedListeners) {
                 unregisterWithBungee(eventListener);
             }
@@ -135,12 +147,9 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
 
     @Override
     public BungeeScriptEventListener getListener(Script script, Class<? extends Event> eventClass) {
-        List<BungeeScriptEventListener> scriptListeners = getListeners(script);
-        if (scriptListeners != null) {
-            for (BungeeScriptEventListener listener : scriptListeners) {
-                if (listener.getEvent().equals(eventClass))
-                    return listener;
-            }
+        for (BungeeScriptEventListener listener : getListeners(script)) {
+            if (listener.getEvent().equals(eventClass))
+                return listener;
         }
         return null;
     }

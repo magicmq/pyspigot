@@ -18,12 +18,9 @@ package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
-import dev.magicmq.pyspigot.manager.database.Database;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
-import dev.magicmq.pyspigot.manager.redis.client.ScriptRedisClient;
-import dev.magicmq.pyspigot.manager.task.Task;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.StringUtils;
 import net.kyori.adventure.text.Component;
@@ -33,7 +30,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -67,38 +63,38 @@ public abstract class ScriptInfo {
         builder.append(Component.text().append(Component.text("Uptime: ", NamedTextColor.GOLD)).append(Component.text(StringUtils.formatDuration(uptime))));
         builder.appendNewline();
 
-        List<?> registeredCommands = CommandManager.get().getCommands(script);
-        List<String> commandNames = new ArrayList<>();
-        if (registeredCommands != null)
-            registeredCommands.forEach(command -> commandNames.add(command.toString()));
+        List<String> commandNames = CommandManager.get().getCommands(script)
+                .stream()
+                .map(Object::toString)
+                .toList();
         builder.append(Component.text().append(Component.text("Registered commands: ", NamedTextColor.GOLD)).append(Component.text(commandNames.toString())));
         builder.appendNewline();
 
-        List<?> registeredListeners = ListenerManager.get().getListeners(script);
-        List<String> eventsListening = new ArrayList<>();
-        if (registeredListeners != null)
-            registeredListeners.forEach(listener -> eventsListening.add(listener.toString()));
+        List<String> eventsListening = ListenerManager.get().getListeners(script)
+                .stream()
+                .map(Object::toString)
+                .toList();
         builder.append(Component.text().append(Component.text("Listening to events: ", NamedTextColor.GOLD)).append(Component.text(eventsListening.toString())));
         builder.appendNewline();
 
-        List<Task> scriptTasks = TaskManager.get().getTasks(script);
-        List<String> tasksInfo = new ArrayList<>();
-        if (scriptTasks != null)
-            scriptTasks.forEach(task -> tasksInfo.add(task.toString()));
+        List<String> tasksInfo = TaskManager.get().getTasks(script)
+                .stream()
+                .map(Object::toString)
+                .toList();
         builder.append(Component.text().append(Component.text("Running tasks: ", NamedTextColor.GOLD)).append(Component.text(tasksInfo.toString())));
         builder.appendNewline();
 
-        List<Database> scriptDatabases = DatabaseManager.get().getConnections(script);
-        List<String> databasesInfo = new ArrayList<>();
-        if (scriptDatabases != null)
-            scriptDatabases.forEach(database -> databasesInfo.add(database.toString()));
+        List<String> databasesInfo = DatabaseManager.get().getConnections(script)
+                .stream()
+                .map(Object::toString)
+                .toList();
         builder.append(Component.text().append(Component.text("Database connections: ", NamedTextColor.GOLD)).append(Component.text(databasesInfo.toString())));
         builder.appendNewline();
 
-        List<ScriptRedisClient> scriptRedisClients = RedisManager.get().getRedisClients(script);
-        List<String> redisInfo = new ArrayList<>();
-        if (scriptRedisClients != null)
-            scriptRedisClients.forEach(redisClient -> redisInfo.add(redisClient.toString()));
+        List<String> redisInfo = RedisManager.get().getRedisClients(script)
+                .stream()
+                .map(Object::toString)
+                .toList();
         builder.append(Component.text().append(Component.text("Redis client: ", NamedTextColor.GOLD)).append(Component.text(redisInfo.toString())));
         builder.appendNewline();
 

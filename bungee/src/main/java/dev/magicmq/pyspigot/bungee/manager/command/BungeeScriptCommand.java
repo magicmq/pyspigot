@@ -16,10 +16,12 @@
 
 package dev.magicmq.pyspigot.bungee.manager.command;
 
+import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
@@ -79,7 +81,7 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + getName() + "'");
             //Mimic BungeeCord behavior
-            sender.sendMessage(ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details.");
+            PyBungee.get().getAdventure().sender(sender).sendMessage(Component.text("An internal error occurred whilst executing this command, please check the console log for details.", NamedTextColor.RED));
         }
     }
 
