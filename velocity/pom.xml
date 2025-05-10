@@ -78,6 +78,53 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                    <shadedClassifierName>shaded</shadedClassifierName>
+                    <relocations>
+                        <relocation>
+                            <pattern>io.netty</pattern>
+                            <shadedPattern>dev.magicmq.libs.io.netty</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>me.lucko</pattern>
+                            <shadedPattern>dev.magicmq.libs.me.lucko</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.zaxxer</pattern>
+                            <shadedPattern>dev.magicmq.libs.com.zaxxer</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.mongodb</pattern>
+                            <shadedPattern>dev.magicmq.libs.com.mongodb</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.bson</pattern>
+                            <shadedPattern>dev.magicmq.libs.org.bson</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.lettuce</pattern>
+                            <shadedPattern>dev.magicmq.libs.io.lettuce</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>dev.magicmq.libs.org.bstats</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>module-info.class</exclude>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                                <exclude>images/ant_logo_large.gif</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
