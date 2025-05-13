@@ -603,7 +603,7 @@ public abstract class ScriptManager {
 
     /**
      * Get the names of all loaded scripts.
-     * @return An immutable list containing the names of all loaded and running scripts
+     * @return An immutable set containing the names of all loaded and running scripts
      */
     public Set<String> getLoadedScriptNames() {
         return scripts.values()
