@@ -54,6 +54,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -356,7 +357,7 @@ public abstract class ScriptManager {
      */
     public RunResult loadScript(Script script) throws ScriptInitializationException {
         //Check if another script/project is already running with the same name
-        if (scripts.containsKey(script.getPath())) {
+        if (scriptNames.containsKey(script.getName().toLowerCase())) {
             PyCore.get().getLogger().warn("Attempted to load script '{}', but there is another loaded script/project with this name.", script.getName());
             return RunResult.FAIL_DUPLICATE;
         }
@@ -399,7 +400,7 @@ public abstract class ScriptManager {
      */
     public RunResult loadProject(Script script) throws ScriptInitializationException {
         //Check if another script/project is already running with the same name
-        if (scripts.containsKey(script.getPath())) {
+        if (scriptNames.containsKey(script.getName().toLowerCase())) {
             PyCore.get().getLogger().warn("Attempted to load project '{}', but there is another loaded script/project with this name.", script.getName());
             return RunResult.FAIL_DUPLICATE;
         }
@@ -483,7 +484,7 @@ public abstract class ScriptManager {
         boolean gracefulStop = stopScript(script, error);
 
         scripts.remove(script.getMainScriptPath());
-        scriptNames.remove(script.getName());
+        scriptNames.remove(script.getName().toLowerCase());
         script.getModules().forEach(moduleMap::remove);
 
         if (PyCore.get().getConfig().doScriptActionLogging()) {
@@ -529,12 +530,12 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Check if a script with the given name is currently loaded.
-     * @param name The name of the script to check. Name should contain the script file extension (.py)
+     * Check if a script or project with the given name is currently loaded. Names are case-insensitive.
+     * @param name The name of the script to check. For single-file scripts, the name should contain the script file extension (.py)
      * @return True if the script is running, false if otherwise
      */
     public boolean isScriptRunning(String name) {
-        return scriptNames.containsKey(name);
+        return scriptNames.containsKey(name.toLowerCase());
     }
 
     /**
@@ -589,7 +590,7 @@ public abstract class ScriptManager {
      * @return The Script object for the script, null if no script is loaded and running with the given name
      */
     public Script getScriptByName(String name) {
-        return scriptNames.get(name);
+        return scriptNames.get(name.toLowerCase());
     }
 
     /**
@@ -605,7 +606,10 @@ public abstract class ScriptManager {
      * @return An immutable list containing the names of all loaded and running scripts
      */
     public Set<String> getLoadedScriptNames() {
-        return Set.copyOf(scriptNames.keySet());
+        return scripts.values()
+                .stream()
+                .map(Script::getName)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -674,13 +678,13 @@ public abstract class ScriptManager {
 
     private RunResult startScript(Script script) throws ScriptInitializationException {
         scripts.put(script.getMainScriptPath(), script);
-        scriptNames.put(script.getName(), script);
+        scriptNames.put(script.getName().toLowerCase(), script);
 
         try {
             script.prepare();
         } catch (ScriptInitializationException e) {
             scripts.remove(script.getMainScriptPath(), script);
-            scriptNames.remove(script.getName(), script);
+            scriptNames.remove(script.getName().toLowerCase(), script);
             throw e;
         }
 
@@ -724,7 +728,7 @@ public abstract class ScriptManager {
             }
         } catch (IOException e) {
             scripts.remove(script.getMainScriptPath());
-            scriptNames.remove(script.getName());
+            scriptNames.remove(script.getName().toLowerCase());
             script.getModules().forEach(moduleMap::remove);
             script.close();
             throw new ScriptInitializationException(script, "Error when loading script file", e);
