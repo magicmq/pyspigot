@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.command.subcommands;
 
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.command.SubCommand;
 import dev.magicmq.pyspigot.command.SubCommandMeta;
 import dev.magicmq.pyspigot.exception.ScriptInitializationException;
@@ -61,7 +62,7 @@ public class ReloadCommand implements SubCommand {
                     else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
                         sender.sendMessage(Component.text("No script found in the scripts folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                 } catch (ScriptInitializationException e) {
-                    e.printStackTrace();
+                    PyCore.get().getLogger().error("Error when loading script '{}'", args[0], e);
                     sender.sendMessage(Component.text("There was an error when reloading script '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                 }
             } else {
@@ -80,7 +81,7 @@ public class ReloadCommand implements SubCommand {
                     else if (result == RunResult.FAIL_SCRIPT_NOT_FOUND)
                         sender.sendMessage(Component.text("No project found in the projects folder with the name '" + args[0] + "'.", NamedTextColor.RED));
                 } catch (ScriptInitializationException e) {
-                    e.printStackTrace();
+                    PyCore.get().getLogger().error("Error when loading script '{}'", args[0], e);
                     sender.sendMessage(Component.text("There was an error when reloading project '" + args[0] + "'. See console for details.", NamedTextColor.RED));
                 }
             }
