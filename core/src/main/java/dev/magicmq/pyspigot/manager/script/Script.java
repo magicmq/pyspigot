@@ -226,4 +226,15 @@ public class Script implements Comparable<Script> {
 
         return name.equals(((Script) other).name);
     }
+
+    /**
+     * Computes a hash code for this Script.
+     * <p>
+     * The hash code is based upon the name of the script, and satisfies the general contract of the {@link Object#hashCode} method.
+     * @return The hash-code value for this Script
+     */
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }
