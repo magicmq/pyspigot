@@ -200,8 +200,7 @@ public class PyCore {
      * Fetch the latest available plugin version from SpigotMC.
      */
     public void fetchSpigotVersion() {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
+        try (HttpClient client = HttpClient.newHttpClient()) {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.spigotmc.org/legacy/update.php?resource=111006"))
                     .timeout(Duration.ofSeconds(10))
