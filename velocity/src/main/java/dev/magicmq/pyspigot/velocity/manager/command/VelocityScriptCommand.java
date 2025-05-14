@@ -136,7 +136,10 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
 
     @Override
     public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission(permission);
+        if (permission != null)
+            return invocation.source().hasPermission(permission);
+        else
+            return true;
     }
 
     /**
