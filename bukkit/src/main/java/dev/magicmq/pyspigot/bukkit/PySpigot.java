@@ -55,6 +55,7 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
 
     private static PySpigot instance;
 
+    private boolean paper;
     private BukkitAudiences adventure;
     private Metrics metrics;
     private BukkitTask versionCheckTask;
@@ -67,6 +68,13 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
             checkReflection();
         } catch (NoSuchMethodException | NoSuchFieldException e) {
             throw new PluginInitializationException("Error when accessing Bukkit via reflection, PySpigot will not be initialized.", e);
+        }
+
+        try {
+            Class.forName("com.destroystokyo.paper.ParticleBuilder");
+            paper = true;
+        } catch (ClassNotFoundException ignored) {
+            paper = false;
         }
 
         PyCore.newInstance(this);
@@ -155,7 +163,7 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
 
     @Override
     public Logger getPlatformLogger() {
-        if (PyCore.get().isPaper())
+        if (paper)
             return getSLF4JLogger();
         else
             return LoggerFactory.getLogger(getLogger().getName());

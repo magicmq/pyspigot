@@ -49,7 +49,6 @@ public class PyCore {
 
     private final PlatformAdapter adapter;
 
-    private boolean paper;
     private Logger logger;
     private PluginConfig config;
     private ScriptOptionsConfig scriptOptionsConfig;
@@ -78,13 +77,6 @@ public class PyCore {
      */
     public void init() {
         logger = adapter.getPlatformLogger();
-
-        try {
-            Class.forName("com.destroystokyo.paper.ParticleBuilder");
-            paper = true;
-        } catch (ClassNotFoundException ignored) {
-            paper = false;
-        }
 
         adapter.initAdventure();
 
@@ -178,14 +170,6 @@ public class PyCore {
      */
     public String getPluginIdentifier() {
         return adapter.getPluginIdentifier();
-    }
-
-    /**
-     * Get if the server is running paper.
-     * @return True if the server is running paper, false if otherwise
-     */
-    public boolean isPaper() {
-        return paper;
     }
 
     /**
