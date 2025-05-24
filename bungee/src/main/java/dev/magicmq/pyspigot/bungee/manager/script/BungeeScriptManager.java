@@ -101,11 +101,17 @@ public class BungeeScriptManager extends ScriptManager {
         return new Script(path, name, options, project);
     }
 
+    /**
+     * No-op implementation
+     */
     @Override
     protected void initScriptPermissions(Script script) {
         //Plugin permissions are not implemented in BungeeCord
     }
 
+    /**
+     * No-op implementation
+     */
     @Override
     protected void removeScriptPermissions(Script script) {
         //Plugin permissions are not implemented in BungeeCord
