@@ -22,6 +22,7 @@ import dev.magicmq.pyspigot.bukkit.config.BukkitProjectOptionsConfig;
 import dev.magicmq.pyspigot.bukkit.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.bukkit.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.bukkit.event.ScriptUnloadEvent;
+import dev.magicmq.pyspigot.bukkit.manager.messaging.PluginMessageManager;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.script.Script;
@@ -120,6 +121,8 @@ public class BukkitScriptManager extends ScriptManager {
         if (PySpigot.get().isPlaceholderApiAvailable()) {
             PlaceholderManager.get().unregisterPlaceholder(script);
         }
+
+        PluginMessageManager.get().unregisterListeners(script);
     }
 
     @Override

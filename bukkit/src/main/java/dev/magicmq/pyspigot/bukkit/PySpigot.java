@@ -24,6 +24,7 @@ import dev.magicmq.pyspigot.bukkit.config.BukkitScriptOptionsConfig;
 import dev.magicmq.pyspigot.bukkit.manager.command.BukkitCommandManager;
 import dev.magicmq.pyspigot.bukkit.manager.config.BukkitConfigManager;
 import dev.magicmq.pyspigot.bukkit.manager.listener.BukkitListenerManager;
+import dev.magicmq.pyspigot.bukkit.manager.messaging.PluginMessageManager;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.bukkit.manager.script.BukkitScriptManager;
@@ -119,6 +120,8 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
             ProtocolManager.get();
         if (isPlaceholderApiAvailable())
             PlaceholderManager.get();
+
+        PluginMessageManager.get();
 
         BukkitScriptManager.get();
     }
