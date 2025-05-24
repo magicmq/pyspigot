@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
         name = PluginMetadata.PLUGIN_NAME,
         version = PluginMetadata.PLUGIN_VERSION,
         url = "https://pyspigot-docs.magicmq.dev",
-        description = "Python scripting engine for Velocity proxy servers",
+        description = PluginMetadata.PLUGIN_DESCRIPTION,
         authors = {"magicmq"}
 )
 public class PyVelocity implements PlatformAdapter {

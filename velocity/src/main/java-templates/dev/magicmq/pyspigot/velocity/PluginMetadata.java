@@ -21,5 +21,6 @@ public final class PluginMetadata {
     public static final String PLUGIN_ID = "${project.pluginNameLowerCase}";
     public static final String PLUGIN_NAME = "${project.pluginName}";
     public static final String PLUGIN_VERSION = "${project.version}";
+    public static final String PLUGIN_DESCRIPTION = "${project.description}";
 
 }
