@@ -44,6 +44,7 @@ public class VelocityPluginConfig implements PluginConfig {
             URL defaultConfigUrl = PyVelocity.get().getPluginClassLoader().getResource("config.yml");
             YamlConfigurationLoader defaultLoader = YamlConfigurationLoader.builder().url(defaultConfigUrl).build();
             ConfigurationNode defaultConfig = defaultLoader.load();
+            config = defaultConfig;
 
             try {
                 Path configPath = PyVelocity.get().getDataFolderPath().resolve("config.yml");
@@ -51,11 +52,11 @@ public class VelocityPluginConfig implements PluginConfig {
                 config = loader.load();
 
                 config.mergeFrom(defaultConfig);
-
-                logTimestamp = DateTimeFormatter.ofPattern(config.node("log-timestamp-format").getString());
             } catch (ConfigurateException e) {
                 PyVelocity.get().getPlatformLogger().error("There was an exception when loading the config.yml", e);
             }
+
+            logTimestamp = DateTimeFormatter.ofPattern(config.node("log-timestamp-format").getString());
         } catch (ConfigurateException e) {
             PyVelocity.get().getPlatformLogger().error("There was an exception when loading the default config.yml", e);
         }
