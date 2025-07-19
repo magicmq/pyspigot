@@ -38,7 +38,10 @@ public class VelocityConfigManager extends ConfigManager {
         return config;
     }
 
-
+    /**
+     * Get the singleton instance of this VelocityConfigManager.
+     * @return The instance
+     */
     public static VelocityConfigManager get() {
         if (instance == null)
             instance = new VelocityConfigManager();
