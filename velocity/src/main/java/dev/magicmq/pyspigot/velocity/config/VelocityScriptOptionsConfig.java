@@ -25,8 +25,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -36,16 +35,16 @@ public class VelocityScriptOptionsConfig implements ScriptOptionsConfig {
 
     @Override
     public void reload() {
-        Path configPath = PyVelocity.get().getDataFolderPath().resolve("script_options.yml");
-        if (!Files.exists(configPath)) {
+        File file = new File(PyCore.get().getDataFolder(), "script_options.yml");
+        if (!file.exists()) {
             PyCore.get().saveResource("script_options.yml", false);
         }
 
-        YamlConfigurationLoader loader = YamlConfigurationLoader.builder().path(configPath).build();
+        YamlConfigurationLoader loader = YamlConfigurationLoader.builder().file(file).build();
         try {
             this.config = loader.load();
         } catch (ConfigurateException e) {
-            PyVelocity.get().getPlatformLogger().error("Error when loading the script_options.yml file", e);
+            PyVelocity.get().getPlatformLogger().error("An error occurred when attempting to load the script_options.yml file", e);
             try {
                 this.config = YamlConfigurationLoader.builder().buildAndLoadString("");
             } catch (ConfigurateException ex) {

@@ -53,12 +53,12 @@ public class VelocityPluginConfig implements PluginConfig {
 
                 config.mergeFrom(defaultConfig);
             } catch (ConfigurateException e) {
-                PyVelocity.get().getPlatformLogger().error("There was an exception when loading the config.yml", e);
+                PyVelocity.get().getPlatformLogger().error("An error occurred when attempting to load the config.yml file", e);
             }
 
             logTimestamp = DateTimeFormatter.ofPattern(config.node("log-timestamp-format").getString());
         } catch (ConfigurateException e) {
-            PyVelocity.get().getPlatformLogger().error("There was an exception when loading the default config.yml", e);
+            PyVelocity.get().getPlatformLogger().error("An error occurred when attempting to load the default config.yml file", e);
         }
     }
 

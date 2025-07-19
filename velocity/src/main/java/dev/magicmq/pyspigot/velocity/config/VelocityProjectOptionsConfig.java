@@ -37,7 +37,7 @@ public class VelocityProjectOptionsConfig implements ProjectOptionsConfig {
         try {
             this.config = loader.load();
         } catch (ConfigurateException e) {
-            PyVelocity.get().getPlatformLogger().error("Error when loading the project.yml file", e);
+            PyVelocity.get().getPlatformLogger().error("An error occurred when attempting to load the project.yml file", e);
             try {
                 this.config = YamlConfigurationLoader.builder().buildAndLoadString("");
             } catch (ConfigurateException ex) {
