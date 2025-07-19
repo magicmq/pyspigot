@@ -40,56 +40,56 @@ public class VelocityTaskManager extends TaskManager<ScheduledTask> {
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * Synchronous tasks are not implemented in BungeeCord, so this method will not work. Instead, use {@link TaskManager#runTaskAsync(PyFunction, Object...)}
+     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#runTaskAsync(PyFunction, Object...)}
      * @throws UnsupportedOperationException always
      */
     @Override
     public synchronized Task<ScheduledTask> runTask(PyFunction function, Object... functionArgs) {
-        throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
+        throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * Synchronous tasks are not implemented in BungeeCord, so this method will not work. Instead, use {@link TaskManager#runTaskLaterAsync(PyFunction, long, Object...)}
+     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#runTaskLaterAsync(PyFunction, long, Object...)}
      * @throws UnsupportedOperationException always
      */
     @Override
     public synchronized Task<ScheduledTask> runTaskLater(PyFunction function, long delay, Object... functionArgs) {
-        throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
+        throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * Synchronous tasks are not implemented in BungeeCord, so this method will not work. Instead, use {@link TaskManager#scheduleAsyncRepeatingTask(PyFunction, long, long, Object...)}
+     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#scheduleAsyncRepeatingTask(PyFunction, long, long, Object...)}
      * @throws UnsupportedOperationException always
      */
     @Override
     public synchronized RepeatingTask<ScheduledTask> scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
-        throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
+        throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * Synchronous tasks are not implemented in BungeeCord, so this method will not work.
+     * Synchronous tasks are not implemented in Velocity, so this method will not work.
      * @throws UnsupportedOperationException always
      */
     @Override
     public synchronized SyncCallbackTask<ScheduledTask> runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
-        throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
+        throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * Synchronous tasks are not implemented in BungeeCord, so this method will not work.
+     * Synchronous tasks are not implemented in Velocity, so this method will not work.
      * @throws UnsupportedOperationException always
      */
     @Override
     public synchronized SyncCallbackTask<ScheduledTask> runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
-        throw new UnsupportedOperationException("BungeeCord does not support synchronous tasks.");
+        throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
     /**
