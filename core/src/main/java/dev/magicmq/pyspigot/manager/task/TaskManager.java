@@ -273,13 +273,10 @@ public abstract class TaskManager<T> {
      * @param script The script whose scheduled tasks should be terminated
      */
     public synchronized void stopTasks(Script script) {
-        List<Task<T>> associatedTasks = getTasks(script);
-        if (!associatedTasks.isEmpty()) {
-            for (Task<T> task : associatedTasks) {
-                stopTaskImpl(task.getPlatformTask());
-            }
-            removeTasks(script);
+        for (Task<T> task : getTasks(script)) {
+            stopTaskImpl(task.getPlatformTask());
         }
+        activeTasks.remove(script);
     }
 
     /**
@@ -313,10 +310,6 @@ public abstract class TaskManager<T> {
         scriptTasks.remove(task);
         if (scriptTasks.isEmpty())
             activeTasks.remove(script);
-    }
-
-    protected synchronized void removeTasks(Script script) {
-        activeTasks.remove(script);
     }
 
     /**

@@ -94,7 +94,7 @@ public class BukkitCommandManager extends CommandManager {
         try {
             syncBukkitCommands();
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error when syncing commands via Bukkit", e);
+            throw new RuntimeException("Unhandled exception when syncing commands via Bukkit", e);
         }
     }
 

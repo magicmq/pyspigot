@@ -30,7 +30,6 @@ import org.python.core.PyFunction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  * The Bukkit-specific implementation of the listener manager.
@@ -74,29 +73,16 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
 
     @Override
     public void unregisterListener(BukkitScriptEventListener listener) {
-        try {
-            removeFromHandlers(listener);
-            removeListener(listener.getScript(), listener);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            //This should not happen, because all events *should* have getHandlerList defined
-            throw new ScriptRuntimeException(listener.getScript(), "Unhandled exception when unregistering listener for event '" + listener.getEvent().getSimpleName() + "'", e);
-        }
+        removeFromHandlers(listener);
+        removeListener(listener.getScript(), listener);
     }
 
     @Override
     public void unregisterListeners(Script script) {
-        List<BukkitScriptEventListener> associatedListeners = getListeners(script);
-        if (!associatedListeners.isEmpty()) {
-            for (BukkitScriptEventListener eventListener : associatedListeners) {
-                try {
-                    removeFromHandlers(eventListener);
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    //This should not happen, because all events *should* have getHandlerList defined
-                    throw new ScriptRuntimeException(script, "Unhandled exception when unregistering listener for event '" + eventListener.getEvent().getSimpleName() + "'", e);
-                }
-            }
-            removeListeners(script);
+        for (BukkitScriptEventListener eventListener : getListeners(script)) {
+            removeFromHandlers(eventListener);
         }
+        removeListeners(script);
     }
 
     @Override
@@ -108,11 +94,15 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
         return null;
     }
 
-    private void removeFromHandlers(BukkitScriptEventListener listener) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = getRegistrationClass(listener.getEvent()).getDeclaredMethod("getHandlerList");
-        method.setAccessible(true);
-        HandlerList list = (HandlerList) method.invoke(null);
-        list.unregister(listener);
+    private void removeFromHandlers(BukkitScriptEventListener listener) {
+        try {
+            Method method = getRegistrationClass(listener.getEvent()).getDeclaredMethod("getHandlerList");
+            method.setAccessible(true);
+            HandlerList list = (HandlerList) method.invoke(null);
+            list.unregister(listener);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new ScriptRuntimeException(listener.getScript(), "Unhandled exception when unregistering listener for event '" + listener.getEvent().getSimpleName() + "'", e);
+        }
     }
 
     //Copied from org.bukkit.plugin.SimplePluginManager#getRegistrationClass. Resolves getHandlerList for events, including those where getHandlerList is defined in a superclass (such as BlockBreakEvent)

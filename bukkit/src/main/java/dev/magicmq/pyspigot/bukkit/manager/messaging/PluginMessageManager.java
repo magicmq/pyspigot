@@ -76,13 +76,10 @@ public class PluginMessageManager {
      * @param script The script whose plugin message listeners should be unregistered
      */
     public void unregisterListeners(Script script) {
-        List<ScriptPluginMessageListener> associatedListeners = getListeners(script);
-        if (!associatedListeners.isEmpty()) {
-            for (ScriptPluginMessageListener listener : associatedListeners) {
-                Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(PySpigot.get(), listener.getFormattedChannel(), listener);
-            }
-            removeListeners(script);
+        for (ScriptPluginMessageListener listener : getListeners(script)) {
+            Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(PySpigot.get(), listener.getFormattedChannel(), listener);
         }
+        registeredListeners.remove(script);
     }
 
     /**
@@ -124,10 +121,6 @@ public class PluginMessageManager {
         scriptListeners.remove(listener.getChannel());
         if (scriptListeners.isEmpty())
             registeredListeners.remove(script);
-    }
-
-    private void removeListeners(Script script) {
-        registeredListeners.remove(script);
     }
 
     /**

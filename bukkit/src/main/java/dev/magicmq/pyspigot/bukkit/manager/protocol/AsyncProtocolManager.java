@@ -162,16 +162,13 @@ public class AsyncProtocolManager {
      * @param script The script whose asynchronous packet listeners should be unregistered
      */
     public void unregisterAsyncPacketListeners(Script script) {
-        List<ScriptPacketListener> scriptPacketListeners = getAsyncPacketListeners(script);
-        if (!scriptPacketListeners.isEmpty()) {
-            for (ScriptPacketListener listener : scriptPacketListeners) {
-                if (listener.getListenerType() == ListenerType.ASYNCHRONOUS)
-                    asynchronousManager.unregisterAsyncHandler(listener);
-                else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
-                    asynchronousManager.unregisterTimeoutHandler(listener);
-            }
-            registeredAsyncListeners.remove(script);
+        for (ScriptPacketListener listener : getAsyncPacketListeners(script)) {
+            if (listener.getListenerType() == ListenerType.ASYNCHRONOUS)
+                asynchronousManager.unregisterAsyncHandler(listener);
+            else if (listener.getListenerType() == ListenerType.ASYNCHRONOUS_TIMEOUT)
+                asynchronousManager.unregisterTimeoutHandler(listener);
         }
+        registeredAsyncListeners.remove(script);
     }
 
     /**

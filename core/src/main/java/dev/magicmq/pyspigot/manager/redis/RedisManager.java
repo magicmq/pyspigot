@@ -178,16 +178,13 @@ public class RedisManager {
      * @param async Whether the client should be closed asynchronously
      */
     public void closeRedisClients(Script script, boolean async) {
-        List<ScriptRedisClient> scriptClients = activeClients.get(script);
-        if (scriptClients != null) {
-            for (ScriptRedisClient client : scriptClients) {
-                if (async)
-                    client.closeAsync();
-                else
-                    client.close();
-            }
-            activeClients.remove(script);
+        for (ScriptRedisClient client : getRedisClients(script)) {
+            if (async)
+                client.closeAsync();
+            else
+                client.close();
         }
+        activeClients.remove(script);
     }
 
     /**

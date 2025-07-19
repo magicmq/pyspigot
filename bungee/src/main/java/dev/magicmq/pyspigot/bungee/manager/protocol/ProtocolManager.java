@@ -99,13 +99,10 @@ public class ProtocolManager {
      * @param script The script whose normal packet listeners should be unregistered
      */
     public void unregisterPacketListeners(Script script) {
-        List<ScriptPacketListener<?>> scriptPacketListeners = getPacketListeners(script);
-        if (!scriptPacketListeners.isEmpty()) {
-            for (ScriptPacketListener<?> listener : scriptPacketListeners) {
-                Protocolize.listenerProvider().unregisterListener(listener);
-            }
-            registeredListeners.remove(script);
+        for (ScriptPacketListener<?> listener : getPacketListeners(script)) {
+            Protocolize.listenerProvider().unregisterListener(listener);
         }
+        registeredListeners.remove(script);
     }
 
     /**

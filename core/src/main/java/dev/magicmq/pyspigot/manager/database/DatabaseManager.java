@@ -235,13 +235,12 @@ public class DatabaseManager {
      */
     public boolean disconnectAll(Script script) {
         boolean toReturn = false;
-        List<Database> scriptConnections = activeConnections.get(script);
-        if (scriptConnections != null) {
-            for (Database connection : scriptConnections) {
-                toReturn = connection.close();
-            }
-            activeConnections.remove(script);
+
+        for (Database connection : getConnections(script)) {
+            toReturn = connection.close();
         }
+        activeConnections.remove(script);
+
         return toReturn;
     }
 
