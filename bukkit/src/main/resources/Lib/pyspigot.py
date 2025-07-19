@@ -10,7 +10,7 @@ from dev.magicmq.pyspigot.manager.task import TaskManager
 from dev.magicmq.pyspigot.manager.config import ConfigManager
 from dev.magicmq.pyspigot.manager.database import DatabaseManager
 from dev.magicmq.pyspigot.manager.redis import RedisManager
-from dev.magicmq.pyspigot.manager.messaging import PluginMessageManager
+from dev.magicmq.pyspigot.bukkit.manager.messaging import PluginMessageManager
 
 def script_manager():
     """Get the script manager for loading, unloading, and reloading scripts."""
