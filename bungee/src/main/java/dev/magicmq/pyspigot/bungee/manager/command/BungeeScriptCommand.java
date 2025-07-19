@@ -104,7 +104,8 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
                         }
                     }
                     return toReturn;
-                }
+                } else
+                    script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
             } catch (PyException exception) {
                 ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when tab completing command '" + getName() + "'");
             }
