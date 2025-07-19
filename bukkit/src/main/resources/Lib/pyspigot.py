@@ -10,6 +10,7 @@ from dev.magicmq.pyspigot.manager.task import TaskManager
 from dev.magicmq.pyspigot.manager.config import ConfigManager
 from dev.magicmq.pyspigot.manager.database import DatabaseManager
 from dev.magicmq.pyspigot.manager.redis import RedisManager
+from dev.magicmq.pyspigot.manager.messaging import PluginMessageManager
 
 def script_manager():
     """Get the script manager for loading, unloading, and reloading scripts."""
@@ -57,6 +58,10 @@ def placeholder_manager():
         return PlaceholderManager.get()
     else: return None
 
+def message_manager():
+    """Get the message manager for sending and receiving plugin messages."""
+    return PluginMessageManager.get()
+
 # Convenience variables for ease of access
 
 script = script_manager()
@@ -99,3 +104,6 @@ placeholder = placeholder_manager()
 placeholder_api = placeholder_manager()
 placeholders = placeholder_manager()
 plm = placeholder_manager()
+
+messaging = message_manager()
+plugin_messaging = message_manager()
