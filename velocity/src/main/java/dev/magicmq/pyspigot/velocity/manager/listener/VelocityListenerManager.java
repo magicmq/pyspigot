@@ -133,23 +133,17 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
 
     @Override
     public void unregisterListeners(Script script) {
-        List<VelocityScriptListener<?>> scriptListeners = getListeners(script);
-        if (scriptListeners != null) {
-            for (VelocityScriptListener<?> listener : scriptListeners) {
-                PyVelocity.get().getProxy().getEventManager().unregisterListener(PyVelocity.get(), listener);
-            }
+        for (VelocityScriptListener<?> listener : getListeners(script)) {
+            PyVelocity.get().getProxy().getEventManager().unregisterListener(PyVelocity.get(), listener);
         }
         removeListeners(script);
     }
 
     @Override
     public VelocityScriptListener<?> getListener(Script script, Class<?> eventClass) {
-        List<VelocityScriptListener<?>> scriptListeners = getListeners(script);
-        if (!scriptListeners.isEmpty()) {
-            for (VelocityScriptListener<?> listener : scriptListeners) {
-                if (listener.getEvent().equals(eventClass))
-                    return listener;
-            }
+        for (VelocityScriptListener<?> listener : getListeners(script)) {
+            if (listener.getEvent().equals(eventClass))
+                return listener;
         }
         return null;
     }
