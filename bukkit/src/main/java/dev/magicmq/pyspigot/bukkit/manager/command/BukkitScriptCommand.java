@@ -138,7 +138,8 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
                         }
                     }
                     return toReturn;
-                }
+                } else
+                    script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
             } catch (PyException exception) {
                 ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when tab completing command '" + bukkitCommand.getLabel() + "'");
             }
