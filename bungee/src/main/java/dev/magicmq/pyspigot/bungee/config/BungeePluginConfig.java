@@ -41,8 +41,10 @@ public class BungeePluginConfig implements PluginConfig {
 
     @Override
     public void reload() {
+        Configuration defaultConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(PyBungee.get().getResourceAsStream("config.yml"));
+        config = defaultConfig;
+
         try {
-            Configuration defaultConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(PyBungee.get().getResourceAsStream("config.yml"));
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(PyBungee.get().getDataFolder(), "config.yml"), defaultConfig);
         } catch (IOException e) {
             PyBungee.get().getPlatformLogger().error("An error occurred when attempting to load the config.yml file", e);
