@@ -38,7 +38,7 @@ public class BungeeProjectOptionsConfig implements ProjectOptionsConfig {
         try {
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configPath.toFile());
         } catch (IOException e) {
-            PyBungee.get().getPlatformLogger().error("Error when loading the project.yml file", e);
+            PyBungee.get().getPlatformLogger().error("An error occurred when attempting to load the project.yml file", e);
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load("");
         }
     }
