@@ -78,6 +78,12 @@ public class PyCore {
     public void init() {
         logger = adapter.getPlatformLogger();
 
+        if (adapter.getVersion().contains("SNAPSHOT")) {
+            logger.warn("It looks like you're running a SNAPSHOT (development) build of PySpigot.");
+            logger.warn("SNAPSHOT builds are untested and may contain bugs. Use at your own risk.");
+            logger.warn("Download the latest stable release here: https://www.spigotmc.org/resources/pyspigot.111006/");
+        }
+
         adapter.initAdventure();
 
         initFolders();
@@ -224,8 +230,8 @@ public class PyCore {
             StringUtils.Version currentVersion = new StringUtils.Version(adapter.getVersion());
             StringUtils.Version latestVersion = new StringUtils.Version(spigotVersion);
             if (currentVersion.compareTo(latestVersion) < 0) {
-                logger.warn("You're running an outdated version of PySpigot. The latest version is {}.", spigotVersion);
-                logger.warn("Download it here: https://www.spigotmc.org/resources/pyspigot.111006/");
+                logger.warn("You're running an outdated version of PySpigot. You are running {}, but the latest version is {}.", adapter.getVersion(), spigotVersion);
+                logger.warn("Download the latest version here: https://www.spigotmc.org/resources/pyspigot.111006/");
             }
         }
     }
