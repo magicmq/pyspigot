@@ -18,9 +18,11 @@ package dev.magicmq.pyspigot.bukkit.manager.messaging;
 
 
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.python.core.Py;
+import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.core.ThreadState;
@@ -63,14 +65,6 @@ public class ScriptPluginMessageListener implements PluginMessageListener {
     }
 
     /**
-     * Get the channel this listener is listening on, formatted in compliance with Bukkit's NamespacedKey format, for registering/unregistering purposes.
-     * @return The channel being listened on, formatted in NamedspacedKey format
-     */
-    public String getFormattedChannel() {
-        return "PySpigot:" + script.getName() + "_" + channel;
-    }
-
-    /**
      * Called internally when a message is received on the registered channel.
      * <p>
      * Note that although the channel is passed as a parameter, only messages received on the registered channel will result in a call to this method.
@@ -80,11 +74,15 @@ public class ScriptPluginMessageListener implements PluginMessageListener {
      */
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
-        if (channel.equals(getFormattedChannel())) {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject[] parameters = Py.javas2pys(channel, player, message);
-            function.__call__(threadState, parameters[0], parameters[1], parameters[2]);
+        if (channel.equals(this.channel)) {
+            try {
+                Py.setSystemState(script.getInterpreter().getSystemState());
+                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
+                PyObject[] parameters = Py.javas2pys(channel, player, message);
+                function.__call__(threadState, parameters[0], parameters[1], parameters[2]);
+            } catch (PyException e) {
+                ScriptManager.get().handleScriptException(script, e, "Error when calling plugin message listener");
+            }
         }
     }
 }
