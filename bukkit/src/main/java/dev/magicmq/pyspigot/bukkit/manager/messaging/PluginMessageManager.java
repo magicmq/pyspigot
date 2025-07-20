@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Manager to interface with Spigot/Paper's plugin messaging system. Primarily used by scripts to register and unregister plugin message listeners. Can also be used to send plugin messages
+ * Manager to interface with Spigot/Paper's plugin messaging system. Primarily used by scripts to register and unregister plugin message listeners. Can also be used to send plugin messages.
  * @see org.bukkit.plugin.messaging.PluginMessageListener
  */
 public class PluginMessageManager {
@@ -99,6 +99,9 @@ public class PluginMessageManager {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown message type '" + messageType + "'");
         }
 
         sendRawMessage(player, "BungeeCord", out.toByteArray());
@@ -219,20 +222,16 @@ public class PluginMessageManager {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         DataOutputStream dout = new DataOutputStream(out);
         for (Object arg : payload) {
-            if (arg instanceof String)
-                dout.writeUTF((String) arg);
-            else if (arg instanceof Integer)
-                dout.writeInt((Integer) arg);
-            else if (arg instanceof Short)
-                dout.writeShort((Short) arg);
-            else if (arg instanceof Byte)
-                dout.writeByte((Byte) arg);
-            else if (arg instanceof Boolean)
-                dout.writeBoolean((Boolean) arg);
-            else if (arg instanceof byte[])
-                dout.write((byte[]) arg);
-            else
-                throw new IllegalArgumentException("Unsupported forward payload type: " + arg.getClass().getName());
+            switch (arg) {
+                case String s -> dout.writeUTF(s);
+                case Integer i -> dout.writeInt(i);
+                case Short i -> dout.writeShort(i);
+                case Byte b -> dout.writeByte(b);
+                case Boolean b -> dout.writeBoolean(b);
+                case byte[] bytes -> dout.write(bytes);
+                case null -> throw new IllegalArgumentException("Unsupported payload type: null");
+                default -> throw new IllegalArgumentException("Unsupported payload type: " + arg.getClass().getName());
+            }
         }
 
         return out.toByteArray();
