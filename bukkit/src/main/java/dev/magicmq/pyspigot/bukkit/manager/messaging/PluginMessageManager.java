@@ -142,14 +142,16 @@ public class PluginMessageManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function that should be called when a message is received on the channel
      * @param channel The channel to listen on
+     * @return The plugin message listener that was registered
      */
-    public void registerListener(PyFunction function, String channel) {
+    public ScriptPluginMessageListener registerListener(PyFunction function, String channel) {
         Script script = ScriptUtils.getScriptFromCallStack();
         ScriptPluginMessageListener listener = getListener(script, channel);
         if (listener == null) {
             listener = new ScriptPluginMessageListener(script, function, channel);
             Bukkit.getServer().getMessenger().registerIncomingPluginChannel(PySpigot.get(), listener.getChannel(), listener);
             addListener(script, listener);
+            return listener;
         } else {
             throw new ScriptRuntimeException(script, "Script already has a plugin message listener registered for the channel '" + channel + "'");
         }
