@@ -20,12 +20,14 @@ jobs:
         run: mvn -B package --file pom.xml
       - name: Maven cleanup
         run: mvn --batch-mode --update-snapshots verify
-      - name: Copy artifacts to staging directory
-        run: mkdir staging && rsync -ar --exclude 'core/target/*-shaded.jar' target/*-shaded.jar **/target/*-shaded.jar staging
-      - name: Rename artifacts in staging directory
+      - name: Prepare artifacts
         run: |
-          for file in staging/*-shaded.jar; do
-            mv "$file" "${file/-shaded.jar/.jar}"
+          mkdir -p staging
+          find . -type f \( -name "*-sources.jar" -o -name "*-javadoc.jar" \) -exec cp {} staging/ \;
+          find . -type f -name "*-shaded.jar" | while read -r file; do
+            filename=$(basename "$file")
+            new_filename="${filename/-shaded.jar/.jar}"
+            cp "$file" "staging/$new_filename"
           done
       - name: Fetch tag name
         id: tagname
