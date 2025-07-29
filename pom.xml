@@ -191,6 +191,7 @@
                             <link>https://javadoc.io/doc/org.mongodb/mongodb-driver-sync/latest/</link>
                             <link>https://javadoc.io/doc/io.lettuce/lettuce-core/latest/</link>
                             <link>https://javadoc.io/doc/net.kyori/adventure-api/latest/</link>
+                            <link>https://www.slf4j.org/apidocs/</link>
                         </links>
                     </configuration>
                     <executions>
@@ -255,6 +256,7 @@
                         <link>https://javadoc.io/doc/org.mongodb/mongodb-driver-sync/latest/</link>
                         <link>https://javadoc.io/doc/io.lettuce/lettuce-core/latest/</link>
                         <link>https://javadoc.io/doc/net.kyori/adventure-api/latest/</link>
+                        <link>https://www.slf4j.org/apidocs/</link>
                     </links>
                 </configuration>
                 <executions>
