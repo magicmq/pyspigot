@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
         id = PluginMetadata.PLUGIN_ID,
         name = PluginMetadata.PLUGIN_NAME,
         version = PluginMetadata.PLUGIN_VERSION,
-        url = "https://pyspigot-docs.magicmq.dev",
+        url = PluginMetadata.PLUGIN_URL,
         description = PluginMetadata.PLUGIN_DESCRIPTION,
         authors = {"magicmq"}
 )
