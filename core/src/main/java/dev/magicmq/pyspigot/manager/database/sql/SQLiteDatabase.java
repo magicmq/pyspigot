@@ -55,6 +55,14 @@ public class SQLiteDatabase extends GenericSQLDatabase {
             Driver driver = (Driver) c.getDeclaredConstructor().newInstance();
             this.connection = driver.connect(uri, new Properties());
             return !connection.isClosed();
+        } catch (ClassNotFoundException e) {
+            throw new ScriptRuntimeException(getScript(), """
+                    
+                    
+                    ERROR: SQLite JDBC driver not found. This library is not bundled with PySpigot; you will need to manually download it for SQLite support.
+                    
+                    Download the JAR file from https://github.com/xerial/sqlite-jdbc/releases, place it in the java-libs folder, and restart the server."""
+            );
         } catch (Exception e) {
             throw new ScriptRuntimeException(getScript(), "Error when opening connection to SQLite database", e);
         }

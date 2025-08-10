@@ -7,7 +7,6 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.database.mongo.MongoDatabase;
 import dev.magicmq.pyspigot.manager.database.sql.SQLDatabase;
 import dev.magicmq.pyspigot.manager.database.sql.SQLiteDatabase;
-import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 
@@ -144,16 +143,6 @@ public class DatabaseManager {
      */
     public SQLiteDatabase connectSQLite(String filePath) {
         Script script = ScriptUtils.getScriptFromCallStack();
-
-        if (!checkSQLiteJDBC()) {
-            throw new ScriptRuntimeException(script, """
-                    
-                    
-                    ERROR: SQLite JDBC driver not found. This library is not bundled with PySpigot; you will need to manually download it for SQLite support.
-                    
-                    Download the JAR file from https://github.com/xerial/sqlite-jdbc/releases, place it in the java-libs folder, and restart the server."""
-            );
-        }
 
         if (filePath == null)
             filePath = "memory:";
@@ -330,15 +319,6 @@ public class DatabaseManager {
         scriptConnections.remove(connection);
         if (scriptConnections.isEmpty())
             activeConnections.remove(script);
-    }
-
-    private boolean checkSQLiteJDBC() {
-        try {
-            Class.forName("org.sqlite.JDBC", true, LibraryManager.get().getClassLoader());
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 
     /**
