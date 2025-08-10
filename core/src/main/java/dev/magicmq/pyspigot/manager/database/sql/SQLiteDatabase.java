@@ -82,7 +82,7 @@ public class SQLiteDatabase extends GenericSQLDatabase {
     }
 
     @Override
-    public Map<String, List<Object>> select(String sql, Object[] values) throws SQLException {
+    public List<Map<String, Object>> select(String sql, Object[] values) throws SQLException {
         return select(connection, sql, values);
     }
 

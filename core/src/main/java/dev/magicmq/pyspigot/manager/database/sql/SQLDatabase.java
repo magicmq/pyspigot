@@ -42,7 +42,7 @@ public class SQLDatabase extends GenericSQLDatabase {
     }
 
     @Override
-    public Map<String, List<Object>> select(String sql, Object[] values) throws SQLException {
+    public List<Map<String, Object>> select(String sql, Object[] values) throws SQLException {
         try (Connection connection = hikariDataSource.getConnection()) {
             return select(connection, sql, values);
         }

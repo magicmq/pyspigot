@@ -23,9 +23,10 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ public abstract class GenericSQLDatabase extends Database {
      * @return A {@link java.util.Map} containing the data returned from the selection. Functionally identical to a python dict, where keys are column names and values are column data, with preserved order
      * @throws SQLException If there was an exception when selecting from the database
      */
-    public abstract Map<String, List<Object>> select(String sql, Object[] values) throws SQLException;
+    public abstract List<Map<String, Object>> select(String sql, Object[] values) throws SQLException;
 
     /**
      * Update the SQL database with the provided values that should be inserted into the update statement.
@@ -69,7 +70,7 @@ public abstract class GenericSQLDatabase extends Database {
      * @return A {@link java.util.Map} containing the data returned from the selection. Functionally identical to a python dict, where keys are column names and values are column data, with preserved order
      * @throws SQLException If there was an exception when selecting from the database
      */
-    public Map<String, List<Object>> select(String sql) throws SQLException {
+    public List<Map<String, Object>> select(String sql) throws SQLException {
         return select(sql, null);
     }
 
@@ -85,7 +86,7 @@ public abstract class GenericSQLDatabase extends Database {
         return update(sql, null);
     }
 
-    protected Map<String, List<Object>> select(Connection connection, String sql, Object[] values) throws SQLException {
+    protected List<Map<String, Object>> select(Connection connection, String sql, Object[] values) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             if (values != null) {
                 for (int i = 0; i < values.length; i++) {
@@ -95,16 +96,25 @@ public abstract class GenericSQLDatabase extends Database {
 
             ResultSet result = statement.executeQuery();
 
-            Map<String, List<Object>> results = new HashMap<>();
+            ResultSetMetaData metaData = result.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            String[] labels = new String[columnCount];
+            for (int i = 1; i <= columnCount; i++) {
+                labels[i - 1] = metaData.getColumnLabel(i);
+            }
+
+            List<Map<String, Object>> rows = new ArrayList<>();
             while (result.next()) {
-                for (int i = 0; i < result.getMetaData().getColumnCount(); i++) {
-                    String colName = result.getMetaData().getColumnName(i + 1);
-                    results.computeIfAbsent(colName, s -> new ArrayList<>());
-                    results.get(colName).add(result.getObject(colName));
+                Map<String, Object> row = new LinkedHashMap<>(columnCount);
+                for (int i = 1; i<= columnCount; i++) {
+                    Object value = result.getObject(i);
+                    row.put(labels[i - 1], value);
                 }
+                rows.add(row);
             }
             result.close();
-            return results;
+            return rows;
         }
     }
 
