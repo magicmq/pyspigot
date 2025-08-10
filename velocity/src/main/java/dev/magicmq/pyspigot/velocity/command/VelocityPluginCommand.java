@@ -43,9 +43,4 @@ public class VelocityPluginCommand implements SimpleCommand {
         CommandSenderAdapter adapter = new VelocityCommandSender(invocation.source());
         return baseCommand.onTabComplete(adapter, invocation.arguments());
     }
-
-    @Override
-    public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission("pyspigot.command");
-    }
 }

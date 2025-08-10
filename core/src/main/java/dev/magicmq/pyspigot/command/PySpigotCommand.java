@@ -69,6 +69,11 @@ public class PySpigotCommand {
     }
 
     public boolean onCommand(CommandSenderAdapter sender, String label, String[] args) {
+        if (!sender.hasPermission("pyspigot.command.use")) {
+            sender.sendMessage(Component.text("Insufficient permissions!", NamedTextColor.RED));
+            return true;
+        }
+
         if (args.length == 0) {
             if (sender.hasPermission("pyspigot.command.listcmds")) {
                 printHelp(sender, label);
