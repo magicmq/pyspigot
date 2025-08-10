@@ -5,7 +5,9 @@ import com.mongodb.MongoClientSettings;
 import com.zaxxer.hikari.HikariConfig;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.database.mongo.MongoDatabase;
-import dev.magicmq.pyspigot.manager.database.sql.SqlDatabase;
+import dev.magicmq.pyspigot.manager.database.sql.SQLDatabase;
+import dev.magicmq.pyspigot.manager.database.sql.SQLiteDatabase;
+import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 
@@ -37,7 +39,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with an SQL database, using the default configuration options.
+     * Open a new connection to an SQL database, using the default configuration options.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the SQL database
@@ -45,9 +47,9 @@ public class DatabaseManager {
      * @param database The name of the SQL database
      * @param username The username of the SQL database
      * @param password The password of the SQL database
-     * @return An {@link SqlDatabase} object representing an open connection to the database
+     * @return An {@link SQLDatabase} object representing an open connection to the database
      */
-    public SqlDatabase connectSql(String host, String port, String database, String username, String password) {
+    public SQLDatabase connectSql(String host, String port, String database, String username, String password) {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.addDataSourceProperty("cachePrepStmts", true);
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", 250);
@@ -57,7 +59,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with an SQL database, using the specified configuration options.
+     * Open a new connection to an SQL database, using the specified configuration options.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the SQL database
@@ -66,21 +68,21 @@ public class DatabaseManager {
      * @param username The username of the SQL database
      * @param password The password of the SQL database
      * @param hikariConfig A {@link com.zaxxer.hikari.HikariConfig} object representing the configuration options for the connection
-     * @return An {@link SqlDatabase} object representing an open connection to the database
+     * @return An {@link SQLDatabase} object representing an open connection to the database
      */
-    public SqlDatabase connectSql(String host, String port, String database, String username, String password, HikariConfig hikariConfig) {
+    public SQLDatabase connectSql(String host, String port, String database, String username, String password, HikariConfig hikariConfig) {
         String uri = String.format(DatabaseType.SQL.getUri(), host, port, database, username, password);
         return connectSql(uri, hikariConfig);
     }
 
     /**
-     * Open a new connection with an SQL database, using the provided connection URI.
+     * Open a new connection to an SQL database, using the provided connection URI.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param uri The connection string to define the connection, including options
-     * @return An {@link SqlDatabase} object representing an open connection to the database
+     * @return An {@link SQLDatabase} object representing an open connection to the database
      */
-    public SqlDatabase connectSql(String uri) {
+    public SQLDatabase connectSql(String uri) {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.addDataSourceProperty("cachePrepStmts", true);
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", 250);
@@ -91,35 +93,79 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with an SQL database, using the provided connection URI and configuration options.
+     * Open a new connection to an SQL database, using the provided connection URI and configuration options.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param uri The connection string to define the connection, including options
      * @param hikariConfig A {@link com.zaxxer.hikari.HikariConfig} object representing the configuration options for the connection
-     * @return An {@link SqlDatabase} object representing an open connection to the database
+     * @return An {@link SQLDatabase} object representing an open connection to the database
      */
-    public SqlDatabase connectSql(String uri, HikariConfig hikariConfig) {
+    public SQLDatabase connectSql(String uri, HikariConfig hikariConfig) {
         hikariConfig.setJdbcUrl(uri);
         return connectSql(hikariConfig);
     }
 
     /**
-     * Open a new connection with an SQL database, using the provided configuration.
+     * Open a new connection to an SQL database, using the provided configuration.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param hikariConfig The configuration for the connection
-     * @return An {@link SqlDatabase} object representing an open connection to the database
+     * @return An {@link SQLDatabase} object representing an open connection to the database
      */
-    public SqlDatabase connectSql(HikariConfig hikariConfig) {
+    public SQLDatabase connectSql(HikariConfig hikariConfig) {
         Script script = ScriptUtils.getScriptFromCallStack();
 
-        SqlDatabase connection = new SqlDatabase(script, hikariConfig);
+        SQLDatabase connection = new SQLDatabase(script, hikariConfig);
 
         if (connection.open()) {
             addConnection(connection);
             return connection;
         } else
             throw new ScriptRuntimeException(script, "Failed to open a connection to the SQL database");
+    }
+
+    /**
+     * Open a new connection to an SQLite database in memory.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @return An {@link SQLiteDatabase} object representing an open connection to the database
+     */
+    public SQLiteDatabase connectSQLite() {
+        return connectSQLite(null);
+    }
+
+    /**
+     * Open a new connection to an SQLite database file.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param filePath The path to the database file. This could be either a relative path (relative to the root
+     *                 directory of the Minecraft/proxy server), or an absolute path
+     * @return An {@link SQLiteDatabase} object representing an open connection to the database
+     */
+    public SQLiteDatabase connectSQLite(String filePath) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+
+        if (!checkSQLiteJDBC()) {
+            throw new ScriptRuntimeException(script, """
+                    
+                    
+                    ERROR: SQLite JDBC driver not found. This library is not bundled with PySpigot; you will need to manually download it for SQLite support.
+                    
+                    Download the JAR file from https://github.com/xerial/sqlite-jdbc/releases, place it in the java-libs folder, and restart the server."""
+            );
+        }
+
+        if (filePath == null)
+            filePath = "memory:";
+        String uri = String.format(DatabaseType.SQLITE.getUri(), filePath);
+
+        SQLiteDatabase connection = new SQLiteDatabase(script, uri);
+
+        if (connection.open()) {
+            addConnection(connection);
+            return connection;
+        } else
+            throw new ScriptRuntimeException(script, "Failed to open a connection to the SQLite database");
     }
 
     /**
@@ -133,7 +179,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with a Mongo database, using the default client settings.
+     * Open a new connection to a MongoDB database, using the default client settings.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the Mongo database
@@ -148,7 +194,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with a Mongo database, using the provided client settings.
+     * Open a new connection to a MongoDB database, using the provided client settings.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param host The host URL or IP of the Mongo database
@@ -169,7 +215,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with a Mongo database, using the provided connection string URI.
+     * Open a new connection to a MongoDB database, using the provided connection string URI.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param uri The connection string to define the connection, including options
@@ -183,7 +229,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with a Mongo database, using the provided connection string URI and client settings.
+     * Open a new connection to a MongoDB database, using the provided connection string URI and client settings.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param uri The connection string to define the connection, including options
@@ -198,7 +244,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection with a Mongo database, using the provided client settings.
+     * Open a new connection to a MongoDB database, using the provided client settings.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param clientSettings The client settings for the connection
@@ -284,6 +330,15 @@ public class DatabaseManager {
         scriptConnections.remove(connection);
         if (scriptConnections.isEmpty())
             activeConnections.remove(script);
+    }
+
+    private boolean checkSQLiteJDBC() {
+        try {
+            Class.forName("org.sqlite.JDBC", true, LibraryManager.get().getClassLoader());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     /**

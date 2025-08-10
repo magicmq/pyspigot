@@ -1,7 +1,8 @@
 package dev.magicmq.pyspigot.manager.database;
 
 import dev.magicmq.pyspigot.manager.database.mongo.MongoDatabase;
-import dev.magicmq.pyspigot.manager.database.sql.SqlDatabase;
+import dev.magicmq.pyspigot.manager.database.sql.SQLDatabase;
+import dev.magicmq.pyspigot.manager.database.sql.SQLiteDatabase;
 
 /**
  * Utility enum to represent different database types available for scripts to use.
@@ -11,7 +12,12 @@ public enum DatabaseType {
     /**
      * An SQL database type.
      */
-    SQL(SqlDatabase.class, /*Host, port, database, user, password*/ "jdbc:mysql://%s:%s/%s?user=%s&password=%s"),
+    SQL(SQLDatabase.class, /*Host, port, database, user, password*/ "jdbc:mysql://%s:%s/%s?user=%s&password=%s"),
+
+    /**
+     * An SQLite database type.
+     */
+    SQLITE(SQLiteDatabase.class, /*File name*/ "jdbc:sqlite:%s"),
 
     /**
      * A MongoDB database type.
@@ -21,7 +27,7 @@ public enum DatabaseType {
     /**
      * A MongoDB database type without authentication.
      */
-    MONGO_DB_NO_AUTH(MongoDatabase.class, "mongodb://%s:%s");
+    MONGO_DB_NO_AUTH(MongoDatabase.class, /*Host, port*/ "mongodb://%s:%s");
 
     private final Class<? extends Database> dbClass;
     private final String uri;
