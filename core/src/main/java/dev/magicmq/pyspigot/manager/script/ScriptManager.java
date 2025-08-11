@@ -649,7 +649,9 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Get a set of file names corresponding to all script files in the scripts folder (including in subfolders). This only returns the names of the files, and does not include the subfolder.
+     * Get a set of script names corresponding to all script files in the scripts folder (including in subfolders).
+     * <p>
+     * This method only returns the names of the files, and does not include the subfolder.
      * @return An {@link java.util.SortedSet} of Strings representing the names of all script files (including in subfolders). Sorting is performed in alphabetical order.
      */
     public SortedSet<String> getAllScriptNames() {
@@ -666,6 +668,25 @@ public abstract class ScriptManager {
             }
         }
         return scripts;
+    }
+
+    /**
+     * Get a set of project names corresponding to all project folders in the projects folder.
+     * @return An {@link java.util.SortedSet} of Strings representing the names of all project folders. Sorting is performed in alphabetical order.
+     */
+    public SortedSet<String> getAllProjectNames() {
+        SortedSet<String> projects = new TreeSet<>();
+
+        if (Files.exists(projectsFolder) && Files.isDirectory(projectsFolder)) {
+            try (Stream<Path> stream = Files.list(projectsFolder)) {
+                stream.filter(Files::isDirectory)
+                        .map(path -> path.getFileName().toString())
+                        .forEach(projects::add);
+            } catch (IOException e) {
+                PyCore.get().getLogger().error("Error fetching project folders", e);
+            }
+        }
+        return projects;
     }
 
     /**

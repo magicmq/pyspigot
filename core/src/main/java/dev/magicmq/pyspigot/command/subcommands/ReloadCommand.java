@@ -26,8 +26,8 @@ import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
 
 @SubCommandMeta(
         command = "reload",
@@ -93,7 +93,9 @@ public class ReloadCommand implements SubCommand {
     @Override
     public List<String> onTabComplete(CommandSenderAdapter sender, String[] args) {
         if (args.length > 0) {
-            return List.copyOf(ScriptManager.get().getAllScriptNames());
+            SortedSet<String> scripts = ScriptManager.get().getAllScriptNames();
+            scripts.addAll(ScriptManager.get().getAllProjectNames());
+            return List.copyOf(scripts);
         } else {
             return List.of();
         }
