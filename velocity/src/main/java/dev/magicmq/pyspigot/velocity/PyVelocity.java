@@ -106,7 +106,7 @@ public class PyVelocity implements PlatformAdapter {
     public void initCommands() {
         CommandManager commandManager = proxy.getCommandManager();
 
-        CommandMeta commandMeta = commandManager.metaBuilder("test")
+        CommandMeta commandMeta = commandManager.metaBuilder("pyvelocity")
                 .aliases("pv")
                 .plugin(this)
                 .build();
