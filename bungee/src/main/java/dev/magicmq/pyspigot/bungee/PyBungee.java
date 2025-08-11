@@ -130,7 +130,7 @@ public class PyBungee extends Plugin implements PlatformAdapter {
         metrics = new Metrics(this, 18991);
 
         metrics.addCustomChart(new SimplePie("all_scripts", () -> {
-            int allScripts = ScriptManager.get().getAllScriptPaths().size();
+            int allScripts = ScriptManager.get().getAllScriptPaths().size() + ScriptManager.get().getAllProjectPaths().size();
             return "" + allScripts;
         }));
 
