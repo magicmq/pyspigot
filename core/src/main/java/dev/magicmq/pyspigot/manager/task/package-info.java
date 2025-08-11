@@ -1,4 +1,4 @@
 /**
- * Contains all classes related to script tasks.
+ * Contains the core task manager classes and logic.
  */
 package dev.magicmq.pyspigot.manager.task;

@@ -1,4 +1,4 @@
 /**
- * Contains the {@link dev.magicmq.pyspigot.config.PluginConfig} class, which is used to access values from the config.yml
+ * Contains the base classes for interacting with the config.yml, script_options.yml, and project.yml files.
  */
 package dev.magicmq.pyspigot.config;
