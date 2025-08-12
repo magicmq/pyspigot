@@ -27,6 +27,10 @@ import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.core.ThreadState;
 
+/**
+ * A synchronous Velocity listener registered by a script.
+ * @param <E> The Velocity Event class, representing the event being listened to
+ */
 public class VelocitySyncScriptListener<E> extends VelocityScriptListener<E> implements EventHandler<E> {
 
     public VelocitySyncScriptListener(Script script, PyFunction listenerFunction, Class<E> event) {

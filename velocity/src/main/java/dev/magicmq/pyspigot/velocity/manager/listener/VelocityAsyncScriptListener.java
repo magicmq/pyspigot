@@ -32,6 +32,10 @@ import org.python.core.ThreadState;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+/**
+ * An asynchronous Velocity listener registered by a script.
+ * @param <E> The Velocity Event class, representing the event being listened to
+ */
 public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> implements AwaitingEventExecutor<E> {
 
     private final EventTaskType eventTaskType;
