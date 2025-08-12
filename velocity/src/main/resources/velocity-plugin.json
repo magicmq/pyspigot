@@ -1,0 +1,9 @@
+{
+    "id": "${project.pluginNameLowerCase}",
+    "name": "${project.pluginName}",
+    "version": "${project.version}",
+    "description": "${project.description}",
+    "url": "${project.url}",
+    "authors": ["magicmq"],
+    "main": "dev.magicmq.pyspigot.velocity.PyVelocity"
+}

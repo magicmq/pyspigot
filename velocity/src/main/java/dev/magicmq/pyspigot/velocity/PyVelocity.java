@@ -20,7 +20,7 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
@@ -46,20 +46,13 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
-@Plugin(
-        id = PluginMetadata.PLUGIN_ID,
-        name = PluginMetadata.PLUGIN_NAME,
-        version = PluginMetadata.PLUGIN_VERSION,
-        url = PluginMetadata.PLUGIN_URL,
-        description = PluginMetadata.PLUGIN_DESCRIPTION,
-        authors = {"magicmq"}
-)
 public class PyVelocity implements PlatformAdapter {
 
     private static PyVelocity instance;
 
     private final ProxyServer proxy;
     private final Logger logger;
+    private final PluginDescription pluginDescription;
     private final Path dataFolder;
     private final Metrics.Factory metricsFactory;
 
@@ -67,11 +60,12 @@ public class PyVelocity implements PlatformAdapter {
     private ScheduledTask versionCheckTask;
 
     @Inject
-    public PyVelocity(ProxyServer proxy, Logger logger, @DataDirectory Path dataFolder, Metrics.Factory metricsFactory) {
+    public PyVelocity(ProxyServer proxy, Logger logger, PluginDescription pluginDescription, @DataDirectory Path dataFolder, Metrics.Factory metricsFactory) {
         instance = this;
 
         this.proxy = proxy;
         this.logger = logger;
+        this.pluginDescription = pluginDescription;
         this.dataFolder = dataFolder;
         this.metricsFactory = metricsFactory;
     }
@@ -185,7 +179,7 @@ public class PyVelocity implements PlatformAdapter {
 
     @Override
     public String getVersion() {
-        return PluginMetadata.PLUGIN_VERSION;
+        return pluginDescription.getVersion().get();
     }
 
     @Override

@@ -47,19 +47,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>templating-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>filter-sources</id>
-                        <goals>
-                            <goal>filter-sources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>dev.magicmq</groupId>
                 <artifactId>jython-compile-maven-plugin</artifactId>
             </plugin>
