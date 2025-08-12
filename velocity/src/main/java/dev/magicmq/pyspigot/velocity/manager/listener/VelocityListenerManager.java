@@ -17,13 +17,13 @@
 package dev.magicmq.pyspigot.velocity.manager.listener;
 
 
-import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.magicmq.pyspigot.velocity.PyVelocity;
 import org.python.core.PyFunction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VelocityListenerManager extends ListenerManager<VelocityScriptListener<?>, Object, Short> {
@@ -59,12 +59,8 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
      */
     public VelocityScriptListener<?> registerAsyncListener(PyFunction function, Class<?> eventClass, Short priority, EventTaskType eventTaskType) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        VelocityScriptListener<?> listener = getListener(script, eventClass);
-        if (listener == null) {
-            return registerTypedAsyncListener(script, function, eventClass, priority, eventTaskType);
-        } else {
-            throw new ScriptRuntimeException(script, "Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
-        }
+
+        return registerTypedAsyncListener(script, function, eventClass, priority, eventTaskType);
     }
 
     /**
@@ -95,12 +91,8 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
     @Override
     public VelocityScriptListener<?> registerListener(PyFunction function, Class<?> eventClass, Short priority) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        VelocityScriptListener<?> listener = getListener(script, eventClass);
-        if (listener == null) {
-            return registerTypedListener(script, function, eventClass, priority);
-        } else {
-            throw new ScriptRuntimeException(script, "Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
-        }
+
+        return registerTypedListener(script, function, eventClass, priority);
     }
 
     /**
@@ -140,12 +132,13 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
     }
 
     @Override
-    public VelocityScriptListener<?> getListener(Script script, Class<?> eventClass) {
+    public List<VelocityScriptListener<?>> getListeners(Script script, Class<?> eventClass) {
+        List<VelocityScriptListener<?>> listeners = new ArrayList<>();
         for (VelocityScriptListener<?> listener : getListeners(script)) {
             if (listener.getEvent().equals(eventClass))
-                return listener;
+                listeners.add(listener);
         }
-        return null;
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     private <T> VelocitySyncScriptListener<T> registerTypedListener(Script script, PyFunction function, Class<T> eventClass, Short priority) {

@@ -35,6 +35,7 @@ import org.python.core.PyFunction;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -94,15 +95,11 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     @Override
     public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, Byte priority) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        BungeeScriptEventListener listener = getListener(script, eventClass);
-        if (listener == null) {
-            listener = new BungeeScriptEventListener(script, function, eventClass, priority);
-            registerWithBungee(listener);
-            addListener(script, listener);
-            return listener;
-        } else {
-            throw new ScriptRuntimeException(script, "Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
-        }
+
+        BungeeScriptEventListener listener = new BungeeScriptEventListener(script, function, eventClass, priority);
+        registerWithBungee(listener);
+        addListener(script, listener);
+        return listener;
     }
 
     /**
@@ -143,12 +140,13 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     }
 
     @Override
-    public BungeeScriptEventListener getListener(Script script, Class<? extends Event> eventClass) {
+    public List<BungeeScriptEventListener> getListeners(Script script, Class<? extends Event> eventClass) {
+        List<BungeeScriptEventListener> listeners = new ArrayList<>();
         for (BungeeScriptEventListener listener : getListeners(script)) {
             if (listener.getEvent().equals(eventClass))
-                return listener;
+                listeners.add(listener);
         }
-        return null;
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     private Map<Class<?>, Map<Byte, Set<Method>>> createDummyHandler(BungeeScriptEventListener listener) {

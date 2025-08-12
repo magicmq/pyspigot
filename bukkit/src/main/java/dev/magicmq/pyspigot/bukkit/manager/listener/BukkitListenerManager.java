@@ -30,6 +30,8 @@ import org.python.core.PyFunction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Bukkit-specific implementation of the listener manager.
@@ -60,15 +62,11 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
     @Override
     public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
         Script script = ScriptUtils.getScriptFromCallStack();
-        BukkitScriptEventListener listener = getListener(script, eventClass);
-        if (listener == null) {
-            listener = new BukkitScriptEventListener(script, function, eventClass);
-            Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, listener.getEventExecutor(), PySpigot.get(), ignoreCancelled);
-            addListener(script, listener);
-            return listener;
-        } else {
-            throw new ScriptRuntimeException(script, "Script already has an event listener for '" + eventClass.getSimpleName() + "' registered");
-        }
+
+        BukkitScriptEventListener listener = new BukkitScriptEventListener(script, function, eventClass);
+        Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, listener.getEventExecutor(), PySpigot.get(), ignoreCancelled);
+        addListener(script, listener);
+        return listener;
     }
 
     @Override
@@ -86,12 +84,13 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
     }
 
     @Override
-    public BukkitScriptEventListener getListener(Script script, Class<? extends Event> eventClass) {
+    public List<BukkitScriptEventListener> getListeners(Script script, Class<? extends Event> eventClass) {
+        List<BukkitScriptEventListener> listeners = new ArrayList<>();
         for (BukkitScriptEventListener listener : getListeners(script)) {
             if (listener.getEvent().equals(eventClass))
-                return listener;
+                listeners.add(listener);
         }
-        return null;
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     private void removeFromHandlers(BukkitScriptEventListener listener) {

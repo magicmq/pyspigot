@@ -100,12 +100,12 @@ public abstract class ListenerManager<T, S, U> {
     public abstract void unregisterListeners(Script script);
 
     /**
-     * Get the event listener for a particular event associated with a script
+     * Get all event listeners for a particular event associated with a script
      * @param script The script
      * @param eventClass The event
-     * @return The listener associated with the script and event, or null if there is none
+     * @return An immutable List of listeners associated with the script and event. Will return an empty list if there are no event listeners for the particular event associated with the script
      */
-    public abstract T getListener(Script script, Class<? extends S> eventClass);
+    public abstract List<T> getListeners(Script script, Class<? extends S> eventClass);
 
     /**
      * Get all event listeners associated with a script
