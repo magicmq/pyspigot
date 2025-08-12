@@ -29,7 +29,7 @@ import java.util.List;
  * @param <S> The platform-specific Event class
  * @param <U> The platform-specific EventPriority class
  */
-public abstract class ListenerManager<T, S, U> {
+public abstract class ListenerManager<T extends ScriptEventListener<? extends S>, S, U> {
 
     private static ListenerManager<?, ?, ?> instance;
 
@@ -100,12 +100,19 @@ public abstract class ListenerManager<T, S, U> {
     public abstract void unregisterListeners(Script script);
 
     /**
-     * Get all event listeners for a particular event associated with a script
+     * Get all event listeners for a particular event associated with a script.
      * @param script The script
      * @param eventClass The event
      * @return An immutable List of listeners associated with the script and event. Will return an empty list if there are no event listeners for the particular event associated with the script
      */
-    public abstract List<T> getListeners(Script script, Class<? extends S> eventClass);
+    public List<T> getListeners(Script script, Class<? extends S> eventClass) {
+        List<T> listeners = new ArrayList<>();
+        for (T listener : getListeners(script)) {
+            if (listener.getEvent().equals(eventClass))
+                listeners.add(listener);
+        }
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
+    }
 
     /**
      * Get all event listeners associated with a script

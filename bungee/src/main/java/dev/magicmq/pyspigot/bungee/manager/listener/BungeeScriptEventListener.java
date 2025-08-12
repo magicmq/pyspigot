@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot.bungee.manager.listener;
 
 import dev.magicmq.pyspigot.bungee.event.ScriptExceptionEvent;
+import dev.magicmq.pyspigot.manager.listener.ScriptEventListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import net.md_5.bungee.api.plugin.Event;
@@ -31,7 +32,7 @@ import org.python.core.ThreadState;
  * A dummy BungeeCord Listener that holds an event a script is currently listening to.
  * @see net.md_5.bungee.api.plugin.Listener
  */
-public class BungeeScriptEventListener implements Listener {
+public class BungeeScriptEventListener implements Listener, ScriptEventListener<Event> {
 
     private final Script script;
     private final PyFunction listenerFunction;
@@ -78,28 +79,17 @@ public class BungeeScriptEventListener implements Listener {
         }
     }
 
-    /**
-     * Get the script associated with this listener.
-     * @return The script associated with this listener
-     */
+    @Override
     public Script getScript() {
         return script;
     }
 
-    /**
-     * Get the script function that should be called when the event occurs.
-     * @return The script function that should be called when the event occurs
-     */
+    @Override
     public PyFunction getListenerFunction() {
         return listenerFunction;
     }
 
-    /**
-     * Get the BungeeCord event associated with this listener.
-     * <p>
-     * Note: Because of the way scripts register events, this will be a {@link Class} of the BungeeCord event, which essentially represents its type.
-     * @return The Bukkit event associated with this listener
-     */
+    @Override
     public Class<? extends Event> getEvent() {
         return event;
     }

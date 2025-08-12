@@ -30,8 +30,6 @@ import org.python.core.PyFunction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The Bukkit-specific implementation of the listener manager.
@@ -81,16 +79,6 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
             removeFromHandlers(eventListener);
         }
         removeListeners(script);
-    }
-
-    @Override
-    public List<BukkitScriptEventListener> getListeners(Script script, Class<? extends Event> eventClass) {
-        List<BukkitScriptEventListener> listeners = new ArrayList<>();
-        for (BukkitScriptEventListener listener : getListeners(script)) {
-            if (listener.getEvent().equals(eventClass))
-                listeners.add(listener);
-        }
-        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     private void removeFromHandlers(BukkitScriptEventListener listener) {

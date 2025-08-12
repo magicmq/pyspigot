@@ -35,10 +35,8 @@ import org.python.core.PyFunction;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -137,16 +135,6 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
             unregisterWithBungee(eventListener);
         }
         removeListeners(script);
-    }
-
-    @Override
-    public List<BungeeScriptEventListener> getListeners(Script script, Class<? extends Event> eventClass) {
-        List<BungeeScriptEventListener> listeners = new ArrayList<>();
-        for (BungeeScriptEventListener listener : getListeners(script)) {
-            if (listener.getEvent().equals(eventClass))
-                listeners.add(listener);
-        }
-        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     private Map<Class<?>, Map<Byte, Set<Method>>> createDummyHandler(BungeeScriptEventListener listener) {

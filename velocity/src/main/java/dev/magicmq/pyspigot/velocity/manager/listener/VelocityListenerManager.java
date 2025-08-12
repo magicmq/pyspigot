@@ -23,9 +23,6 @@ import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.magicmq.pyspigot.velocity.PyVelocity;
 import org.python.core.PyFunction;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class VelocityListenerManager extends ListenerManager<VelocityScriptListener<?>, Object, Short> {
 
     private static VelocityListenerManager instance;
@@ -129,16 +126,6 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
             PyVelocity.get().getProxy().getEventManager().unregisterListener(PyVelocity.get(), listener);
         }
         removeListeners(script);
-    }
-
-    @Override
-    public List<VelocityScriptListener<?>> getListeners(Script script, Class<?> eventClass) {
-        List<VelocityScriptListener<?>> listeners = new ArrayList<>();
-        for (VelocityScriptListener<?> listener : getListeners(script)) {
-            if (listener.getEvent().equals(eventClass))
-                listeners.add(listener);
-        }
-        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     private <T> VelocitySyncScriptListener<T> registerTypedListener(Script script, PyFunction function, Class<T> eventClass, Short priority) {

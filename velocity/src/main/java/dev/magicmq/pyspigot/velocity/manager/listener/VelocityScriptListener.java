@@ -17,26 +17,34 @@
 package dev.magicmq.pyspigot.velocity.manager.listener;
 
 
+import dev.magicmq.pyspigot.manager.listener.ScriptEventListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.python.core.PyFunction;
 
-public class VelocityScriptListener<E> {
+public class VelocityScriptListener<E> implements ScriptEventListener<E> {
 
     protected final Script script;
     protected final PyFunction listenerFunction;
-    protected final Class<E> event;
+    protected final Class<? extends E> event;
 
-    public VelocityScriptListener(Script script, PyFunction listenerFunction, Class<E> event) {
+    public VelocityScriptListener(Script script, PyFunction listenerFunction, Class<? extends E> event) {
         this.script = script;
         this.listenerFunction = listenerFunction;
         this.event = event;
     }
 
+    @Override
     public Script getScript() {
         return script;
     }
 
-    public Class<E> getEvent() {
+    @Override
+    public PyFunction getListenerFunction() {
+        return listenerFunction;
+    }
+
+    @Override
+    public Class<? extends E> getEvent() {
         return event;
     }
 }
