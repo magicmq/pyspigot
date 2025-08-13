@@ -17,10 +17,12 @@
 package dev.magicmq.pyspigot.bungee.manager.task;
 
 import dev.magicmq.pyspigot.bungee.PyBungee;
+import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.task.RepeatingTask;
 import dev.magicmq.pyspigot.manager.task.SyncCallbackTask;
 import dev.magicmq.pyspigot.manager.task.Task;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import org.python.core.PyFunction;
@@ -94,6 +96,43 @@ public class BungeeTaskManager extends TaskManager<ScheduledTask> {
     }
 
     /**
+     * Schedule a new asynchronous task to run at a later point in time.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function that should be called when the asynchronous task executes
+     * @param delay The delay that the scheduler should wait before executing the asynchronous task
+     * @param delayUnit The time unit for the delay
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return A Task object representing the registered task
+     */
+    public synchronized Task<ScheduledTask> runTaskLaterAsync(PyFunction function, long delay, TimeUnit delayUnit, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        Task<ScheduledTask> task = new Task<>(script, function, functionArgs, true, delay);
+        addTask(task);
+        task.setPlatformTask(runTaskLaterAsyncImpl(task, delay, delayUnit));
+        return task;
+    }
+
+    /**
+     * Schedule a new asynchronous repeating task.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function that should be called each time the asynchronous task executes
+     * @param delay The delay to wait before beginning this asynchronous repeating task
+     * @param interval The interval that the asynchronous repeating task should be executed
+     * @param intervalUnit The time unit for the interval
+     * @param functionArgs Any arguments that should be passed to the function
+     * @return A RepeatingTask object representing the registered task
+     */
+    public synchronized RepeatingTask<ScheduledTask> scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, TimeUnit intervalUnit, Object... functionArgs) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        RepeatingTask<ScheduledTask> task = new RepeatingTask<>(script, function, functionArgs, true, delay, interval);
+        addTask(task);
+        task.setPlatformTask(scheduleAsyncRepeatingTaskImpl(task, delay, interval, intervalUnit));
+        return task;
+    }
+
+    /**
      * No-op implementation
      */
     @Override
@@ -118,7 +157,7 @@ public class BungeeTaskManager extends TaskManager<ScheduledTask> {
 
     @Override
     protected synchronized ScheduledTask runTaskLaterAsyncImpl(Task<ScheduledTask> task, long delay) {
-        return ProxyServer.getInstance().getScheduler().schedule(PyBungee.get(), task, ticksToMillis(delay), TimeUnit.MILLISECONDS);
+        return runTaskLaterAsyncImpl(task, ticksToMillis(delay), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -132,7 +171,7 @@ public class BungeeTaskManager extends TaskManager<ScheduledTask> {
 
     @Override
     protected synchronized ScheduledTask scheduleAsyncRepeatingTaskImpl(RepeatingTask<ScheduledTask> task, long delay, long interval) {
-        return ProxyServer.getInstance().getScheduler().schedule(PyBungee.get(), task, ticksToMillis(delay), ticksToMillis(interval), TimeUnit.MILLISECONDS);
+        return scheduleAsyncRepeatingTaskImpl(task, ticksToMillis(delay), ticksToMillis(interval), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -170,6 +209,18 @@ public class BungeeTaskManager extends TaskManager<ScheduledTask> {
     @Override
     protected String describeTask(ScheduledTask platformTask) {
         return String.format("ScheduledTask[id: %d]", platformTask.getId());
+    }
+
+    private ScheduledTask runTaskLaterAsyncImpl(Task<ScheduledTask> task, long delay, TimeUnit unit) {
+        return ProxyServer.getInstance()
+                .getScheduler()
+                .schedule(PyBungee.get(), task, delay, unit);
+    }
+
+    private ScheduledTask scheduleAsyncRepeatingTaskImpl(Task<ScheduledTask> task, long delay, long interval, TimeUnit unit) {
+        return ProxyServer.getInstance()
+                .getScheduler()
+                .schedule(PyBungee.get(), task, delay, interval, unit);
     }
 
     private long ticksToMillis(long ticks) {
