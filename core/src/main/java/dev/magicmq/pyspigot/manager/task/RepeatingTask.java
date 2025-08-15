@@ -18,11 +18,8 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
 
 /**
  * Represents a repeating task defined by a script.
@@ -52,15 +49,7 @@ public class RepeatingTask<T> extends Task<T> {
     @Override
     public void run() {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-
-            if (functionArgs != null) {
-                PyObject[] pyObjects = Py.javas2pys(functionArgs);
-                function.__call__(threadState, pyObjects);
-            } else {
-                function.__call__(threadState);
-            }
+            callTaskFunction();
         } catch (PyException e) {
             ScriptManager.get().handleScriptException(script, e, "Error while executing repeating task");
         }

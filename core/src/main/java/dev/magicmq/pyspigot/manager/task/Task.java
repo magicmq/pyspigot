@@ -71,15 +71,7 @@ public class Task<T> implements Runnable {
     @Override
     public void run() {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-
-            if (functionArgs != null) {
-                PyObject[] pyObjects = Py.javas2pys(functionArgs);
-                function.__call__(threadState, pyObjects);
-            } else {
-                function.__call__(threadState);
-            }
+            callTaskFunction();
         } catch (PyException e) {
             ScriptManager.get().handleScriptException(script, e, "Error while executing task");
         } finally {
@@ -129,5 +121,17 @@ public class Task<T> implements Runnable {
     @Override
     public String toString() {
         return String.format("Task[Platform Task: %s, Async: %b, Delay: %d]", TaskManager.<T>getTyped().describeTask(platformTask), async, (int) delay);
+    }
+
+    protected PyObject callTaskFunction() {
+        Py.setSystemState(script.getInterpreter().getSystemState());
+        ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
+
+        if (functionArgs != null) {
+            PyObject[] pyObjects = Py.javas2pys(functionArgs);
+            return function.__call__(threadState, pyObjects);
+        } else {
+            return function.__call__(threadState);
+        }
     }
 }

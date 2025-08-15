@@ -57,16 +57,7 @@ public class SyncCallbackTask<T> extends Task<T> {
     @Override
     public void run() {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-
-            PyObject outcome;
-            if (functionArgs != null) {
-                PyObject[] pyObjects = Py.javas2pys(functionArgs);
-                outcome = function.__call__(threadState, pyObjects);
-            } else {
-                outcome = function.__call__(threadState);
-            }
+            PyObject outcome = callTaskFunction();
 
             if (!cancelled) {
                 callback = new Callback<>(this, outcome);
