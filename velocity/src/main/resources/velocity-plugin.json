@@ -5,5 +5,11 @@
     "description": "${project.description}",
     "url": "${project.url}",
     "authors": ["magicmq"],
-    "main": "dev.magicmq.pyspigot.velocity.PyVelocity"
+    "main": "dev.magicmq.pyspigot.velocity.PyVelocity",
+    "dependencies": [
+        {
+            "id": "packetevents",
+            "optional":true
+        }
+    ]
 }

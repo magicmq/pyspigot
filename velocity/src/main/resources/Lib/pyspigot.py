@@ -1,6 +1,7 @@
 """
 A helper module for more easy access to PySpigot's managers.
 """
+from dev.magicmq.pyspigot.velocity import PyVelocity
 from dev.magicmq.pyspigot.manager.script import ScriptManager
 from dev.magicmq.pyspigot.manager.script import GlobalVariables
 from dev.magicmq.pyspigot.manager.listener import ListenerManager
@@ -42,6 +43,13 @@ def redis_manager():
     """Get the redis manager for connecting to and interacting with redis servers."""
     return RedisManager.get()
 
+def packet_events_manager():
+    """Get the packet events manager for registering packet event listeners. Note: this function will return None if PacketEvents is not available on the server."""
+    if PyVelocity.get().isPacketEventsAvailable():
+        from dev.magicmq.pyspigot.manager.packetevents import PacketEventsManager
+        return PacketEventsManager.get()
+    else: return None
+
 # Convenience variables for ease of access
 
 script = script_manager()
@@ -74,3 +82,6 @@ com = config_manager()
 database = database_manager()
 
 redis = redis_manager()
+
+packet_events = packet_events_manager()
+pe = packet_events_manager()

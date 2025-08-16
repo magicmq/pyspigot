@@ -62,6 +62,13 @@ def message_manager():
     """Get the message manager for sending and receiving plugin messages."""
     return PluginMessageManager.get()
 
+def packet_events_manager():
+    """Get the packet events manager for registering packet event listeners. Note: this function will return None if PacketEvents is not available on the server."""
+    if PySpigot.get().isPacketEventsAvailable():
+        from dev.magicmq.pyspigot.manager.packetevents import PacketEventsManager
+        return PacketEventsManager.get()
+    else: return None
+
 # Convenience variables for ease of access
 
 script = script_manager()
@@ -107,3 +114,6 @@ plm = placeholder_manager()
 
 messaging = message_manager()
 plugin_messaging = message_manager()
+
+packet_events = packet_events_manager()
+pe = packet_events_manager()

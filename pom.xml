@@ -194,6 +194,7 @@
                             <link>https://javadoc.io/doc/io.lettuce/lettuce-core/latest/</link>
                             <link>https://javadoc.io/doc/net.kyori/adventure-api/latest/</link>
                             <link>https://www.slf4j.org/apidocs/</link>
+                            <link>https://javadocs.packetevents.com/</link>
                         </links>
                     </configuration>
                     <executions>

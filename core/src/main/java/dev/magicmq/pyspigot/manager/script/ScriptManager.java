@@ -23,6 +23,7 @@ import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
+import dev.magicmq.pyspigot.manager.packetevents.PacketEventsManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.ScriptUtils;
@@ -788,6 +789,9 @@ public abstract class ScriptManager {
         CommandManager.get().unregisterCommands(script);
         DatabaseManager.get().disconnectAll(script);
         RedisManager.get().closeRedisClients(script, false);
+
+        if (PyCore.get().isPacketEventsAvailable())
+            PacketEventsManager.get().unregisterPacketListeners(script);
 
         unregisterFromPlatformManagers(script);
 

@@ -42,10 +42,6 @@ import org.bstats.charts.SimplePie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
@@ -176,6 +172,12 @@ public class PyBungee extends Plugin implements PlatformAdapter {
     public String getPluginIdentifier() {
         return "PySpigot-Bungee";
     }
+
+    @Override
+    public boolean isPacketEventsAvailable() {
+        return ProxyServer.getInstance().getPluginManager().getPlugin("PacketEvents") != null;
+    }
+
 
     /**
      * Check if Protocolize is available on the server.

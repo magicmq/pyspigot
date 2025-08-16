@@ -4,7 +4,7 @@ author: magicmq
 main: dev.magicmq.pyspigot.bukkit.PySpigot
 load: STARTUP
 api-version: '1.13'
-softdepend: [ProtocolLib, PlaceholderAPI]
+softdepend: [ProtocolLib, PlaceholderAPI, PacketEvents]
 commands:
   pyspigot:
     description: The main command for PySpigot.

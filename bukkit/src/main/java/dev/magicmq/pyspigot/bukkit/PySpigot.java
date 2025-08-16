@@ -192,6 +192,11 @@ public class PySpigot extends JavaPlugin implements PlatformAdapter {
         return "PySpigot";
     }
 
+    @Override
+    public boolean isPacketEventsAvailable() {
+        return Bukkit.getPluginManager().getPlugin("PacketEvents") != null;
+    }
+
     /**
      * Check if ProtocolLib is available on the server.
      * @return True if ProtocolLib is loaded and enabled, false if otherwise

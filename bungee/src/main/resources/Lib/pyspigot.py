@@ -50,6 +50,13 @@ def protocol_manager():
         return ProtocolManager.get()
     else: return None
 
+def packet_events_manager():
+    """Get the packet events manager for registering packet event listeners. Note: this function will return None if PacketEvents is not available on the server."""
+    if PyBungee.get().isPacketEventsAvailable():
+        from dev.magicmq.pyspigot.manager.packetevents import PacketEventsManager
+        return PacketEventsManager.get()
+    else: return None
+
 # Convenience variables for ease of access
 
 script = script_manager()
@@ -87,3 +94,6 @@ protocol = protocol_manager()
 protocol_lib = protocol_manager()
 protocols = protocol_manager()
 pm = protocol_manager()
+
+packet_events = packet_events_manager()
+pe = packet_events_manager()

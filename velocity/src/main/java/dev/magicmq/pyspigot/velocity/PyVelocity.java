@@ -187,6 +187,11 @@ public class PyVelocity implements PlatformAdapter {
         return "PySpigot-Velocity";
     }
 
+    @Override
+    public boolean isPacketEventsAvailable() {
+        return proxy.getPluginManager().getPlugin("packetevents").isPresent();
+    }
+
     /**
      * Get the instance of this plugin.
      * @return The instance

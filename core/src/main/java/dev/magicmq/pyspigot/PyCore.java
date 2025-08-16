@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
+import dev.magicmq.pyspigot.manager.packetevents.PacketEventsManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.script.GlobalVariables;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
@@ -179,6 +180,14 @@ public class PyCore {
     }
 
     /**
+     * Get if PacketEvents is loaded and present on the platform.
+     * @return True if PacketEvents is loaded and present, false if it is not
+     */
+    public boolean isPacketEventsAvailable() {
+        return adapter.isPacketEventsAvailable();
+    }
+
+    /**
      * Get the plugin configuration for PySpigot.
      * @return The PySpigot plugin config
      */
@@ -284,6 +293,9 @@ public class PyCore {
         GlobalVariables.get();
         DatabaseManager.get();
         RedisManager.get();
+
+        if (adapter.isPacketEventsAvailable())
+            PacketEventsManager.get();
     }
 
     private void initFolders() {
