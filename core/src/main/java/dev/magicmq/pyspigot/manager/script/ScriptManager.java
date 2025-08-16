@@ -623,6 +623,7 @@ public abstract class ScriptManager {
             try (Stream<Path> stream = Files.walk(scriptsFolder)) {
                 stream.filter(Files::isRegularFile)
                         .filter(path -> path.toString().endsWith(".py"))
+                        .map(Path::toAbsolutePath)
                         .forEach(scripts::add);
             } catch (IOException e) {
                 PyCore.get().getLogger().error("Error fetching script files from scripts folder", e);
@@ -640,7 +641,7 @@ public abstract class ScriptManager {
 
         if (Files.exists(projectsFolder) && Files.isDirectory(projectsFolder)) {
             try (Stream<Path> stream = Files.list(projectsFolder)) {
-                projects.addAll(stream.filter(Files::isDirectory).toList());
+                projects.addAll(stream.filter(Files::isDirectory).map(Path::toAbsolutePath).toList());
             } catch (IOException e) {
                 PyCore.get().getLogger().error("Error fetching project folders", e);
             }

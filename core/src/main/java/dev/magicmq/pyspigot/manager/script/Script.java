@@ -86,6 +86,7 @@ public class Script implements Comparable<Script> {
                 this.modules.addAll(walk
                         .filter(Files::isRegularFile)
                         .filter(path -> path.toString().endsWith(".py"))
+                        .map(Path::toAbsolutePath)
                         .collect(Collectors.toSet()));
             } catch (IOException e) {
                 this.interpreter.close();
