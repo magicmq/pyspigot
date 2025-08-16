@@ -45,10 +45,11 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
 
     private final Script script;
     private final PyFunction commandFunction;
-    private final PyFunction tabFunction;
     private final String name;
     private final List<String> aliases;
     private final String permission;
+
+    private PyFunction tabFunction;
 
     /**
      *
@@ -69,12 +70,19 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
         this.permission = permission;
     }
 
-    /**
-     * Get the script associated with this command.
-     * @return The script associated with this command
-     */
+    @Override
     public Script getScript() {
         return script;
+    }
+
+    @Override
+    public PyFunction getCommandFunction() {
+        return commandFunction;
+    }
+
+    @Override
+    public void setTabFunction(PyFunction tabFunction) {
+        this.tabFunction = tabFunction;
     }
 
     @Override

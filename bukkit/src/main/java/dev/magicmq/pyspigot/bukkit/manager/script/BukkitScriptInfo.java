@@ -54,7 +54,7 @@ public class BukkitScriptInfo extends ScriptInfo {
             appendTo.append(Component.text().append(Component.text("Listening to packet types: ", NamedTextColor.GOLD)).append(Component.text(packetTypes.toString())));
             appendTo.appendNewline();
 
-            List<String> packetTypesAsync = ProtocolManager.get().async().getAsyncPacketListeners(script)
+            List<String> packetTypesAsync = ProtocolManager.get().asyncManager().getAsyncPacketListeners(script)
                     .stream()
                     .map(Object::toString)
                     .toList();

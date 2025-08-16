@@ -37,6 +37,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -127,6 +128,14 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
         ProxyServer.getInstance().getPluginManager().unregisterListener(listener);
         removeListener(listener.getScript(), listener);
         unregisterWithBungee(listener);
+    }
+
+    public void unregisterListener(PyFunction function, Class<? extends Event> eventClass) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<BungeeScriptEventListener> listeners = getListeners(script, function, eventClass);
+        for (BungeeScriptEventListener listener : listeners) {
+            unregisterListener(listener);
+        }
     }
 
     @Override

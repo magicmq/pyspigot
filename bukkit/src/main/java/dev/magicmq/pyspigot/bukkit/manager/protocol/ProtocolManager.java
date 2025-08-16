@@ -65,7 +65,7 @@ public class ProtocolManager {
      * Get the async protocol manager for working with asynchronous listeners.
      * @return The {@link AsyncProtocolManager}
      */
-    public AsyncProtocolManager async() {
+    public AsyncProtocolManager asyncManager() {
         return asyncProtocolManager;
     }
 
@@ -121,6 +121,39 @@ public class ProtocolManager {
     public void unregisterPacketListener(ScriptPacketListener listener) {
         protocolManager.removePacketListener(listener);
         removePacketListener(listener);
+    }
+
+    /**
+     * Unregister a packet listener. Note that multiple packet listeners may be unregistered, if multiple packet listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function associated with the packet listener to unregister
+     */
+    public void unregisterPacketListener(PyFunction function) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<ScriptPacketListener> listeners = getPacketListeners(script);
+        for (ScriptPacketListener listener : listeners) {
+            if (listener.getFunction().equals(function)) {
+                unregisterPacketListener(listener);
+            }
+        }
+    }
+
+    /**
+     * Unregister a packet listener. Note that multiple packet listeners may be unregistered, if multiple packet listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function associated with the packet listener to unregister
+     * @param type The packet type associated with the packet listener to unregister
+     */
+    public void unregisterPacketListener(PyFunction function, PacketType type) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<ScriptPacketListener> listeners = getPacketListeners(script);
+        for (ScriptPacketListener listener : listeners) {
+            if (listener.getFunction().equals(function) && listener.getPacketType().equals(type)) {
+                unregisterPacketListener(listener);
+            }
+        }
     }
 
     /**

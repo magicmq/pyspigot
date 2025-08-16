@@ -260,6 +260,20 @@ public abstract class TaskManager<T> {
     }
 
     /**
+     * Terminate the task associated with the function.
+     * @param function The function whose task should be cancelled
+     */
+    public synchronized void stopTask(PyFunction function) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<Task<T>> tasks = getTasks(script);
+        for (Task<T> task : tasks) {
+            if (task.getFunction().equals(function)) {
+                stopTask(task);
+            }
+        }
+    }
+
+    /**
      * Terminate the given task.
      * @param task The task to terminate
      */

@@ -105,6 +105,21 @@ public class PlaceholderManager {
     }
 
     /**
+     * Set the relational placeholder function for a placeholder that was registered previously.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param relationalPlaceholderFunction The relational placeholder function to set
+     */
+    public void setRelationalPlaceholderFunction(PyFunction relationalPlaceholderFunction) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
+        if (placeholder != null)
+            placeholder.setRelationalFunction(relationalPlaceholderFunction);
+        else
+            throw new ScriptRuntimeException(script, "Script does not have a placeholder expansion registered");
+    }
+
+    /**
      * Unregister a script placeholder expansion.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
@@ -113,6 +128,17 @@ public class PlaceholderManager {
     public void unregisterPlaceholder(ScriptPlaceholder placeholder) {
         placeholder.unregister();
         registeredPlaceholders.remove(placeholder.getScript());
+    }
+
+    /**
+     * Unregister a script's placeholder expansion.
+     * @param placeholderFunction The function associated with the placeholder expansion to unregister
+     */
+    public void unregisterPlaceholder(PyFunction placeholderFunction) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
+        if (placeholder != null)
+            unregisterPlaceholder(placeholder);
     }
 
     /**

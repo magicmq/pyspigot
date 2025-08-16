@@ -95,6 +95,41 @@ public class ProtocolManager {
     }
 
     /**
+     * Unregister a packet listener. Note that multiple packet listeners may be unregistered, if multiple packet listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function Either the send or receive function associated with the packet listener
+     */
+    public void unregisterPacketListener(PyFunction function) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<ScriptPacketListener<?>> listeners = getPacketListeners(script);
+        for (ScriptPacketListener<?> listener : listeners) {
+            if (listener.getReceiveFunction().equals(function) || listener.getSendFunction().equals(function)) {
+                unregisterPacketListener(listener);
+            }
+        }
+    }
+
+    /**
+     * Unregister a packet listener. Note that multiple packet listeners may be unregistered, if multiple packet listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function Either the send or receive function associated with the packet listener
+     * @param packet The packet type associated with the packet listener to unregister
+     */
+    public void unregisterPacketListener(PyFunction function, Class<?> packet) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<ScriptPacketListener<?>> listeners = getPacketListeners(script);
+        for (ScriptPacketListener<?> listener : listeners) {
+            if (listener.getReceiveFunction().equals(function)
+                    || listener.getSendFunction().equals(function)
+                    && listener.type().equals(packet)) {
+                unregisterPacketListener(listener);
+            }
+        }
+    }
+
+    /**
      * Unregister all packet listeners belonging to a script.
      * @param script The script whose normal packet listeners should be unregistered
      */

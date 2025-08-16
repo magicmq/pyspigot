@@ -19,8 +19,6 @@ package dev.magicmq.pyspigot.velocity.manager.config;
 
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.config.ScriptConfig;
-import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -80,8 +78,7 @@ public class VelocityScriptConfig implements ScriptConfig {
                 set(path, value);
                 return true;
             } catch (SerializationException e) {
-                Script script = ScriptUtils.getScriptFromCallStack();
-                throw new ScriptRuntimeException(script, "Error when setting value '" + value + "' to path '" + path + "'");
+                throw new ScriptRuntimeException("Error when setting value '" + value + "' to path '" + path + "'");
             }
         }
         return false;

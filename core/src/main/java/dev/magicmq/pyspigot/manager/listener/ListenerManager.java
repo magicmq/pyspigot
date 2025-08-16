@@ -94,10 +94,29 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
     public abstract void unregisterListener(T listener);
 
     /**
+     * Unregister an event listener associated with a certain script function and event class. Note that multiple listeners may be unregistered, if multiple listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function associated with the listener to unregister
+     * @param eventClass The event class associated with the listener to unregister. Pass null to unregister all event listeners associated with a function, regardless of event class
+     */
+    public abstract void unregisterListener(PyFunction function, Class<? extends S> eventClass);
+
+    /**
      * Unregister all event listeners belonging to a script.
      * @param script The script whose event listeners should be unregistered
      */
     public abstract void unregisterListeners(Script script);
+
+    /**
+     * Unregister an event listener associated with a certain script function. Note that multiple listeners may be unregistered, if multiple listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function associated with the listener to unregister
+     */
+    public void unregisterListener(PyFunction function) {
+        unregisterListener(function, null);
+    }
 
     /**
      * Get all event listeners for a particular event associated with a script.
@@ -122,6 +141,14 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
     public List<T> getListeners(Script script) {
         List<T> scriptListeners = registeredListeners.get(script);
         return scriptListeners != null ? List.copyOf(scriptListeners) : List.of();
+    }
+
+    protected List<T> getListeners(Script script, PyFunction function, Class<? extends S> eventClass) {
+        List<T> listeners = getListeners(script);
+        return listeners.stream()
+                .filter(listener -> listener.getListenerFunction().equals(function))
+                .filter(listener -> eventClass == null || listener.getEvent().equals(eventClass))
+                .toList();
     }
 
     protected void addListener(Script script, T listener) {

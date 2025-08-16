@@ -30,6 +30,7 @@ import org.python.core.PyFunction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * The Bukkit-specific implementation of the listener manager.
@@ -71,6 +72,14 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
     public void unregisterListener(BukkitScriptEventListener listener) {
         removeFromHandlers(listener);
         removeListener(listener.getScript(), listener);
+    }
+
+    public void unregisterListener(PyFunction function, Class<? extends Event> eventClass) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<BukkitScriptEventListener> listeners = getListeners(script, function, eventClass);
+        for (BukkitScriptEventListener listener : listeners) {
+            unregisterListener(listener);
+        }
     }
 
     @Override

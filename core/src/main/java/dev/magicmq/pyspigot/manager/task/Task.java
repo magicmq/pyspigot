@@ -88,6 +88,14 @@ public class Task<T> implements Runnable {
     }
 
     /**
+     * Get the function associated with this task.
+     * @return The function associated with this task
+     */
+    public PyFunction getFunction() {
+        return function;
+    }
+
+    /**
      * Get the platform-specific task object for this task.
      * @return The platform-specific task object
      */

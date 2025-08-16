@@ -39,9 +39,10 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
 
     private final Script script;
     private final PyFunction function;
-    private final PyFunction relFunction;
     private final String author;
     private final String version;
+
+    private PyFunction relFunction;
 
     /**
      *
@@ -57,6 +58,14 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
         this.relFunction = relFunction;
         this.author = author;
         this.version = version;
+    }
+
+    /**
+     * Set the relational placeholder function for this placeholder.
+     * @param relFunction The relational function
+     */
+    public void setRelationalFunction(PyFunction relFunction) {
+        this.relFunction = relFunction;
     }
 
     /**

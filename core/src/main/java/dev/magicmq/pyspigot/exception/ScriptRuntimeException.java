@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.exception;
 
 
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.util.ScriptUtils;
 
 import java.io.Serial;
 
@@ -31,6 +32,32 @@ public class ScriptRuntimeException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = -1309086963783269924L;
     private final Script script;
+
+    /**
+     * <b>Note:</b> This constructor should be called from a script/Python context only!
+     */
+    public ScriptRuntimeException() {
+        this.script = ScriptUtils.getScriptFromCallStack();
+    }
+
+    /**
+     * <b>Note:</b> This constructor should be called from a script/Python context only!
+     * @param message The detail message
+     */
+    public ScriptRuntimeException(String message) {
+        super(message);
+        this.script = ScriptUtils.getScriptFromCallStack();
+    }
+
+    /**
+     * <b>Note:</b> This constructor should be called from a script/Python context only!
+     * @param message The detail message
+     * @param cause The cause
+     */
+    public ScriptRuntimeException(String message, Throwable cause) {
+        super(message, cause);
+        this.script = ScriptUtils.getScriptFromCallStack();
+    }
 
     /**
      *

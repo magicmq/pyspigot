@@ -232,6 +232,22 @@ public abstract class CommandManager {
     }
 
     /**
+     * Set the tab completion function for a command that was registered previously.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param tabFunction The tab function that should be called for tab completion of the command. Can be null
+     * @param name The name of the command that was previously registered
+     */
+    public void registerTabFunction(PyFunction tabFunction, String name) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        ScriptCommand command = getCommand(script, name);
+        if (command != null)
+            command.setTabFunction(tabFunction);
+        else
+            throw new ScriptRuntimeException(script, "Could not find a registered command with the name '" + name + "'");
+    }
+
+    /**
      * Unregister a script's command.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
@@ -240,6 +256,23 @@ public abstract class CommandManager {
     public void unregisterCommand(ScriptCommand command) {
         unregisterCommandImpl(command);
         removeCommand(command.getScript(), command);
+    }
+
+    /**
+     * Unregister a script's command. Note that multiple listeners may be unregistered, if multiple listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param commandFunction The command function associated with the command to be unregistered
+     */
+    public void unregisterCommand(PyFunction commandFunction) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<ScriptCommand> commands = getCommands(script);
+        for (ScriptCommand command : commands) {
+            if (command.getCommandFunction().equals(commandFunction)) {
+                unregisterCommandImpl(command);
+                removeCommand(command.getScript(), command);
+            }
+        }
     }
 
     /**
