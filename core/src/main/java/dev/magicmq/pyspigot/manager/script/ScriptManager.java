@@ -30,11 +30,13 @@ import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.magicmq.pyspigot.util.logging.JythonLogHandler;
 import org.python.core.Py;
 import org.python.core.PyBaseCode;
+import org.python.core.PyBoolean;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyIndentationError;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
+import org.python.core.PyStringMap;
 import org.python.core.PySyntaxError;
 import org.python.core.PySystemState;
 import org.python.core.ThreadState;
@@ -718,8 +720,13 @@ public abstract class ScriptManager {
 
             script.getInterpreter().execfile(scriptFileReader, script.getMainScriptPath().toString());
 
+            //TODO Remove in a future release
             PyObject start = script.getInterpreter().get("start");
             if (start instanceof PyFunction startFunction) {
+                script.getLogger().warn("This script uses the old, non-preferred method to specify a start hook " +
+                        "function (naming the function 'start'), which will be removed in a future release. Instead, " +
+                        "use the new '@start' decorator from the 'decorators.script' module to specify start hook " +
+                        "functions.");
                 Py.setSystemState(script.getInterpreter().getSystemState());
                 ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                 int args = ((PyBaseCode) startFunction.__code__).co_argcount;
@@ -727,6 +734,32 @@ public abstract class ScriptManager {
                     startFunction.__call__(threadState);
                 else
                     startFunction.__call__(threadState, Py.java2py(script));
+            }
+
+            PyObject locals = script.getInterpreter().getLocals();
+            if (locals instanceof PyStringMap localMap) {
+                for (Object item : localMap.values()) {
+                    if (item instanceof PyFunction function) {
+                        PyObject startAttribute = function.__findattr__("start_function");
+                        if (startAttribute instanceof PyBoolean startBoolean) {
+                            if (startBoolean.getBooleanValue()) {
+                                Py.setSystemState(script.getInterpreter().getSystemState());
+                                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
+                                int args = ((PyBaseCode) function.__code__).co_argcount;
+                                if (args == 0)
+                                    function.__call__(threadState);
+                                else
+                                    function.__call__(threadState, Py.java2py(script));
+                            }
+                        }
+
+                        PyObject stopAttribute = function.__findattr__("stop_function");
+                        if (stopAttribute instanceof PyBoolean stop) {
+                            if (stop.getBooleanValue())
+                                script.addStopFunction(function);
+                        }
+                    }
+                }
             }
 
             callScriptLoadEvent(script);
@@ -765,8 +798,13 @@ public abstract class ScriptManager {
             ScriptUtils.patchThreading(script.getInterpreter());
 
         if (!error) {
+            //TODO Remove in a future release
             PyObject stop = script.getInterpreter().get("stop");
             if (stop instanceof PyFunction stopFunction) {
+                script.getLogger().warn("This script uses the old, non-preferred method to specify a stop hook " +
+                        "function (naming the function 'stop'), which will be removed in a future release. Instead, " +
+                        "use the new '@stop' decorator from the 'decorators.script' module to specify stop hook " +
+                        "functions.");
                 try {
                     Py.setSystemState(script.getInterpreter().getSystemState());
                     ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
@@ -775,6 +813,21 @@ public abstract class ScriptManager {
                         stopFunction.__call__(threadState);
                     else
                         stopFunction.__call__(threadState, Py.java2py(script));
+                } catch (PyException e) {
+                    handleScriptException(script, e, "Error when calling stop function");
+                    gracefulStop = false;
+                }
+            }
+
+            for (PyFunction function : script.getStopFunctions()) {
+                try {
+                    Py.setSystemState(script.getInterpreter().getSystemState());
+                    ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
+                    int args = ((PyBaseCode) function.__code__).co_argcount;
+                    if (args == 0)
+                        function.__call__(threadState);
+                    else
+                        function.__call__(threadState, Py.java2py(script));
                 } catch (PyException e) {
                     handleScriptException(script, e, "Error when calling stop function");
                     gracefulStop = false;

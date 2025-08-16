@@ -158,6 +158,39 @@ public class AsyncProtocolManager {
     }
 
     /**
+     * Unregister an asynchronous packet listener. Note that multiple packet listeners may be unregistered, if multiple packet listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function associated with the asynchronous packet listener to unregister
+     */
+    public void unregisterAsyncPacketListener(PyFunction function) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<ScriptPacketListener> listeners = getAsyncPacketListeners(script);
+        for (ScriptPacketListener listener : listeners) {
+            if (listener.getFunction().equals(function)) {
+                unregisterAsyncPacketListener(listener);
+            }
+        }
+    }
+
+    /**
+     * Unregister an asynchronous packet listener. Note that multiple packet listeners may be unregistered, if multiple packet listeners are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param function The function associated with the asynchronous packet listener to unregister
+     * @param type The packet type associated with the asynchronous packet listener to unregister
+     */
+    public void unregisterAsyncPacketListener(PyFunction function, PacketType type) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<ScriptPacketListener> listeners = getAsyncPacketListeners(script);
+        for (ScriptPacketListener listener : listeners) {
+            if (listener.getFunction().equals(function) && listener.getPacketType().equals(type)) {
+                unregisterAsyncPacketListener(listener);
+            }
+        }
+    }
+
+    /**
      * Unregister all asynchronous packet listeners belonging to a script.
      * @param script The script whose asynchronous packet listeners should be unregistered
      */
