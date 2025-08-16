@@ -110,6 +110,19 @@ public class PacketEventsManager {
     }
 
     /**
+     * Unregister a packet listener.
+     * @param function The function associated with the packet listener to unregister
+     */
+    public void unregisterPacketListener(PyFunction function) {
+        Script script = ScriptUtils.getScriptFromCallStack();
+        List<ScriptPacketListener> listeners = getPacketListeners(script);
+        for (ScriptPacketListener listener : listeners) {
+            if (listener.getFunction().equals(function))
+                unregisterPacketListener(listener);
+        }
+    }
+
+    /**
      * Unregister all packet listeners belonging to a script.
      * @param script The script whose packet listeners should be unregistered
      */
