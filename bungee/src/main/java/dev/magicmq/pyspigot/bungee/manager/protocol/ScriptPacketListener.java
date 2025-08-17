@@ -55,6 +55,22 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
     }
 
     /**
+     * Get the receive function associated with this packet listener.
+     * @return The receive function
+     */
+    public PyFunction getReceiveFunction() {
+        return receiveFunction;
+    }
+
+    /**
+     * Get the send function associated with this packet listener.
+     * @return The send function
+     */
+    public PyFunction getSendFunction() {
+        return sendFunction;
+    }
+
+    /**
      * Called internally when the packet is received.
      * @param event The packet receive event
      */

@@ -115,7 +115,7 @@ public class BukkitScriptManager extends ScriptManager {
     protected void unregisterFromPlatformManagers(Script script) {
         if (PySpigot.get().isProtocolLibAvailable()) {
             ProtocolManager.get().unregisterPacketListeners(script);
-            ProtocolManager.get().async().unregisterAsyncPacketListeners(script);
+            ProtocolManager.get().asyncManager().unregisterAsyncPacketListeners(script);
         }
 
         if (PySpigot.get().isPlaceholderApiAvailable()) {

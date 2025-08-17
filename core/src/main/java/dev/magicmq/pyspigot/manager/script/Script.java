@@ -20,12 +20,15 @@ import dev.magicmq.pyspigot.exception.ScriptInitializationException;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.magicmq.pyspigot.util.logging.PrintStreamWrapper;
 import dev.magicmq.pyspigot.util.logging.ScriptLogger;
+import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -44,6 +47,7 @@ public class Script implements Comparable<Script> {
     private final ScriptOptions options;
     private final boolean project;
     private final Set<Path> modules;
+    private final List<PyFunction> stopFunctions;
 
     private PythonInterpreter interpreter;
     private ScriptLogger logger;
@@ -66,6 +70,7 @@ public class Script implements Comparable<Script> {
         this.options = options;
         this.project = project;
         this.modules = new HashSet<>();
+        this.stopFunctions = new ArrayList<>();
     }
 
     protected void prepare() throws ScriptInitializationException {
@@ -164,6 +169,22 @@ public class Script implements Comparable<Script> {
      */
     public Set<Path> getModules() {
         return new HashSet<>(modules);
+    }
+
+    /**
+     * Get all stop functions for this script/project. Stop functions are called by PySpigot when the script/project is stopped.
+     * @return The stop functions for this script/project
+     */
+    public List<PyFunction> getStopFunctions() {
+        return stopFunctions;
+    }
+
+    /**
+     * Add a stop function to this script/project.
+     * @param stopFunction The stop function to add
+     */
+    public void addStopFunction(PyFunction stopFunction) {
+        stopFunctions.add(stopFunction);
     }
 
     /**

@@ -61,6 +61,14 @@ public class ScriptPacketListener implements PacketListener {
     }
 
     /**
+     * Get the function associated with this packet listener.
+     * @return The function
+     */
+    public PyFunction getFunction() {
+        return function;
+    }
+
+    /**
      * get the packet type this listener is listening for
      * @return The packet type
      */

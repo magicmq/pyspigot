@@ -60,10 +60,10 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
 
     private final Script script;
     private final PyFunction commandFunction;
-    private final PyFunction tabFunction;
     private final String name;
     private final PluginCommand bukkitCommand;
 
+    private PyFunction tabFunction;
     private List<HelpTopic> helps;
 
     /**
@@ -98,6 +98,26 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
             //This should not happen, reflection checks done on plugin enable
             throw new ScriptRuntimeException(script, "Unhandled exception when initializing command '" + name + "'", e);
         }
+    }
+
+    @Override
+    public Script getScript() {
+        return script;
+    }
+
+    @Override
+    public PyFunction getCommandFunction() {
+        return commandFunction;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setTabFunction(PyFunction tabFunction) {
+        this.tabFunction = tabFunction;
     }
 
     @Override
@@ -145,22 +165,6 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
             }
         }
         return Collections.emptyList();
-    }
-
-    /**
-     * Get the script associated with this command.
-     * @return The script associated with this command
-     */
-    public Script getScript() {
-        return script;
-    }
-
-    /**
-     * Get the name of this command.
-     * @return The name of this command
-     */
-    public String getName() {
-        return name;
     }
 
     /**
