@@ -142,6 +142,24 @@ public class RedisPubSubClient extends ScriptRedisClient {
     }
 
     /**
+     * Unregister a listener via the function associated with it.
+     * @param function The function associated with the listener to unregister
+     */
+    public void unregisterListener(PyFunction function) {
+        List<ScriptPubSubListener> syncListeners = List.copyOf(this.syncListeners);
+        for (ScriptPubSubListener listener : syncListeners) {
+            if (listener.getFunction().equals(function))
+                unregisterListener(listener);
+        }
+
+        List<ScriptPubSubListener> asyncListeners = List.copyOf(this.asyncListeners);
+        for (ScriptPubSubListener listener : asyncListeners) {
+            if (listener.getFunction().equals(function))
+                unregisterListener(listener);
+        }
+    }
+
+    /**
      * Unregister all listeners (both synchronous and asynchronous) on the given channel
      * <p>
      * <b>Note:</b> This should be called from scripts only!
