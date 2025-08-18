@@ -23,7 +23,7 @@ def event_listener(event_class, priority=EventPriority.NORMAL):
         function.registered_listener = listener
 
         def _unregister():
-            listener_manager.unregisterListener(function)
+            listener_manager.unregisterListener(listener)
 
         function.unregister = _unregister
 
