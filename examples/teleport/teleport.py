@@ -91,7 +91,7 @@ inventory = create_inventory(inventory_size, inventory_title, items)
 
 def on_inventory_click(event):
     if event.getClickedInventory() is not None:
-        if event.getClickedInventory().getTitle() == inventory.getTitle():
+        if event.getView().getTitle() == inventory_title:
             event.setCancelled(True)
 
             item = event.getCurrentItem()
@@ -125,5 +125,5 @@ ps.command_manager().registerCommand(on_command, 'teleportgui', 'Open the telepo
 def stop():
     for player in Bukkit.getOnlinePlayers():
         if player.getOpenInventory() is not None:
-            if player.getOpenInventory().getTitle() == inventory.getTitle():
+            if player.getOpenInventory().getTitle() == inventory_title:
                 player.closeInventory()
