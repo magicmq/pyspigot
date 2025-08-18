@@ -17,8 +17,10 @@
 package dev.magicmq.pyspigot.manager.redis;
 
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import org.python.core.Py;
+import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.core.ThreadState;
@@ -53,10 +55,14 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
     @Override
     public void message(String channel, String message) {
         if (channel.equals(this.channel)) {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject[] parameters = Py.javas2pys(channel, message);
-            function.__call__(threadState, parameters[0], parameters[1]);
+            try {
+                Py.setSystemState(script.getInterpreter().getSystemState());
+                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
+                PyObject[] parameters = Py.javas2pys(channel, message);
+                function.__call__(threadState, parameters[0], parameters[1]);
+            } catch (PyException exception) {
+                ScriptManager.get().handleScriptException(script, exception, "Error when calling script redis pub/sub listener");
+            }
         }
     }
 
