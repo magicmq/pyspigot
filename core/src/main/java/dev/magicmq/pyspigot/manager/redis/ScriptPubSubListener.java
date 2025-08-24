@@ -105,6 +105,14 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
     }
 
     /**
+     * Get the function associated with this listener.
+     * @return The function
+     */
+    public PyFunction getFunction() {
+        return function;
+    }
+
+    /**
      * Get the channel for this listener.
      * @return The channel
      */
