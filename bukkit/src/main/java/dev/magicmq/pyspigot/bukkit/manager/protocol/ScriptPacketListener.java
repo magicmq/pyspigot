@@ -23,6 +23,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
@@ -97,7 +98,7 @@ public abstract class ScriptPacketListener extends PacketAdapter {
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            function.__call__(threadState, parameter);
+            ScriptContext.runWith(script, () -> function.__call__(threadState, parameter));
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet listener");
         }

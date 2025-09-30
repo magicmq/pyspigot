@@ -20,7 +20,7 @@ import dev.magicmq.pyspigot.manager.redis.client.RedisCommandClient;
 import dev.magicmq.pyspigot.manager.redis.client.RedisPubSubClient;
 import dev.magicmq.pyspigot.manager.redis.client.ScriptRedisClient;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisConnectionException;
 import io.lettuce.core.RedisURI;
@@ -129,7 +129,7 @@ public class RedisManager {
      * @return A {@link ScriptRedisClient} representing a client that is connected to the remote redis server
      */
     public ScriptRedisClient openRedisClient(ClientType clientType, RedisURI redisURI, ClientOptions clientOptions) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
 
         ScriptRedisClient client;
         if (clientType == ClientType.COMMAND)

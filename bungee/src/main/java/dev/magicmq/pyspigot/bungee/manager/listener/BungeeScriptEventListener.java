@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.bungee.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.manager.listener.ScriptEventListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Listener;
 import org.python.core.Py;
@@ -73,7 +74,7 @@ public class BungeeScriptEventListener implements Listener, ScriptEventListener<
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            listenerFunction.__call__(threadState, parameter);
+            ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameter));
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
         }

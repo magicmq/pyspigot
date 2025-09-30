@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.manager.task;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
@@ -135,9 +136,9 @@ public class SyncCallbackTask<T> extends Task<T> {
 
             try {
                 if (outcome instanceof PyNone)
-                    task.callbackFunction.__call__(threadState);
+                    ScriptContext.runWith(task.script, () -> task.callbackFunction.__call__(threadState));
                 else
-                    task.callbackFunction.__call__(threadState, outcome);
+                    ScriptContext.runWith(task.script, () -> task.callbackFunction.__call__(threadState, outcome));
             } catch (PyException e) {
                 ScriptManager.get().handleScriptException(task.script, e, "Error while executing callback task");
             } finally {

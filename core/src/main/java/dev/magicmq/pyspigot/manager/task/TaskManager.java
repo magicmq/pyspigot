@@ -17,7 +17,7 @@
 package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
@@ -131,7 +131,7 @@ public abstract class TaskManager<T> {
      * @return A Task object representing the registered task
      */
     public synchronized Task<T> runTask(PyFunction function, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         Task<T> task = new Task<>(script, function, functionArgs, false, 0);
         addTask(task);
         task.setPlatformTask(runTaskImpl(task));
@@ -147,7 +147,7 @@ public abstract class TaskManager<T> {
      * @return A Task object representing the registered task
      */
     public synchronized Task<T> runTaskAsync(PyFunction function, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         Task<T> task = new Task<>(script, function, functionArgs, true, 0);
         addTask(task);
         task.setPlatformTask(runTaskAsyncImpl(task));
@@ -164,7 +164,7 @@ public abstract class TaskManager<T> {
      * @return A Task object representing the registered task
      */
     public synchronized Task<T> runTaskLater(PyFunction function, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         Task<T> task = new Task<>(script, function, functionArgs, false, delay);
         addTask(task);
         task.setPlatformTask(runTaskLaterImpl(task, delay));
@@ -181,7 +181,7 @@ public abstract class TaskManager<T> {
      * @return A Task object representing the registered task
      */
     public synchronized Task<T> runTaskLaterAsync(PyFunction function, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         Task<T> task = new Task<>(script, function, functionArgs, true, delay);
         addTask(task);
         task.setPlatformTask(runTaskLaterAsyncImpl(task, delay));
@@ -199,7 +199,7 @@ public abstract class TaskManager<T> {
      * @return A RepeatingTask object representing the registered task
      */
     public synchronized RepeatingTask<T> scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         RepeatingTask<T> task = new RepeatingTask<>(script, function, functionArgs, false, delay, interval);
         addTask(task);
         task.setPlatformTask(scheduleRepeatingTaskImpl(task, delay, interval));
@@ -217,7 +217,7 @@ public abstract class TaskManager<T> {
      * @return A RepeatingTask object representing the registered task
      */
     public synchronized RepeatingTask<T> scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         RepeatingTask<T> task = new RepeatingTask<>(script, function, functionArgs, true, delay, interval);
         addTask(task);
         task.setPlatformTask(scheduleAsyncRepeatingTaskImpl(task, delay, interval));
@@ -234,7 +234,7 @@ public abstract class TaskManager<T> {
      * @return A SyncCallbackTask object representing the registered task
      */
     public synchronized SyncCallbackTask<T> runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         SyncCallbackTask<T> task = new SyncCallbackTask<>(script, function, callback, functionArgs, 0);
         addTask(task);
         task.setPlatformTask(runSyncCallbackTaskImpl(task));
@@ -252,7 +252,7 @@ public abstract class TaskManager<T> {
      * @return A SyncCallbackTask object representing the registered task
      */
     public synchronized SyncCallbackTask<T> runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         SyncCallbackTask<T> task = new SyncCallbackTask<>(script, function, callback, functionArgs, delay);
         addTask(task);
         task.setPlatformTask(runSyncCallbackTaskLaterImpl(task, delay));
@@ -264,7 +264,7 @@ public abstract class TaskManager<T> {
      * @param function The function whose task should be cancelled
      */
     public synchronized void stopTask(PyFunction function) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<Task<T>> tasks = getTasks(script);
         for (Task<T> task : tasks) {
             if (task.getFunction().equals(function)) {

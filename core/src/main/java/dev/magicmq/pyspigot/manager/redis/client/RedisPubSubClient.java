@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.manager.redis.client;
 
 import dev.magicmq.pyspigot.manager.redis.ScriptPubSubListener;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
@@ -91,7 +91,7 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
      */
     public ScriptPubSubListener registerSyncListener(PyFunction function, String channel) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ScriptPubSubListener listener = new ScriptPubSubListener(script, function, channel);
         connection.addListener(listener);
         connection.sync().subscribe(channel);
@@ -110,7 +110,7 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
      */
     public ScriptPubSubListener registerAsyncListener(PyFunction function, String channel) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ScriptPubSubListener listener = new ScriptPubSubListener(script, function, channel);
         connection.addListener(listener);
         connection.async().subscribe(channel);

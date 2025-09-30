@@ -17,7 +17,7 @@
 package dev.magicmq.pyspigot.bungee.event.custom;
 
 import dev.magicmq.pyspigot.bungee.event.ScriptEvent;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import net.md_5.bungee.api.plugin.Cancellable;
 import org.python.core.Py;
 import org.python.core.PyObject;
@@ -39,7 +39,7 @@ public class CustomEvent extends ScriptEvent implements Cancellable {
      * @param data The data to attach to the event
      */
     public CustomEvent(String name, PyObject data) {
-        super(ScriptUtils.getScriptFromCallStack());
+        super(ScriptContext.require());
         this.name = name;
         this.data = data;
 

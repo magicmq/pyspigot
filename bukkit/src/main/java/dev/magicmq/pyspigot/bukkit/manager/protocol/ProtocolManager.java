@@ -22,7 +22,7 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -95,7 +95,7 @@ public class ProtocolManager {
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
     public ScriptPacketListener registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         if (getPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
@@ -130,7 +130,7 @@ public class ProtocolManager {
      * @param function The function associated with the packet listener to unregister
      */
     public void unregisterPacketListener(PyFunction function) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<ScriptPacketListener> listeners = getPacketListeners(script);
         for (ScriptPacketListener listener : listeners) {
             if (listener.getFunction().equals(function)) {
@@ -147,7 +147,7 @@ public class ProtocolManager {
      * @param type The packet type associated with the packet listener to unregister
      */
     public void unregisterPacketListener(PyFunction function, PacketType type) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<ScriptPacketListener> listeners = getPacketListeners(script);
         for (ScriptPacketListener listener : listeners) {
             if (listener.getFunction().equals(function) && listener.getPacketType().equals(type)) {

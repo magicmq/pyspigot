@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.bungee.manager.protocol;
 
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.simplix.protocolize.api.Direction;
 import dev.simplix.protocolize.api.Protocolize;
 import dev.simplix.protocolize.api.packet.AbstractPacket;
@@ -73,7 +73,7 @@ public class ProtocolManager {
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
     public ScriptPacketListener<?> registerPacketListener(PyFunction receiveFunction, PyFunction sendFunction, Class<?> packet, Direction direction, int priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         if (getPacketListener(script, packet) == null) {
             ScriptPacketListener<?> listener = new ScriptPacketListener<>(script, receiveFunction, sendFunction, packet, direction, priority);
             addPacketListener(listener);
@@ -101,7 +101,7 @@ public class ProtocolManager {
      * @param function Either the send or receive function associated with the packet listener
      */
     public void unregisterPacketListener(PyFunction function) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<ScriptPacketListener<?>> listeners = getPacketListeners(script);
         for (ScriptPacketListener<?> listener : listeners) {
             if (listener.getReceiveFunction().equals(function) || listener.getSendFunction().equals(function)) {
@@ -118,7 +118,7 @@ public class ProtocolManager {
      * @param packet The packet type associated with the packet listener to unregister
      */
     public void unregisterPacketListener(PyFunction function, Class<?> packet) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<ScriptPacketListener<?>> listeners = getPacketListeners(script);
         for (ScriptPacketListener<?> listener : listeners) {
             if (listener.getReceiveFunction().equals(function)
@@ -175,7 +175,7 @@ public class ProtocolManager {
      * @param packet The packet to send
      */
     public void sendPacket(UUID playerUUID, AbstractPacket packet) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ProtocolizePlayer player = Protocolize.playerProvider().player(playerUUID);
         if (player != null) {
             player.sendPacket(packet);
@@ -192,7 +192,7 @@ public class ProtocolManager {
      * @param packet The packet to send
      */
     public void sendPacket(UUID playerUUID, DefinedPacket packet) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ProtocolizePlayer player = Protocolize.playerProvider().player(playerUUID);
         if (player != null) {
             player.sendPacket(packet);

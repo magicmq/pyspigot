@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.CommandSender;
@@ -91,7 +92,7 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(sender, getName(), args);
-            commandFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
+            ScriptContext.runWith(script, () -> commandFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + getName() + "'");
             //Mimic BungeeCord behavior
@@ -106,7 +107,7 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
                 Py.setSystemState(script.getInterpreter().getSystemState());
                 ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                 PyObject[] parameters = Py.javas2pys(sender, getName(), args);
-                PyObject result = tabFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
+                PyObject result = ScriptContext.supplyWith(script, () -> tabFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
                 if (result instanceof PyList pyList) {
                     ArrayList<String> toReturn = new ArrayList<>();
                     for (Object object : pyList) {

@@ -22,7 +22,7 @@ import com.google.common.io.ByteStreams;
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.python.core.PyFunction;
@@ -145,7 +145,7 @@ public class PluginMessageManager {
      * @return The plugin message listener that was registered
      */
     public ScriptPluginMessageListener registerListener(PyFunction function, String channel) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ScriptPluginMessageListener listener = getListener(script, channel);
         if (listener == null) {
             listener = new ScriptPluginMessageListener(script, function, channel);

@@ -20,6 +20,7 @@ package dev.magicmq.pyspigot.velocity.manager.listener;
 import com.velocitypowered.api.event.EventHandler;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.event.ScriptExceptionEvent;
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -54,7 +55,7 @@ public class VelocitySyncScriptListener<E> extends VelocityScriptListener<E> imp
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            listenerFunction.__call__(threadState, parameter);
+            ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameter));
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
         }

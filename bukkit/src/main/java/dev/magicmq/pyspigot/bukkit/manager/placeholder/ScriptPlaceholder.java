@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.OfflinePlayer;
@@ -130,7 +131,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(player, params);
-            PyObject result = function.__call__(threadState, parameters[0], parameters[1]);
+            PyObject result = ScriptContext.supplyWith(script, () -> function.__call__(threadState, parameters[0], parameters[1]));
             if (result instanceof PyString) {
                 return ((PyString) result).getString();
             }
@@ -157,7 +158,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(playerOne, playerTwo, identifier);
-            PyObject result = relFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
+            PyObject result = ScriptContext.supplyWith(script, () -> relFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
             if (result instanceof PyString) {
                 return ((PyString) result).getString();
             }

@@ -17,7 +17,7 @@
 package dev.magicmq.pyspigot.bukkit.event.custom;
 
 import dev.magicmq.pyspigot.bukkit.event.ScriptEvent;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.python.core.Py;
@@ -53,7 +53,7 @@ public class CustomEvent extends ScriptEvent implements Cancellable {
      * @param async Whether the event is being called from an asynchronous context
      */
     public CustomEvent(String name, PyObject data, boolean async) {
-        super(ScriptUtils.getScriptFromCallStack(), async);
+        super(ScriptContext.require(), async);
         this.name = name;
         this.data = data;
 

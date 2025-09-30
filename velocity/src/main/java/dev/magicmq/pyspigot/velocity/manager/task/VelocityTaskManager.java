@@ -23,7 +23,7 @@ import dev.magicmq.pyspigot.manager.task.RepeatingTask;
 import dev.magicmq.pyspigot.manager.task.SyncCallbackTask;
 import dev.magicmq.pyspigot.manager.task.Task;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.PyVelocity;
 import org.python.core.PyFunction;
 
@@ -103,7 +103,7 @@ public class VelocityTaskManager extends TaskManager<ScheduledTask> {
      * @return A Task object representing the registered task
      */
     public synchronized Task<ScheduledTask> runTaskLaterAsync(PyFunction function, long delay, TimeUnit delayUnit, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         Task<ScheduledTask> task = new Task<>(script, function, functionArgs, true, delay);
         addTask(task);
         task.setPlatformTask(runTaskLaterAsyncImpl(task, delay, delayUnit));
@@ -123,7 +123,7 @@ public class VelocityTaskManager extends TaskManager<ScheduledTask> {
      * @return A RepeatingTask object representing the registered task
      */
     public synchronized RepeatingTask<ScheduledTask> scheduleAsyncRepeatingTask(PyFunction function, long delay, TimeUnit delayUnit, long interval, TimeUnit intervalUnit, Object... functionArgs) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         RepeatingTask<ScheduledTask> task = new RepeatingTask<>(script, function, functionArgs, true, delay, interval);
         addTask(task);
         task.setPlatformTask(scheduleAsyncRepeatingTaskImpl(task, delay, delayUnit, interval, intervalUnit));

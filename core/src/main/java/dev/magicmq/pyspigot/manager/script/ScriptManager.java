@@ -26,6 +26,7 @@ import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.packetevents.PacketEventsManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.util.ScriptUtils;
 import dev.magicmq.pyspigot.util.logging.JythonLogHandler;
 import org.python.core.Py;
@@ -718,7 +719,7 @@ public abstract class ScriptManager {
         try (FileInputStream scriptFileReader = new FileInputStream(script.getMainScriptPath().toFile())) {
             initScriptPermissions(script);
 
-            script.getInterpreter().execfile(scriptFileReader, script.getMainScriptPath().toString());
+            ScriptContext.runWith(script, () -> script.getInterpreter().execfile(scriptFileReader, script.getMainScriptPath().toString()));
 
             //TODO Remove in a future release
             PyObject start = script.getInterpreter().get("start");
@@ -731,9 +732,9 @@ public abstract class ScriptManager {
                 ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                 int args = ((PyBaseCode) startFunction.__code__).co_argcount;
                 if (args == 0)
-                    startFunction.__call__(threadState);
+                    ScriptContext.runWith(script, () -> startFunction.__call__(threadState));
                 else
-                    startFunction.__call__(threadState, Py.java2py(script));
+                    ScriptContext.runWith(script, () -> startFunction.__call__(threadState, Py.java2py(script)));
             }
 
             PyObject locals = script.getInterpreter().getLocals();
@@ -747,9 +748,9 @@ public abstract class ScriptManager {
                                 ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                                 int args = ((PyBaseCode) function.__code__).co_argcount;
                                 if (args == 0)
-                                    function.__call__(threadState);
+                                    ScriptContext.runWith(script, () -> function.__call__(threadState));
                                 else
-                                    function.__call__(threadState, Py.java2py(script));
+                                    ScriptContext.runWith(script, () -> function.__call__(threadState, Py.java2py(script)));
                             }
                         }
 
@@ -810,9 +811,9 @@ public abstract class ScriptManager {
                     ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                     int args = ((PyBaseCode) stopFunction.__code__).co_argcount;
                     if (args == 0)
-                        stopFunction.__call__(threadState);
+                        ScriptContext.runWith(script, () -> stopFunction.__call__(threadState));
                     else
-                        stopFunction.__call__(threadState, Py.java2py(script));
+                        ScriptContext.runWith(script, () -> stopFunction.__call__(threadState, Py.java2py(script)));
                 } catch (PyException e) {
                     handleScriptException(script, e, "Error when calling stop function");
                     gracefulStop = false;
@@ -825,9 +826,9 @@ public abstract class ScriptManager {
                     ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                     int args = ((PyBaseCode) function.__code__).co_argcount;
                     if (args == 0)
-                        function.__call__(threadState);
+                        ScriptContext.runWith(script, () -> function.__call__(threadState));
                     else
-                        function.__call__(threadState, Py.java2py(script));
+                        ScriptContext.runWith(script, () -> function.__call__(threadState, Py.java2py(script)));
                 } catch (PyException e) {
                     handleScriptException(script, e, "Error when calling stop function");
                     gracefulStop = false;

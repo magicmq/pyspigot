@@ -22,7 +22,7 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.PyVelocity;
 import org.python.core.PyFunction;
 
@@ -142,7 +142,7 @@ public class VelocityCommandManager extends CommandManager {
      * @return A ScriptCommand representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, boolean asyncTabComplete, String name, String description, String usage, List<String> aliases, String permission) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ScriptCommand command = getCommand(script, name);
         if (command == null) {
             ScriptCommand newCommand = registerCommandImpl(script, commandFunction, tabFunction, asyncTabComplete, name, description, usage, aliases, permission);

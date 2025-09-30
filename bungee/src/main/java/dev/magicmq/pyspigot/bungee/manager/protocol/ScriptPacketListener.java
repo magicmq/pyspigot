@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.bungee.manager.protocol;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.simplix.protocolize.api.Direction;
 import dev.simplix.protocolize.api.listener.AbstractPacketListener;
 import dev.simplix.protocolize.api.listener.PacketReceiveEvent;
@@ -80,7 +81,7 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            receiveFunction.__call__(threadState, parameter);
+            ScriptContext.runWith(script, () -> receiveFunction.__call__(threadState, parameter));
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet receive listener");
         }
@@ -96,7 +97,7 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject parameter = Py.java2py(event);
-            sendFunction.__call__(threadState, parameter);
+            ScriptContext.runWith(script, () -> sendFunction.__call__(threadState, parameter));
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet send listener");
         }

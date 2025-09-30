@@ -19,7 +19,7 @@ package dev.magicmq.pyspigot.velocity.manager.listener;
 
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.PyVelocity;
 import org.python.core.PyFunction;
 
@@ -57,7 +57,7 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
      * @return The ScriptEventListener that was registered
      */
     public VelocityScriptListener<?> registerAsyncListener(PyFunction function, Class<?> eventClass, Short priority, EventTaskType eventTaskType) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
 
         return registerTypedAsyncListener(script, function, eventClass, priority, eventTaskType);
     }
@@ -89,7 +89,7 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
 
     @Override
     public VelocityScriptListener<?> registerListener(PyFunction function, Class<?> eventClass, Short priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
 
         return registerTypedListener(script, function, eventClass, priority);
     }
@@ -124,7 +124,7 @@ public class VelocityListenerManager extends ListenerManager<VelocityScriptListe
 
     @Override
     public void unregisterListener(PyFunction function, Class<?> eventClass) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<VelocityScriptListener<?>> listeners = getListeners(script, function, eventClass);
         for (VelocityScriptListener<?> listener : listeners) {
             unregisterListener(listener);

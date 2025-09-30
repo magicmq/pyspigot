@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.bukkit.manager.listener;
 import dev.magicmq.pyspigot.bukkit.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.EventExecutor;
@@ -68,7 +69,7 @@ public class BukkitScriptEventExecutor implements EventExecutor {
                 Py.setSystemState(scriptEventListener.getScript().getInterpreter().getSystemState());
                 ThreadState threadState = Py.getThreadState(scriptEventListener.getScript().getInterpreter().getSystemState());
                 PyObject parameter = Py.java2py(event);
-                scriptEventListener.getListenerFunction().__call__(threadState, parameter);
+                ScriptContext.runWith(scriptEventListener.getScript(), () -> scriptEventListener.getListenerFunction().__call__(threadState, parameter));
             } catch (PyException exception) {
                 ScriptManager.get().handleScriptException(scriptEventListener.getScript(), exception, "Error when executing event listener");
             }

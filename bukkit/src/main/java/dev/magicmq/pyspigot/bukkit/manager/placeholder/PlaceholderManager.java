@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.PyFunction;
 
 import java.util.HashMap;
@@ -94,7 +94,7 @@ public class PlaceholderManager {
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction, String author, String version) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         if (!registeredPlaceholders.containsKey(script)) {
             ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, relPlaceholderFunction, author, version);
             placeholder.register();
@@ -111,7 +111,7 @@ public class PlaceholderManager {
      * @param relationalPlaceholderFunction The relational placeholder function to set
      */
     public void setRelationalPlaceholderFunction(PyFunction relationalPlaceholderFunction) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
         if (placeholder != null)
             placeholder.setRelationalFunction(relationalPlaceholderFunction);
@@ -135,7 +135,7 @@ public class PlaceholderManager {
      * @param placeholderFunction The function associated with the placeholder expansion to unregister
      */
     public void unregisterPlaceholder(PyFunction placeholderFunction) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
         if (placeholder != null)
             unregisterPlaceholder(placeholder);

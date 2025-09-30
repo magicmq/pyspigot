@@ -22,6 +22,7 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -126,7 +127,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
             Py.setSystemState(script.getInterpreter().getSystemState());
             ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
             PyObject[] parameters = Py.javas2pys(sender, label, args);
-            PyObject result = commandFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
+            PyObject result = ScriptContext.supplyWith(script, () -> commandFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
             if (result instanceof PyBoolean)
                 return ((PyBoolean) result).getBooleanValue();
             else
@@ -146,7 +147,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
                 Py.setSystemState(script.getInterpreter().getSystemState());
                 ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                 PyObject[] parameters = Py.javas2pys(sender, alias, args);
-                PyObject result = tabFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]);
+                PyObject result = ScriptContext.supplyWith(script, () -> tabFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
                 if (result instanceof PyList pyList) {
                     ArrayList<String> toReturn = new ArrayList<>();
                     for (Object object : pyList) {

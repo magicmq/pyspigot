@@ -23,7 +23,7 @@ import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.ListenerPriority;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class AsyncProtocolManager {
      * @return A {@link ScriptPacketListener} representing the asynchronous packet listener that was registered
      */
     public ScriptPacketListener registerAsyncPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         if (getAsyncPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
@@ -124,7 +124,7 @@ public class AsyncProtocolManager {
      *
      */
     public ScriptPacketListener registerTimeoutPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         if (getAsyncPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSender() == PacketType.Sender.CLIENT) {
@@ -164,7 +164,7 @@ public class AsyncProtocolManager {
      * @param function The function associated with the asynchronous packet listener to unregister
      */
     public void unregisterAsyncPacketListener(PyFunction function) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<ScriptPacketListener> listeners = getAsyncPacketListeners(script);
         for (ScriptPacketListener listener : listeners) {
             if (listener.getFunction().equals(function)) {
@@ -181,7 +181,7 @@ public class AsyncProtocolManager {
      * @param type The packet type associated with the asynchronous packet listener to unregister
      */
     public void unregisterAsyncPacketListener(PyFunction function, PacketType type) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<ScriptPacketListener> listeners = getAsyncPacketListeners(script);
         for (ScriptPacketListener listener : listeners) {
             if (listener.getFunction().equals(function) && listener.getPacketType().equals(type)) {

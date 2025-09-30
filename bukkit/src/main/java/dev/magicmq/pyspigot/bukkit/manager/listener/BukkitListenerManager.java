@@ -20,7 +20,7 @@ import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -60,7 +60,7 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
 
     @Override
     public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
 
         BukkitScriptEventListener listener = new BukkitScriptEventListener(script, function, eventClass);
         Bukkit.getPluginManager().registerEvent(eventClass, listener, priority, listener.getEventExecutor(), PySpigot.get(), ignoreCancelled);
@@ -75,7 +75,7 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
     }
 
     public void unregisterListener(PyFunction function, Class<? extends Event> eventClass) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<BukkitScriptEventListener> listeners = getListeners(script, function, eventClass);
         for (BukkitScriptEventListener listener : listeners) {
             unregisterListener(listener);

@@ -8,7 +8,7 @@ import dev.magicmq.pyspigot.manager.database.mongo.MongoDatabase;
 import dev.magicmq.pyspigot.manager.database.sql.SQLDatabase;
 import dev.magicmq.pyspigot.manager.database.sql.SQLiteDatabase;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,7 +112,7 @@ public class DatabaseManager {
      * @return An {@link SQLDatabase} object representing an open connection to the database
      */
     public SQLDatabase connectSql(HikariConfig hikariConfig) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
 
         SQLDatabase connection = new SQLDatabase(script, hikariConfig);
 
@@ -142,7 +142,7 @@ public class DatabaseManager {
      * @return An {@link SQLiteDatabase} object representing an open connection to the database
      */
     public SQLiteDatabase connectSQLite(String filePath) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
 
         if (filePath == null)
             filePath = "memory:";
@@ -240,7 +240,7 @@ public class DatabaseManager {
      * @return An {@link MongoDatabase} object representing an open connection to the database
      */
     public MongoDatabase connectMongo(MongoClientSettings clientSettings) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
 
         MongoDatabase connection = new MongoDatabase(script, clientSettings);
 

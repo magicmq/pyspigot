@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.manager.command;
 
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
@@ -221,7 +221,7 @@ public abstract class CommandManager {
      * @return A ScriptCommand representing the command that was registered
      */
     public ScriptCommand registerCommand(PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ScriptCommand command = getCommand(script, name);
         if (command == null) {
             ScriptCommand newCommand = registerCommandImpl(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
@@ -239,7 +239,7 @@ public abstract class CommandManager {
      * @param name The name of the command that was previously registered
      */
     public void registerTabFunction(PyFunction tabFunction, String name) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         ScriptCommand command = getCommand(script, name);
         if (command != null)
             command.setTabFunction(tabFunction);
@@ -265,7 +265,7 @@ public abstract class CommandManager {
      * @param commandFunction The command function associated with the command to be unregistered
      */
     public void unregisterCommand(PyFunction commandFunction) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<ScriptCommand> commands = getCommands(script);
         for (ScriptCommand command : commands) {
             if (command.getCommandFunction().equals(commandFunction)) {

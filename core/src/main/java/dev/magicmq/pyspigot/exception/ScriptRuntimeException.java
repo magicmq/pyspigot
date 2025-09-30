@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.exception;
 
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 
 import java.io.Serial;
 
@@ -37,7 +37,7 @@ public class ScriptRuntimeException extends RuntimeException {
      * <b>Note:</b> This constructor should be called from a script/Python context only!
      */
     public ScriptRuntimeException() {
-        this.script = ScriptUtils.getScriptFromCallStack();
+        this.script = ScriptContext.require();
     }
 
     /**
@@ -46,7 +46,7 @@ public class ScriptRuntimeException extends RuntimeException {
      */
     public ScriptRuntimeException(String message) {
         super(message);
-        this.script = ScriptUtils.getScriptFromCallStack();
+        this.script = ScriptContext.require();
     }
 
     /**
@@ -56,7 +56,7 @@ public class ScriptRuntimeException extends RuntimeException {
      */
     public ScriptRuntimeException(String message, Throwable cause) {
         super(message, cause);
-        this.script = ScriptUtils.getScriptFromCallStack();
+        this.script = ScriptContext.require();
     }
 
     /**

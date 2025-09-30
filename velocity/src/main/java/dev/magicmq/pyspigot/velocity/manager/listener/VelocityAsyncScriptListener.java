@@ -21,6 +21,7 @@ import com.velocitypowered.api.event.AwaitingEventExecutor;
 import com.velocitypowered.api.event.EventTask;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.event.ScriptExceptionEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.python.core.Py;
@@ -64,7 +65,7 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
                     Py.setSystemState(script.getInterpreter().getSystemState());
                     ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                     PyObject parameter = Py.java2py(event);
-                    listenerFunction.__call__(threadState, parameter);
+                    ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameter));
                 } catch (PyException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                 }
@@ -75,7 +76,7 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
                     Py.setSystemState(script.getInterpreter().getSystemState());
                     ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                     PyObject[] parameters = Py.javas2pys(event, continuation);
-                    listenerFunction.__call__(threadState, parameters[0], parameters[1]);
+                    ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameters[0], parameters[1]));
                 } catch (PyException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                     continuation.resumeWithException(exception);
@@ -87,7 +88,7 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
                     Py.setSystemState(script.getInterpreter().getSystemState());
                     ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                     PyObject parameter = Py.java2py(event);
-                    listenerFunction.__call__(threadState, parameter);
+                    ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameter));
                 } catch (PyException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                     throw new CompletionException(exception);

@@ -24,7 +24,7 @@ import com.github.retrooper.packetevents.protocol.PacketSide;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.PyFunction;
 
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class PacketEventsManager {
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
     public ScriptPacketListener registerPacketListener(PyFunction function, PacketTypeCommon type, PacketListenerPriority priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         if (getPacketListener(script, type) == null) {
             ScriptPacketListener listener = null;
             if (type.getSide() == PacketSide.CLIENT) {
@@ -114,7 +114,7 @@ public class PacketEventsManager {
      * @param function The function associated with the packet listener to unregister
      */
     public void unregisterPacketListener(PyFunction function) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<ScriptPacketListener> listeners = getPacketListeners(script);
         for (ScriptPacketListener listener : listeners) {
             if (listener.getFunction().equals(function))

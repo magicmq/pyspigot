@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.velocity.event.custom;
 
 
 import com.velocitypowered.api.event.ResultedEvent;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.event.ScriptEvent;
 import org.python.core.Py;
 import org.python.core.PyObject;
@@ -44,7 +44,7 @@ public class CustomResultedEvent extends ScriptEvent implements ResultedEvent<Re
      * @param data The data to attach to the event
      */
     public CustomResultedEvent(String name, PyObject data) {
-        super(ScriptUtils.getScriptFromCallStack());
+        super(ScriptContext.require());
         this.name = name;
         this.data = data;
     }

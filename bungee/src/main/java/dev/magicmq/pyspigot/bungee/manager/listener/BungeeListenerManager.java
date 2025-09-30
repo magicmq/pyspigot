@@ -22,7 +22,7 @@ import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
-import dev.magicmq.pyspigot.util.ScriptUtils;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Listener;
@@ -93,7 +93,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
 
     @Override
     public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, Byte priority) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
 
         BungeeScriptEventListener listener = new BungeeScriptEventListener(script, function, eventClass, priority);
         registerWithBungee(listener);
@@ -131,7 +131,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     }
 
     public void unregisterListener(PyFunction function, Class<? extends Event> eventClass) {
-        Script script = ScriptUtils.getScriptFromCallStack();
+        Script script = ScriptContext.require();
         List<BungeeScriptEventListener> listeners = getListeners(script, function, eventClass);
         for (BungeeScriptEventListener listener : listeners) {
             unregisterListener(listener);

@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.Py;
 import org.python.core.PyBaseCode;
 import org.python.core.PyException;
@@ -137,9 +138,9 @@ public class Task<T> implements Runnable {
 
         if (functionArgs != null) {
             PyObject[] pyObjects = Py.javas2pys(functionArgs);
-            return function.__call__(threadState, pyObjects);
+            return ScriptContext.supplyWith(script, () -> function.__call__(threadState, pyObjects));
         } else {
-            return function.__call__(threadState);
+            return ScriptContext.supplyWith(script, () -> function.__call__(threadState));
         }
     }
 }

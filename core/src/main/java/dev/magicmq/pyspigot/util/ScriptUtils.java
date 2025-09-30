@@ -33,21 +33,14 @@ import org.python.core.ThreadState;
 import org.python.util.PythonInterpreter;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A collection of utility methods related to scripts.
  */
 public final class ScriptUtils {
 
-    private static final StackWalker STACK_WALKER = StackWalker.getInstance();
     private static final Method EXCEPTION_TO_STRING;
     private static final String THREADING_PATCH = "import threading_patch;threading_patch._patch();";
 
@@ -61,25 +54,6 @@ public final class ScriptUtils {
     }
 
     private ScriptUtils() {}
-
-    /**
-     * Attempts to get the script involved in a Java method call by analyzing the call stack.
-     * @return The script associated with the method call, or null if no script was found in the call stack
-     */
-    public static Script getScriptFromCallStack() {
-        return STACK_WALKER.walk(stream ->
-                stream.filter(frame -> {
-                    String className = frame.getClassName();
-                    String methodName = frame.getMethodName();
-                    return (className.contains("org.python.pycode") || className.contains("$py")) && methodName.equals("call_function");
-                }).map(frame -> {
-                    String scriptFile = frame.getFileName();
-                    return ScriptManager.get().getScriptByPath(Paths.get(scriptFile));
-                }).filter(Objects::nonNull)
-                  .findFirst()
-                  .orElse(null)
-        );
-    }
 
     /**
      * Initializes a new PySystemState for a new {@link org.python.util.PythonInterpreter} when a script is loaded. This method will also initialize Jython if it hasn't been initialized previously.

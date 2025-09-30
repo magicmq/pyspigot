@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.bukkit.manager.messaging;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.util.ScriptContext;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.python.core.Py;
@@ -79,7 +80,7 @@ public class ScriptPluginMessageListener implements PluginMessageListener {
                 Py.setSystemState(script.getInterpreter().getSystemState());
                 ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
                 PyObject[] parameters = Py.javas2pys(channel, player, message);
-                function.__call__(threadState, parameters[0], parameters[1], parameters[2]);
+                ScriptContext.runWith(script, () -> function.__call__(threadState, parameters[0], parameters[1], parameters[2]));
             } catch (PyException e) {
                 ScriptManager.get().handleScriptException(script, e, "Error when calling plugin message listener");
             }
