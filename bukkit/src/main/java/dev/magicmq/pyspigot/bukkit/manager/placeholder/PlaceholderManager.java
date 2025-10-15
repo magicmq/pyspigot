@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
@@ -31,6 +32,7 @@ import java.util.Objects;
  */
 public class PlaceholderManager {
 
+    public static final String[] INVALID_CHARS = {"_", "%", "{", "}"};
     private static PlaceholderManager instance;
 
     private final HashMap<Script, ScriptPlaceholder> registeredPlaceholders;
@@ -97,6 +99,13 @@ public class PlaceholderManager {
         Script script = ScriptContext.require();
         if (!registeredPlaceholders.containsKey(script)) {
             ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, relPlaceholderFunction, author, version);
+            String scriptName = script.getSimpleName();
+            for (String invalid : INVALID_CHARS) {
+                if (scriptName.contains(invalid)) {
+                    PyCore.get().getLogger().info("{} script replacer contains invalid character(s) identifier is registered as {} ", scriptName, placeholder.getIdentifier());
+                    break;
+                }
+            }
             placeholder.register();
             registeredPlaceholders.put(script, placeholder);
             return placeholder;

@@ -103,7 +103,14 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
      */
     @Override
     public String getIdentifier() {
-        return "script:" + script.getSimpleName();
+        return removeInvalidCharacters("script:" + script.getSimpleName());
+    }
+
+    private String removeInvalidCharacters(String identifier) {
+        for (String invalid : PlaceholderManager.INVALID_CHARS) {
+            identifier = identifier.replace(invalid, "");
+        }
+        return identifier;
     }
 
     /**
