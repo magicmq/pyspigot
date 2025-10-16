@@ -32,7 +32,11 @@ import java.util.Objects;
  */
 public class PlaceholderManager {
 
+    /**
+     * Characters that are not allowed in PlaceholderAPI placeholders.
+     */
     public static final String[] INVALID_CHARS = {"_", "%", "{", "}"};
+
     private static PlaceholderManager instance;
 
     private final HashMap<Script, ScriptPlaceholder> registeredPlaceholders;
@@ -102,7 +106,7 @@ public class PlaceholderManager {
             String scriptName = script.getSimpleName();
             for (String invalid : INVALID_CHARS) {
                 if (scriptName.contains(invalid)) {
-                    PyCore.get().getLogger().info("{} script replacer contains invalid character(s) identifier is registered as {} ", scriptName, placeholder.getIdentifier());
+                    PyCore.get().getLogger().warn("Script placeholder identifier contains invalid character(s). Identifier will be registered as '{}'", placeholder.getIdentifier());
                     break;
                 }
             }
