@@ -145,7 +145,7 @@ public class DatabaseManager {
         Script script = ScriptContext.require();
 
         if (filePath == null)
-            filePath = "memory:";
+            filePath = ":memory:";
         String uri = String.format(DatabaseType.SQLITE.getUri(), filePath);
 
         SQLiteDatabase connection = new SQLiteDatabase(script, uri);
