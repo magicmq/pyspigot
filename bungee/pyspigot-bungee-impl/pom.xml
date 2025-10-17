@@ -3,12 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>dev.magicmq.pyspigot</groupId>
-        <artifactId>pyspigot</artifactId>
+        <artifactId>bungee</artifactId>
         <version>0.10.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pyspigot-core</artifactId>
-    <description>The core of PySpigot, which houses common, platform-independent portions of the project as well an abstract framework for implementation on different server platforms.</description>
+    <artifactId>pyspigot-bungee-impl</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -19,52 +18,34 @@
     <dependencies>
         <dependency>
             <groupId>dev.magicmq.pyspigot</groupId>
-            <artifactId>loader-utils</artifactId>
+            <artifactId>pyspigot-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.python</groupId>
-            <artifactId>jython-standalone</artifactId>
-            <version>2.7.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>me.lucko</groupId>
-            <artifactId>jar-relocator</artifactId>
-            <version>1.7</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>7.0.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
-            <version>5.6.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <version>6.8.1.RELEASE</version>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bungeecord</artifactId>
+            <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
-            <artifactId>adventure-api</artifactId>
-            <version>4.24.0</version>
+            <artifactId>adventure-platform-bungeecord</artifactId>
+            <version>4.4.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.retrooper</groupId>
-            <artifactId>packetevents-api</artifactId>
-            <version>2.9.5</version>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>1.21-R0.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.simplix</groupId>
+            <artifactId>protocolize-api</artifactId>
+            <version>2.4.3</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

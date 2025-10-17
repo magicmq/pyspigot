@@ -24,11 +24,13 @@ import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
+import dev.magicmq.pyspigot.MetricsAdapter;
 import dev.magicmq.pyspigot.PlatformAdapter;
 import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.classpath.ClassPathAppender;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
-import dev.magicmq.pyspigot.manager.script.ScriptManager;
+import dev.magicmq.pyspigot.velocity.classpath.VelocityClassPathAppender;
 import dev.magicmq.pyspigot.velocity.command.VelocityPluginCommand;
 import dev.magicmq.pyspigot.velocity.config.VelocityPluginConfig;
 import dev.magicmq.pyspigot.velocity.config.VelocityScriptOptionsConfig;
@@ -37,8 +39,6 @@ import dev.magicmq.pyspigot.velocity.manager.config.VelocityConfigManager;
 import dev.magicmq.pyspigot.velocity.manager.listener.VelocityListenerManager;
 import dev.magicmq.pyspigot.velocity.manager.script.VelocityScriptManager;
 import dev.magicmq.pyspigot.velocity.manager.task.VelocityTaskManager;
-import org.bstats.charts.SimplePie;
-import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -54,24 +54,23 @@ public class PyVelocity implements PlatformAdapter {
     private final Logger logger;
     private final PluginDescription pluginDescription;
     private final Path dataFolder;
-    private final Metrics.Factory metricsFactory;
 
-    private Metrics metrics;
     private ScheduledTask versionCheckTask;
 
     @Inject
-    public PyVelocity(ProxyServer proxy, Logger logger, PluginDescription pluginDescription, @DataDirectory Path dataFolder, Metrics.Factory metricsFactory) {
+    public PyVelocity(ProxyServer proxy, Logger logger, PluginDescription pluginDescription, @DataDirectory Path dataFolder) {
         instance = this;
 
         this.proxy = proxy;
         this.logger = logger;
         this.pluginDescription = pluginDescription;
         this.dataFolder = dataFolder;
-        this.metricsFactory = metricsFactory;
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        VelocityDependencies.addToRegistry();
+
         PyCore.newInstance(this);
         PyCore.get().init();
     }
@@ -131,24 +130,15 @@ public class PyVelocity implements PlatformAdapter {
     }
 
     @Override
-    public void setupMetrics() {
-        metrics = metricsFactory.make(this, 18991);
-
-        metrics.addCustomChart(new SimplePie("all_scripts", () -> {
-            int allScripts = ScriptManager.get().getAllScriptPaths().size() + ScriptManager.get().getAllProjectPaths().size();
-            return "" + allScripts;
-        }));
-
-        metrics.addCustomChart(new SimplePie("loaded_scripts", () -> {
-            int loadedScripts = ScriptManager.get().getLoadedScripts().size();
-            return "" + loadedScripts;
-        }));
+    public ClassPathAppender initClassPathAppender() {
+        return new VelocityClassPathAppender();
     }
 
     @Override
-    public void shutdownMetrics() {
-        if (metrics != null)
-            metrics.shutdown();
+    public MetricsAdapter initMetrics() {
+        VelocityMetrics metrics = new VelocityMetrics();
+        metrics.setup();
+        return metrics;
     }
 
     @Override
@@ -190,6 +180,14 @@ public class PyVelocity implements PlatformAdapter {
     @Override
     public boolean isPacketEventsAvailable() {
         return proxy.getPluginManager().getPlugin("packetevents").isPresent();
+    }
+
+    /**
+     * Add a JAR file at the specified URL to the plugin class path.
+     * @param path The path of the JAR file to add to the class path
+     */
+    public void addToClassPath(Path path) {
+        proxy.getPluginManager().addToClasspath(this, path);
     }
 
     /**

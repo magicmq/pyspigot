@@ -1,0 +1,5 @@
+name: ${project.pluginName}
+version: ${project.version}
+author: magicmq
+main: dev.magicmq.pyspigot.bungee.loader.BungeeLoader
+softDepends: ['Protocolize', 'PacketEvents']

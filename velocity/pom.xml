@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>dev.magicmq</groupId>
+        <groupId>dev.magicmq.pyspigot</groupId>
         <artifactId>pyspigot</artifactId>
         <version>0.10.0-SNAPSHOT</version>
     </parent>
@@ -27,14 +27,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>dev.magicmq</groupId>
+            <groupId>dev.magicmq.pyspigot</groupId>
             <artifactId>pyspigot-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-velocity</artifactId>
-            <version>3.0.2</version>
-            <scope>compile</scope>
+            <version>3.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.velocitypowered</groupId>
@@ -72,31 +76,51 @@
                     <relocations>
                         <relocation>
                             <pattern>io.netty</pattern>
-                            <shadedPattern>dev.magicmq.libs.io.netty</shadedPattern>
+                            <shadedPattern>dev.magicmq.lib.io.netty</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>me.lucko</pattern>
-                            <shadedPattern>dev.magicmq.libs.me.lucko</shadedPattern>
+                            <shadedPattern>dev.magicmq.lib.me.lucko</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.zaxxer</pattern>
-                            <shadedPattern>dev.magicmq.libs.com.zaxxer</shadedPattern>
+                            <shadedPattern>dev.magicmq.lib.com.zaxxer</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.mongodb</pattern>
-                            <shadedPattern>dev.magicmq.libs.com.mongodb</shadedPattern>
+                            <shadedPattern>dev.magicmq.lib.com.mongodb</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bson</pattern>
-                            <shadedPattern>dev.magicmq.libs.org.bson</shadedPattern>
+                            <shadedPattern>dev.magicmq.lib.org.bson</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>io.lettuce</pattern>
-                            <shadedPattern>dev.magicmq.libs.io.lettuce</shadedPattern>
+                            <shadedPattern>dev.magicmq.lib.io.lettuce</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>dev.magicmq.libs.org.bstats</shadedPattern>
+                            <shadedPattern>dev.magicmq.lib.org.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>reactor.adapter</pattern>
+                            <shadedPattern>dev.magicmq.lib.reactor.adapter</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>reactor.core</pattern>
+                            <shadedPattern>dev.magicmq.lib.reactor.core</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>reactor.util</pattern>
+                            <shadedPattern>dev.magicmq.lib.reactor.util</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.reactivestreams</pattern>
+                            <shadedPattern>dev.magicmq.lib.org.reactivestreams</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>redis.clients</pattern>
+                            <shadedPattern>dev.magicmq.lib.redis.clients</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>

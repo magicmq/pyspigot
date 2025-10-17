@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.classpath.ClassPathAppender;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -69,14 +70,16 @@ public interface PlatformAdapter {
     void initVersionChecking();
 
     /**
-     * Setup bStats metrics via a platform-specific implementation.
+     * Initialize and get the platform-specific class path appender.
+     * @return The platform-specific class path appender
      */
-    void setupMetrics();
+    ClassPathAppender initClassPathAppender();
 
     /**
-     * Shutdown bStats metrics via a platform-specific implementation.
+     * Initialize and get the platform-specific metrics adapter.
+     * @return The platform-specific metrics adapter
      */
-    void shutdownMetrics();
+    MetricsAdapter initMetrics();
 
     /**
      * Stop the version-checking task via a platform-specific implementation.
