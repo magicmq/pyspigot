@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
@@ -30,6 +31,11 @@ import java.util.Objects;
  * Do not call this manager if PlaceholderAPI is not loaded and enabled on the server! It will not work.
  */
 public class PlaceholderManager {
+
+    /**
+     * Characters that are not allowed in PlaceholderAPI placeholders.
+     */
+    public static final String[] INVALID_CHARS = {"_", "%", "{", "}"};
 
     private static PlaceholderManager instance;
 
@@ -97,6 +103,13 @@ public class PlaceholderManager {
         Script script = ScriptContext.require();
         if (!registeredPlaceholders.containsKey(script)) {
             ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, relPlaceholderFunction, author, version);
+            String scriptName = script.getSimpleName();
+            for (String invalid : INVALID_CHARS) {
+                if (scriptName.contains(invalid)) {
+                    PyCore.get().getLogger().warn("Script placeholder identifier contains invalid character(s). Identifier will be registered as '{}'", placeholder.getIdentifier());
+                    break;
+                }
+            }
             placeholder.register();
             registeredPlaceholders.put(script, placeholder);
             return placeholder;
