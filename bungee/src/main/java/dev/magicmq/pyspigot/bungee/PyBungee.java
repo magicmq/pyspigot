@@ -170,7 +170,7 @@ public class PyBungee extends Plugin implements PlatformAdapter {
 
     @Override
     public String getPluginIdentifier() {
-        return "PySpigot-Bungee";
+        return "PyBungee";
     }
 
     @Override
