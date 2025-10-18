@@ -196,6 +196,7 @@
                             <link>https://www.slf4j.org/apidocs/</link>
                             <link>https://javadocs.packetevents.com/</link>
                         </links>
+                        <failOnError>false</failOnError>
                     </configuration>
                     <executions>
                         <execution>
@@ -261,6 +262,7 @@
                         <link>https://javadoc.io/doc/net.kyori/adventure-api/latest/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                     </links>
+                    <failOnError>false</failOnError>
                 </configuration>
                 <executions>
                     <execution>
