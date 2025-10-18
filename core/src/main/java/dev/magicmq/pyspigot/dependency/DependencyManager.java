@@ -19,11 +19,11 @@ package dev.magicmq.pyspigot.dependency;
 
 import dev.magicmq.pyspigot.classpath.ClassPathAppender;
 import dev.magicmq.pyspigot.exception.DependencyDownloadException;
-import me.lucko.jarrelocator.JarRelocator;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -35,9 +35,9 @@ import java.util.concurrent.Executors;
  */
 public class DependencyManager {
 
-    private final ExecutorService downloader;
-    private final ClassPathAppender classPathAppender;
     private final Path depsFolderPath;
+    private final ClassPathAppender classPathAppender;
+    private final DependencyRegistry registry;
 
     /**
      *
@@ -45,22 +45,24 @@ public class DependencyManager {
      * @param pluginDataFolder The plugin data folder
      */
     public DependencyManager(ClassPathAppender classPathAppender, Path pluginDataFolder) {
-        this.downloader = Executors.newFixedThreadPool(4);
-        this.classPathAppender = classPathAppender;
         this.depsFolderPath = pluginDataFolder.resolve("java-libs").resolve("internal");
         try {
             Files.createDirectories(this.depsFolderPath);
         } catch (IOException e) {
             throw new RuntimeException("Unable to create dependencies directory", e);
         }
+        this.classPathAppender = classPathAppender;
+
+        initSelfDependencies();
+
+        this.registry = new DependencyRegistry();
+        this.registry.loadDependencies();
     }
 
     /**
      * Shut down this DependencyManager. This method also shuts down the attached ClassPathAppender.
      */
     public void shutdown() {
-        downloader.shutdownNow();
-
         classPathAppender.close();
     }
 
@@ -76,16 +78,17 @@ public class DependencyManager {
      * Load all dependencies. This method loads and adds to the class path any dependencies registered in the {@link DependencyRegistry}.
      */
     public void loadDependencies() {
-        List<Dependency> dependencies = DependencyRegistry.getDependencies();
+        List<Dependency> dependencies = registry.getDependencies();
 
         CountDownLatch latch = new CountDownLatch(dependencies.size());
+        ExecutorService downloader = Executors.newFixedThreadPool(4);
 
         for (Dependency dependency : dependencies) {
             downloader.execute(() -> {
                 try {
                     loadDependency(dependency);
-                } catch (Throwable e) {
-                    throw new RuntimeException("Unable to load depdendency '" + dependency + "'", e);
+                } catch (Throwable t) {
+                    throw new RuntimeException("Unable to load depdendency '" + dependency + "'", t);
                 } finally {
                     latch.countDown();
                 }
@@ -96,6 +99,8 @@ public class DependencyManager {
             latch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } finally {
+            downloader.shutdownNow();
         }
     }
 
@@ -136,10 +141,83 @@ public class DependencyManager {
             return remapped;
         }
 
-        JarRelocator relocator = new JarRelocator(original.toFile(), remapped.toFile(), DependencyRegistry.getRelocations());
+        me.lucko.jarrelocator.JarRelocator relocator = new me.lucko.jarrelocator.JarRelocator(original.toFile(), remapped.toFile(), registry.getRelocations());
         relocator.run();
 
         return remapped;
     }
 
+    private void initSelfDependencies() {
+        List<Dependency> selfDeps = new ArrayList<>();
+
+        //GSON (for loading dependency JSON files)
+        selfDeps.add(Dependency.builder()
+                .groupId("com.google.code.gson")
+                .artifactId("gson")
+                .version("2.13.2")
+                .checksum("3QzhtVo+0ggMtw+cZVhQzahsIGhiMQAJ3LXlyVJlpeA=")
+                .build());
+        selfDeps.add(Dependency.builder()
+                .groupId("com.google.errorprone")
+                .artifactId("error_prone_annotations")
+                .version("2.41.0")
+                .checksum("pW54K1tQgRrCBAc6NVoh2RWiEH/OE+xxEzGtA29mD8w=")
+                .build());
+
+        //jar-relocator (for remapping dependencies)
+        selfDeps.add(Dependency.builder()
+                .groupId("me.lucko")
+                .artifactId("jar-relocator")
+                .version("1.7")
+                .checksum("b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I=")
+                .build());
+        selfDeps.add(Dependency.builder()
+                .groupId("org.ow2.asm")
+                .artifactId("asm")
+                .version("9.2")
+                .checksum("udT+TXGTjfOIOfDspCqqpkz4sxPWeNoDbwyzyhmbR/U=")
+                .build());
+        selfDeps.add(Dependency.builder()
+                .groupId("org.ow2.asm")
+                .artifactId("asm-commons")
+                .version("9.2")
+                .checksum("vkzlMTiiOLtSLNeBz5Hzulzi9sqT7GLUahYqEnIl4KY=")
+                .build());
+        selfDeps.add(Dependency.builder()
+                .groupId("org.ow2.asm")
+                .artifactId("asm-tree")
+                .version("9.2")
+                .checksum("qr+b0jCRpOv8EJwfPufPPkuJ9rotP1HFJD8Ws8/64BE=")
+                .build());
+        selfDeps.add(Dependency.builder()
+                .groupId("org.ow2.asm")
+                .artifactId("asm-analysis")
+                .version("9.2")
+                .checksum("h4++UhcxwHLRTS1luYOxvq5q0G/aAAe2qLroH3P0M8Q=")
+                .build());
+
+        ExecutorService service = Executors.newFixedThreadPool(2);
+        CountDownLatch latch = new CountDownLatch(selfDeps.size());
+
+        for (Dependency dependency : selfDeps) {
+            service.execute(() -> {
+                try {
+                    Path path = downloadDependency(dependency);
+                    classPathAppender.addJarToClassPath(path);
+                } catch (Throwable t) {
+                    throw new RuntimeException("Unable to load depdendency '" + dependency + "'", t);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            service.shutdownNow();
+        }
+    }
 }

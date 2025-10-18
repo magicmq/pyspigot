@@ -1,0 +1,40 @@
+{
+    "dependencies": [
+        {
+            "groupId": "org.bstats",
+            "artifactId": "bstats-velocity",
+            "version": "3.1.0",
+            "checksum": "PLta9QmwXhyQNGF+nzxiZQxsVM01opQ0gvLjuDAuc7Y="
+        },
+        {
+            "groupId": "org.bstats",
+            "artifactId": "bstats-base",
+            "version": "3.1.0",
+            "checksum": "2g5RgIzYzCi+8wAOcctPoLBeU5Mag6f59NPEAoNvQKA="
+        },
+        {
+            "groupId": "com.mysql",
+            "artifactId": "mysql-connector-j",
+            "version": "9.4.0",
+            "checksum": "Se2TyLK+qcsJKbhaiiiDexkdD46saRn9zvFuNuLNU7M="
+        },
+        {
+            "groupId": "com.google.protobuf",
+            "artifactId": "protobuf-java",
+            "version": "4.31.1",
+            "checksum": "1g3+fGig04okjMqWkk8oncfhlmqIfufK45dwGvCFda4="
+        },
+        {
+            "groupId": "org.xerial",
+            "artifactId": "sqlite-jdbc",
+            "version": "3.50.3.0",
+            "checksum": "o/U6KqFa6UJannk7vpyOUoj+vrS2XvXBpOgNTCBFzwg="
+        }
+    ],
+    "relocations": [
+        {
+            "pattern": "org.bstats",
+            "shadedPattern": "dev.magicmq.lib.org.bstats"
+        }
+    ]
+}

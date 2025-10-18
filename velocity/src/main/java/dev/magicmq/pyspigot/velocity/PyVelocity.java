@@ -69,8 +69,6 @@ public class PyVelocity implements PlatformAdapter {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        VelocityDependencies.addToRegistry();
-
         PyCore.newInstance(this);
         PyCore.get().init();
     }
@@ -175,6 +173,11 @@ public class PyVelocity implements PlatformAdapter {
     @Override
     public String getPluginIdentifier() {
         return "PySpigot-Velocity";
+    }
+
+    @Override
+    public String getDependenciesFileName() {
+        return "velocity-dependencies.json";
     }
 
     @Override

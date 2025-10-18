@@ -123,6 +123,12 @@ public interface PlatformAdapter {
     String getPluginIdentifier();
 
     /**
+     * Get the name of the dependencies JSON file for this platform.
+     * @return The dependencies file name
+     */
+    String getDependenciesFileName();
+
+    /**
      * Get if PacketEvents is loaded and present on the platform.
      * @return True if PacketEvents is loaded and present, false if it is not
      */

@@ -77,8 +77,6 @@ public class PyBungee implements LoaderBootstrap, PlatformAdapter {
             throw new PluginInitializationException("Error when accessing BungeeCord via reflection, PyBungee will not be initialized.", e);
         }
 
-        BungeeDependencies.addToRegistry();
-
         PyCore.newInstance(this);
         PyCore.get().init();
     }
@@ -179,6 +177,11 @@ public class PyBungee implements LoaderBootstrap, PlatformAdapter {
     @Override
     public String getPluginIdentifier() {
         return "PySpigot-Bungee";
+    }
+
+    @Override
+    public String getDependenciesFileName() {
+        return "bungee-dependencies.json";
     }
 
     @Override

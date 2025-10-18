@@ -79,10 +79,6 @@
                             <shadedPattern>dev.magicmq.lib.io.netty</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>me.lucko</pattern>
-                            <shadedPattern>dev.magicmq.lib.me.lucko</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>com.zaxxer</pattern>
                             <shadedPattern>dev.magicmq.lib.com.zaxxer</shadedPattern>
                         </relocation>

@@ -88,8 +88,6 @@ public class PySpigot implements LoaderBootstrap, PlatformAdapter {
             paper = false;
         }
 
-        BukkitDependencies.addToRegistry();
-
         PyCore.newInstance(this);
         PyCore.get().init();
     }
@@ -198,6 +196,11 @@ public class PySpigot implements LoaderBootstrap, PlatformAdapter {
     @Override
     public String getPluginIdentifier() {
         return "PySpigot";
+    }
+
+    @Override
+    public String getDependenciesFileName() {
+        return "bukkit-dependencies.json";
     }
 
     @Override
