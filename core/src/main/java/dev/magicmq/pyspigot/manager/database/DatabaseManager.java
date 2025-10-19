@@ -10,6 +10,10 @@ import dev.magicmq.pyspigot.manager.database.sql.SQLiteDatabase;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -124,7 +128,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection to an SQLite database in memory.
+     * Open a new connection to an in-memory SQLite database.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @return An {@link SQLiteDatabase} object representing an open connection to the database
@@ -134,18 +138,49 @@ public class DatabaseManager {
     }
 
     /**
-     * Open a new connection to an SQLite database file.
+     * Open a new connection to an SQLite database.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
-     * @param filePath The path to the database file. This could be either a relative path (relative to the root
-     *                 directory of the Minecraft/proxy server), or an absolute path
+     * @param filePath The path to the database file. This could be a relative path (relative to the root
+     *                 directory of the Minecraft/proxy server), or an absolute path. Use ":memory:" to create an in-memory
+     *                 database
      * @return An {@link SQLiteDatabase} object representing an open connection to the database
+     * @throws ScriptRuntimeException If the database file cannot be created or the connection fails to open
      */
     public SQLiteDatabase connectSQLite(String filePath) {
+        return connectSQLite(filePath, true);
+    }
+
+    /**
+     * Open a new connection to an SQLite database.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
+     * @param filePath The path to the database file. This could be a relative path (relative to the root
+     *                 directory of the Minecraft/proxy server), or an absolute path. Use ":memory:" to create an in-memory
+     *                 database
+     * @param createNewFile Whether to create a new database file if one does not already exist at the specified path.
+     *                      If true, a new file will be created automatically when necessary
+     * @return An {@link SQLiteDatabase} object representing an open connection to the database
+     * @throws ScriptRuntimeException If the database file cannot be created or the connection fails to open
+     */
+    public SQLiteDatabase connectSQLite(String filePath, boolean createNewFile) {
         Script script = ScriptContext.require();
 
-        if (filePath == null)
-            filePath = "memory:";
+        if (filePath == null) {
+            filePath = ":memory:";
+        }
+
+        if (!filePath.equals(":memory:")) {
+            Path path = Paths.get(filePath);
+            if (!Files.exists(path) && createNewFile) {
+                try {
+                    Files.createFile(path);
+                } catch (IOException e) {
+                    throw new ScriptRuntimeException("Error when creating database file", e);
+                }
+            }
+        }
+
         String uri = String.format(DatabaseType.SQLITE.getUri(), filePath);
 
         SQLiteDatabase connection = new SQLiteDatabase(script, uri);

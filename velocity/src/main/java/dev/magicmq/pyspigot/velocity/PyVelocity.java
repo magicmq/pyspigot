@@ -172,7 +172,7 @@ public class PyVelocity implements PlatformAdapter {
 
     @Override
     public String getPluginIdentifier() {
-        return "PySpigot-Velocity";
+        return "pyvelocity";
     }
 
     @Override

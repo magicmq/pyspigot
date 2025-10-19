@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.util.logging;
 
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.manager.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class ScriptLogger {
      * @param script The script associated with this ScriptLogger
      */
     public ScriptLogger(Script script) {
-        this.logger = LoggerFactory.getLogger("PySpigot/" + script.getName());
+        this.logger = LoggerFactory.getLogger(PyCore.get().getPluginIdentifier() + "/" + script.getName());
 
         if (script.getOptions().isFileLoggingEnabled()) {
             try {

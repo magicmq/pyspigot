@@ -57,6 +57,7 @@ public class PyCore {
     private PluginConfig config;
     private ScriptOptionsConfig scriptOptionsConfig;
     private volatile String spigotVersion;
+    private boolean initialized;
 
     private PyCore(PlatformAdapter adapter) {
         this.adapter = adapter;
@@ -115,12 +116,17 @@ public class PyCore {
 
         fetchSpigotVersion();
         adapter.initVersionChecking();
+
+        initialized = true;
     }
 
     /**
      * Shutdown the plugin.
      */
     public void shutdown() {
+        if (!initialized)
+            return;
+
         if (ScriptManager.get() != null)
             ScriptManager.get().shutdown();
         if (LibraryManager.get() != null)

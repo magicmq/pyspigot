@@ -176,7 +176,7 @@ public class PyBungee implements LoaderBootstrap, PlatformAdapter {
 
     @Override
     public String getPluginIdentifier() {
-        return "PySpigot-Bungee";
+        return "PyBungee";
     }
 
     @Override
