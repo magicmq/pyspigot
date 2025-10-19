@@ -22,6 +22,9 @@ import dev.magicmq.pyspigot.velocity.PyVelocity;
 
 import java.nio.file.Path;
 
+/**
+ * The class path appender for the Velocity platform.
+ */
 public class VelocityClassPathAppender implements ClassPathAppender {
 
     @Override

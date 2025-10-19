@@ -24,6 +24,12 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 
+/**
+ * The class path appender for platforms that load via a JAR-in-JAR fasion (I.E. with a plugin bootstrap).
+ * <p>
+ * Currently, Bukkit and BungeeCord require a loader bootstrap, because their plugin class loaders do not support adding
+ * additional JARs at runtime.
+ */
 public class JarInJarClassPathAppender implements ClassPathAppender {
 
     private final JarInJarClassLoader classLoader;
