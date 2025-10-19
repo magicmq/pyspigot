@@ -18,15 +18,13 @@ package dev.magicmq.pyspigot.manager.database.sql;
 
 
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
-import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 
 import java.sql.Connection;
-import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Represents an open connection to an SQLite database file or an SQLite database in memory.
@@ -51,19 +49,15 @@ public class SQLiteDatabase extends GenericSQLDatabase {
     @Override
     public boolean open() {
         try {
-            Class<?> c = Class.forName("org.sqlite.JDBC", true, LibraryManager.get().getClassLoader());
-            Driver driver = (Driver) c.getDeclaredConstructor().newInstance();
-            this.connection = driver.connect(uri, new Properties());
-            return !connection.isClosed();
+            Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            throw new ScriptRuntimeException(getScript(), """
-                    
-                    
-                    ERROR: SQLite JDBC driver not found. This library is not bundled with PySpigot; you will need to manually download it for SQLite support.
-                    
-                    Download the JAR file from https://github.com/xerial/sqlite-jdbc/releases, place it in the java-libs folder, and restart the server."""
-            );
-        } catch (Exception e) {
+            throw new ScriptRuntimeException(getScript(), "SQLite JDBC driver not found on the class path");
+        }
+
+        try {
+            this.connection = DriverManager.getConnection(this.uri);
+            return !connection.isClosed();
+        } catch (SQLException e) {
             throw new ScriptRuntimeException(getScript(), "Error when opening connection to SQLite database", e);
         }
     }

@@ -106,6 +106,9 @@ public class LibraryManager {
         }
 
         for (File library : toLoad) {
+            if (library.isDirectory())
+                continue;
+
             String libName = library.getName();
             if (libName.endsWith(".jar")) {
                 if (!libName.endsWith("-relocated.jar")) {

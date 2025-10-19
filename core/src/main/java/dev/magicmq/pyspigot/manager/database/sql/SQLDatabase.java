@@ -2,6 +2,7 @@ package dev.magicmq.pyspigot.manager.database.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 
 import java.sql.Connection;
@@ -30,6 +31,12 @@ public class SQLDatabase extends GenericSQLDatabase {
 
     @Override
     public boolean open() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new ScriptRuntimeException(getScript(), "SQL JDBC driver not found on the class path");
+        }
+
         hikariConfig.setPoolName(getScript().getName() + "-" + getDatabaseId());
         hikariDataSource = new HikariDataSource(hikariConfig);
         return hikariDataSource.isRunning() && !hikariDataSource.isClosed();

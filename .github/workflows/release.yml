@@ -23,11 +23,15 @@ jobs:
       - name: Prepare artifacts
         run: |
           mkdir -p staging
-          find . -type f \( -name "*-sources.jar" -o -name "*-javadoc.jar" \) -exec cp {} staging/ \;
-          find . -type f -name "*-shaded.jar" | while read -r file; do
-            filename=$(basename "$file")
-            new_filename="${filename/-shaded.jar/.jar}"
-            cp "$file" "staging/$new_filename"
+          find . -type d -name target -print0 |
+          while IFS= read -r -d '' dir; do
+            find "$dir" -maxdepth 1 -type f \( -name '*-sources.jar' -o -name '*-javadoc.jar' \) -print0 \
+              | xargs -0 -I{} cp "{}" staging/
+            find "$dir" -maxdepth 1 -type f -name '*-shaded.jar' -print0 \
+              | while IFS= read -r -d '' f; do
+                base=$(basename "$f")
+                cp "$f" "staging/${base/-shaded.jar/.jar}"
+              done
           done
       - name: Fetch tag name
         id: tagname

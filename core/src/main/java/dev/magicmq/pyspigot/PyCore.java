@@ -18,6 +18,7 @@ package dev.magicmq.pyspigot;
 
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
+import dev.magicmq.pyspigot.dependency.DependencyManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.packetevents.PacketEventsManager;
@@ -51,6 +52,8 @@ public class PyCore {
     private final PlatformAdapter adapter;
 
     private Logger logger;
+    private DependencyManager dependencyManager;
+    private MetricsAdapter metrics;
     private PluginConfig config;
     private ScriptOptionsConfig scriptOptionsConfig;
     private volatile String spigotVersion;
@@ -86,6 +89,9 @@ public class PyCore {
             logger.warn("Download the latest stable release here: https://www.spigotmc.org/resources/pyspigot.111006/");
         }
 
+        this.dependencyManager = new DependencyManager(adapter.initClassPathAppender(), getDataFolderPath());
+        this.dependencyManager.loadDependencies();
+
         adapter.initAdventure();
 
         initFolders();
@@ -104,8 +110,9 @@ public class PyCore {
         initCommonManagers();
         adapter.initPlatformManagers();
 
-        if (config.getMetricsEnabled())
-            adapter.setupMetrics();
+        if (config.getMetricsEnabled()) {
+            metrics = adapter.initMetrics();
+        }
 
         fetchSpigotVersion();
         adapter.initVersionChecking();
@@ -125,8 +132,12 @@ public class PyCore {
         if (LibraryManager.get() != null)
             LibraryManager.get().shutdown();
 
-        adapter.shutdownMetrics();
+        if (metrics != null)
+            metrics.shutdown();
+
         adapter.shutdownVersionChecking();
+
+        dependencyManager.shutdown();
     }
 
     /**
@@ -143,6 +154,14 @@ public class PyCore {
      */
     public Logger getLogger() {
         return adapter.getPlatformLogger();
+    }
+
+    /**
+     * Get the dependency manager, for loading and adding dependencies to the class path at runtime.
+     * @return The dependency manager instance
+     */
+    public DependencyManager getDependencyManager() {
+        return dependencyManager;
     }
 
     /**
@@ -183,6 +202,14 @@ public class PyCore {
      */
     public String getPluginIdentifier() {
         return adapter.getPluginIdentifier();
+    }
+
+    /**
+     * Get the name of the JSON file containing platform-specific dependencies.
+     * @return The JSON file containing platform-specific dependencies
+     */
+    public String getDependenciesFileName() {
+        return adapter.getDependenciesFileName();
     }
 
     /**
@@ -291,7 +318,12 @@ public class PyCore {
         }
     }
 
-    private InputStream getResourceAsStream(String name) {
+    /**
+     * Get a resource from the plugin JAR file as an InputStream
+     * @param name The name of the resource to get
+     * @return The resource, as an InputStream
+     */
+    public InputStream getResourceAsStream(String name) {
         return adapter.getPluginClassLoader().getResourceAsStream(name);
     }
 

@@ -1,0 +1,146 @@
+{
+    "dependencies": [
+        {
+            "groupId": "org.bstats",
+            "artifactId": "bstats-bukkit",
+            "version": "3.1.0",
+            "checksum": "7Fp4rU3fWa86qtcaiPWHvz6ORoX41EUOUnbkpkk8m1s="
+        },
+        {
+            "groupId": "org.bstats",
+            "artifactId": "bstats-base",
+            "version": "3.1.0",
+            "checksum": "2g5RgIzYzCi+8wAOcctPoLBeU5Mag6f59NPEAoNvQKA="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-platform-bukkit",
+            "version": "4.4.1",
+            "checksum": "zcs6Zqu/njk2FNtd6yf4QRF8W1t+9SdToshG/UbJzfE="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-nbt",
+            "version": "4.21.0",
+            "checksum": "r27AXxaClKLmiLs8UhGxI70NTXh5HiS7fxE5rZi16zU="
+        },
+        {
+            "groupId": "org.jetbrains",
+            "artifactId": "annotations",
+            "version": "26.0.2",
+            "checksum": "IDe+N4mA07qTM+l5VfOyzeOSqhJNBMpzzi7uZlcZkpc="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "examination-api",
+            "version": "1.3.0",
+            "checksum": "ySN//ssFQo9u/4YhYkascM4LR7BMCOp8o1Ag/eV/hJI="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "examination-string",
+            "version": "1.3.0",
+            "checksum": "fQH8JaS7OvDhZiaFRV9FQfv0YmIW6lhG5FXBSR4Va4w="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-platform-api",
+            "version": "4.4.1",
+            "checksum": "7GBGKMK3wWXqdMH8s6LQ8DNZwsd6FJYOOgvC43lnCsI="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-api",
+            "version": "4.21.0",
+            "checksum": "ZKdldgQB541DOofb1M2lcBazA4U8b9Hclwh7WjqmgTM="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-text-serializer-bungeecord",
+            "version": "4.4.1",
+            "checksum": "4bw3bG3HohAAFgFXNc5MzFNNKya/WrgqrHUcUDIFbDk="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-text-serializer-gson",
+            "version": "4.21.0",
+            "checksum": "ObUc+poE324dL0MdJqaX7WGWI2ls3rHAChr9NHxc4IQ="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-text-serializer-legacy",
+            "version": "4.21.0",
+            "checksum": "msG5n4KEWOGQCPZ1eBoOjIUXzfoiofxbuHp79pVUw1w="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-text-serializer-json",
+            "version": "4.21.0",
+            "checksum": "kocXstx2RathZhfAvVXoCpwDWHYrWQoNPAu+MCsuVIE="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "option",
+            "version": "1.1.0",
+            "checksum": "l7abSxff4CIXyRMa00JWTLya69BMdetoljm194/UsRw="
+        },
+        {
+            "groupId": "com.google.auto.service",
+            "artifactId": "auto-service-annotations",
+            "version": "1.1.1",
+            "checksum": "Fqdt0AomUFaER/XW46niyAnZpCNn1WtFIVz7iXMfTSQ="
+        },
+        {
+            "groupId": "org.jspecify",
+            "artifactId": "jspecify",
+            "version": "1.0.0",
+            "checksum": "H61ua+dVd4Hk0zcp1Jrhzcj92m/kd7sMxozjUer9+6s="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-platform-facet",
+            "version": "4.4.1",
+            "checksum": "IPjm2zTXIqSszL7cybbALo7ms8q5NQsGqz0cCwuLRU8="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-platform-viaversion",
+            "version": "4.4.1",
+            "checksum": "30YwgwYKUUA98M/j4I48iJAQO/xwfpI19ieeh8YZdT8="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-text-serializer-commons",
+            "version": "4.21.0",
+            "checksum": "LusmYFxyOlfltj0kwt1kGCFToUhsqOnzC8ukLSB/LCo="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-text-serializer-gson-legacy-impl",
+            "version": "4.21.0",
+            "checksum": "aC9cWdhT8kpA64mv5Lkrg6p/Z8yF/rTSgcG0LlWynzA="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-text-serializer-json-legacy-impl",
+            "version": "4.21.0",
+            "checksum": "zMCsXIBSo1C/yrpnyk03xyFL5aH42Syq44wcrWz4v1U="
+        },
+        {
+            "groupId": "net.kyori",
+            "artifactId": "adventure-key",
+            "version": "4.21.0",
+            "checksum": "apOYydQCCJ+doGCla0XK59WMvxmTcabY7Bom2PlMxrs="
+        }
+    ],
+    "relocations": [
+        {
+            "pattern": "net.kyori",
+            "shadedPattern": "dev.magicmq.lib.net.kyori"
+        },
+        {
+            "pattern": "org.bstats",
+            "shadedPattern": "dev.magicmq.lib.org.bstats"
+        }
+    ]
+}
