@@ -252,6 +252,7 @@
                         <link>https://www.slf4j.org/apidocs/</link>
                         <link>https://javadocs.packetevents.com/</link>
                     </links>
+                    <outputDirectory>${project.build.directory}/site</outputDirectory>
                     <failOnError>false</failOnError>
                 </configuration>
                 <executions>
@@ -259,6 +260,7 @@
                         <id>aggregate-javadocs</id>
                         <phase>package</phase>
                         <goals>
+                            <goal>aggregate</goal>
                             <goal>aggregate-jar</goal>
                         </goals>
                     </execution>
