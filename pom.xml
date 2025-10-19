@@ -239,7 +239,7 @@
                 <inherited>false</inherited>
                 <configuration>
                     <links>
-                        <link>https://hub.spigotmc.org/javadocs/spigot/</link>
+                        <link>https://jd.papermc.io/paper/</link>
                         <link>https://javadoc.io/doc/org.python/jython/latest/</link>
                         <link>https://aadnk.github.io/ProtocolLib/Javadoc/</link>
                         <link>https://javadoc.io/doc/me.lucko/jar-relocator/latest/me/lucko/jarrelocator/</link>
