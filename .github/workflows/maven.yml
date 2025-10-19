@@ -24,7 +24,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Copy artifacts to staging directory
-        run: mkdir staging && find . -type f -path "*/target/*.jar" -exec rsync -a {} staging/ \;
+        run: mkdir -p staging && find . -type f -path "*/target/*.jar" ! -path "*/target/*/*" -exec rsync -a {} staging/ \;
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
