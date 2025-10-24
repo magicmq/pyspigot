@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>pyspigot-bukkit</artifactId>
-    <description>Python scripting engine for Bukkit Minecraft servers</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

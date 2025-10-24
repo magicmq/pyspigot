@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>loader-utils</artifactId>
+    <description>Utility library for runtime classpath loading and dependency handling.</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

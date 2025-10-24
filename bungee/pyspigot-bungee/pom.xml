@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>pyspigot-bungee</artifactId>
-    <description>Python scripting engine for BungeeCord proxy servers</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
