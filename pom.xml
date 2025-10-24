@@ -44,7 +44,7 @@
             </dependency>
             <dependency>
                 <groupId>dev.magicmq.pyspigot</groupId>
-                <artifactId>pyspigot-core</artifactId>
+                <artifactId>core</artifactId>
                 <version>${project.version}</version>
                 <scope>compile</scope>
             </dependency>
