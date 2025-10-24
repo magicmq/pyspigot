@@ -28,7 +28,7 @@
     <dependencies>
         <dependency>
             <groupId>dev.magicmq.pyspigot</groupId>
-            <artifactId>pyspigot-core</artifactId>
+            <artifactId>core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

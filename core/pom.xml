@@ -7,7 +7,7 @@
         <version>0.10.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pyspigot-core</artifactId>
+    <artifactId>core</artifactId>
     <description>The core of PySpigot, which houses common, platform-independent portions of the project as well an abstract framework for implementation on different server platforms.</description>
 
     <properties>
