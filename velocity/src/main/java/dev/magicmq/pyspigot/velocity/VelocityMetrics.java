@@ -75,7 +75,7 @@ public class VelocityMetrics implements MetricsAdapter {
                 PyVelocity.get().getProxy(),
                 PyVelocity.get().getPlatformLogger(),
                 PyVelocity.get().getDataFolderPath(),
-                18991
+                27605
         );
     }
 }

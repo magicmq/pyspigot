@@ -31,7 +31,7 @@ public class BungeeMetrics implements MetricsAdapter {
 
     @Override
     public void setup() {
-        metrics = new Metrics(PyBungee.get().getPlugin(), 18991);
+        metrics = new Metrics(PyBungee.get().getPlugin(), 27604);
 
         metrics.addCustomChart(new SimplePie("all_scripts", () -> {
             int allScripts = ScriptManager.get().getAllScriptPaths().size() + ScriptManager.get().getAllProjectPaths().size();
