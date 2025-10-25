@@ -36,7 +36,6 @@ def async_event_listener(event_class, event_task_type, priority=0):
     :param event_task_type: The task type of the event. Should be EventTaskType.ASYNC, EventTskType.CONTINUATION, or
     EventTaskType.RESUME_WHEN_COMPLETE. For more information, see https://docs.papermc.io/velocity/dev/event-api/
     :param priority: The priority of the event
-    :return:
     """
 
     def _decorator(function):
