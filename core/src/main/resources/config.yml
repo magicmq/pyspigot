@@ -4,7 +4,7 @@ metrics-enabled: true
 script-load-delay: 20
 # List of relocation rules for libraries in the libs folder. Format as <pattern>|<relocated pattern>
 library-relocations: []
-# Date/time format for timestamps in script log files, written in Java's SimpleDateFormat pattern: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/format/DateTimeFormatter.html
+# Date/time format for timestamps in script log files, written in Java's SimpleDateFormat pattern: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/format/DateTimeFormatter.html
 log-timestamp-format: 'MMM dd yyyy HH:mm:ss'
 # If true, will print log messages to console every time a script is loaded, run, and unloaded.
 script-action-logging: true
