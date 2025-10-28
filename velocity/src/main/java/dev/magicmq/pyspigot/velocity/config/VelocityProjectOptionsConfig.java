@@ -58,7 +58,7 @@ public class VelocityProjectOptionsConfig implements ProjectOptionsConfig {
 
     @Override
     public boolean getEnabled(boolean defaultValue) {
-        return config.node("enabled").getBoolean();
+        return config.node("enabled").getBoolean(defaultValue);
     }
 
     @Override
