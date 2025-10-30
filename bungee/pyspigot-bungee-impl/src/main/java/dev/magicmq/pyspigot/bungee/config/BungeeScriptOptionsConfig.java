@@ -63,6 +63,12 @@ public class BungeeScriptOptionsConfig implements ScriptOptionsConfig {
     }
 
     @Override
+    public boolean getAutoLoad(String scriptName, boolean defaultValue) {
+        Configuration scriptSection = config.getSection(scriptName);
+        return scriptSection.getBoolean("auto-load", defaultValue);
+    }
+
+    @Override
     public int getLoadPriority(String scriptName, int defaultValue) {
         Configuration scriptSection = config.getSection(scriptName);
         return scriptSection.getInt("load-priority", defaultValue);

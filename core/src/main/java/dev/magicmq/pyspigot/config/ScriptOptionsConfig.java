@@ -46,6 +46,14 @@ public interface ScriptOptionsConfig {
     boolean getEnabled(String scriptName, boolean defaultValue);
 
     /**
+     * Get if a script should be automatically loaded on server start, plugin enable, or plugin reload.
+     * @param scriptName The name of the script
+     * @param defaultValue The default value if the script does not have this script option defined
+     * @return True if the script should be utomatically loaded, false if it should not
+     */
+    boolean getAutoLoad(String scriptName, boolean defaultValue);
+
+    /**
      * Get the load priority for a script.
      * @param scriptName The name of the script
      * @param defaultValue The default value if the script does not have this script option defined

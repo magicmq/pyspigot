@@ -117,6 +117,11 @@ public class VelocityPluginConfig implements PluginConfig {
     }
 
     @Override
+    public boolean scriptOptionAutoLoad() {
+        return config.node("script-option-defaults").node("auto-load").getBoolean();
+    }
+
+    @Override
     public int scriptOptionLoadPriority() {
         return config.node("script-option-defaults").node("load-priority").getInt();
     }

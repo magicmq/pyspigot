@@ -57,6 +57,12 @@ public class BukkitScriptOptionsConfig implements ScriptOptionsConfig {
     }
 
     @Override
+    public boolean getAutoLoad(String scriptName, boolean defaultValue) {
+        ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        return scriptSection.getBoolean("auto-load", defaultValue);
+    }
+
+    @Override
     public int getLoadPriority(String scriptName, int defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
         return scriptSection.getInt("load-priority", defaultValue);

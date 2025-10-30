@@ -62,6 +62,11 @@ public class VelocityProjectOptionsConfig implements ProjectOptionsConfig {
     }
 
     @Override
+    public boolean getAutoLoad(boolean defaultValue) {
+        return config.node("auto-load").getBoolean(defaultValue);
+    }
+
+    @Override
     public int getLoadPriority(int defaultValue) {
         return config.node("load-priority").getInt(defaultValue);
     }

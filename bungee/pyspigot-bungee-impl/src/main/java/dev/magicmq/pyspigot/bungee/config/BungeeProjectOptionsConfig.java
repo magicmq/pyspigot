@@ -59,6 +59,11 @@ public class BungeeProjectOptionsConfig implements ProjectOptionsConfig {
     }
 
     @Override
+    public boolean getAutoLoad(boolean defaultValue) {
+        return config.getBoolean("auto-load", defaultValue);
+    }
+
+    @Override
     public int getLoadPriority(int defaultValue) {
         return config.getInt("load-priority", defaultValue);
     }

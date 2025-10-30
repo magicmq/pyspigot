@@ -64,6 +64,11 @@ public class VelocityScriptOptionsConfig implements ScriptOptionsConfig {
     }
 
     @Override
+    public boolean getAutoLoad(String scriptName, boolean defaultValue) {
+        return config.node(scriptName).node("auto-load").getBoolean(defaultValue);
+    }
+
+    @Override
     public int getLoadPriority(String scriptName, int defaultValue) {
         return config.node(scriptName).node("load-priority").getInt(defaultValue);
     }

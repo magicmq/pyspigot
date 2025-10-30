@@ -253,6 +253,11 @@ public abstract class ScriptManager {
                 options = getProjectOptions(entry.getValue());
             } else
                 options = getScriptOptions(entry.getValue());
+
+            //Skip script loading if auto load option is set to false
+            if (!options.isAutoLoad())
+                continue;
+
             Script script = newScript(entry.getValue(), entry.getKey(), options, project);
             toLoad.add(script);
         }

@@ -44,6 +44,8 @@ public interface PluginConfig {
 
     boolean scriptOptionEnabled();
 
+    boolean scriptOptionAutoLoad();
+
     int scriptOptionLoadPriority();
 
     List<String> scriptOptionPluginDepend();
