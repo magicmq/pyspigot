@@ -49,7 +49,7 @@ public class VelocityScriptManager extends ScriptManager {
     @Override
     protected void scheduleStartScriptTask() {
         startScriptTask = PyVelocity.get().getProxy().getScheduler()
-                .buildTask(PyVelocity.get(), this::loadScripts)
+                .buildTask(PyVelocity.get(), () -> this.loadScripts())
                 .delay(PyCore.get().getConfig().getScriptLoadDelay() * 50L, TimeUnit.MILLISECONDS)
                 .schedule();
     }

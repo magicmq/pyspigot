@@ -49,7 +49,7 @@ public class BukkitScriptManager extends ScriptManager {
 
     @Override
     protected void scheduleStartScriptTask() {
-        startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get().getPlugin(), this::loadScripts, PyCore.get().getConfig().getScriptLoadDelay());
+        startScriptTask = Bukkit.getScheduler().runTaskLater(PySpigot.get().getPlugin(), () -> this.loadScripts(), PyCore.get().getConfig().getScriptLoadDelay());
     }
 
     @Override

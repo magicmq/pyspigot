@@ -25,6 +25,8 @@ import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import java.util.List;
+
 @SubCommandMeta(
         command = "reloadall",
         aliases = {"reset", "restart", "reboot", "resetall"},
@@ -35,10 +37,10 @@ public class ReloadAllCommand implements SubCommand {
 
     @Override
     public boolean onCommand(CommandSenderAdapter sender, String[] args) {
-        ScriptManager.get().unloadScripts();
+        List<String> loadedBefore = ScriptManager.get().unloadScripts();
         PyCore.get().reloadConfigs();
         LibraryManager.get().reload();
-        ScriptManager.get().loadScripts();
+        ScriptManager.get().loadScripts(loadedBefore);
         sender.sendMessage(Component.text("All scripts, plugin config, and script_options.yml have been reloaded.", NamedTextColor.GREEN));
         return true;
     }
