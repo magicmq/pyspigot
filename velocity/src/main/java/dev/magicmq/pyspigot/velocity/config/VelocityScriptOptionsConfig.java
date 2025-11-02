@@ -71,21 +71,21 @@ public class VelocityScriptOptionsConfig implements ScriptOptionsConfig {
     @Override
     public List<String> getPluginDepend(String scriptName, List<String> defaultValue) {
         try {
-            return config.node(scriptName).node("plugin-depend").getList(String.class);
+            return config.node(scriptName).node("plugin-depend").getList(String.class, defaultValue);
         } catch (SerializationException e) {
-            PyVelocity.get().getPlatformLogger().error("Error when fetching plugin dependencies from config.yml", e);
+            PyVelocity.get().getPlatformLogger().error("Error when fetching plugin dependencies from script_options.yml", e);
             return List.of();
         }
     }
 
     @Override
     public boolean getFileLoggingEnabled(String scriptName, boolean defaultValue) {
-        return config.node(scriptName).node("file-logging-enabled").getBoolean();
+        return config.node(scriptName).node("file-logging-enabled").getBoolean(defaultValue);
     }
 
     @Override
     public String getMinLoggingLevel(String scriptName, String defaultValue) {
-        return config.node(scriptName).node("min-logging-level").getString();
+        return config.node(scriptName).node("min-logging-level").getString(defaultValue);
     }
 
     /**
