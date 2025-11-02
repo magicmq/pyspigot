@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.bukkit.config;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
+import dev.magicmq.pyspigot.util.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -47,24 +48,30 @@ public class BukkitScriptOptionsConfig implements ScriptOptionsConfig {
 
     @Override
     public boolean contains(String key) {
-        return config.contains(key);
+        return config.contains(key) || config.contains(StringUtils.stripFileExtension(key));
     }
 
     @Override
     public boolean getEnabled(String scriptName, boolean defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        if (scriptSection == null)
+            scriptSection = config.getConfigurationSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getBoolean("enabled", defaultValue);
     }
 
     @Override
     public int getLoadPriority(String scriptName, int defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        if (scriptSection == null)
+            scriptSection = config.getConfigurationSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getInt("load-priority", defaultValue);
     }
 
     @Override
     public List<String> getPluginDepend(String scriptName, List<String> defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        if (scriptSection == null)
+            scriptSection = config.getConfigurationSection(StringUtils.stripFileExtension(scriptName));
         if (scriptSection.contains("plugin-depend"))
             return scriptSection.getStringList("plugin-depend");
         else
@@ -74,24 +81,32 @@ public class BukkitScriptOptionsConfig implements ScriptOptionsConfig {
     @Override
     public boolean getFileLoggingEnabled(String scriptName, boolean defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        if (scriptSection == null)
+            scriptSection = config.getConfigurationSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getBoolean("file-logging-enabled", defaultValue);
     }
 
     @Override
     public String getMinLoggingLevel(String scriptName, String defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        if (scriptSection == null)
+            scriptSection = config.getConfigurationSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getString("min-logging-level", defaultValue);
     }
 
     @Override
     public String getPermissionDefault(String scriptName, String defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        if (scriptSection == null)
+            scriptSection = config.getConfigurationSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getString("permission-default", defaultValue);
     }
 
     @Override
     public Map<String, Object> getPermissions(String scriptName, Map<String, Object> defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        if (scriptSection == null)
+            scriptSection = config.getConfigurationSection(StringUtils.stripFileExtension(scriptName));
         if (scriptSection.contains("permissions"))
             return getNestedMap(scriptSection.getConfigurationSection("permissions"));
         else

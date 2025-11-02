@@ -20,6 +20,7 @@ package dev.magicmq.pyspigot.bungee.config;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
+import dev.magicmq.pyspigot.util.StringUtils;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -53,24 +54,24 @@ public class BungeeScriptOptionsConfig implements ScriptOptionsConfig {
 
     @Override
     public boolean contains(String key) {
-        return config.contains(key);
+        return config.contains(StringUtils.stripFileExtension(key));
     }
 
     @Override
     public boolean getEnabled(String scriptName, boolean defaultValue) {
-        Configuration scriptSection = config.getSection(scriptName);
+        Configuration scriptSection = config.getSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getBoolean("enabled", defaultValue);
     }
 
     @Override
     public int getLoadPriority(String scriptName, int defaultValue) {
-        Configuration scriptSection = config.getSection(scriptName);
+        Configuration scriptSection = config.getSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getInt("load-priority", defaultValue);
     }
 
     @Override
     public List<String> getPluginDepend(String scriptName, List<String> defaultValue) {
-        Configuration scriptSection = config.getSection(scriptName);
+        Configuration scriptSection = config.getSection(StringUtils.stripFileExtension(scriptName));
         if (scriptSection.contains("plugin-depend"))
             return scriptSection.getStringList("plugin-depend");
         else
@@ -79,13 +80,13 @@ public class BungeeScriptOptionsConfig implements ScriptOptionsConfig {
 
     @Override
     public boolean getFileLoggingEnabled(String scriptName, boolean defaultValue) {
-        Configuration scriptSection = config.getSection(scriptName);
+        Configuration scriptSection = config.getSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getBoolean("file-logging-enabled", defaultValue);
     }
 
     @Override
     public String getMinLoggingLevel(String scriptName, String defaultValue) {
-        Configuration scriptSection = config.getSection(scriptName);
+        Configuration scriptSection = config.getSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getString("min-logging-level", defaultValue);
     }
 

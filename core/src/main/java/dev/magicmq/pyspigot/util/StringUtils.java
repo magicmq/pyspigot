@@ -75,4 +75,11 @@ public final class StringUtils {
             return 0;
         }
     }
+
+    public static String stripFileExtension(String string) {
+        int lastIndex = string.lastIndexOf(".");
+        if (lastIndex == -1)
+            return string;
+        return string.substring(0, lastIndex);
+    }
 }

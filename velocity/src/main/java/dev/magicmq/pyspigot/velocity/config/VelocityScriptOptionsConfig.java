@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.velocity.config;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
+import dev.magicmq.pyspigot.util.StringUtils;
 import dev.magicmq.pyspigot.velocity.PyVelocity;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -55,23 +56,32 @@ public class VelocityScriptOptionsConfig implements ScriptOptionsConfig {
 
     @Override
     public boolean contains(String key) {
-        return config.hasChild(key);
+        return config.hasChild(key) || config.hasChild(StringUtils.stripFileExtension(key));
     }
 
     @Override
     public boolean getEnabled(String scriptName, boolean defaultValue) {
-        return config.node(scriptName).node("enabled").getBoolean(defaultValue);
+        if (config.hasChild(scriptName))
+            return config.node(scriptName).node("enabled").getBoolean(defaultValue);
+        else
+            return config.node(StringUtils.stripFileExtension(scriptName)).node("enabled").getBoolean(defaultValue);
     }
 
     @Override
     public int getLoadPriority(String scriptName, int defaultValue) {
-        return config.node(scriptName).node("load-priority").getInt(defaultValue);
+        if (config.hasChild(scriptName))
+            return config.node(scriptName).node("load-priority").getInt(defaultValue);
+        else
+            return config.node(StringUtils.stripFileExtension(scriptName)).node("load-priority").getInt(defaultValue);
     }
 
     @Override
     public List<String> getPluginDepend(String scriptName, List<String> defaultValue) {
         try {
-            return config.node(scriptName).node("plugin-depend").getList(String.class, defaultValue);
+            if (config.hasChild(scriptName))
+                return config.node(scriptName).node("plugin-depend").getList(String.class, defaultValue);
+            else
+                return config.node(StringUtils.stripFileExtension(scriptName)).node("plugin-depend").getList(String.class, defaultValue);
         } catch (SerializationException e) {
             PyVelocity.get().getPlatformLogger().error("Error when fetching plugin dependencies from script_options.yml", e);
             return List.of();
@@ -80,12 +90,18 @@ public class VelocityScriptOptionsConfig implements ScriptOptionsConfig {
 
     @Override
     public boolean getFileLoggingEnabled(String scriptName, boolean defaultValue) {
-        return config.node(scriptName).node("file-logging-enabled").getBoolean(defaultValue);
+        if (config.hasChild(scriptName))
+            return config.node(scriptName).node("file-logging-enabled").getBoolean(defaultValue);
+        else
+            return config.node(StringUtils.stripFileExtension(scriptName)).node("file-logging-enabled").getBoolean(defaultValue);
     }
 
     @Override
     public String getMinLoggingLevel(String scriptName, String defaultValue) {
-        return config.node(scriptName).node("min-logging-level").getString(defaultValue);
+        if (config.hasChild(scriptName))
+            return config.node(scriptName).node("min-logging-level").getString(defaultValue);
+        else
+            return config.node(StringUtils.stripFileExtension(scriptName)).node("min-logging-level").getString(defaultValue);
     }
 
     /**
@@ -105,6 +121,4 @@ public class VelocityScriptOptionsConfig implements ScriptOptionsConfig {
         //Plugin permissions are not implemented in Velocity
         return null;
     }
-
-
 }
