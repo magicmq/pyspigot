@@ -28,6 +28,8 @@ script-option-defaults:
   main: 'main.py'
   # Whether the script is enabled
   enabled: true
+  # Whether the script should be automatically loaded on server start, plugin enable, or plugin reload.
+  auto-load: true
   # An integer load priority for the script
   load-priority: 1
   # A list of plugins the script depends on

@@ -41,6 +41,13 @@ public interface ProjectOptionsConfig {
     boolean getEnabled(boolean defaultValue);
 
     /**
+     * Get if the project should be automatically loaded on server start, plugin enable, or plugin reload.
+     * @param defaultValue The default value if the project.yml does not have this option defined
+     * @return True if the project should be utomatically loaded, false if it should not
+     */
+    boolean getAutoLoad(boolean defaultValue);
+
+    /**
      * Get the load priority for the project.
      * @param defaultValue The default value if the project.yml does not have this option defined
      * @return The load priority of the project, or the default value if not explicitly defined

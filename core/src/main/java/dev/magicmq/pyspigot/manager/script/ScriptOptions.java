@@ -32,6 +32,7 @@ public class ScriptOptions {
 
     private final String mainScript;
     private final boolean enabled;
+    private final boolean autoLoad;
     private final int loadPriority;
     private final List<String> pluginDepend;
     private final boolean fileLoggingEnabled;
@@ -48,6 +49,7 @@ public class ScriptOptions {
         if (PyCore.get().getScriptOptionsConfig().contains(scriptName)) {
             this.mainScript = null;
             this.enabled = PyCore.get().getScriptOptionsConfig().getEnabled(scriptName, PyCore.get().getConfig().scriptOptionEnabled());
+            this.autoLoad = PyCore.get().getScriptOptionsConfig().getAutoLoad(scriptName, PyCore.get().getConfig().scriptOptionAutoLoad());
             this.loadPriority = PyCore.get().getScriptOptionsConfig().getLoadPriority(scriptName, PyCore.get().getConfig().scriptOptionLoadPriority());
             this.pluginDepend = PyCore.get().getScriptOptionsConfig().getPluginDepend(scriptName, PyCore.get().getConfig().scriptOptionPluginDepend());
             this.fileLoggingEnabled = PyCore.get().getScriptOptionsConfig().getFileLoggingEnabled(scriptName, PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
@@ -55,6 +57,7 @@ public class ScriptOptions {
         } else {
             this.mainScript = null;
             this.enabled = PyCore.get().getConfig().scriptOptionEnabled();
+            this.autoLoad = PyCore.get().getConfig().scriptOptionAutoLoad();
             this.loadPriority = PyCore.get().getConfig().scriptOptionLoadPriority();
             this.pluginDepend = PyCore.get().getConfig().scriptOptionPluginDepend();
             this.fileLoggingEnabled = PyCore.get().getConfig().scriptOptionFileLoggingEnabled();
@@ -73,6 +76,7 @@ public class ScriptOptions {
         if (config != null) {
             this.mainScript = config.getMainScript(PyCore.get().getConfig().scriptOptionMainScript());
             this.enabled = config.getEnabled(PyCore.get().getConfig().scriptOptionEnabled());
+            this.autoLoad = config.getAutoLoad(PyCore.get().getConfig().scriptOptionAutoLoad());
             this.loadPriority = config.getLoadPriority(PyCore.get().getConfig().scriptOptionLoadPriority());
             this.pluginDepend = config.getPluginDepend(PyCore.get().getConfig().scriptOptionPluginDepend());
             this.fileLoggingEnabled = config.getFileLoggingEnabled(PyCore.get().getConfig().scriptOptionFileLoggingEnabled());
@@ -80,6 +84,7 @@ public class ScriptOptions {
         } else {
             this.mainScript = PyCore.get().getConfig().scriptOptionMainScript();
             this.enabled = PyCore.get().getConfig().scriptOptionEnabled();
+            this.autoLoad = PyCore.get().getConfig().scriptOptionAutoLoad();
             this.loadPriority = PyCore.get().getConfig().scriptOptionLoadPriority();
             this.pluginDepend = PyCore.get().getConfig().scriptOptionPluginDepend();
             this.fileLoggingEnabled = PyCore.get().getConfig().scriptOptionFileLoggingEnabled();
@@ -101,6 +106,14 @@ public class ScriptOptions {
      */
     public boolean isEnabled() {
         return enabled;
+    }
+
+    /**
+     * Get if this script should be automatically loaded on server start, plugin enable, or plugin reload.
+     * @return True if the script should be automatically loaded, false if it should not
+     */
+    public boolean isAutoLoad() {
+        return autoLoad;
     }
 
     /**
@@ -142,8 +155,8 @@ public class ScriptOptions {
     @Override
     public String toString() {
         if (project)
-            return String.format("ProjectOptions[Main: %s, Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", mainScript, enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
+            return String.format("ProjectOptions[Main: %s, Enabled: %b, Auto-Load: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", mainScript, enabled, autoLoad, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
         else
-            return String.format("ScriptOptions[Enabled: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", enabled, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
+            return String.format("ScriptOptions[Enabled: %b, Auto-Load: %b, Load Priority: %d, Plugin Dependencies: %s, File Logging Enabled: %b, Minimum Logging Level: %s]", enabled, autoLoad, loadPriority, pluginDepend, fileLoggingEnabled, minLoggingLevel);
     }
 }

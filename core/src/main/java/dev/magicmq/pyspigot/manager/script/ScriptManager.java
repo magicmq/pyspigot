@@ -229,6 +229,16 @@ public abstract class ScriptManager {
      * Loads and runs all scripts contained within the scripts folder. Called on plugin load (I.E. during server start). Loads in the appropriate load order (see {@link Script#compareTo(Script)}).
      */
     public void loadScripts() {
+        loadScripts(List.of());
+    }
+
+    /**
+     * Loads and runs all scripts contained within the scripts folder. Called on plugin load (I.E. during server start). Loads in the appropriate load order (see {@link Script#compareTo(Script)}).
+     * <p>
+     * Takes into account scripts which were previously loaded (via the {@code loadedBefore} parameter) in order to load scripts which have the {@code auto-load} option set to false but were running beforehand.
+     * @param loadedBefore A list of script names that represent previously loaded scripts
+     */
+    public void loadScripts(List<String> loadedBefore) {
         PyCore.get().getLogger().info("Loading scripts/projects...");
 
         SortedSet<Path> scriptPaths = getAllScriptPaths();
@@ -253,6 +263,14 @@ public abstract class ScriptManager {
                 options = getProjectOptions(entry.getValue());
             } else
                 options = getScriptOptions(entry.getValue());
+
+            //Skip script loading if autoload option is set to false, and it was not previously loaded
+            if (!options.isAutoLoad()) {
+                if (!loadedBefore.contains(entry.getKey().toLowerCase())) {
+                    continue;
+                }
+            }
+
             Script script = newScript(entry.getValue(), entry.getKey(), options, project);
             toLoad.add(script);
         }
@@ -447,13 +465,17 @@ public abstract class ScriptManager {
 
     /**
      * Unload all currently loaded scripts and projects. Unloads in the reverse order that they were loaded (I.E. the opposite of the load order).
+     * @return A list of the names of scripts that were unloaded
      */
-    public void unloadScripts() {
+    public List<String> unloadScripts() {
+        List<String> loaded = new ArrayList<>();
         List<Script> toUnload = new ArrayList<>(scripts.values());
         Collections.reverse(toUnload);
         for (Script script : toUnload) {
             callScriptUnloadEvent(script, false);
             stopScript(script, false);
+
+            loaded.add(script.getName().toLowerCase());
 
             if (PyCore.get().getConfig().doScriptActionLogging()) {
                 if (script.isProject())
@@ -465,6 +487,8 @@ public abstract class ScriptManager {
         scripts.clear();
         scriptNames.clear();
         moduleMap.clear();
+
+        return loaded;
     }
 
     /**

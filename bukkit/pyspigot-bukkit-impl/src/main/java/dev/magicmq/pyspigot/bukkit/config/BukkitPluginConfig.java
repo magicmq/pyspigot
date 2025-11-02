@@ -105,6 +105,10 @@ public class BukkitPluginConfig implements PluginConfig {
         return config.getBoolean("script-option-defaults.enabled");
     }
 
+    public boolean scriptOptionAutoLoad() {
+        return config.getBoolean("script-option-defaults.auto-load");
+    }
+
     @Override
     public int scriptOptionLoadPriority() {
         return config.getInt("script-option-defaults.load-priority");
