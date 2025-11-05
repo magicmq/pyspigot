@@ -16,7 +16,6 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 
-import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
@@ -32,10 +31,7 @@ import java.util.Objects;
  */
 public class PlaceholderManager {
 
-    /**
-     * Characters that are not allowed in PlaceholderAPI placeholders.
-     */
-    public static final String[] INVALID_CHARS = {"_", "%", "{", "}"};
+    private static final String[] INVALID_CHARS = {"_", "%", "{", "}"};
 
     private static PlaceholderManager instance;
 
@@ -48,7 +44,7 @@ public class PlaceholderManager {
     /**
      * Register a new script placeholder expansion.
      * <p>
-     * If you want to register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction)}
+     * To register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction)}
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function that should be called when the placeholder is used
@@ -57,7 +53,7 @@ public class PlaceholderManager {
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction) {
         Objects.requireNonNull(placeholderFunction);
 
-        return registerPlaceholder(placeholderFunction, null, "Script Author", "1.0.0");
+        return registerPlaceholder(placeholderFunction, null, null, "Script Author", "1.0.0");
     }
 
     /**
@@ -69,47 +65,63 @@ public class PlaceholderManager {
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction) {
-        return registerPlaceholder(placeholderFunction, relPlaceholderFunction, "Script Author", "1.0.0");
+        return registerPlaceholder(placeholderFunction, relPlaceholderFunction, null, "Script Author", "1.0.0");
     }
 
     /**
      * Register a new script placeholder expansion.
      * <p>
-     * If you want to register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction, String, String)}
+     * Note that for the identifier, invalid characters ("_", "%", "{", and "}") are automatically removed.
+     * <p>
+     * To register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction, String, String, String)}
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function that should be called when the placeholder is used
+     * @param identifier The identifier of the placeholder. If this is {@code null}, then the identifier will be in the
+     *                   format "script:name", where "name" is the name of the script
      * @param author The author of the placeholder
      * @param version The version of the placeholder
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
-    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, String author, String version) {
-        Objects.requireNonNull(placeholderFunction);
-
-        return registerPlaceholder(placeholderFunction, null, author, version);
+    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, String identifier, String author, String version) {
+        return registerPlaceholder(placeholderFunction, null, identifier, author, version);
     }
 
     /**
      * Register a new script placeholder expansion, including relational placeholders.
      * <p>
+     * Note that for the identifier, invalid characters ("_", "%", "{", and "}") are automatically removed.
+     * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function that should be called when the placeholder is used
      * @param relPlaceholderFunction The function that should be called when the relational placeholder
+     * @param identifier The identifier of the placeholder. If this is {@code null}, then the identifier will be in the
+     *                   format "script:name", where "name" is the name of the script
      * @param author The author of the placeholder
      * @param version The version of the placeholder
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
-    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction, String author, String version) {
+    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction, String identifier, String author, String version) {
         Script script = ScriptContext.require();
         if (!registeredPlaceholders.containsKey(script)) {
-            ScriptPlaceholder placeholder = new ScriptPlaceholder(script, placeholderFunction, relPlaceholderFunction, author, version);
-            String scriptName = script.getSimpleName();
+            if (identifier == null)
+                identifier = "script:" + script.getSimpleName();
+
             for (String invalid : INVALID_CHARS) {
-                if (scriptName.contains(invalid)) {
-                    PyCore.get().getLogger().warn("Script placeholder identifier contains invalid character(s). Identifier will be registered as '{}'", placeholder.getIdentifier());
+                if (identifier.contains(invalid)) {
+                    script.getLogger().warn("Script placeholder identifier contains invalid character(s). Identifier will be registered as '{}'", removeInvalidCharacters(identifier));
                     break;
                 }
             }
+
+            ScriptPlaceholder placeholder = new ScriptPlaceholder(
+                    script,
+                    placeholderFunction,
+                    relPlaceholderFunction,
+                    removeInvalidCharacters(identifier),
+                    author,
+                    version
+            );
             placeholder.register();
             registeredPlaceholders.put(script, placeholder);
             return placeholder;
@@ -173,6 +185,13 @@ public class PlaceholderManager {
      */
     public ScriptPlaceholder getPlaceholder(Script script) {
         return registeredPlaceholders.get(script);
+    }
+
+    private String removeInvalidCharacters(String identifier) {
+        for (String invalid : PlaceholderManager.INVALID_CHARS) {
+            identifier = identifier.replace(invalid, "");
+        }
+        return identifier;
     }
 
     /**

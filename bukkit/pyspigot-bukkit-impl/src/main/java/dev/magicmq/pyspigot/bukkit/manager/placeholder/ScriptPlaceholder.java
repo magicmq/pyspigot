@@ -40,6 +40,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
 
     private final Script script;
     private final PyFunction function;
+    private final String identifier;
     private final String author;
     private final String version;
 
@@ -50,13 +51,15 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
      * @param script The script associated with this ScriptPlaceholder
      * @param function The function to call when the placeholder is used
      * @param relFunction The function to call when the relational placeholder is used
+     * @param identifier The identifier of the placeholder
      * @param author The author of this ScriptPlaceholder
      * @param version The version of this ScriptPlaceholder
      */
-    public ScriptPlaceholder(Script script, PyFunction function, PyFunction relFunction, String author, String version) {
+    public ScriptPlaceholder(Script script, PyFunction function, PyFunction relFunction, String identifier, String author, String version) {
         this.script = script;
         this.function = function;
         this.relFunction = relFunction;
+        this.identifier = identifier;
         this.author = author;
         this.version = version;
     }
@@ -97,20 +100,16 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
 
     /**
      * Get the identifier of this ScriptPlaceholder.
-     * <p>
-     * This is used to identify the script's placeholder. It will be in the format "script:name", where "name" is the name of the script (without the file extension, .py). For example, for a script named "test.py", the placeholder identifier will be "script:test".
-     * <p>
-     * Invalid characters (I.E. those defined in {@link PlaceholderManager#INVALID_CHARS}) are automatically removed, if the script name contains any of them.
      * @return The identifier of this ScriptPlaceholder
      */
     @Override
     public String getIdentifier() {
-        return removeInvalidCharacters("script:" + script.getSimpleName());
+        return identifier;
     }
 
     /**
      * Indicates that the ScriptPlaceholder should persist when PlaceholderAPI is reloaded.
-     * @return True
+     * @return {@code true}, always
      */
     @Override
     public boolean persist() {
@@ -168,12 +167,5 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
             ScriptManager.get().handleScriptException(script, exception, "Error when executing relational placeholder '" + getIdentifier() + "'");
         }
         return null;
-    }
-
-    private String removeInvalidCharacters(String identifier) {
-        for (String invalid : PlaceholderManager.INVALID_CHARS) {
-            identifier = identifier.replace(invalid, "");
-        }
-        return identifier;
     }
 }
