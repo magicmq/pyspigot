@@ -62,6 +62,8 @@ public class BukkitScriptOptionsConfig implements ScriptOptionsConfig {
     @Override
     public boolean getAutoLoad(String scriptName, boolean defaultValue) {
         ConfigurationSection scriptSection = config.getConfigurationSection(scriptName);
+        if (scriptSection == null)
+            scriptSection = config.getConfigurationSection(StringUtils.stripFileExtension(scriptName));
         return scriptSection.getBoolean("auto-load", defaultValue);
     }
 
