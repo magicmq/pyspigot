@@ -17,10 +17,12 @@
 package dev.magicmq.pyspigot.dependency;
 
 
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.classpath.ClassPathAppender;
 import dev.magicmq.pyspigot.exception.DependencyDownloadException;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 /**
  * A manager class, which handles dynamically downloading and adding PySpigot's dependencies to the class path at runtime.
@@ -38,6 +41,7 @@ public class DependencyManager {
     private final Path depsFolderPath;
     private final ClassPathAppender classPathAppender;
     private final DependencyRegistry registry;
+    private final List<Dependency> selfDeps;
 
     /**
      *
@@ -53,6 +57,7 @@ public class DependencyManager {
         }
         this.classPathAppender = classPathAppender;
 
+        this.selfDeps = new ArrayList<>();
         initSelfDependencies();
 
         this.registry = new DependencyRegistry();
@@ -78,6 +83,8 @@ public class DependencyManager {
      * Load all dependencies. This method loads and adds to the class path any dependencies registered in the {@link DependencyRegistry}.
      */
     public void loadDependencies() {
+        PyCore.get().getLogger().info("Loading internal dependencies...");
+
         List<Dependency> dependencies = registry.getDependencies();
 
         CountDownLatch latch = new CountDownLatch(dependencies.size());
@@ -102,6 +109,8 @@ public class DependencyManager {
         } finally {
             downloader.shutdownNow();
         }
+
+        purgeOldDependencies();
     }
 
     /**
@@ -147,9 +156,33 @@ public class DependencyManager {
         return remapped;
     }
 
-    private void initSelfDependencies() {
-        List<Dependency> selfDeps = new ArrayList<>();
+    private void purgeOldDependencies() {
+        List<Dependency> allDeps = Stream.concat(selfDeps.stream(), registry.getDependencies().stream()).toList();
 
+        List<String> expectedFiles = allDeps.stream()
+                .flatMap(dependency -> Stream.of(
+                        dependency.getFilePath().toString(),
+                        dependency.getRelocatedFilePath().toString()
+                )).toList();
+        List<Path> toDelete = new ArrayList<>();
+
+        try (DirectoryStream<Path> paths = Files.newDirectoryStream(depsFolderPath)) {
+            for (Path path : paths) {
+                String fileName = path.getFileName().toString();
+                if (!expectedFiles.contains(fileName)) {
+                    toDelete.add(path);
+                }
+            }
+
+            for (Path path : toDelete) {
+                Files.delete(path);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error when purging unexpected dependency files", e);
+        }
+    }
+
+    private void initSelfDependencies() {
         //GSON (for loading dependency JSON files)
         selfDeps.add(Dependency.builder()
                 .groupId("com.google.code.gson")
