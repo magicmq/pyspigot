@@ -100,6 +100,8 @@ public class LibraryManager {
     }
 
     private void initLibraries() {
+        PyCore.get().getLogger().info("Loading external libraries...");
+
         SortedSet<File> toLoad = new TreeSet<>();
         if (libsFolder.isDirectory()) {
             toLoad.addAll(Arrays.asList(libsFolder.listFiles()));

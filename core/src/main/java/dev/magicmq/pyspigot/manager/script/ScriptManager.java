@@ -209,7 +209,6 @@ public abstract class ScriptManager {
                     LibraryManager.get().getClassLoader()
             );
 
-            PyCore.get().getLogger().info("Jython initialized!");
             sysInitialized = true;
         }
     }
