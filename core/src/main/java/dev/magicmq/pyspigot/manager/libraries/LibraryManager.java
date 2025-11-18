@@ -86,7 +86,7 @@ public class LibraryManager {
             else
                 return LoadResult.FAILED_FILE;
         } catch (Throwable throwable) {
-            PyCore.get().getLogger().error("Unable to load library '{}'", libName, throwable);
+            PyCore.get().getLogger().error("Unable to load external library '{}'", libName, throwable);
             return LoadResult.FAILED_ERROR;
         }
     }
@@ -115,13 +115,9 @@ public class LibraryManager {
             if (libName.endsWith(".jar")) {
                 if (!libName.endsWith("-relocated.jar")) {
                     try {
-                        long start = System.nanoTime();
-                        LoadResult result = loadLibrary(library);
-                        double duration = (System.nanoTime() - start) / 1000000.0;
-                        if (result == LoadResult.SUCCESS)
-                            PyCore.get().getLogger().info("Loaded library '{}' in {} ms", libName, Math.round(duration * 10.0) / 10.0);
+                        loadLibrary(library);
                     } catch (Throwable throwable) {
-                        PyCore.get().getLogger().error("Unable to load library '{}'!", libName, throwable);
+                        PyCore.get().getLogger().error("Unable to load external library '{}'!", libName, throwable);
                     }
                 }
             }

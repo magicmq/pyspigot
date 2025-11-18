@@ -81,6 +81,8 @@ public class PyCore {
      * Initialize the plugin.
      */
     public void init() {
+        long beginTime = System.nanoTime();
+
         logger = adapter.getPlatformLogger();
 
         if (adapter.getVersion().contains("SNAPSHOT")) {
@@ -96,6 +98,8 @@ public class PyCore {
 
         initFolders();
 
+        logger.info("Loading configuration...");
+
         saveDefaultConfig();
         config = adapter.initConfig();
         config.reload();
@@ -107,6 +111,9 @@ public class PyCore {
         adapter.initListeners();
 
         LibraryManager.get();
+
+        logger.info("Initializing managers...");
+
         initCommonManagers();
         adapter.initPlatformManagers();
 
@@ -118,6 +125,10 @@ public class PyCore {
         adapter.initVersionChecking();
 
         initialized = true;
+
+        long endTime = System.nanoTime();
+        Duration elapsed = Duration.ofNanos(endTime - beginTime);
+        logger.info("Initializion complete ({} ms).", elapsed.toMillis());
     }
 
     /**
