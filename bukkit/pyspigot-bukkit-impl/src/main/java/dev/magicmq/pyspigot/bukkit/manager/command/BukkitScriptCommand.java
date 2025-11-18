@@ -87,7 +87,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
         try {
             final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
             constructor.setAccessible(true);
-            final PluginCommand bukkitCommand = constructor.newInstance(name, PySpigot.get());
+            final PluginCommand bukkitCommand = constructor.newInstance(name, PySpigot.get().getPlugin());
             bukkitCommand.setLabel(name.toLowerCase());
             bukkitCommand.setDescription(description);
             bukkitCommand.setUsage(usage);
