@@ -49,14 +49,14 @@ public class SQLDatabase extends GenericSQLDatabase {
     }
 
     @Override
-    public List<Map<String, Object>> select(String sql, Object[] values) throws SQLException {
+    public List<Map<String, Object>> select(String sql, Object... values) throws SQLException {
         try (Connection connection = hikariDataSource.getConnection()) {
             return select(connection, sql, values);
         }
     }
 
     @Override
-    public int update(String sql, Object[] values) throws SQLException {
+    public int update(String sql, Object... values) throws SQLException {
         try (Connection connection = hikariDataSource.getConnection()) {
             return update(connection, sql, values);
         }

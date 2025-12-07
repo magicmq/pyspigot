@@ -30,6 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * An abstraction for all SQL-type databases, including MySQL, MariaDB, and SQLite.
+ */
 public abstract class GenericSQLDatabase extends Database {
 
     /**
@@ -43,50 +46,30 @@ public abstract class GenericSQLDatabase extends Database {
     /**
      * Select from the SQL database with the provided values that should be inserted into the select statement.
      * <p>
+     * If no values should be inserted into the select statement, do not pass anything for the {@code values} argument.
+     * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param sql The select statement
-     * @param values The values that should be inserted into the select statement
+     * @param values Optional argument. The values that should be inserted into the select statement
      * @return A {@link java.util.Map} containing the data returned from the selection. Functionally identical to a python dict, where keys are column names and values are column data, with preserved order
-     * @throws SQLException If there was an exception when selecting from the database
+     * @throws SQLException If there was an error when selecting from the database
      */
-    public abstract List<Map<String, Object>> select(String sql, Object[] values) throws SQLException;
+    public abstract List<Map<String, Object>> select(String sql, Object... values) throws SQLException;
 
     /**
      * Update the SQL database with the provided values that should be inserted into the update statement.
      * <p>
-     * <b>Note:</b> This should be called from scripts only!
-     * @param sql The update statement
-     * @param values The values that should be inserted into the update statement
-     * @return The number of rows that were affected by the update statement
-     * @throws SQLException If there was an exception when updating the database
-     */
-    public abstract int update(String sql, Object[] values) throws SQLException;
-
-    /**
-     * Select from the SQL database.
-     * <p>
-     * <b>Note:</b> This should be called from scripts only!
-     * @param sql The select statement
-     * @return A {@link java.util.Map} containing the data returned from the selection. Functionally identical to a python dict, where keys are column names and values are column data, with preserved order
-     * @throws SQLException If there was an exception when selecting from the database
-     */
-    public List<Map<String, Object>> select(String sql) throws SQLException {
-        return select(sql, null);
-    }
-
-    /**
-     * Update the SQL database.
+     * If no values should be inserted into the update statement, do not pass anything for the {@code values} argument.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param sql The update statement
+     * @param values Optional argument. The values that should be inserted into the update statement
      * @return The number of rows that were affected by the update statement
-     * @throws SQLException If there was an exception when updating the database
+     * @throws SQLException If there was an error when updating the database
      */
-    public int update(String sql) throws SQLException {
-        return update(sql, null);
-    }
+    public abstract int update(String sql, Object... values) throws SQLException;
 
-    protected List<Map<String, Object>> select(Connection connection, String sql, Object[] values) throws SQLException {
+    protected List<Map<String, Object>> select(Connection connection, String sql, Object... values) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             if (values != null) {
                 for (int i = 0; i < values.length; i++) {
@@ -118,7 +101,7 @@ public abstract class GenericSQLDatabase extends Database {
         }
     }
 
-    protected int update(Connection connection, String sql, Object[] values) throws SQLException {
+    protected int update(Connection connection, String sql, Object... values) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             if (values != null) {
                 for (int i = 0; i < values.length; i++) {
