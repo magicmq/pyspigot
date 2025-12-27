@@ -22,6 +22,7 @@ import com.velocitypowered.api.scheduler.ScheduledTask;
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.config.ProjectOptionsConfig;
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.manager.script.ScriptLoadService;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import dev.magicmq.pyspigot.velocity.PyVelocity;
@@ -41,6 +42,7 @@ public class VelocityScriptManager extends ScriptManager {
     private static VelocityScriptManager instance;
 
     private ScheduledTask startScriptTask;
+    private ScheduledTask scriptLoadService;
 
     private VelocityScriptManager() {
         super(new VelocityScriptInfo());
@@ -58,6 +60,21 @@ public class VelocityScriptManager extends ScriptManager {
     protected void cancelStartScriptTask() {
         if (startScriptTask != null) {
             startScriptTask.cancel();
+        }
+    }
+
+    @Override
+    public void scheduleScriptLoadService(ScriptLoadService service) {
+        scriptLoadService = PyVelocity.get().getProxy().getScheduler()
+                .buildTask(PyVelocity.get(), service)
+                .repeat(50L, TimeUnit.MILLISECONDS)
+                .schedule();
+    }
+
+    @Override
+    public void cancelScriptLoadService() {
+        if (scriptLoadService != null) {
+            scriptLoadService.cancel();
         }
     }
 

@@ -25,6 +25,7 @@ import dev.magicmq.pyspigot.bungee.event.ScriptUnloadEvent;
 import dev.magicmq.pyspigot.bungee.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.config.ProjectOptionsConfig;
 import dev.magicmq.pyspigot.manager.script.Script;
+import dev.magicmq.pyspigot.manager.script.ScriptLoadService;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import net.md_5.bungee.api.ProxyServer;
@@ -42,6 +43,7 @@ public class BungeeScriptManager extends ScriptManager {
     private static BungeeScriptManager instance;
 
     private ScheduledTask startScriptTask;
+    private ScheduledTask scriptLoadService;
 
     private BungeeScriptManager() {
         super(new BungeeScriptInfo());
@@ -56,6 +58,18 @@ public class BungeeScriptManager extends ScriptManager {
     protected void cancelStartScriptTask() {
         if (startScriptTask != null) {
             startScriptTask.cancel();
+        }
+    }
+
+    @Override
+    public void scheduleScriptLoadService(ScriptLoadService service) {
+        scriptLoadService = ProxyServer.getInstance().getScheduler().schedule(PyBungee.get().getPlugin(), service, 50L, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void cancelScriptLoadService() {
+        if (scriptLoadService != null) {
+            scriptLoadService.cancel();
         }
     }
 

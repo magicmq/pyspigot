@@ -1,7 +1,9 @@
 # If false, will disable collection of metrics information by bStats for PySpigot. You may also disable bStats server-wide in the bStats config.yml under /plugins/bStats.
 metrics-enabled: true
-# The delay for loading scripts (in ticks) after the server finishes loading.
+# The delay to wait, after server initialization completes, to load scripts/projects. This value is in ticks; there are 20 server ticks per 1 real-world second.
 script-load-delay: 20
+# The delay, in ticks, PySpigot should wait in between loading each script/project. Setting this value to a higher number can help avoid server crashes, if there are many scripts/projects to load.
+script-load-interval: 1
 # List of relocation rules for libraries in the libs folder. Format as <pattern>|<relocated pattern>
 library-relocations: []
 # Date/time format for timestamps in script log files, written in Java's SimpleDateFormat pattern: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/format/DateTimeFormatter.html

@@ -73,6 +73,11 @@ public class VelocityPluginConfig implements PluginConfig {
     }
 
     @Override
+    public long getScriptLoadInterval() {
+        return config.node("script-load-interval").getLong();
+    }
+
+    @Override
     public HashMap<String, String> getLibraryRelocations() {
         HashMap<String, String> toReturn = new HashMap<>();
         try {

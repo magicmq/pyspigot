@@ -67,6 +67,11 @@ public class BukkitPluginConfig implements PluginConfig {
     }
 
     @Override
+    public long getScriptLoadInterval() {
+        return config.getLong("script-load-interval");
+    }
+
+    @Override
     public HashMap<String, String> getLibraryRelocations() {
         HashMap<String, String> toReturn = new HashMap<>();
         for (String string : config.getStringList("library-relocations")) {

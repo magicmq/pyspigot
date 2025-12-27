@@ -112,6 +112,17 @@ public abstract class ScriptManager {
     protected abstract void cancelStartScriptTask();
 
     /**
+     * Schedules and starts the script load service via a platform-specific implementation.
+     * @param service The ScriptLoadService instance to schedule with the platform's scheduler
+     */
+    protected abstract void scheduleScriptLoadService(ScriptLoadService service);
+
+    /**
+     * Cancels the script load service task via a platform-specific implementation.
+     */
+    protected abstract void cancelScriptLoadService();
+
+    /**
      * Checks if a script plugin dependency is missing via a platform-specific implementation.
      * @param dependency The name of the dependency to check
      * @return True if the dependency is missing, false if it is present
@@ -218,6 +229,7 @@ public abstract class ScriptManager {
      */
     public void shutdown() {
         cancelStartScriptTask();
+        cancelScriptLoadService();
 
         unloadScripts();
 
@@ -275,18 +287,8 @@ public abstract class ScriptManager {
         }
 
         //Run scripts in order with respect to load priority
-        for (Script script : toLoad) {
-            try {
-                if (script.isProject())
-                    loadProject(script);
-                else
-                    loadScript(script);
-            } catch (ScriptInitializationException e) {
-                PyCore.get().getLogger().error("Error when loading script/project '{}'", script.getName(), e);
-            }
-        }
-
-        PyCore.get().getLogger().info("Loaded {} scripts/projects!", scripts.size());
+        ScriptLoadService service = new ScriptLoadService(toLoad);
+        scheduleScriptLoadService(service);
     }
 
     /**
@@ -723,6 +725,11 @@ public abstract class ScriptManager {
      */
     public ScriptInfo getScriptInfo() {
         return scriptInfo;
+    }
+
+    protected void finishScriptLoading() {
+        cancelScriptLoadService();
+        PyCore.get().getLogger().info("Loaded {} scripts/projects!", scripts.size());
     }
 
     private RunResult startScript(Script script) throws ScriptInitializationException {

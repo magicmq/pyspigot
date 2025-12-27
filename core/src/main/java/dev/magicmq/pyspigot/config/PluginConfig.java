@@ -30,6 +30,8 @@ public interface PluginConfig {
 
     long getScriptLoadDelay();
 
+    long getScriptLoadInterval();
+
     HashMap<String, String> getLibraryRelocations();
 
     DateTimeFormatter getLogTimestamp();

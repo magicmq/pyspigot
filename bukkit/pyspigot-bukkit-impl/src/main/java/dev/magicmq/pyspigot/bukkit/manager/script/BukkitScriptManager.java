@@ -28,6 +28,7 @@ import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
+import dev.magicmq.pyspigot.manager.script.ScriptLoadService;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.python.core.PyException;
@@ -42,6 +43,7 @@ public class BukkitScriptManager extends ScriptManager {
     private static BukkitScriptManager instance;
 
     private BukkitTask startScriptTask;
+    private BukkitTask scriptLoadService;
 
     private BukkitScriptManager() {
         super(new BukkitScriptInfo());
@@ -56,6 +58,18 @@ public class BukkitScriptManager extends ScriptManager {
     protected void cancelStartScriptTask() {
         if (startScriptTask != null) {
             startScriptTask.cancel();
+        }
+    }
+
+    @Override
+    protected void scheduleScriptLoadService(ScriptLoadService service) {
+        scriptLoadService = Bukkit.getScheduler().runTaskTimer(PySpigot.get().getPlugin(), service, 0L, 1L);
+    }
+
+    @Override
+    protected void cancelScriptLoadService() {
+        if (scriptLoadService != null) {
+            scriptLoadService.cancel();
         }
     }
 
