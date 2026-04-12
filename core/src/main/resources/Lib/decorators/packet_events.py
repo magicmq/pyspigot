@@ -7,7 +7,7 @@ import pyspigot as ps
 from dev.magicmq.pyspigot import PyCore
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException
 
-if not PyCore.get().isProtocolizeAvailable():
+if not PyCore.get().isPacketEventsAvailable():
     raise dev.magicmq.pyspigot.exception.ScriptRuntimeException('Attempted to initialize PacketEvents decorators, but PacketEvents was not found on the server')
 
 from com.github.retrooper.packetevents.event import PacketListenerPriority
