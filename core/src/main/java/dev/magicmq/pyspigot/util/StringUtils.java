@@ -25,10 +25,6 @@ public final class StringUtils {
 
     private StringUtils() {}
 
-    public static String replaceLastOccurrence(String string, String toReplace, String replaceWith) {
-        return string.replaceFirst("(?s)" + toReplace + "(?!.*?" + toReplace + ")", replaceWith);
-    }
-
     public static String formatDuration(Duration duration) {
         long days = duration.toDaysPart();
         long hours = duration.toHoursPart();
