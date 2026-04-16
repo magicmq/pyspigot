@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot.bukkit.manager.command;
 
 import dev.magicmq.pyspigot.bukkit.util.ReflectionUtils;
+import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
@@ -32,6 +33,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * The Bukkit-specific implementation of the command manager.
@@ -62,15 +65,50 @@ public class BukkitCommandManager extends CommandManager {
 
     @Override
     protected ScriptCommand registerCommandImpl(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+        
+        // If we're already on the main thread, just run directly
+        if (Bukkit.isPrimaryThread()) {
+            return registerCommandOnMainThread(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
+        }
+        
+        // Otherwise, schedule on main thread and block until complete
+        CompletableFuture<ScriptCommand> future = new CompletableFuture<>();
+        
+        Bukkit.getScheduler().runTask(PySpigot.get(), () -> {
+            try {
+                ScriptCommand cmd = registerCommandOnMainThread(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
+                future.complete(cmd);
+            } catch (Exception e) {
+                future.completeExceptionally(e);
+            }
+        });
+        
+        try {
+            return future.get(); // blocks the script thread until main thread finishes
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ScriptRuntimeException(script, "Interrupted while waiting for command registration", e);
+        } catch (ExecutionException e) {
+            throw new ScriptRuntimeException(script, "Exception during command registration on main thread", e.getCause());
+        }
+    }
+
+    private ScriptCommand registerCommandOnMainThread(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         BukkitScriptCommand newCommand = new BukkitScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
         if (!addCommandToBukkit(newCommand))
             script.getLogger().warn("Used fallback prefix (script name) when registering command '{}'", name);
-        try {
-            syncBukkitCommands();
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new ScriptRuntimeException(script, "Unhandled exception when syncing commands via Bukkit", e);
-        }
-        newCommand.initHelp();
+
+        // Delay sync by 1 tick so Paper's async command builder threads finish
+        // iterating the command tree before we mutate it
+        Bukkit.getScheduler().runTaskLater(PySpigot.get(), () -> {
+            try {
+                syncBukkitCommands();
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new ScriptRuntimeException(script, "Unhandled exception when syncing commands via Bukkit", e);
+            }
+            newCommand.initHelp();
+        }, 1L);
+
         return newCommand;
     }
 
