@@ -41,7 +41,7 @@ def placeholder(author='Script Author', version='1.0.0'):
     return _decorator
 
 
-def relational_placehodler(function):
+def relational_placeholder(function):
     """
     Add a relational placeholder to a placeholder expansion that was registered previously by decorating a function. The
     decorated function will be called when the relational placeholder is used.
@@ -56,5 +56,5 @@ def relational_placehodler(function):
 
 __all__ = [
     'placeholder',
-    'relational_placehodler',
+    'relational_placeholder',
 ]
