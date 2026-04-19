@@ -49,14 +49,14 @@ public class BukkitScriptInfo extends ScriptInfo {
                     .stream()
                     .map(Object::toString)
                     .toList();
-            appendTo.append(Component.text().append(Component.text("Listening to packet types: ", NamedTextColor.GOLD)).append(Component.text(packetTypes.toString())));
+            appendTo.append(Component.text().append(Component.text("Listening to packet types (ProtocolLib): ", NamedTextColor.GOLD)).append(Component.text(packetTypes.toString())));
             appendTo.appendNewline();
 
             List<String> packetTypesAsync = ProtocolManager.get().asyncManager().getAsyncPacketListeners(script)
                     .stream()
                     .map(Object::toString)
                     .toList();
-            appendTo.append(Component.text().append(Component.text("Listening to packet types (async): ", NamedTextColor.GOLD)).append(Component.text(packetTypesAsync.toString())));
+            appendTo.append(Component.text().append(Component.text("Listening to packet types (async, ProtocolLib): ", NamedTextColor.GOLD)).append(Component.text(packetTypesAsync.toString())));
             appendTo.appendNewline();
         }
 

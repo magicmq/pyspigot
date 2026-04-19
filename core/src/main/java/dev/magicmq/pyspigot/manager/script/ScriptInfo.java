@@ -20,6 +20,7 @@ import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
+import dev.magicmq.pyspigot.manager.packetevents.PacketEventsManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.StringUtils;
@@ -97,6 +98,15 @@ public abstract class ScriptInfo {
                 .toList();
         builder.append(Component.text().append(Component.text("Redis client: ", NamedTextColor.GOLD)).append(Component.text(redisInfo.toString())));
         builder.appendNewline();
+
+        if (PyCore.get().isPacketEventsAvailable()) {
+            List<String> packetListeners = PacketEventsManager.get().getPacketListeners(script)
+                    .stream()
+                    .map(Object::toString)
+                    .toList();
+            builder.append(Component.text().append(Component.text("Listening to packet types (PacketEvents): ", NamedTextColor.GOLD)).append(Component.text(packetListeners.toString())));
+            builder.appendNewline();
+        }
 
         printPlatformManagerInfo(script, builder);
 

@@ -105,4 +105,13 @@ public class ScriptPacketListener implements PacketListener {
             }
         }
     }
+
+    /**
+     * Prints a representation of this ScriptPacketListener in string format, including the packet type listened to by the listener
+     * @return A string representation of the ScriptPacketListener
+     */
+    @Override
+    public String toString() {
+        return String.format("ScriptPacketListener[Packet Type: %s]", packetType.toString());
+    }
 }
