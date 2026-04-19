@@ -17,6 +17,7 @@
 package dev.magicmq.pyspigot.bukkit.manager.script;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
+import dev.magicmq.pyspigot.bukkit.manager.messaging.PluginMessageManager;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.script.Script;
@@ -58,5 +59,12 @@ public class BukkitScriptInfo extends ScriptInfo {
             appendTo.append(Component.text().append(Component.text("Listening to packet types (async): ", NamedTextColor.GOLD)).append(Component.text(packetTypesAsync.toString())));
             appendTo.appendNewline();
         }
+
+        List<String> pluginMessageListeners = PluginMessageManager.get().getListeners(script)
+                .stream()
+                .map(Object::toString)
+                .toList();
+        appendTo.append(Component.text().append(Component.text("Plugin message listeners: ", NamedTextColor.GOLD)).append(Component.text(pluginMessageListeners.toString())));
+        appendTo.appendNewline();
     }
 }

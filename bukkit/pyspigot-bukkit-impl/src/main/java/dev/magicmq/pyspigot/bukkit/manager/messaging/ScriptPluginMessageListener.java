@@ -86,4 +86,13 @@ public class ScriptPluginMessageListener implements PluginMessageListener {
             }
         }
     }
+
+    /**
+     * Prints a representation of this ScriptPluginMessageListener in string format.
+     * @return A string representation of the ScriptPluginMessageListener
+     */
+    @Override
+    public String toString() {
+        return String.format("ScriptPluginMessageListener[Channel: %s]", channel);
+    }
 }
