@@ -269,8 +269,7 @@ public abstract class CommandManager {
         List<ScriptCommand> commands = getCommands(script);
         for (ScriptCommand command : commands) {
             if (command.getCommandFunction().equals(commandFunction)) {
-                unregisterCommandImpl(command);
-                removeCommand(command.getScript(), command);
+                unregisterCommand(command);
             }
         }
     }

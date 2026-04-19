@@ -34,20 +34,22 @@ import net.kyori.adventure.text.format.TextDecoration;
 )
 public class HelpCommand implements SubCommand {
 
-    private static final Component HELP_MESSAGE_CONSOLE = Component.text()
-            .append(Component.text().append(PySpigotCommand.PLUGIN_PREFIX).append(Component.text("Some helpful links:", NamedTextColor.GREEN)))
-            .appendNewline()
-            .append(Component.text().append(Component.text("- PySpigot Documentation: ", NamedTextColor.AQUA, TextDecoration.BOLD)).append(Component.text("https://pyspigot-docs.magicmq.dev/", NamedTextColor.AQUA, TextDecoration.UNDERLINED)))
-            .appendNewline()
-            .append(Component.text().append(Component.text("- Spigot Plugin Page: ", NamedTextColor.AQUA, TextDecoration.BOLD)).append(Component.text("https://spigotmc.org/resources/pyspigot.111006/", NamedTextColor.AQUA, TextDecoration.UNDERLINED)))
-            .appendNewline()
-            .append(Component.text().append(Component.text("- Need help? Reach out on the PySpigot Discord: ", NamedTextColor.AQUA)).append(Component.text("https://discord.gg/f2u7nzRwuk", NamedTextColor.AQUA, TextDecoration.UNDERLINED)))
-            .appendNewline()
-            .append(Component.text().append(Component.text("- Found a bug? Please let me know on Discord (link above) and/or submit a bug report on the PySpigot Github repo: ", NamedTextColor.AQUA)).append(Component.text("https://github.com/magicmq/pyspigot/issues", NamedTextColor.AQUA, TextDecoration.UNDERLINED)))
-            .build();
+    private static final Component HELP_MESSAGE_CONSOLE;
     private static final Component HELP_MESSAGE;
 
     static {
+        HELP_MESSAGE_CONSOLE = Component.text()
+                .append(Component.text().append(PySpigotCommand.PLUGIN_PREFIX).append(Component.text("Some helpful links:", NamedTextColor.GREEN)))
+                .appendNewline()
+                .append(Component.text().append(Component.text("- PySpigot Documentation: ", NamedTextColor.AQUA, TextDecoration.BOLD)).append(Component.text("https://pyspigot-docs.magicmq.dev/", NamedTextColor.AQUA, TextDecoration.UNDERLINED)))
+                .appendNewline()
+                .append(Component.text().append(Component.text("- Spigot Plugin Page: ", NamedTextColor.AQUA, TextDecoration.BOLD)).append(Component.text("https://spigotmc.org/resources/pyspigot.111006/", NamedTextColor.AQUA, TextDecoration.UNDERLINED)))
+                .appendNewline()
+                .append(Component.text().append(Component.text("- Need help? Reach out on the PySpigot Discord: ", NamedTextColor.AQUA)).append(Component.text("https://discord.gg/f2u7nzRwuk", NamedTextColor.AQUA, TextDecoration.UNDERLINED)))
+                .appendNewline()
+                .append(Component.text().append(Component.text("- Found a bug? Please let me know on Discord (link above) and/or submit a bug report on the PySpigot Github repo: ", NamedTextColor.AQUA)).append(Component.text("https://github.com/magicmq/pyspigot/issues", NamedTextColor.AQUA, TextDecoration.UNDERLINED)))
+                .build();
+
         Component documentation = Component.text("PySpigot Documentation")
                 .color(NamedTextColor.AQUA)
                 .decorate(TextDecoration.UNDERLINED)
