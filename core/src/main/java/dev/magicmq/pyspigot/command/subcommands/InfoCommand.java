@@ -35,7 +35,7 @@ import java.util.SortedSet;
         aliases = {"scriptinfo", "projectinfo"},
         permission = "pyspigot.command.info",
         description = "Print information about a script or project, including uptime, registered listeners, commands, and more info",
-        usage = "<scriptname/projectname>"
+        usage = "<script/project>"
 )
 public class InfoCommand implements SubCommand {
 

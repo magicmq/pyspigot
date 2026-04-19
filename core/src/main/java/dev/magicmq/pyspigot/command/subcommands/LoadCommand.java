@@ -34,7 +34,7 @@ import java.util.SortedSet;
         aliases = {"start"},
         permission = "pyspigot.command.load",
         description = "Load a script or project with the specified name",
-        usage = "<scriptname/projectname>"
+        usage = "<script/project>"
 )
 public class LoadCommand implements SubCommand {
 

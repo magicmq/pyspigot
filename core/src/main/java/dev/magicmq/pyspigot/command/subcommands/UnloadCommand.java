@@ -31,7 +31,7 @@ import java.util.List;
         aliases = {"stop"},
         permission = "pyspigot.command.unload",
         description = "Unload a script or project with the specified name",
-        usage = "<scriptname/projectname>"
+        usage = "<script/project>"
 )
 public class UnloadCommand implements SubCommand {
 

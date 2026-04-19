@@ -28,7 +28,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
         aliases = {"loadlib"},
         permission = "pyspigot.command.loadlibrary",
         description = "Load a library as the specified file name in the java-libs folder.",
-        usage = "<filename>"
+        usage = "<file>"
 )
 public class LoadLibraryCommand implements SubCommand {
 
