@@ -81,6 +81,14 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
     }
 
     /**
+     * Get the function associated with this placeholder. This returns the main placeholder function, not the relational function.
+     * @return The function associated with the placeholder
+     */
+    public PyFunction getFunction() {
+        return function;
+    }
+
+    /**
      * Get the author of this ScriptPlaceholder.
      * @return The author of this ScriptPlaceholder
      */

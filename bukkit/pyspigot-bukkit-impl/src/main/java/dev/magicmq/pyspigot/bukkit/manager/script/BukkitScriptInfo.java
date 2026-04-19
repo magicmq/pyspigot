@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.bukkit.manager.script;
 
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.bukkit.manager.placeholder.PlaceholderManager;
-import dev.magicmq.pyspigot.bukkit.manager.placeholder.ScriptPlaceholder;
 import dev.magicmq.pyspigot.bukkit.manager.protocol.ProtocolManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptInfo;
@@ -36,14 +35,12 @@ public class BukkitScriptInfo extends ScriptInfo {
     @Override
     protected void printPlatformManagerInfo(Script script, TextComponent.Builder appendTo) {
         if (PySpigot.get().isPlaceholderApiAvailable()) {
-            ScriptPlaceholder placeholder = PlaceholderManager.get().getPlaceholder(script);
-            if (placeholder != null) {
-                appendTo.append(Component.text().append(Component.text("Registered placeholders: ", NamedTextColor.GOLD)).append(Component.text(placeholder.toString())));
-                appendTo.appendNewline();
-            } else {
-                appendTo.append(Component.text().append(Component.text("Registered placeholders: ", NamedTextColor.GOLD)).append(Component.text("None")));
-                appendTo.appendNewline();
-            }
+            List<String> placeholders = PlaceholderManager.get().getPlaceholders(script)
+                    .stream()
+                    .map(Object::toString)
+                    .toList();
+            appendTo.append(Component.text().append(Component.text("Registered placeholders: ", NamedTextColor.GOLD)).append(Component.text(placeholders.toString())));
+            appendTo.appendNewline();
         }
 
         if (PySpigot.get().isProtocolLibAvailable()) {

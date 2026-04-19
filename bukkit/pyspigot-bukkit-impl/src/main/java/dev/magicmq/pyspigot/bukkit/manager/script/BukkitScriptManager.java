@@ -133,7 +133,7 @@ public class BukkitScriptManager extends ScriptManager {
         }
 
         if (PySpigot.get().isPlaceholderApiAvailable()) {
-            PlaceholderManager.get().unregisterPlaceholder(script);
+            PlaceholderManager.get().unregisterPlaceholders(script);
         }
 
         PluginMessageManager.get().unregisterListeners(script);

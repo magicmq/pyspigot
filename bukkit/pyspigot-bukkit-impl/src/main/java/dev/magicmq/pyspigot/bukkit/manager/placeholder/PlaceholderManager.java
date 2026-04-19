@@ -21,7 +21,9 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.PyFunction;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -35,7 +37,7 @@ public class PlaceholderManager {
 
     private static PlaceholderManager instance;
 
-    private final HashMap<Script, ScriptPlaceholder> registeredPlaceholders;
+    private final HashMap<Script, List<ScriptPlaceholder>> registeredPlaceholders;
 
     private PlaceholderManager() {
         registeredPlaceholders = new HashMap<>();
@@ -103,45 +105,51 @@ public class PlaceholderManager {
      */
     public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction, String identifier, String author, String version) {
         Script script = ScriptContext.require();
-        if (!registeredPlaceholders.containsKey(script)) {
-            if (identifier == null)
-                identifier = "script:" + script.getSimpleName();
 
-            for (String invalid : INVALID_CHARS) {
-                if (identifier.contains(invalid)) {
-                    script.getLogger().warn("Script placeholder identifier contains invalid character(s). Identifier will be registered as '{}'", removeInvalidCharacters(identifier));
-                    break;
-                }
+        if (identifier == null)
+            identifier = "script:" + script.getSimpleName();
+
+        for (String invalid : INVALID_CHARS) {
+            if (identifier.contains(invalid)) {
+                script.getLogger().warn("Script placeholder identifier contains invalid character(s). Identifier will be registered as '{}'", removeInvalidCharacters(identifier));
+                break;
             }
+        }
 
-            ScriptPlaceholder placeholder = new ScriptPlaceholder(
-                    script,
-                    placeholderFunction,
-                    relPlaceholderFunction,
-                    removeInvalidCharacters(identifier),
-                    author,
-                    version
-            );
-            placeholder.register();
-            registeredPlaceholders.put(script, placeholder);
-            return placeholder;
-        } else
-            throw new ScriptRuntimeException(script, "Script already has a placeholder expansion registered");
+        identifier = removeInvalidCharacters(identifier);
+
+        if (getPlaceholder(script, identifier) != null)
+            throw new ScriptRuntimeException(script, "Script already has a placeholder expansion registered with the identifier '" + identifier + "'.");
+
+        ScriptPlaceholder placeholder = new ScriptPlaceholder(
+                script,
+                placeholderFunction,
+                relPlaceholderFunction,
+                identifier,
+                author,
+                version
+        );
+        placeholder.register();
+        addPlaceholder(placeholder);
+        return placeholder;
     }
 
     /**
-     * Set the relational placeholder function for a placeholder that was registered previously.
+     * Set the relational placeholder function for a placeholder expansion that was registered previously.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param relationalPlaceholderFunction The relational placeholder function to set
+     * @param identifier The identifier of the placeholder expansion to register a relational function for
      */
-    public void setRelationalPlaceholderFunction(PyFunction relationalPlaceholderFunction) {
+    public void setRelationalPlaceholderFunction(PyFunction relationalPlaceholderFunction, String identifier) {
+        identifier = removeInvalidCharacters(identifier);
+
         Script script = ScriptContext.require();
-        ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
+        ScriptPlaceholder placeholder = getPlaceholder(script, identifier);
         if (placeholder != null)
             placeholder.setRelationalFunction(relationalPlaceholderFunction);
         else
-            throw new ScriptRuntimeException(script, "Script does not have a placeholder expansion registered");
+            throw new ScriptRuntimeException(script, "Could not find a registered placeholder expansion with the identifier '" + identifier + "'");
     }
 
     /**
@@ -152,39 +160,78 @@ public class PlaceholderManager {
      */
     public void unregisterPlaceholder(ScriptPlaceholder placeholder) {
         placeholder.unregister();
-        registeredPlaceholders.remove(placeholder.getScript());
+        removePlaceholder(placeholder);
     }
 
     /**
-     * Unregister a script's placeholder expansion.
+     * Unregister a script placeholder expansion. Note that multiple placeholder expansions may be unregistered, if multiple expansions are registered to the same function.
+     * <p>
+     * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function associated with the placeholder expansion to unregister
      */
     public void unregisterPlaceholder(PyFunction placeholderFunction) {
         Script script = ScriptContext.require();
-        ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
-        if (placeholder != null)
-            unregisterPlaceholder(placeholder);
+        List<ScriptPlaceholder> placeholders = getPlaceholders(script);
+        for (ScriptPlaceholder placeholder : placeholders) {
+            if (placeholder.getFunction().equals(placeholderFunction)) {
+                unregisterPlaceholder(placeholder);
+            }
+        }
     }
 
     /**
-     * Unregister a script's placeholder expansion.
-     * <p>
-     * Similar to {@link #unregisterPlaceholder(ScriptPlaceholder)}, except this method can be called from outside a script to unregister a script's placeholder expansion (for example when the script is unloaded and stopped).
-     * @param script The script whose placeholder should be unregistered
+     * Unregister all of a script's placeholder expansions.
+     * @param script The script whose placeholder expansions should be unregistered
      */
-    public void unregisterPlaceholder(Script script) {
-        ScriptPlaceholder placeholder = registeredPlaceholders.get(script);
-        if (placeholder != null)
-            unregisterPlaceholder(placeholder);
+    public void unregisterPlaceholders(Script script) {
+        for (ScriptPlaceholder placeholder : getPlaceholders(script)) {
+            placeholder.unregister();
+        }
+        registeredPlaceholders.remove(script);
     }
 
     /**
-     * Get a script's placeholder expansion.
-     * @param script The script to get the placeholder expansion from
-     * @return The script's placeholder expansion, or null if the script does not have a placeholder expansion registered
+     * Get a placeholder expansion associated with a particular script by the expansion's identifier.
+     * @param script The script
+     * @param identifier The identifier of the placeholder
+     * @return The placeholder expansion with this identifier associated with the script, or null if none was found
      */
-    public ScriptPlaceholder getPlaceholder(Script script) {
-        return registeredPlaceholders.get(script);
+    public ScriptPlaceholder getPlaceholder(Script script, String identifier) {
+        List<ScriptPlaceholder> scriptPlaceholders = getPlaceholders(script);
+        for (ScriptPlaceholder placeholder : scriptPlaceholders) {
+            if (placeholder.getIdentifier().equalsIgnoreCase(identifier))
+                return placeholder;
+        }
+        return null;
+    }
+
+    /**
+     * Get all of a script's placeholder expansions.
+     * @param script The script to get the placeholder expansions from
+     * @return An immutable list containing the script's placeholder expansions. Will return an empty list if the script has no placeholder expansions registered
+     */
+    public List<ScriptPlaceholder> getPlaceholders(Script script) {
+        List<ScriptPlaceholder> placeholders = registeredPlaceholders.get(script);
+        return placeholders != null ? List.copyOf(placeholders) : List.of();
+    }
+
+    private void addPlaceholder(ScriptPlaceholder placeholder) {
+        Script script = placeholder.getScript();
+        if (registeredPlaceholders.containsKey(script))
+            registeredPlaceholders.get(script).add(placeholder);
+        else {
+            List<ScriptPlaceholder> scriptPlaceholders = new ArrayList<>();
+            scriptPlaceholders.add(placeholder);
+            registeredPlaceholders.put(script, scriptPlaceholders);
+        }
+    }
+
+    private void removePlaceholder(ScriptPlaceholder placeholder) {
+        Script script = placeholder.getScript();
+        List<ScriptPlaceholder> scriptPlaceholders = registeredPlaceholders.get(script);
+        scriptPlaceholders.remove(placeholder);
+        if (scriptPlaceholders.isEmpty())
+            registeredPlaceholders.remove(script);
     }
 
     private String removeInvalidCharacters(String identifier) {

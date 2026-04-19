@@ -10,7 +10,7 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException
 if not PySpigot.get().isPlaceholderApiAvailable():
     raise dev.magicmq.pyspigot.exception.ScriptRuntimeException('Attempted to initialize PlaceholderAPI decorators, but PlaceholderAPI was not found on the server')
 
-def placeholder(author='Script Author', version='1.0.0'):
+def placeholder(identifier=None, author='Script Author', version='1.0.0'):
     """
     Register a new placeholder expansion by decorating a function. The decorated function will be called when the
     placeholder is used.
@@ -18,13 +18,14 @@ def placeholder(author='Script Author', version='1.0.0'):
     This decorator also adds an attribute to the function that was decorated called `relational_function`, which allows
     for setting a relational placeholder function.
 
+    :param identifier: The identifier of the placeholder expansion
     :param author: The author of the placeholder
     :param version: The version of the placeholder
     """
 
     def _decorator(function):
         placeholder_manager = ps.placeholder_manager()
-        placeholder = placeholder_manager.registerPlaceholder(function, author, version)
+        placeholder = placeholder_manager.registerPlaceholder(function, identifier, author, version)
 
         def _relational(relational_function):
             placeholder.setRelationalFunction(relational_function)
@@ -41,16 +42,17 @@ def placeholder(author='Script Author', version='1.0.0'):
     return _decorator
 
 
-def relational_placeholder(function):
+def relational_placeholder(function, identifier):
     """
     Add a relational placeholder to a placeholder expansion that was registered previously by decorating a function. The
     decorated function will be called when the relational placeholder is used.
 
     :param function: The function corresponding to the placeholder that was previously registered
+    :param identifier: The identifier of the placeholder expansion that was previously registered
     """
 
     placeholder_manager = ps.placeholder_manager()
-    placeholder_manager.setRelationalPlaceholderFunction(function)
+    placeholder_manager.setRelationalPlaceholderFunction(function, identifier)
     return function
 
 
