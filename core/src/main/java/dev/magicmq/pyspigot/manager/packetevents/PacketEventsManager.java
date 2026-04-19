@@ -22,7 +22,6 @@ import com.github.retrooper.packetevents.PacketEventsAPI;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.protocol.PacketSide;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
-import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import org.python.core.PyFunction;
@@ -84,20 +83,18 @@ public class PacketEventsManager {
      */
     public ScriptPacketListener registerPacketListener(PyFunction function, PacketTypeCommon type, PacketListenerPriority priority) {
         Script script = ScriptContext.require();
-        if (getPacketListener(script, type) == null) {
-            ScriptPacketListener listener = null;
-            if (type.getSide() == PacketSide.CLIENT) {
-                listener = new PacketReceiveListener(script, function, type);
-                addPacketListener(listener);
-                listener.setRegisteredListener(packetEvents.getEventManager().registerListener(listener, priority));
-            } else if (type.getSide() == PacketSide.SERVER) {
-                listener = new PacketSendListener(script, function, type);
-                addPacketListener(listener);
-                listener.setRegisteredListener(packetEvents.getEventManager().registerListener(listener, priority));
-            }
-            return listener;
-        } else
-            throw new ScriptRuntimeException(script, "Script already has a packet listener for '" + type.getName() + "' registered");
+
+        ScriptPacketListener listener = null;
+        if (type.getSide() == PacketSide.CLIENT) {
+            listener = new PacketReceiveListener(script, function, type);
+            addPacketListener(listener);
+            listener.setRegisteredListener(packetEvents.getEventManager().registerListener(listener, priority));
+        } else if (type.getSide() == PacketSide.SERVER) {
+            listener = new PacketSendListener(script, function, type);
+            addPacketListener(listener);
+            listener.setRegisteredListener(packetEvents.getEventManager().registerListener(listener, priority));
+        }
+        return listener;
     }
 
     /**
@@ -134,6 +131,21 @@ public class PacketEventsManager {
     }
 
     /**
+     * Get all packet listeners for a particular packet type associated with a script.
+     * @param script The script
+     * @param packetType The packet type
+     * @return An immutable List of {@link ScriptPacketListener} associated with the script and packet type. Will return an empty list if there are no packet listeners for the particular packet type associated with the script
+     */
+    public List<ScriptPacketListener> getPacketListeners(Script script, PacketTypeCommon packetType) {
+        List<ScriptPacketListener> listeners = new ArrayList<>();
+        for (ScriptPacketListener listener : getPacketListeners(script)) {
+            if (listener.getPacketType() == packetType)
+                listeners.add(listener);
+        }
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
+    }
+
+    /**
      * Get all packet listeners belonging to a particular script.
      * @param script The script whose packet listeners should be obtained
      * @return An immutable list of {@link ScriptPacketListener} containing all packet listeners associated with the script. Will return an empty list if there are no normal packet listeners associated with the script
@@ -141,20 +153,6 @@ public class PacketEventsManager {
     public List<ScriptPacketListener> getPacketListeners(Script script) {
         List<ScriptPacketListener> scriptPacketListeners = registeredListeners.get(script);
         return scriptPacketListeners != null ? List.copyOf(scriptPacketListeners) : List.of();
-    }
-
-    /**
-     * Get the packet listener for a particular packet type associated with a script.
-     * @param script The script whose packet listener should be obtained
-     * @param packetType The packet type of the listener
-     * @return The {@link ScriptPacketListener} associated with the script and packet type, or null if there is none
-     */
-    public ScriptPacketListener getPacketListener(Script script, PacketTypeCommon packetType) {
-        for (ScriptPacketListener listener : getPacketListeners(script)) {
-            if (listener.getPacketType() == packetType)
-                return listener;
-        }
-        return null;
     }
 
     private void addPacketListener(ScriptPacketListener listener) {
