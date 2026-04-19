@@ -42,19 +42,19 @@ def placeholder(identifier=None, author='Script Author', version='1.0.0'):
     return _decorator
 
 
-def relational_placeholder(function, identifier):
+def relational_placeholder(identifier):
     """
     Add a relational placeholder to a placeholder expansion that was registered previously by decorating a function. The
     decorated function will be called when the relational placeholder is used.
 
-    :param function: The function corresponding to the placeholder that was previously registered
     :param identifier: The identifier of the placeholder expansion that was previously registered
     """
 
-    placeholder_manager = ps.placeholder_manager()
-    placeholder_manager.setRelationalPlaceholderFunction(function, identifier)
-    return function
-
+    def _decorator(function):
+        placeholder_manager = ps.placeholder_manager()
+        placeholder_manager.setRelationalPlaceholderFunction(function, identifier)
+        return function
+    return _decorator
 
 __all__ = [
     'placeholder',
