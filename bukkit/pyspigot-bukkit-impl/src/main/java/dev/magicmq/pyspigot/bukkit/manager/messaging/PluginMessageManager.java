@@ -20,7 +20,6 @@ package dev.magicmq.pyspigot.bukkit.manager.messaging;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import dev.magicmq.pyspigot.bukkit.PySpigot;
-import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import org.bukkit.Bukkit;
@@ -30,6 +29,7 @@ import org.python.core.PyFunction;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class PluginMessageManager {
 
     private static PluginMessageManager instance;
 
-    private final HashMap<Script, HashMap<String, ScriptPluginMessageListener>> registeredListeners;
+    private final HashMap<Script, List<ScriptPluginMessageListener>> registeredListeners;
 
     private PluginMessageManager() {
         registeredListeners = new HashMap<>();
@@ -146,15 +146,11 @@ public class PluginMessageManager {
      */
     public ScriptPluginMessageListener registerListener(PyFunction function, String channel) {
         Script script = ScriptContext.require();
-        ScriptPluginMessageListener listener = getListener(script, channel);
-        if (listener == null) {
-            listener = new ScriptPluginMessageListener(script, function, channel);
-            Bukkit.getServer().getMessenger().registerIncomingPluginChannel(PySpigot.get().getPlugin(), listener.getChannel(), listener);
-            addListener(script, listener);
-            return listener;
-        } else {
-            throw new ScriptRuntimeException(script, "Script already has a plugin message listener registered for the channel '" + channel + "'");
-        }
+
+        ScriptPluginMessageListener listener = new ScriptPluginMessageListener(script, function, channel);
+        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(PySpigot.get().getPlugin(), listener.getChannel(), listener);
+        addListener(script, listener);
+        return listener;
     }
 
     /**
@@ -180,17 +176,18 @@ public class PluginMessageManager {
     }
 
     /**
-     * Get the plugin message listener for a particular channel associated with a script
+     * Get all plugin message listeners for a particular channel associated with a script.
      * @param script The script
      * @param channel The channel
-     * @return The listener associated with the script and channel, or null if there is none
+     * @return The listeners associated with the script and channel. Will return an empty list if there are no plugin message listeners for the particular channel associated with the script
      */
-    public ScriptPluginMessageListener getListener(Script script, String channel) {
+    public List<ScriptPluginMessageListener> getListener(Script script, String channel) {
+        List<ScriptPluginMessageListener> listeners = new ArrayList<>();
         for (ScriptPluginMessageListener listener : getListeners(script)) {
             if (listener.getChannel().equals(channel))
-                return listener;
+                listeners.add(listener);
         }
-        return null;
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     /**
@@ -199,23 +196,23 @@ public class PluginMessageManager {
      * @return An immutable List containing all plugin message listeners associated with the script. Will return an empty list if there are no plugin message listeners associated with the script
      */
     public List<ScriptPluginMessageListener> getListeners(Script script) {
-        HashMap<String, ScriptPluginMessageListener> scriptListeners = registeredListeners.get(script);
-        return scriptListeners != null ? List.copyOf(scriptListeners.values()) : List.of();
+        List<ScriptPluginMessageListener> scriptListeners = registeredListeners.get(script);
+        return scriptListeners != null ? List.copyOf(scriptListeners) : List.of();
     }
 
     private void addListener(Script script, ScriptPluginMessageListener listener) {
         if (registeredListeners.containsKey(script))
-            registeredListeners.get(script).put(listener.getChannel(), listener);
+            registeredListeners.get(script).add(listener);
         else {
-            HashMap<String, ScriptPluginMessageListener> scriptListeners = new HashMap<>();
-            scriptListeners.put(listener.getChannel(), listener);
+            List<ScriptPluginMessageListener> scriptListeners = new ArrayList<>();
+            scriptListeners.add(listener);
             registeredListeners.put(script, scriptListeners);
         }
     }
 
     private void removeListener(Script script, ScriptPluginMessageListener listener) {
-        HashMap<String, ScriptPluginMessageListener> scriptListeners = registeredListeners.get(script);
-        scriptListeners.remove(listener.getChannel());
+        List<ScriptPluginMessageListener> scriptListeners = registeredListeners.get(script);
+        scriptListeners.remove(listener);
         if (scriptListeners.isEmpty())
             registeredListeners.remove(script);
     }
