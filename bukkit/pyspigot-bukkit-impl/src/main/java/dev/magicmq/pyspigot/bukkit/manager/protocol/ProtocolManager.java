@@ -96,20 +96,18 @@ public class ProtocolManager {
      */
     public ScriptPacketListener registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
         Script script = ScriptContext.require();
-        if (getPacketListener(script, type) == null) {
-            ScriptPacketListener listener = null;
-            if (type.getSender() == PacketType.Sender.CLIENT) {
-                listener = new PacketReceivingListener(script, function, type, priority, ListenerType.NORMAL);
-                addPacketListener(listener);
-                protocolManager.addPacketListener(listener);
-            } else if (type.getSender() == PacketType.Sender.SERVER) {
-                listener = new PacketSendingListener(script, function, type, priority, ListenerType.NORMAL);
-                addPacketListener(listener);
-                protocolManager.addPacketListener(listener);
-            }
-            return listener;
-        } else
-            throw new ScriptRuntimeException(script, "Script already has a packet listener for '" + type.name() + "' registered");
+
+        ScriptPacketListener listener = null;
+        if (type.getSender() == PacketType.Sender.CLIENT) {
+            listener = new PacketReceivingListener(script, function, type, priority, ListenerType.NORMAL);
+            addPacketListener(listener);
+            protocolManager.addPacketListener(listener);
+        } else if (type.getSender() == PacketType.Sender.SERVER) {
+            listener = new PacketSendingListener(script, function, type, priority, ListenerType.NORMAL);
+            addPacketListener(listener);
+            protocolManager.addPacketListener(listener);
+        }
+        return listener;
     }
 
     /**
@@ -182,19 +180,20 @@ public class ProtocolManager {
     }
 
     /**
-     * Get the normal packet listener for a particular packet type associated with a script.
+     * Get all normal packet listeners for a particular packet type associated with a script.
      * <p>
-     * Use {@link AsyncProtocolManager#getAsyncPacketListener(Script, PacketType)} to get a script's asynchronous packet listener of a specific packet type.
+     * Use {@link AsyncProtocolManager#getAsyncPacketListeners(Script, PacketType)} to get a script's asynchronous packet listener of a specific packet type.
      * @param script The script
      * @param packetType The packet type
-     * @return The {@link ScriptPacketListener} associated with the script and packet type, or null if there is none
+     * @return An immutable list of normal packet listeners belonging to the script for a particular packet type. Will return an empty list if there are no normal packet listeners associated with the script of the provided packet type
      */
-    public ScriptPacketListener getPacketListener(Script script, PacketType packetType) {
+    public List<ScriptPacketListener> getPacketListeners(Script script, PacketType packetType) {
+        List<ScriptPacketListener> listeners = new ArrayList<>();
         for (ScriptPacketListener listener : getPacketListeners(script)) {
             if (listener.getPacketType() == packetType)
-                return listener;
+                listeners.add(listener);
         }
-        return null;
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     /**

@@ -79,22 +79,20 @@ public class AsyncProtocolManager {
      */
     public ScriptPacketListener registerAsyncPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
         Script script = ScriptContext.require();
-        if (getAsyncPacketListener(script, type) == null) {
-            ScriptPacketListener listener = null;
-            if (type.getSender() == PacketType.Sender.CLIENT) {
-                listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
-                addAsyncPacketListener(listener);
-                AsyncListenerHandler handler = asynchronousManager.registerAsyncHandler(listener);
-                handler.start();
-            } else if (type.getSender() == PacketType.Sender.SERVER) {
-                listener = new PacketSendingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
-                addAsyncPacketListener(listener);
-                AsyncListenerHandler handler = asynchronousManager.registerAsyncHandler(listener);
-                handler.start();
-            }
-            return listener;
-        } else
-            throw new ScriptRuntimeException(script, "Script already has an async packet listener for '" + type.name() + "' registered");
+
+        ScriptPacketListener listener = null;
+        if (type.getSender() == PacketType.Sender.CLIENT) {
+            listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
+            addAsyncPacketListener(listener);
+            AsyncListenerHandler handler = asynchronousManager.registerAsyncHandler(listener);
+            handler.start();
+        } else if (type.getSender() == PacketType.Sender.SERVER) {
+            listener = new PacketSendingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS);
+            addAsyncPacketListener(listener);
+            AsyncListenerHandler handler = asynchronousManager.registerAsyncHandler(listener);
+            handler.start();
+        }
+        return listener;
     }
 
     /**
@@ -125,20 +123,18 @@ public class AsyncProtocolManager {
      */
     public ScriptPacketListener registerTimeoutPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
         Script script = ScriptContext.require();
-        if (getAsyncPacketListener(script, type) == null) {
-            ScriptPacketListener listener = null;
-            if (type.getSender() == PacketType.Sender.CLIENT) {
-                listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_TIMEOUT);
-                addAsyncPacketListener(listener);
-                asynchronousManager.registerTimeoutHandler(listener);
-            } else if (type.getSender() == PacketType.Sender.SERVER) {
-                listener = new PacketSendingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_TIMEOUT);
-                addAsyncPacketListener(listener);
-                asynchronousManager.registerTimeoutHandler(listener);
-            }
-            return listener;
-        } else
-            throw new ScriptRuntimeException(script, "Script already has an async packet listener for '" + type.name() + "' registered");
+
+        ScriptPacketListener listener = null;
+        if (type.getSender() == PacketType.Sender.CLIENT) {
+            listener = new PacketReceivingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_TIMEOUT);
+            addAsyncPacketListener(listener);
+            asynchronousManager.registerTimeoutHandler(listener);
+        } else if (type.getSender() == PacketType.Sender.SERVER) {
+            listener = new PacketSendingListener(script, function, type, priority, ListenerType.ASYNCHRONOUS_TIMEOUT);
+            addAsyncPacketListener(listener);
+            asynchronousManager.registerTimeoutHandler(listener);
+        }
+        return listener;
     }
 
     /**
@@ -205,7 +201,7 @@ public class AsyncProtocolManager {
     }
 
     /**
-     * Get all asynchronous packet listeners associated with a script
+     * Get all asynchronous packet listeners associated with a script.
      * @param script The script to get asynchronous packet listeners from
      * @return An immutable list of {@link ScriptPacketListener} containing all asynchronous packet listeners associated with this script. Will return an empty list if there are no asynchronous packet listeners associated with the script
      */
@@ -215,17 +211,18 @@ public class AsyncProtocolManager {
     }
 
     /**
-     * Get the asynchronous packet listener for a particular packet type associated with a script
+     * Get all asynchronous packet listeners for a particular packet type associated with a script.
      * @param script The script
      * @param packetType The packet type
-     * @return The {@link ScriptPacketListener} associated with the script and packet type, or null if there is none
+     * @return An immutable list of asynchronous packet listeners belonging to the script for a particular packet type. Will return an empty list if there are no asynchronous packet listeners associated with the script of the provided packet type
      */
-    public ScriptPacketListener getAsyncPacketListener(Script script, PacketType packetType) {
+    public List<ScriptPacketListener> getAsyncPacketListeners(Script script, PacketType packetType) {
+        List<ScriptPacketListener> listeners = new ArrayList<>();
         for (ScriptPacketListener listener : getAsyncPacketListeners(script)) {
             if (listener.getPacketType() == packetType)
-                return listener;
+                listeners.add(listener);
         }
-        return null;
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     private void addAsyncPacketListener(ScriptPacketListener listener) {

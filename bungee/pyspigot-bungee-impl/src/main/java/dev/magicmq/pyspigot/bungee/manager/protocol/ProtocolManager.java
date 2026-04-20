@@ -74,13 +74,11 @@ public class ProtocolManager {
      */
     public ScriptPacketListener<?> registerPacketListener(PyFunction receiveFunction, PyFunction sendFunction, Class<?> packet, Direction direction, int priority) {
         Script script = ScriptContext.require();
-        if (getPacketListener(script, packet) == null) {
-            ScriptPacketListener<?> listener = new ScriptPacketListener<>(script, receiveFunction, sendFunction, packet, direction, priority);
-            addPacketListener(listener);
-            Protocolize.listenerProvider().registerListener(listener);
-            return listener;
-        } else
-            throw new ScriptRuntimeException(script, "Script already has a packet listener for '" + packet.getSimpleName() + "' registered");
+
+        ScriptPacketListener<?> listener = new ScriptPacketListener<>(script, receiveFunction, sendFunction, packet, direction, priority);
+        addPacketListener(listener);
+        Protocolize.listenerProvider().registerListener(listener);
+        return listener;
     }
 
     /**
@@ -151,20 +149,18 @@ public class ProtocolManager {
     }
 
     /**
-     * Get the packet listener for a particular packet associated with a script.
+     * Get all packet listeners for a particular packet associated with a script.
      * @param script The script
      * @param packet The packet
-     * @return The {@link ScriptPacketListener} associated with the script and packet type, null if there is none
+     * @return An immutable list of packet listeners belonging to the script for a particular packet type. Will return an empty list if there are no packet listeners associated with the script of the provided packet type
      */
-    public ScriptPacketListener<?> getPacketListener(Script script, Class<?> packet) {
-        List<ScriptPacketListener<?>> scriptPacketListeners = getPacketListeners(script);
-        if (!scriptPacketListeners.isEmpty()) {
-            for (ScriptPacketListener<?> listener : scriptPacketListeners) {
-                if (listener.type() == packet)
-                    return listener;
-            }
+    public List<ScriptPacketListener<?>> getPacketListener(Script script, Class<?> packet) {
+        List<ScriptPacketListener<?>> listeners = new ArrayList<>();
+        for (ScriptPacketListener<?> listener : getPacketListeners(script)) {
+            if (listener.type() == packet)
+                listeners.add(listener);
         }
-        return null;
+        return !listeners.isEmpty() ? List.copyOf(listeners) : List.of();
     }
 
     /**
