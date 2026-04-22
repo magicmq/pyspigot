@@ -22,10 +22,10 @@ def packet_listener_receive(packet_class, direction, priority=0):
         from net.md_5.bungee.protocol.packet import Chat
 
         @packet_listener_receive(Chat, Direction.UPSTREAM, priority=10)
-        def on_receive(player, packet): ...
+        def on_receive(event): ...
 
         @on_receive.send
-        def on_send(player, packet): ...
+        def on_send(event): ...
 
     :param packet_class: The class of the packet to listen for
     :param direction: The direction of the packet listener, either Direction.UPSTREAM or Direction.DOWNSTREAM
@@ -64,7 +64,7 @@ def packet_listener_receive(packet_class, direction, priority=0):
 def packet_listener_send(packet_class, direction, priority=0):
     """
     Register a new packet listener by decorating the send function for the listener. The receive function can subsequently
-    be decorated with @<function>.send, where <function> is the name of the send function.
+    be decorated with @<function>.receive, where <function> is the name of the send function.
 
         Usage:
 
@@ -73,10 +73,10 @@ def packet_listener_send(packet_class, direction, priority=0):
         from net.md_5.bungee.protocol.packet import Chat
 
         @packet_listener_send(Chat, Direction.UPSTREAM, priority=10)
-        def on_send(player, packet): ...
+        def on_send(event): ...
 
         @on_send.receive
-        def on_receive(player, packet): ...
+        def on_receive(event): ...
 
     :param packet_class: The class of the packet to listen for
     :param direction: The direction of the packet listener, either Direction.UPSTREAM or Direction.DOWNSTREAM
