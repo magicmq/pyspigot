@@ -287,8 +287,21 @@ public abstract class ScriptManager {
         }
 
         //Run scripts in order with respect to load priority
-        ScriptLoadService service = new ScriptLoadService(toLoad);
-        scheduleScriptLoadService(service);
+        if (PyCore.get().getConfig().getScriptLoadInterval() > 0) {
+            ScriptLoadService service = new ScriptLoadService(toLoad);
+            scheduleScriptLoadService(service);
+        } else {
+            for (Script script : toLoad) {
+                try {
+                    if (script.isProject())
+                        loadProject(script);
+                    else
+                        loadScript(script);
+                } catch (ScriptInitializationException e) {
+                    PyCore.get().getLogger().error("Error when loading script/project '{}'", script.getName(), e);
+                }
+            }
+        }
     }
 
     /**
