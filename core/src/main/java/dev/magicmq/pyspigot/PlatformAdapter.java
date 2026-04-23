@@ -20,6 +20,7 @@ package dev.magicmq.pyspigot;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.classpath.ClassPathAppender;
+import net.kyori.adventure.platform.AudienceProvider;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -43,9 +44,11 @@ public interface PlatformAdapter {
     ScriptOptionsConfig initScriptOptionsConfig();
 
     /**
-     * Initializes adventure using the platform-specific adventure adapter.
+     * Initializes adventure using the platform-specific adventure API.
      */
-    void initAdventure();
+    default AudienceProvider initAdventure() {
+        return null;
+    }
 
     /**
      * Initialize plugin commands via a platform-specific implementation.

@@ -36,6 +36,7 @@ import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.classpath.JarInJarClassPathAppender;
 import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.loader.LoaderBootstrap;
+import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -64,7 +65,6 @@ public class PySpigot implements LoaderBootstrap, PlatformAdapter {
     private final JavaPlugin plugin;
 
     private boolean paper;
-    private BukkitAudiences adventure;
     private BukkitTask versionCheckTask;
 
     public PySpigot(JavaPlugin plugin) {
@@ -137,8 +137,8 @@ public class PySpigot implements LoaderBootstrap, PlatformAdapter {
     }
 
     @Override
-    public void initAdventure() {
-        adventure = BukkitAudiences.create(plugin);
+    public AudienceProvider initAdventure() {
+        return BukkitAudiences.create(plugin);
     }
 
     @Override
@@ -230,14 +230,6 @@ public class PySpigot implements LoaderBootstrap, PlatformAdapter {
      */
     public boolean isPlaceholderApiAvailable() {
         return Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
-    }
-
-    /**
-     * Get the adventure API for the Bukkit platform.
-     * @return The adventure API
-     */
-    public BukkitAudiences getAdventure() {
-        return adventure;
     }
 
     private void checkReflection() throws NoSuchMethodException, NoSuchFieldException {

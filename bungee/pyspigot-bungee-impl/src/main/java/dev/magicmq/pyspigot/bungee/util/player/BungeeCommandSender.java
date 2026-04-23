@@ -16,9 +16,10 @@
 
 package dev.magicmq.pyspigot.bungee.util.player;
 
-import dev.magicmq.pyspigot.bungee.PyBungee;
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -45,7 +46,7 @@ public class BungeeCommandSender implements CommandSenderAdapter {
 
     @Override
     public void sendMessage(Component message) {
-        Audience sender = PyBungee.get().getAdventure().sender(this.sender);
+        Audience sender = ((BungeeAudiences) PyCore.get().getAdventure()).sender(this.sender);
         sender.sendMessage(message);
     }
 

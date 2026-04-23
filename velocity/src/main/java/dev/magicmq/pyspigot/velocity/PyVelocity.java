@@ -87,12 +87,6 @@ public class PyVelocity implements PlatformAdapter {
         return new VelocityScriptOptionsConfig();
     }
 
-    /**
-     * No-op implementation (Velocity natively supports Adventure)
-     */
-    @Override
-    public void initAdventure() {}
-
     @Override
     public void initCommands() {
         CommandManager commandManager = proxy.getCommandManager();

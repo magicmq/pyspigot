@@ -34,6 +34,7 @@ import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.exception.PluginInitializationException;
 import dev.magicmq.pyspigot.loader.LoaderBootstrap;
+import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -60,7 +61,6 @@ public class PyBungee implements LoaderBootstrap, PlatformAdapter {
 
     private final Plugin plugin;
 
-    private BungeeAudiences adventure;
     private ScheduledTask versionCheckTask;
 
     public PyBungee(Plugin plugin) {
@@ -121,8 +121,8 @@ public class PyBungee implements LoaderBootstrap, PlatformAdapter {
     }
 
     @Override
-    public void initAdventure() {
-        adventure = BungeeAudiences.create(plugin);
+    public AudienceProvider initAdventure() {
+        return BungeeAudiences.create(plugin);
     }
 
     @Override
@@ -203,14 +203,6 @@ public class PyBungee implements LoaderBootstrap, PlatformAdapter {
      */
     public boolean isProtocolizeAvailable() {
         return ProxyServer.getInstance().getPluginManager().getPlugin("Protocolize") != null;
-    }
-
-    /**
-     * Get the adventure API for the BungeeCord platform.
-     * @return The adventure API
-     */
-    public BungeeAudiences getAdventure() {
-        return adventure;
     }
 
     private void checkReflection() throws NoSuchMethodException, NoSuchFieldException {

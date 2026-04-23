@@ -16,6 +16,7 @@
 
 package dev.magicmq.pyspigot.bukkit.manager.command;
 
+import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.bukkit.util.CommandAliasHelpTopic;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
@@ -23,6 +24,7 @@ import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -135,7 +137,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
         } catch (PyException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + label + "'");
             //Mimic Bukkit behavior
-            PySpigot.get().getAdventure().sender(sender).sendMessage(Component.text("An internal error occurred while attempting to perform this command", NamedTextColor.RED));
+            ((BukkitAudiences) PyCore.get().getAdventure()).sender(sender).sendMessage(Component.text("An internal error occurred while attempting to perform this command", NamedTextColor.RED));
         }
         return true;
     }
