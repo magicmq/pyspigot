@@ -20,6 +20,8 @@ package dev.magicmq.pyspigot.manager.database.sql;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -149,41 +151,45 @@ public class SQLiteDatabase extends GenericSQLDatabase {
 
     /**
      * Back up the database to a file. Useful for backing up an in-memory database to a persistent file.
-     * @param fileName The path to the database file to back up to. This could be a relative path (relative to the root
+     * @param filePath The path to the database file to back up to. This could be a relative path (relative to the root
      *                 directory of the Minecraft/proxy server), or an absolute path
      * @throws SQLException If there was an error when backing up the database
+     * @throws IllegalArgumentException If the file path is invalid or contains invalid characters
      */
-    public void backup(String fileName) throws SQLException {
+    public void backup(String filePath) throws SQLException {
         if (connection.isClosed())
             throw new ScriptRuntimeException(getScript(), "Failed to backup database: database connection is closed");
 
-        if (fileName.isEmpty() || fileName.equalsIgnoreCase(":memory:"))
+        if (filePath.isEmpty() || filePath.equalsIgnoreCase(":memory:"))
             throw new ScriptRuntimeException(getScript(), "Cannot back up to a temporary/in memory database.");
 
         commit();
 
+        String safePath = sanitizeFilePath(filePath);
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("BACKUP TO '" + fileName + "'");
+            statement.executeUpdate("BACKUP TO '" + safePath + "'");
         }
     }
 
     /**
      * Restore the database from a file. Useful for loading a database file into an in-memory database.
-     * @param fileName The path to the database file to restore from. This could be a relative path (relative to the
+     * @param filePath The path to the database file to restore from. This could be a relative path (relative to the
      *                 root directory of the Minecraft/proxy server), or an absolute path
      * @throws SQLException If there was an error when backing up the database
+     * @throws IllegalArgumentException If the file path is invalid or contains invalid characters
      */
-    public void restore(String fileName) throws SQLException {
+    public void restore(String filePath) throws SQLException {
         if (connection.isClosed())
             throw new ScriptRuntimeException(getScript(), "Failed to restore database: database connection is closed");
 
-        if (fileName.isEmpty() || fileName.equalsIgnoreCase(":memory:"))
+        if (filePath.isEmpty() || filePath.equalsIgnoreCase(":memory:"))
             throw new ScriptRuntimeException(getScript(), "Cannot restore from a temporary/in memory database.");
 
         commit();
 
+        String safePath = sanitizeFilePath(filePath);
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("RESTORE FROM '" + fileName + "'");
+            statement.executeUpdate("RESTORE FROM '" + safePath + "'");
         }
     }
 
@@ -224,5 +230,16 @@ public class SQLiteDatabase extends GenericSQLDatabase {
      */
     public boolean getAutoCommit() throws SQLException {
         return connection.getAutoCommit();
+    }
+
+    private static String sanitizeFilePath(String fileName) {
+        try {
+            String normalized = Paths.get(fileName).normalize().toString();
+            if (normalized.contains("'"))
+                throw new IllegalArgumentException("Invalid character in file path: " + fileName);
+            return normalized;
+        } catch (InvalidPathException e) {
+            throw new IllegalArgumentException("Invalid file path: " + fileName, e);
+        }
     }
 }
