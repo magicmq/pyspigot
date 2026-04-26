@@ -287,7 +287,7 @@ public abstract class ScriptManager {
         }
 
         //Run scripts in order with respect to load priority
-        if (PyCore.get().getConfig().getScriptLoadInterval() > 0) {
+        if (PyCore.get().getConfig().getScriptLoadInterval() > 0L) {
             ScriptLoadService service = new ScriptLoadService(toLoad);
             scheduleScriptLoadService(service);
         } else {
