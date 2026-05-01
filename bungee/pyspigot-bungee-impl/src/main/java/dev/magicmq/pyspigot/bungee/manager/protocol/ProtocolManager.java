@@ -16,15 +16,14 @@
 
 package dev.magicmq.pyspigot.bungee.manager.protocol;
 
-import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.simplix.protocolize.api.Direction;
 import dev.simplix.protocolize.api.Protocolize;
 import dev.simplix.protocolize.api.packet.AbstractPacket;
 import dev.simplix.protocolize.api.player.ProtocolizePlayer;
+import jep.python.PyCallable;
 import net.md_5.bungee.protocol.DefinedPacket;
-import org.python.core.PyFunction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +56,7 @@ public class ProtocolManager {
      * @param direction The direction (either {@link Direction#UPSTREAM} or {@link Direction#DOWNSTREAM}
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
-    public ScriptPacketListener<?> registerPacketListener(PyFunction receiveFunction, PyFunction sendFunction, Class<?> packet, Direction direction) {
+    public ScriptPacketListener<?> registerPacketListener(PyCallable receiveFunction, PyCallable sendFunction, Class<?> packet, Direction direction) {
         return registerPacketListener(receiveFunction, sendFunction, packet, direction, 0);
     }
 
@@ -72,7 +71,7 @@ public class ProtocolManager {
      * @param priority The priority of the listener
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
-    public ScriptPacketListener<?> registerPacketListener(PyFunction receiveFunction, PyFunction sendFunction, Class<?> packet, Direction direction, int priority) {
+    public ScriptPacketListener<?> registerPacketListener(PyCallable receiveFunction, PyCallable sendFunction, Class<?> packet, Direction direction, int priority) {
         Script script = ScriptContext.require();
 
         ScriptPacketListener<?> listener = new ScriptPacketListener<>(script, receiveFunction, sendFunction, packet, direction, priority);
@@ -98,7 +97,7 @@ public class ProtocolManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function Either the send or receive function associated with the packet listener
      */
-    public void unregisterPacketListener(PyFunction function) {
+    public void unregisterPacketListener(PyCallable function) {
         Script script = ScriptContext.require();
         List<ScriptPacketListener<?>> listeners = getPacketListeners(script);
         for (ScriptPacketListener<?> listener : listeners) {
@@ -115,7 +114,7 @@ public class ProtocolManager {
      * @param function Either the send or receive function associated with the packet listener
      * @param packet The packet type associated with the packet listener to unregister
      */
-    public void unregisterPacketListener(PyFunction function, Class<?> packet) {
+    public void unregisterPacketListener(PyCallable function, Class<?> packet) {
         Script script = ScriptContext.require();
         List<ScriptPacketListener<?>> listeners = getPacketListeners(script);
         for (ScriptPacketListener<?> listener : listeners) {

@@ -26,9 +26,15 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.python</groupId>
-            <artifactId>jython-standalone</artifactId>
-            <version>2.7.4</version>
+            <groupId>black.ninia</groupId>
+            <artifactId>jep</artifactId>
+            <version>4.3.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.28.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -77,10 +83,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>dev.magicmq</groupId>
-                <artifactId>jython-compile-maven-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>

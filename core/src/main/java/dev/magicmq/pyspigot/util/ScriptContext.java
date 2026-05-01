@@ -48,14 +48,14 @@ import java.util.function.Supplier;
  * <pre>{@code
  * try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
  *     // Call into Python here
- *     pyFunction.__call__(args); // or use a central PyInvoke utility
+ *     pyCallable.call(args); // or use a central PyInvoke utility
  * }
  * }</pre>
  *
  * <p>Or use the convenience wrappers:</p>
  * <pre>{@code
- * ScriptContext.runWith(script, () -> pyFunction.__call__(args));
- * String value = ScriptContext.callWith(script, () -> pyFunction.__call__(args).asString());
+ * ScriptContext.runWith(script, () -> pyCallable.call(args));
+ * String value = ScriptContext.callWith(script, () -> pyCallable.call(args).asString());
  * }</pre>
  *
  * <h2>Where this class is used</h2>

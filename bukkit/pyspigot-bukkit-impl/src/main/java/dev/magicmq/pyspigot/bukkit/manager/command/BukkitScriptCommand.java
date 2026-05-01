@@ -23,6 +23,8 @@ import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.JepException;
+import jep.python.PyCallable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -36,13 +38,6 @@ import org.bukkit.help.HelpTopic;
 import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
-import org.python.core.Py;
-import org.python.core.PyBoolean;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyList;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -60,11 +55,11 @@ import java.util.List;
 public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
 
     private final Script script;
-    private final PyFunction commandFunction;
+    private final PyCallable commandFunction;
     private final String name;
     private final PluginCommand bukkitCommand;
 
-    private PyFunction tabFunction;
+    private PyCallable tabFunction;
     private List<HelpTopic> helps;
 
     /**
@@ -78,7 +73,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null
      */
-    public BukkitScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+    public BukkitScriptCommand(Script script, PyCallable commandFunction, PyCallable tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         this.script = script;
         this.commandFunction = commandFunction;
         this.tabFunction = tabFunction;
@@ -107,7 +102,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
     }
 
     @Override
-    public PyFunction getCommandFunction() {
+    public PyCallable getCommandFunction() {
         return commandFunction;
     }
 
@@ -117,22 +112,19 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
     }
 
     @Override
-    public void setTabFunction(PyFunction tabFunction) {
+    public void setTabFunction(PyCallable tabFunction) {
         this.tabFunction = tabFunction;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject[] parameters = Py.javas2pys(sender, label, args);
-            PyObject result = ScriptContext.supplyWith(script, () -> commandFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
-            if (result instanceof PyBoolean)
-                return ((PyBoolean) result).getBooleanValue();
+            Object result = ScriptContext.supplyWith(script, () -> commandFunction.call(sender, label, args));
+            if (result instanceof Boolean)
+                return ((Boolean) result);
             else
-                script.getLogger().warn("Script command function '{}' should return a boolean", commandFunction.__name__);
-        } catch (PyException exception) {
+                script.getLogger().warn("Script command function '{}' should return a boolean", commandFunction.getAttr("__name__"));
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + label + "'");
             //Mimic Bukkit behavior
             PySpigot.get().getAdventure().sender(sender).sendMessage(Component.text("An internal error occurred while attempting to perform this command", NamedTextColor.RED));
@@ -144,24 +136,21 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
         if (tabFunction != null) {
             try {
-                Py.setSystemState(script.getInterpreter().getSystemState());
-                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                PyObject[] parameters = Py.javas2pys(sender, alias, args);
-                PyObject result = ScriptContext.supplyWith(script, () -> tabFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
-                if (result instanceof PyList pyList) {
+                Object result = ScriptContext.supplyWith(script, () -> tabFunction.call(sender, alias, args));
+                if (result instanceof List list) {
                     ArrayList<String> toReturn = new ArrayList<>();
-                    for (Object object : pyList) {
+                    for (Object object : list) {
                         if (object instanceof String)
                             toReturn.add((String) object);
                         else {
-                            script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
+                            script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.getAttr("__name__"));
                             return Collections.emptyList();
                         }
                     }
                     return toReturn;
                 } else
-                    script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
-            } catch (PyException exception) {
+                    script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.getAttr("__name__"));
+            } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when tab completing command '" + bukkitCommand.getLabel() + "'");
             }
         }

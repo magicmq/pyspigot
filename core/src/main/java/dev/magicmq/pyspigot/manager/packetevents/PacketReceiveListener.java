@@ -20,7 +20,7 @@ package dev.magicmq.pyspigot.manager.packetevents;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import dev.magicmq.pyspigot.manager.script.Script;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 /**
  * A listener that listens for packets received by the server from the client.
@@ -34,7 +34,7 @@ public class PacketReceiveListener extends ScriptPacketListener {
      * @param function The function to be called when the packet is received
      * @param packetType The packet type to listen for
      */
-    public PacketReceiveListener(Script script, PyFunction function, PacketTypeCommon packetType) {
+    public PacketReceiveListener(Script script, PyCallable function, PacketTypeCommon packetType) {
         super(script, function, packetType);
     }
 

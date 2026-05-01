@@ -23,6 +23,7 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.python.PyCallable;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Listener;
@@ -30,7 +31,6 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventPriority;
-import org.python.core.PyFunction;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -87,12 +87,12 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     }
 
     @Override
-    public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass) {
+    public BungeeScriptEventListener registerListener(PyCallable function, Class<? extends Event> eventClass) {
         return registerListener(function, eventClass, EventPriority.NORMAL);
     }
 
     @Override
-    public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, Byte priority) {
+    public BungeeScriptEventListener registerListener(PyCallable function, Class<? extends Event> eventClass, Byte priority) {
         Script script = ScriptContext.require();
 
         BungeeScriptEventListener listener = new BungeeScriptEventListener(script, function, eventClass, priority);
@@ -104,22 +104,22 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * BungeeCord events do not support ignoreCancelled, so this method will not work. Instead, use {@link BungeeListenerManager#registerListener(PyFunction, Class)}
+     * BungeeCord events do not support ignoreCancelled, so this method will not work. Instead, use {@link BungeeListenerManager#registerListener(PyCallable, Class)}
      * @throws UnsupportedOperationException always
      */
     @Override
-    public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
+    public BungeeScriptEventListener registerListener(PyCallable function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
         throw new UnsupportedOperationException("BungeeCord does not support ignoreCancelled for event listeners.");
     }
 
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * BungeeCord events do not support ignoreCancelled, so this method will not work. Instead, use {@link BungeeListenerManager#registerListener(PyFunction, Class, Byte)}
+     * BungeeCord events do not support ignoreCancelled, so this method will not work. Instead, use {@link BungeeListenerManager#registerListener(PyCallable, Class, Byte)}
      * @throws UnsupportedOperationException always
      */
     @Override
-    public BungeeScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, Byte priority, boolean ignoreCancelled) {
+    public BungeeScriptEventListener registerListener(PyCallable function, Class<? extends Event> eventClass, Byte priority, boolean ignoreCancelled) {
         throw new UnsupportedOperationException("BungeeCord does not support ignoreCancelled for event listeners.");
     }
 
@@ -130,7 +130,7 @@ public class BungeeListenerManager extends ListenerManager<BungeeScriptEventList
         unregisterWithBungee(listener);
     }
 
-    public void unregisterListener(PyFunction function, Class<? extends Event> eventClass) {
+    public void unregisterListener(PyCallable function, Class<? extends Event> eventClass) {
         Script script = ScriptContext.require();
         List<BungeeScriptEventListener> listeners = getListeners(script, function, eventClass);
         for (BungeeScriptEventListener listener : listeners) {

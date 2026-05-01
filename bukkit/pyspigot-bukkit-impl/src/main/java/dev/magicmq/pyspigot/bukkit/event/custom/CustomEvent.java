@@ -20,8 +20,6 @@ import dev.magicmq.pyspigot.bukkit.event.ScriptEvent;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
-import org.python.core.Py;
-import org.python.core.PyObject;
 
 /**
  * A custom event that scripts may instantiate and call for other plugins/scripts to listen to.
@@ -31,7 +29,7 @@ public class CustomEvent extends ScriptEvent implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final String name;
-    private final PyObject data;
+    private final Object data;
 
     private boolean cancelled;
 
@@ -41,7 +39,7 @@ public class CustomEvent extends ScriptEvent implements Cancellable {
      * @param name The name of the event being created. Can be used to create subtypes of the generic custom event
      * @param data The data to attach to the event
      */
-    public CustomEvent(String name, PyObject data) {
+    public CustomEvent(String name, Object data) {
         this(name, data, false);
     }
 
@@ -52,7 +50,7 @@ public class CustomEvent extends ScriptEvent implements Cancellable {
      * @param data The data to attach to the event
      * @param async Whether the event is being called from an asynchronous context
      */
-    public CustomEvent(String name, PyObject data, boolean async) {
+    public CustomEvent(String name, Object data, boolean async) {
         super(ScriptContext.require(), async);
         this.name = name;
         this.data = data;
@@ -72,29 +70,8 @@ public class CustomEvent extends ScriptEvent implements Cancellable {
      * Get the data attached to this event.
      * @return The data attached to this event
      */
-    public PyObject getData() {
+    public Object getData() {
         return data;
-    }
-
-    /**
-     * Attempt to convert the data attached to this event to a provided type.
-     * @param clazz The type that the data should be converted to
-     * @return An object of the specified type representing the converted data
-     * @throws org.python.core.PyException If the data could not be converted to the provided type
-     */
-    public Object getDataAsType(String clazz) {
-        return Py.tojava(data, clazz);
-    }
-
-    /**
-     * Attempt to convert the data attached to this event to a provided type.
-     * @param clazz The type that the data should be converted to
-     * @return An object of the specified type representing the converted data
-     * @param <T> The type to which the data should be converted
-     * @throws org.python.core.PyException If the data could not be converted to the provided type
-     */
-    public <T> T getDataAsType(Class<T> clazz) {
-        return Py.tojava(data, clazz);
     }
 
     /**

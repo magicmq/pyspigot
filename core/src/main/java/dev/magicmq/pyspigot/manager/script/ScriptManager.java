@@ -17,34 +17,24 @@
 package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
-import dev.magicmq.pyspigot.exception.ScriptExitException;
 import dev.magicmq.pyspigot.exception.ScriptInitializationException;
+import dev.magicmq.pyspigot.jep.BukkitClassEnquirer;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
-import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.packetevents.PacketEventsManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
-import dev.magicmq.pyspigot.util.ScriptUtils;
-import dev.magicmq.pyspigot.util.logging.JythonLogHandler;
-import org.python.core.Py;
-import org.python.core.PyBaseCode;
-import org.python.core.PyBoolean;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyIndentationError;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
-import org.python.core.PyStringMap;
-import org.python.core.PySyntaxError;
-import org.python.core.PySystemState;
-import org.python.core.ThreadState;
+import dev.magicmq.pyspigot.util.logging.ScriptAwareOutputStream;
+import jep.JepConfig;
+import jep.JepException;
+import jep.SharedInterpreter;
+import jep.python.PyCallable;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -56,15 +46,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Master manager class for PySpigot. Contains all logic to load, unload, and reload scripts.
  * <p>
- * Internally, utilizes Jython's {@link org.python.util.PythonInterpreter} to run scripts.
+ * Internally drives a single shared {@link jep.SharedInterpreter} (created and used on a single
+ * thread, per JEP's threading rules) and delegates per-script load/unload bookkeeping to the
+ * {@code pyspigot_loader} Python module shipped under {@code site-packages}.
  * @see Script
  */
 public abstract class ScriptManager {
@@ -78,7 +68,12 @@ public abstract class ScriptManager {
     private final LinkedHashMap<String, Script> scriptNames;
     private final HashMap<Path, Path> moduleMap;
 
-    private boolean sysInitialized;
+    private SharedInterpreter interpreter;
+    private PyCallable defLoad;
+    private PyCallable defStop;
+    private PyCallable defUnload;
+    private PyCallable defIsLoaded;
+    private PyCallable defLoadedScripts;
 
     protected ScriptManager(ScriptInfo scriptInfo) {
         instance = this;
@@ -90,10 +85,8 @@ public abstract class ScriptManager {
         this.scriptNames = new LinkedHashMap<>();
         this.moduleMap = new HashMap<>();
 
-        this.sysInitialized = false;
-        if (PyCore.get().getConfig().loadJythonOnStartup()) {
-            initJython();
-        }
+        //TODO Load on startup config option
+        initInterpreter();
 
         if (PyCore.get().getConfig().getScriptLoadDelay() > 0L)
             scheduleStartScriptTask();
@@ -135,7 +128,7 @@ public abstract class ScriptManager {
      * @param exception The exception that was thrown
      * @return True if the exception should be reported, false if otherwise
      */
-    protected abstract boolean callScriptExceptionEvent(Script script, PyException exception);
+    protected abstract boolean callScriptExceptionEvent(Script script, JepException exception);
 
     /**
      * Calls a ScriptLoadEvent via a platform-specific implementation.
@@ -196,32 +189,68 @@ public abstract class ScriptManager {
     /**
      * Unloads the script on the main thread by scheduling the unload operation with a platform-specific scheduler.
      * <p>
-     * Used in conjunction with {@link #handleScriptException(Script, PyException, String)} to ensure if sys.exit is called from an asynchronous context, the script is unloaded synchronously.
+     * Used in conjunction with {@link #handleScriptException(Script, JepException, String)} to ensure if sys.exit is called from an asynchronous context, the script is unloaded synchronously.
      * @param script The script to unload
      * @param error If the script unload was due to an error, pass true. Otherwise, pass false
      */
     protected abstract void unloadScriptOnMainThread(Script script, boolean error);
 
     /**
-     * Initialize Jython. Will only initialize once; subsequent calls to this method have no effect.
+     * Initialize the shared JEP interpreter and import the Python loader module.
+     * <p>
+     * Called once during construction. Per JEP's threading rules the resulting
+     * {@link SharedInterpreter} must only be used on the same thread that created it; on Bukkit
+     * that is the primary server thread.
      */
-    public void initJython() {
-        if (!sysInitialized) {
-            PyCore.get().getLogger().info("Initializing Jython...");
+    public void initInterpreter() {
+        PyCore.get().getLogger().info("Creating JEP shared interpreter...");
 
-            Logger jythonLogger = Logger.getLogger("org.python");
-            jythonLogger.setLevel(Level.parse(PyCore.get().getConfig().jythonLoggingLevel()));
-            jythonLogger.addHandler(new JythonLogHandler());
+        try (InputStream is = PyCore.get().getResourceAsStream("loader_module.py")) {
+            JepConfig jepConfig = new JepConfig();
+            jepConfig.setClassEnquirer(new BukkitClassEnquirer());
+            jepConfig.redirectStdout(new ScriptAwareOutputStream(false));
+            jepConfig.redirectStdErr(new ScriptAwareOutputStream(true));
+            SharedInterpreter.setConfig(jepConfig);
 
-            PySystemState.initialize(
-                    System.getProperties(),
-                    PyCore.get().getConfig().getJythonProperties(),
-                    PyCore.get().getConfig().getJythonArgs(),
-                    LibraryManager.get().getClassLoader()
-            );
+            this.interpreter = new SharedInterpreter();
 
-            sysInitialized = true;
+            String loaderCode = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            this.interpreter.exec(loaderCode);
+        } catch (JepException | IOException e) {
+            throw new RuntimeException("Failed to initialize JEP shared interpreter", e);
         }
+    }
+
+    /**
+     * Initialize callable functions from the loader module so the ScriptManager can call them later from Java.
+     * <p>
+     * This should be called once from the loader module only.
+     * @param defLoad {@code def load(script_id, java_script, java_logger, main_path, source, project_path=None):}
+     * @param defStop {@code def stop(script_id):}
+     * @param defUnload {@code def unload(script_id):}
+     * @param defIsLoaded {@code def is_loaded(script_id):}
+     * @param defLoadedScripts {@code def loaded_scripts():}
+     */
+    public void initFunctions(PyCallable defLoad, PyCallable defStop, PyCallable defUnload, PyCallable defIsLoaded, PyCallable defLoadedScripts) {
+        if (this.defLoad != null)
+            throw new UnsupportedOperationException("Loader module functions have already been initialized");
+
+        this.defLoad = defLoad;
+        this.defStop = defStop;
+        this.defUnload = defUnload;
+        this.defIsLoaded = defIsLoaded;
+        this.defLoadedScripts = defLoadedScripts;
+    }
+
+    /**
+     * Get the shared JEP interpreter that backs every script.
+     * <p>
+     * Callers must observe JEP's threading constraint: the interpreter is bound to the thread that
+     * created it (see {@link #initInterpreter()}).
+     * @return The shared interpreter
+     */
+    public SharedInterpreter getInterpreter() {
+        return interpreter;
     }
 
     /**
@@ -233,7 +262,14 @@ public abstract class ScriptManager {
 
         unloadScripts();
 
-        Py.getSystemState().close();
+        if (interpreter != null) {
+            try {
+                interpreter.close();
+            } catch (JepException e) {
+                PyCore.get().getLogger().warn("Error closing JEP interpreter on shutdown", e);
+            }
+            interpreter = null;
+        }
     }
 
     /**
@@ -540,34 +576,24 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Handles script errors/exceptions, particularly for script logging purposes. Also prints the traceback (and stack trace, if the exception originated in Java code) to the script's logger.
+     * Handles script errors/exceptions, particularly for script logging purposes.
      * <p>
-     * If a {@link org.python.core.Py#SystemExit} is caught, the script will be unloaded.
+     * The JEP exception's {@link Throwable#getMessage()} carries the formatted Python traceback,
+     * which is what we surface to the script's logger.
      * @param script The script that threw the exception
-     * @param exception The PyException that was thrown
-     * @param message The message associated with the exception
+     * @param exception The {@link JepException} that was thrown
+     * @param message An optional context message to prefix the traceback with
      */
-    public void handleScriptException(Script script, PyException exception, String message) {
+    public void handleScriptException(Script script, JepException exception, String message) {
         boolean report = callScriptExceptionEvent(script, exception);
         if (report) {
-            try {
-                String toLog = "";
-
-                if (message != null) {
-                    message += ":\n";
-                    toLog += message;
-                }
-
-                toLog += ScriptUtils.handleException(script, exception);
-
-                script.getLogger().error(toLog);
-            } catch (ScriptExitException ignored) {
-                String exitCode = getExitCode(exception);
-                script.getLogger().info("Script exited with exit code '{}'", exitCode);
-                unloadScriptOnMainThread(script, exitCode.equals("1"));
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                script.getLogger().error("Error when attempting to handle script exception", e);
+            StringBuilder toLog = new StringBuilder();
+            if (message != null) {
+                toLog.append(message).append(":\n");
             }
+            String detail = exception.getMessage();
+            toLog.append(detail != null ? detail : exception.toString());
+            script.getLogger().error(toLog.toString());
         }
     }
 
@@ -759,123 +785,74 @@ public abstract class ScriptManager {
 
         script.getModules().forEach(module -> moduleMap.put(module, script.getMainScriptPath()));
 
-        try (FileInputStream scriptFileReader = new FileInputStream(script.getMainScriptPath().toFile())) {
-            initScriptPermissions(script);
-
-            ScriptContext.runWith(script, () -> script.getInterpreter().execfile(scriptFileReader, script.getMainScriptPath().toString()));
-
-            //TODO Remove in a future release
-            PyObject start = script.getInterpreter().get("start");
-            if (start instanceof PyFunction startFunction) {
-                script.getLogger().warn("This script uses the old, non-preferred method to specify a start hook " +
-                        "function (naming the function 'start'), which will be removed in a future release. Instead, " +
-                        "use the new '@start' decorator from the 'decorators.script' module to specify start hook " +
-                        "functions.");
-                Py.setSystemState(script.getInterpreter().getSystemState());
-                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                int args = ((PyBaseCode) startFunction.__code__).co_argcount;
-                if (args == 0)
-                    ScriptContext.runWith(script, () -> startFunction.__call__(threadState));
-                else
-                    ScriptContext.runWith(script, () -> startFunction.__call__(threadState, Py.java2py(script)));
-            }
-
-            PyObject locals = script.getInterpreter().getLocals();
-            if (locals instanceof PyStringMap localMap) {
-                for (Object item : localMap.values()) {
-                    if (item instanceof PyFunction function) {
-                        PyObject startAttribute = function.__findattr__("start_function");
-                        if (startAttribute instanceof PyBoolean startBoolean) {
-                            if (startBoolean.getBooleanValue()) {
-                                Py.setSystemState(script.getInterpreter().getSystemState());
-                                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                                int args = ((PyBaseCode) function.__code__).co_argcount;
-                                if (args == 0)
-                                    ScriptContext.runWith(script, () -> function.__call__(threadState));
-                                else
-                                    ScriptContext.runWith(script, () -> function.__call__(threadState, Py.java2py(script)));
-                            }
-                        }
-
-                        PyObject stopAttribute = function.__findattr__("stop_function");
-                        if (stopAttribute instanceof PyBoolean stop) {
-                            if (stop.getBooleanValue())
-                                script.addStopFunction(function);
-                        }
-                    }
-                }
-            }
-
-            callScriptLoadEvent(script);
-
-            return RunResult.SUCCESS;
-        } catch (PySyntaxError | PyIndentationError e) {
-            handleScriptException(script, e, null);
-            script.getLogger().error("Script unloaded due to a syntax/indentation error.");
-            unloadScript(script, true);
-            return RunResult.FAIL_ERROR;
-        } catch (PyException e) {
-            if (e.match(Py.SystemExit)) {
-                String exitCode = getExitCode(e);
-                script.getLogger().info("Script exited with exit code '{}'", exitCode);
-                unloadScript(script, exitCode.equals("1"));
-                return exitCode.equals("1") ? RunResult.FAIL_ERROR : RunResult.SUCCESS;
-            } else {
-                handleScriptException(script, e, null);
-                script.getLogger().error("Script unloaded due to a runtime error.");
-                unloadScript(script, true);
-                return RunResult.FAIL_ERROR;
-            }
+        String source;
+        try {
+            source = Files.readString(script.getMainScriptPath());
         } catch (IOException e) {
             scripts.remove(script.getMainScriptPath());
             scriptNames.remove(script.getName().toLowerCase());
             script.getModules().forEach(moduleMap::remove);
             script.close();
-            throw new ScriptInitializationException(script, "Error when loading script file", e);
+            throw new ScriptInitializationException(script, "Error when reading script file", e);
+        }
+
+        initScriptPermissions(script);
+
+        Object[] loaderArgs = new Object[]{
+                script.getName(),
+                script,
+                script.getLogger(),
+                script.getMainScriptPath().toString(),
+                source,
+                script.isProject() ? script.getPath().toString() : null
+        };
+
+        try {
+            ScriptContext.runWith(script, () -> {
+                try {
+                    defLoad.call(loaderArgs);
+                } catch (JepException e) {
+                    throw new LoaderInvocationException(e);
+                }
+            });
+            callScriptLoadEvent(script);
+            return RunResult.SUCCESS;
+        } catch (LoaderInvocationException wrapped) {
+            JepException e = wrapped.cause;
+            if (isPythonSystemExit(e)) {
+                String exitCode = extractSystemExitCode(e);
+                script.getLogger().info("Script exited with exit code '{}'", exitCode);
+                unloadScript(script, !"0".equals(exitCode));
+                return "0".equals(exitCode) ? RunResult.SUCCESS : RunResult.FAIL_ERROR;
+            }
+            handleScriptException(script, e, null);
+            script.getLogger().error("Script unloaded due to a runtime error.");
+            unloadScript(script, true);
+            return RunResult.FAIL_ERROR;
         }
     }
 
     private boolean stopScript(Script script, boolean error) {
         boolean gracefulStop = true;
 
-        if (PyCore.get().getConfig().patchThreading())
-            ScriptUtils.patchThreading(script.getInterpreter());
-
         if (!error) {
-            //TODO Remove in a future release
-            PyObject stop = script.getInterpreter().get("stop");
-            if (stop instanceof PyFunction stopFunction) {
-                script.getLogger().warn("This script uses the old, non-preferred method to specify a stop hook " +
-                        "function (naming the function 'stop'), which will be removed in a future release. Instead, " +
-                        "use the new '@stop' decorator from the 'decorators.script' module to specify stop hook " +
-                        "functions.");
-                try {
-                    Py.setSystemState(script.getInterpreter().getSystemState());
-                    ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                    int args = ((PyBaseCode) stopFunction.__code__).co_argcount;
-                    if (args == 0)
-                        ScriptContext.runWith(script, () -> stopFunction.__call__(threadState));
-                    else
-                        ScriptContext.runWith(script, () -> stopFunction.__call__(threadState, Py.java2py(script)));
-                } catch (PyException e) {
-                    handleScriptException(script, e, "Error when calling stop function");
+            try {
+                Object failures = ScriptContext.supplyWith(script, () -> {
+                    try {
+                        return defStop.call(script.getName());
+                    } catch (JepException e) {
+                        throw new LoaderInvocationException(e);
+                    }
+                });
+                if (failures instanceof List<?> failureList && !failureList.isEmpty()) {
                     gracefulStop = false;
+                    for (Object failure : failureList) {
+                        script.getLogger().error("Error when calling stop function: {}", failure);
+                    }
                 }
-            }
-
-            for (PyFunction function : script.getStopFunctions()) {
-                try {
-                    Py.setSystemState(script.getInterpreter().getSystemState());
-                    ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                    int args = ((PyBaseCode) function.__code__).co_argcount;
-                    if (args == 0)
-                        ScriptContext.runWith(script, () -> function.__call__(threadState));
-                    else
-                        ScriptContext.runWith(script, () -> function.__call__(threadState, Py.java2py(script)));
-                } catch (PyException e) {
-                    handleScriptException(script, e, "Error when calling stop function");
-                    gracefulStop = false;
-                }
+            } catch (LoaderInvocationException wrapped) {
+                handleScriptException(script, wrapped.cause, "Error when running stop hooks");
+                gracefulStop = false;
             }
         }
 
@@ -892,27 +869,48 @@ public abstract class ScriptManager {
 
         unregisterFromPlatformManagers(script);
 
+        try {
+            defUnload.call(script.getName());
+        } catch (JepException e) {
+            PyCore.get().getLogger().warn("Error tearing down loader state for script '{}'", script.getName(), e);
+            gracefulStop = false;
+        }
+
         script.close();
 
         return gracefulStop;
     }
 
-    private String getExitCode(PyException exception) {
-        PyObject value = exception.value;
+    /**
+     * Best-effort check that a {@link JepException} is wrapping a Python {@code SystemExit}.
+     * <p>
+     * JEP surfaces this in the message as a {@code SystemExit} prefix; there is no direct typed
+     * accessor on the exception, so we match on the type name.
+     */
+    private boolean isPythonSystemExit(JepException exception) {
+        String message = exception.getMessage();
+        return message != null && message.contains("SystemExit");
+    }
 
-        if (PyException.isExceptionInstance(exception.value)) {
-            value = value.__findattr__("code");
-        }
+    /**
+     * Extract a numeric exit code from a Python {@code SystemExit} surfaced via JEP.
+     * Returns "0" when no usable code can be parsed (matches the legacy default).
+     */
+    private String extractSystemExitCode(JepException exception) {
+        String message = exception.getMessage();
+        if (message == null)
+            return "0";
 
-        String exitStatus;
-        if (value instanceof PyInteger) {
-            exitStatus = "" + value.asInt();
-        } else if (value != Py.None) {
-            exitStatus = value.toString();
-        } else {
-            exitStatus = "" + 0;
-        }
-        return exitStatus;
+        int colon = message.indexOf(':');
+        if (colon < 0)
+            return "0";
+
+        String rest = message.substring(colon + 1).trim();
+        int newline = rest.indexOf('\n');
+        if (newline >= 0)
+            rest = rest.substring(0, newline).trim();
+
+        return rest.isEmpty() ? "0" : rest;
     }
 
     /**
@@ -921,5 +919,19 @@ public abstract class ScriptManager {
      */
     public static ScriptManager get() {
         return instance;
+    }
+
+    /**
+     * Unchecked carrier so we can pop a {@link JepException} back out of the
+     * {@link ScriptContext} lambdas without polluting their {@code Runnable}/{@code Supplier}
+     * signatures with a checked throws clause.
+     */
+    private static final class LoaderInvocationException extends RuntimeException {
+        private final JepException cause;
+
+        LoaderInvocationException(JepException cause) {
+            super(cause);
+            this.cause = cause;
+        }
     }
 }

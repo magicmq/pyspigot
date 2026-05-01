@@ -24,7 +24,7 @@ import com.github.retrooper.packetevents.protocol.PacketSide;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class PacketEventsManager {
      * @param type The packet type to listen for
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
-    public ScriptPacketListener registerPacketListener(PyFunction function, PacketTypeCommon type) {
+    public ScriptPacketListener registerPacketListener(PyCallable function, PacketTypeCommon type) {
         return registerPacketListener(function, type, PacketListenerPriority.NORMAL);
     }
 
@@ -81,7 +81,7 @@ public class PacketEventsManager {
      * @param priority The priority of the packet listener, relative to other packet listeners
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
-    public ScriptPacketListener registerPacketListener(PyFunction function, PacketTypeCommon type, PacketListenerPriority priority) {
+    public ScriptPacketListener registerPacketListener(PyCallable function, PacketTypeCommon type, PacketListenerPriority priority) {
         Script script = ScriptContext.require();
 
         ScriptPacketListener listener = null;
@@ -110,7 +110,7 @@ public class PacketEventsManager {
      * Unregister a packet listener.
      * @param function The function associated with the packet listener to unregister
      */
-    public void unregisterPacketListener(PyFunction function) {
+    public void unregisterPacketListener(PyCallable function) {
         Script script = ScriptContext.require();
         List<ScriptPacketListener> listeners = getPacketListeners(script);
         for (ScriptPacketListener listener : listeners) {

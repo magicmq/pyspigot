@@ -22,9 +22,9 @@ import com.google.common.io.ByteStreams;
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.python.PyCallable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.python.core.PyFunction;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -144,7 +144,7 @@ public class PluginMessageManager {
      * @param channel The channel to listen on
      * @return The plugin message listener that was registered
      */
-    public ScriptPluginMessageListener registerListener(PyFunction function, String channel) {
+    public ScriptPluginMessageListener registerListener(PyCallable function, String channel) {
         Script script = ScriptContext.require();
 
         ScriptPluginMessageListener listener = new ScriptPluginMessageListener(script, function, channel);

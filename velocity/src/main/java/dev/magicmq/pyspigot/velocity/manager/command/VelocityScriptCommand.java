@@ -23,14 +23,10 @@ import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.JepException;
+import jep.python.PyCallable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyList;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,13 +37,13 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
 
     private final CommandMeta commandMeta;
     private final Script script;
-    private final PyFunction commandFunction;
+    private final PyCallable commandFunction;
     private final boolean asyncTabComplete;
     private final String name;
     private final List<String> aliases;
     private final String permission;
 
-    private PyFunction tabFunction;
+    private PyCallable tabFunction;
 
     /**
      *
@@ -60,7 +56,7 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null
      */
-    public VelocityScriptCommand(CommandMeta commandMeta, Script script, PyFunction commandFunction, PyFunction tabFunction, boolean asyncTabComplete, String name, List<String> aliases, String permission) {
+    public VelocityScriptCommand(CommandMeta commandMeta, Script script, PyCallable commandFunction, PyCallable tabFunction, boolean asyncTabComplete, String name, List<String> aliases, String permission) {
         this.commandMeta = commandMeta;
         this.script = script;
         this.commandFunction = commandFunction;
@@ -81,7 +77,7 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
     }
 
     @Override
-    public PyFunction getCommandFunction() {
+    public PyCallable getCommandFunction() {
         return commandFunction;
     }
 
@@ -91,18 +87,15 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
     }
 
     @Override
-    public void setTabFunction(PyFunction tabFunction) {
+    public void setTabFunction(PyCallable tabFunction) {
         this.tabFunction = tabFunction;
     }
 
     @Override
     public void execute(Invocation invocation) {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject parameter = Py.java2py(invocation);
-            ScriptContext.runWith(script, () -> commandFunction.__call__(threadState, parameter));
-        } catch (PyException exception) {
+            ScriptContext.runWith(script, () -> commandFunction.call(invocation));
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + getName() + "'");
             //Mimic Velocity behavior
             invocation.source().sendMessage(Component.text("An error occurred while running this command.", NamedTextColor.RED));
@@ -112,23 +105,20 @@ public class VelocityScriptCommand implements ScriptCommand, SimpleCommand {
     @Override
     public List<String> suggest(Invocation invocation) {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject parameter = Py.java2py(invocation);
-            PyObject result = ScriptContext.supplyWith(script, () -> tabFunction.__call__(threadState, parameter));
-            if (result instanceof PyList pyList) {
+            Object result = ScriptContext.supplyWith(script, () -> tabFunction.call(invocation));
+            if (result instanceof List list) {
                 ArrayList<String> toReturn = new ArrayList<>();
-                for (Object object : pyList) {
+                for (Object object : list) {
                     if (object instanceof String)
                         toReturn.add((String) object);
                     else {
-                        script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
+                        script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.getAttr("__name__"));
                         return Collections.emptyList();
                     }
                 }
                 return toReturn;
             }
-        } catch (PyException exception) {
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when tab completing command '" + getName() + "'");
         }
         return Collections.emptyList();

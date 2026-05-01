@@ -24,11 +24,8 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
+import jep.JepException;
+import jep.python.PyCallable;
 
 /**
  * A packet listener belonging to a script, which encompasses both sending and receiving packet listeners.
@@ -36,7 +33,7 @@ import org.python.core.ThreadState;
 public class ScriptPacketListener implements PacketListener {
 
     private final Script script;
-    private final PyFunction function;
+    private final PyCallable function;
     private final PacketTypeCommon packetType;
 
     private PacketListenerCommon registeredListener;
@@ -47,7 +44,7 @@ public class ScriptPacketListener implements PacketListener {
      * @param function The function to be called when the packet event occurs
      * @param packetType The packet type to listen for
      */
-    public ScriptPacketListener(Script script, PyFunction function, PacketTypeCommon packetType) {
+    public ScriptPacketListener(Script script, PyCallable function, PacketTypeCommon packetType) {
         this.script = script;
         this.function = function;
         this.packetType = packetType;
@@ -65,7 +62,7 @@ public class ScriptPacketListener implements PacketListener {
      * Get the function associated with this packet listener.
      * @return The function
      */
-    public PyFunction getFunction() {
+    public PyCallable getFunction() {
         return function;
     }
 
@@ -96,11 +93,9 @@ public class ScriptPacketListener implements PacketListener {
     protected void callToScript(ProtocolPacketEvent event) {
         if (event.getPacketType().equals(packetType)) {
             try {
-                Py.setSystemState(script.getInterpreter().getSystemState());
-                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                PyObject parameter = Py.java2py(event);
-                ScriptContext.runWith(script, () -> function.__call__(threadState, parameter));
-            } catch (PyException exception) {
+                //TODO Async
+                ScriptContext.runWith(script, () -> function.call(event));
+            } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(script, exception, "Error when calling packet events listener");
             }
         }

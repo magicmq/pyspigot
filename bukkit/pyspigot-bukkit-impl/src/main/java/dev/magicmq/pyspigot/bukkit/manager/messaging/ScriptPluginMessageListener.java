@@ -20,13 +20,10 @@ package dev.magicmq.pyspigot.bukkit.manager.messaging;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.JepException;
+import jep.python.PyCallable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
 
 /**
  * A class that represents a script plugin message listener listening on a single channel.
@@ -34,7 +31,7 @@ import org.python.core.ThreadState;
 public class ScriptPluginMessageListener implements PluginMessageListener {
 
     private final Script script;
-    private final PyFunction function;
+    private final PyCallable function;
     private final String channel;
 
     /**
@@ -43,7 +40,7 @@ public class ScriptPluginMessageListener implements PluginMessageListener {
      * @param function The function that should be called when a message is received on the given channel
      * @param channel The channel this listener is listening on
      */
-    public ScriptPluginMessageListener(Script script, PyFunction function, String channel) {
+    public ScriptPluginMessageListener(Script script, PyCallable function, String channel) {
         this.script = script;
         this.function = function;
         this.channel = channel;
@@ -77,11 +74,8 @@ public class ScriptPluginMessageListener implements PluginMessageListener {
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if (channel.equals(this.channel)) {
             try {
-                Py.setSystemState(script.getInterpreter().getSystemState());
-                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                PyObject[] parameters = Py.javas2pys(channel, player, message);
-                ScriptContext.runWith(script, () -> function.__call__(threadState, parameters[0], parameters[1], parameters[2]));
-            } catch (PyException e) {
+                ScriptContext.runWith(script, () -> function.call(channel, player, message));
+            } catch (JepException e) {
                 ScriptManager.get().handleScriptException(script, e, "Error when calling plugin message listener");
             }
         }

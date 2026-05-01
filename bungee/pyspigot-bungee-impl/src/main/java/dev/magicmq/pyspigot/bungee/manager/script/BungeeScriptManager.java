@@ -28,9 +28,9 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptLoadService;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
+import jep.JepException;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
-import org.python.core.PyException;
 
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -79,7 +79,7 @@ public class BungeeScriptManager extends ScriptManager {
     }
 
     @Override
-    protected boolean callScriptExceptionEvent(Script script, PyException exception) {
+    protected boolean callScriptExceptionEvent(Script script, JepException exception) {
         ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception);
         ProxyServer.getInstance().getPluginManager().callEvent(event);
         return event.doReportException();

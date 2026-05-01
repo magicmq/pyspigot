@@ -22,11 +22,8 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.event.ScriptExceptionEvent;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
+import jep.JepException;
+import jep.python.PyCallable;
 
 /**
  * A synchronous Velocity listener registered by a script.
@@ -34,7 +31,7 @@ import org.python.core.ThreadState;
  */
 public class VelocitySyncScriptListener<E> extends VelocityScriptListener<E> implements EventHandler<E> {
 
-    public VelocitySyncScriptListener(Script script, PyFunction listenerFunction, Class<E> event) {
+    public VelocitySyncScriptListener(Script script, PyCallable listenerFunction, Class<E> event) {
         super(script, listenerFunction, event);
     }
 
@@ -43,20 +40,13 @@ public class VelocitySyncScriptListener<E> extends VelocityScriptListener<E> imp
         if (event instanceof ScriptExceptionEvent scriptExceptionEvent) {
             Script eventScript = scriptExceptionEvent.getScript();
             if (eventScript.equals(script)) {
-                String listenerFunctionName = listenerFunction.__code__.co_name;
-                String exceptionFunctionName = scriptExceptionEvent.getException().traceback.tb_frame.f_code.co_name;
-                if (listenerFunctionName.equals(exceptionFunctionName)) {
-                    return;
-                }
+                //TODO Handle if ScriptExceptionEvent fired as a result of an exception in this listener
             }
         }
 
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject parameter = Py.java2py(event);
-            ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameter));
-        } catch (PyException exception) {
+            ScriptContext.runWith(script, () -> listenerFunction.call(event));
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
         }
     }

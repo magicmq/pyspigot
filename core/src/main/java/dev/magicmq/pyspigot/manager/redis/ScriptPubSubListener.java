@@ -20,11 +20,8 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import io.lettuce.core.pubsub.RedisPubSubListener;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
+import jep.JepException;
+import jep.python.PyCallable;
 
 /**
  * A wrapper class that wraps the RedisPubSubListener from lettuce for use by scripts.
@@ -33,7 +30,7 @@ import org.python.core.ThreadState;
 public class ScriptPubSubListener implements RedisPubSubListener<String, String> {
 
     private final Script script;
-    private final PyFunction function;
+    private final PyCallable function;
     private final String channel;
 
     /**
@@ -42,7 +39,7 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
      * @param function The function that should be called when a message is received on the given channel
      * @param channel The channel to listen on
      */
-    public ScriptPubSubListener(Script script, PyFunction function, String channel) {
+    public ScriptPubSubListener(Script script, PyCallable function, String channel) {
         this.script = script;
         this.function = function;
         this.channel = channel;
@@ -56,12 +53,10 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
     @Override
     public void message(String channel, String message) {
         if (channel.equals(this.channel)) {
+            //TODO Async
             try {
-                Py.setSystemState(script.getInterpreter().getSystemState());
-                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                PyObject[] parameters = Py.javas2pys(channel, message);
-                ScriptContext.runWith(script, () -> function.__call__(threadState, parameters[0], parameters[1]));
-            } catch (PyException exception) {
+                ScriptContext.runWith(script, () -> function.call(channel, message));
+            } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(script, exception, "Error when calling script redis pub/sub listener");
             }
         }
@@ -109,7 +104,7 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
      * Get the function associated with this listener.
      * @return The function
      */
-    public PyFunction getFunction() {
+    public PyCallable getFunction() {
         return function;
     }
 

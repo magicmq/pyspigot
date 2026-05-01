@@ -19,12 +19,8 @@ package dev.magicmq.pyspigot.manager.task;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
-import org.python.core.Py;
-import org.python.core.PyBaseCode;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
+import jep.JepException;
+import jep.python.PyCallable;
 
 import java.util.Arrays;
 
@@ -35,7 +31,7 @@ import java.util.Arrays;
 public class Task<T> implements Runnable {
 
     protected final Script script;
-    protected final PyFunction function;
+    protected final PyCallable function;
     protected final Object[] functionArgs;
     protected final boolean async;
     protected final long delay;
@@ -50,17 +46,12 @@ public class Task<T> implements Runnable {
      * @param async True if the task is asynchronous, false if otherwise
      * @param delay The delay, in ticks, to wait until running the task
      */
-    public Task(Script script, PyFunction function, Object[] functionArgs, boolean async, long delay) {
+    public Task(Script script, PyCallable function, Object[] functionArgs, boolean async, long delay) {
         this.script = script;
         this.function = function;
 
-        if (functionArgs != null) {
-            int numOfFunctionArgs = ((PyBaseCode) function.__code__).co_argcount;
-            if (numOfFunctionArgs < functionArgs.length)
-                functionArgs = Arrays.copyOf(functionArgs, numOfFunctionArgs);
-            this.functionArgs = functionArgs;
-        } else
-            this.functionArgs = null;
+        //TODO Detect number of args
+        this.functionArgs = null;
 
         this.async = async;
         this.delay = delay;
@@ -73,7 +64,7 @@ public class Task<T> implements Runnable {
     public void run() {
         try {
             callTaskFunction();
-        } catch (PyException e) {
+        } catch (JepException e) {
             ScriptManager.get().handleScriptException(script, e, "Error while executing task");
         } finally {
             TaskManager.<T>getTyped().taskFinished(this);
@@ -92,7 +83,7 @@ public class Task<T> implements Runnable {
      * Get the function associated with this task.
      * @return The function associated with this task
      */
-    public PyFunction getFunction() {
+    public PyCallable getFunction() {
         return function;
     }
 
@@ -132,15 +123,8 @@ public class Task<T> implements Runnable {
         return String.format("Task[Platform Task: %s, Async: %b, Delay: %d]", TaskManager.<T>getTyped().describeTask(platformTask), async, (int) delay);
     }
 
-    protected PyObject callTaskFunction() {
-        Py.setSystemState(script.getInterpreter().getSystemState());
-        ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-
-        if (functionArgs != null) {
-            PyObject[] pyObjects = Py.javas2pys(functionArgs);
-            return ScriptContext.supplyWith(script, () -> function.__call__(threadState, pyObjects));
-        } else {
-            return ScriptContext.supplyWith(script, () -> function.__call__(threadState));
-        }
+    protected Object callTaskFunction() {
+        //TODO Async
+        return ScriptContext.supplyWith(script, function::call);
     }
 }

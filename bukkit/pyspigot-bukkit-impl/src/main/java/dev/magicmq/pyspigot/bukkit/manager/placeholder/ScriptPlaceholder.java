@@ -19,16 +19,12 @@ package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.JepException;
+import jep.python.PyCallable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.PyString;
-import org.python.core.ThreadState;
 
 /**
  * A class that represents a script placeholder expansion.
@@ -39,12 +35,12 @@ import org.python.core.ThreadState;
 public class ScriptPlaceholder extends PlaceholderExpansion implements Relational {
 
     private final Script script;
-    private final PyFunction function;
+    private final PyCallable function;
     private final String identifier;
     private final String author;
     private final String version;
 
-    private PyFunction relFunction;
+    private PyCallable relFunction;
 
     /**
      *
@@ -55,7 +51,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
      * @param author The author of this ScriptPlaceholder
      * @param version The version of this ScriptPlaceholder
      */
-    public ScriptPlaceholder(Script script, PyFunction function, PyFunction relFunction, String identifier, String author, String version) {
+    public ScriptPlaceholder(Script script, PyCallable function, PyCallable relFunction, String identifier, String author, String version) {
         this.script = script;
         this.function = function;
         this.relFunction = relFunction;
@@ -68,7 +64,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
      * Set the relational placeholder function for this placeholder.
      * @param relFunction The relational function
      */
-    public void setRelationalFunction(PyFunction relFunction) {
+    public void setRelationalFunction(PyCallable relFunction) {
         this.relFunction = relFunction;
     }
 
@@ -84,7 +80,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
      * Get the function associated with this placeholder. This returns the main placeholder function, not the relational function.
      * @return The function associated with the placeholder
      */
-    public PyFunction getFunction() {
+    public PyCallable getFunction() {
         return function;
     }
 
@@ -137,14 +133,11 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
         }
 
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject[] parameters = Py.javas2pys(player, params);
-            PyObject result = ScriptContext.supplyWith(script, () -> function.__call__(threadState, parameters[0], parameters[1]));
-            if (result instanceof PyString) {
-                return ((PyString) result).getString();
+            Object result = ScriptContext.supplyWith(script, () -> function.call(player, params));
+            if (result instanceof String) {
+                return ((String) result);
             }
-        } catch (PyException exception) {
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing placeholder '" + getIdentifier() + "'");
         }
         return null;
@@ -164,14 +157,11 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
         }
 
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject[] parameters = Py.javas2pys(playerOne, playerTwo, identifier);
-            PyObject result = ScriptContext.supplyWith(script, () -> relFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
-            if (result instanceof PyString) {
-                return ((PyString) result).getString();
+            Object result = ScriptContext.supplyWith(script, () -> relFunction.call(playerOne, playerTwo, identifier));
+            if (result instanceof String) {
+                return ((String) result);
             }
-        } catch (PyException exception) {
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing relational placeholder '" + getIdentifier() + "'");
         }
         return null;

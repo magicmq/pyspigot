@@ -19,7 +19,7 @@ package dev.magicmq.pyspigot.velocity.manager.listener;
 
 import dev.magicmq.pyspigot.manager.listener.ScriptEventListener;
 import dev.magicmq.pyspigot.manager.script.Script;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 /**
  * A generic Velocity event listener registered by a script.
@@ -28,7 +28,7 @@ import org.python.core.PyFunction;
 public class VelocityScriptListener<E> implements ScriptEventListener<E> {
 
     protected final Script script;
-    protected final PyFunction listenerFunction;
+    protected final PyCallable listenerFunction;
     protected final Class<? extends E> event;
 
     /**
@@ -37,7 +37,7 @@ public class VelocityScriptListener<E> implements ScriptEventListener<E> {
      * @param listenerFunction The script function that should be called when the event occurs
      * @param event The Velocity event associated with this listener. Should be a {@link Class} of the Velocity event
      */
-    public VelocityScriptListener(Script script, PyFunction listenerFunction, Class<? extends E> event) {
+    public VelocityScriptListener(Script script, PyCallable listenerFunction, Class<? extends E> event) {
         this.script = script;
         this.listenerFunction = listenerFunction;
         this.event = event;
@@ -49,7 +49,7 @@ public class VelocityScriptListener<E> implements ScriptEventListener<E> {
     }
 
     @Override
-    public PyFunction getListenerFunction() {
+    public PyCallable getListenerFunction() {
         return listenerFunction;
     }
 

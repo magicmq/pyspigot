@@ -19,6 +19,8 @@ package dev.magicmq.pyspigot;
 import dev.magicmq.pyspigot.config.ScriptOptionsConfig;
 import dev.magicmq.pyspigot.config.PluginConfig;
 import dev.magicmq.pyspigot.dependency.DependencyManager;
+import dev.magicmq.pyspigot.exception.PluginInitializationException;
+import dev.magicmq.pyspigot.jep.JepBootstrapper;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.libraries.LibraryManager;
 import dev.magicmq.pyspigot.manager.packetevents.PacketEventsManager;
@@ -33,13 +35,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.stream.Stream;
 
 /**
  * Core class of PySpigot for all platform-specific implementations. Platform-specific code is implemented via the PlatformAdapter.
@@ -111,6 +121,14 @@ public class PyCore {
         adapter.initListeners();
 
         LibraryManager.get();
+
+        logger.info("Initializing Python runtime and JEP...");
+
+        try {
+            JepBootstrapper.get().setupJep();
+        } catch (Exception e) {
+            throw new PluginInitializationException("Failed to initialize Python runtime and/or JEP", e);
+        }
 
         logger.info("Initializing managers...");
 
@@ -290,6 +308,48 @@ public class PyCore {
     }
 
     /**
+     * Save a folder's contents from the plugin JAR file to a folder outside the JAR.
+     * @param folderPath The name of the folder within the JAR file
+     * @param destination The path to save the folder's contents to outside the JAR
+     */
+    public void extractFolder(String folderPath, Path destination) throws IOException {
+        URI jarUri;
+        try {
+            jarUri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+        } catch (URISyntaxException e) {
+            throw new IOException("Could not resolve JAR location", e);
+        }
+
+        try (FileSystem jarFs = FileSystems.newFileSystem(jarUri, Collections.emptyMap())) {
+
+            Path sourceRoot = jarFs.getPath(folderPath);
+
+            if (!Files.exists(sourceRoot)) {
+                throw new IllegalArgumentException("Folder '" + folderPath + "' not found in JAR");
+            }
+
+            try (Stream<Path> files = Files.walk(sourceRoot)) {
+                files.forEach(sourcePath -> {
+                    try {
+                        Path relative = sourceRoot.relativize(sourcePath);
+                        Path target = destination.resolve(relative.toString());
+
+                        if (Files.isDirectory(sourcePath)) {
+                            Files.createDirectories(target);
+                        } else {
+                            // Ensure parent dirs exist, then copy (overwrite if present)
+                            Files.createDirectories(target.getParent());
+                            Files.copy(sourcePath, target, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+            }
+        }
+    }
+
+    /**
      * Save a resource from the plugin JAR file to the plugin data folder.
      * @param resourcePath The path of the resource to save
      * @param replace True if the file should be replaced (if it already exists in the data folder), false if it should not
@@ -348,7 +408,7 @@ public class PyCore {
     }
 
     private void initFolders() {
-        String[] folders = new String[]{"java-libs", "python-libs", "scripts", "projects", "logs"};
+        String[] folders = new String[]{"python", "java-libs", "python-libs", "scripts", "projects", "logs"};
         for (String folder : folders) {
             File file = new File(adapter.getDataFolder(), folder);
             if (!file.exists() && !file.mkdirs()) {

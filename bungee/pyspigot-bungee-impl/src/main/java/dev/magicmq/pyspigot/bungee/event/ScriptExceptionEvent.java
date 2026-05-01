@@ -17,34 +17,34 @@
 package dev.magicmq.pyspigot.bungee.event;
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import org.python.core.PyException;
+import jep.JepException;
 
 /**
  * Called when a script throws an unhandled error/exception.
  * <p>
- * The exception will be a {@link PyException}, which will include Java exceptions thrown by calls to Java code from scripts. Use {@link PyException#getCause} to determine if there was an underlying Java exception.
+ * The exception will be a {@link JepException}, which will include Java exceptions thrown by calls to Java code from scripts. Use {@link JepException#getCause} to determine if there was an underlying Java exception.
  */
 public class ScriptExceptionEvent extends ScriptEvent {
 
-    private final PyException exception;
+    private final JepException exception;
     private boolean reportException;
 
     /**
      *
      * @param script The script that caused the error/exception
-     * @param exception The {@link PyException} that was thrown
+     * @param exception The {@link JepException} that was thrown
      */
-    public ScriptExceptionEvent(Script script, PyException exception) {
+    public ScriptExceptionEvent(Script script, JepException exception) {
         super(script);
         this.exception = exception;
         this.reportException = true;
     }
 
     /**
-     * Get the {@link PyException} that was thrown.
-     * @return The {@link PyException} that was thrown
+     * Get the {@link JepException} that was thrown.
+     * @return The {@link JepException} that was thrown
      */
-    public PyException getException() {
+    public JepException getException() {
         return exception;
     }
 

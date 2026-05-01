@@ -23,11 +23,8 @@ import dev.simplix.protocolize.api.Direction;
 import dev.simplix.protocolize.api.listener.AbstractPacketListener;
 import dev.simplix.protocolize.api.listener.PacketReceiveEvent;
 import dev.simplix.protocolize.api.listener.PacketSendEvent;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
+import jep.JepException;
+import jep.python.PyCallable;
 
 /**
  * A script listener that listens for BungeeCord packets.
@@ -36,8 +33,8 @@ import org.python.core.ThreadState;
 public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
 
     private final Script script;
-    private final PyFunction receiveFunction;
-    private final PyFunction sendFunction;
+    private final PyCallable receiveFunction;
+    private final PyCallable sendFunction;
 
     /**
      *
@@ -48,7 +45,7 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
      * @param direction The {@link dev.simplix.protocolize.api.Direction} of the listener
      * @param priority The priority of the listener
      */
-    public ScriptPacketListener(Script script, PyFunction receiveFunction, PyFunction sendFunction, Class<T> packet, Direction direction, int priority) {
+    public ScriptPacketListener(Script script, PyCallable receiveFunction, PyCallable sendFunction, Class<T> packet, Direction direction, int priority) {
         super(packet, direction, priority);
         this.script = script;
         this.receiveFunction = receiveFunction;
@@ -59,7 +56,7 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
      * Get the receive function associated with this packet listener.
      * @return The receive function
      */
-    public PyFunction getReceiveFunction() {
+    public PyCallable getReceiveFunction() {
         return receiveFunction;
     }
 
@@ -67,7 +64,7 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
      * Get the send function associated with this packet listener.
      * @return The send function
      */
-    public PyFunction getSendFunction() {
+    public PyCallable getSendFunction() {
         return sendFunction;
     }
 
@@ -78,11 +75,9 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
     @Override
     public void packetReceive(PacketReceiveEvent<T> event) {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject parameter = Py.java2py(event);
-            ScriptContext.runWith(script, () -> receiveFunction.__call__(threadState, parameter));
-        } catch (PyException exception) {
+            //TODO Async
+            ScriptContext.runWith(script, () -> receiveFunction.call(event));
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet receive listener");
         }
     }
@@ -94,11 +89,8 @@ public class ScriptPacketListener<T> extends AbstractPacketListener<T> {
     @Override
     public void packetSend(PacketSendEvent<T> event) {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject parameter = Py.java2py(event);
-            ScriptContext.runWith(script, () -> sendFunction.__call__(threadState, parameter));
-        } catch (PyException exception) {
+            ScriptContext.runWith(script, () -> sendFunction.call(event));
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet send listener");
         }
     }

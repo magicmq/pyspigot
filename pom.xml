@@ -73,29 +73,13 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>dev.magicmq</groupId>
-                    <artifactId>jython-compile-maven-plugin</artifactId>
-                    <version>1.1</version>
-                    <executions>
-                        <execution>
-                            <id>jython-compile</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>jython-compile</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.3.1</version>
                     <configuration>
                         <nonFilteredFileExtensions>
-                            <nonFilteredFileExtension>class</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>so</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>dll</nonFilteredFileExtension>
                         </nonFilteredFileExtensions>
                     </configuration>
                 </plugin>
@@ -240,7 +224,6 @@
                 <configuration>
                     <links>
                         <link>https://jd.papermc.io/paper/</link>
-                        <link>https://javadoc.io/doc/org.python/jython/latest/</link>
                         <link>https://aadnk.github.io/ProtocolLib/Javadoc/</link>
                         <link>https://javadoc.io/doc/me.lucko/jar-relocator/latest/me/lucko/jarrelocator/</link>
                         <link>https://javadoc.io/doc/com.zaxxer/HikariCP/latest/com.zaxxer.hikari/</link>

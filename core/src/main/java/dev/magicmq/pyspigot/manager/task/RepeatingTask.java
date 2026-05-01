@@ -18,8 +18,8 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
+import jep.JepException;
+import jep.python.PyCallable;
 
 /**
  * Represents a repeating task defined by a script.
@@ -38,7 +38,7 @@ public class RepeatingTask<T> extends Task<T> {
      * @param delay The delay, in ticks, to wait until running the task
      * @param interval The interval, in ticks, between each repeat of the task
      */
-    public RepeatingTask(Script script, PyFunction function, Object[] functionArgs, boolean async, long delay, long interval) {
+    public RepeatingTask(Script script, PyCallable function, Object[] functionArgs, boolean async, long delay, long interval) {
         super(script, function, functionArgs, async, delay);
         this.interval = interval;
     }
@@ -50,7 +50,7 @@ public class RepeatingTask<T> extends Task<T> {
     public void run() {
         try {
             callTaskFunction();
-        } catch (PyException e) {
+        } catch (JepException e) {
             ScriptManager.get().handleScriptException(script, e, "Error while executing repeating task");
         }
     }

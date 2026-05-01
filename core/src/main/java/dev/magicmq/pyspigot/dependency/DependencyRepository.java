@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.dependency;
 
 
 import dev.magicmq.pyspigot.exception.DependencyDownloadException;
-import org.python.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,7 +99,7 @@ public enum DependencyRepository {
         try {
             URLConnection connection = openConnection(dependency);
             try (InputStream input = connection.getInputStream()) {
-                byte[] bytes = ByteStreams.toByteArray(input);
+                byte[] bytes = input.readAllBytes();
                 if (bytes.length == 0)
                     throw new DependencyDownloadException("Encountered an empty stream when attempting to download dependency '" + dependency + "'");
                 return bytes;

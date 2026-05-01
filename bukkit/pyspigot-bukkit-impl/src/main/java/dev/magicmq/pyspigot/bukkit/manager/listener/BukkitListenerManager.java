@@ -21,12 +21,12 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.python.PyCallable;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.IllegalPluginAccessException;
-import org.python.core.PyFunction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -44,22 +44,22 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
     }
 
     @Override
-    public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass) {
+    public BukkitScriptEventListener registerListener(PyCallable function, Class<? extends Event> eventClass) {
         return registerListener(function, eventClass, EventPriority.NORMAL, false);
     }
 
     @Override
-    public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority) {
+    public BukkitScriptEventListener registerListener(PyCallable function, Class<? extends Event> eventClass, EventPriority priority) {
         return registerListener(function, eventClass, priority, false);
     }
 
     @Override
-    public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
+    public BukkitScriptEventListener registerListener(PyCallable function, Class<? extends Event> eventClass, boolean ignoreCancelled) {
         return registerListener(function, eventClass, EventPriority.NORMAL, ignoreCancelled);
     }
 
     @Override
-    public BukkitScriptEventListener registerListener(PyFunction function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
+    public BukkitScriptEventListener registerListener(PyCallable function, Class<? extends Event> eventClass, EventPriority priority, boolean ignoreCancelled) {
         Script script = ScriptContext.require();
 
         BukkitScriptEventListener listener = new BukkitScriptEventListener(script, function, eventClass);
@@ -74,7 +74,7 @@ public class BukkitListenerManager extends ListenerManager<BukkitScriptEventList
         removeListener(listener.getScript(), listener);
     }
 
-    public void unregisterListener(PyFunction function, Class<? extends Event> eventClass) {
+    public void unregisterListener(PyCallable function, Class<? extends Event> eventClass) {
         Script script = ScriptContext.require();
         List<BukkitScriptEventListener> listeners = getListeners(script, function, eventClass);
         for (BukkitScriptEventListener listener : listeners) {

@@ -20,12 +20,8 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyNone;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
+import jep.JepException;
+import jep.python.PyCallable;
 
 /**
  * Represents an async task with a synchronous callback defined by a script.
@@ -33,7 +29,7 @@ import org.python.core.ThreadState;
  */
 public class SyncCallbackTask<T> extends Task<T> {
 
-    private final PyFunction callbackFunction;
+    private final PyCallable callbackFunction;
 
     private volatile boolean cancelled;
     private Callback<T> callback;
@@ -45,7 +41,7 @@ public class SyncCallbackTask<T> extends Task<T> {
      * @param callbackFunction The script function that should be called for the synchronous callback
      * @param functionArgs Any arguments that should be passed to the function
      */
-    public SyncCallbackTask(Script script, PyFunction function, PyFunction callbackFunction, Object[] functionArgs, long delay) {
+    public SyncCallbackTask(Script script, PyCallable function, PyCallable callbackFunction, Object[] functionArgs, long delay) {
         super(script, function, functionArgs, true, delay);
         this.callbackFunction = callbackFunction;
 
@@ -58,7 +54,7 @@ public class SyncCallbackTask<T> extends Task<T> {
     @Override
     public void run() {
         try {
-            PyObject outcome = callTaskFunction();
+            Object outcome = callTaskFunction();
 
             if (!cancelled) {
                 callback = new Callback<>(this, outcome);
@@ -71,7 +67,7 @@ public class SyncCallbackTask<T> extends Task<T> {
                     }
                 }
             }
-        } catch (PyException e) {
+        } catch (JepException e) {
             ScriptManager.get().handleScriptException(script, e, "Error while executing callback task");
         } finally {
             if (!cancelled)
@@ -104,7 +100,7 @@ public class SyncCallbackTask<T> extends Task<T> {
     private static class Callback<T> implements Runnable {
 
         private final SyncCallbackTask<T> task;
-        private final PyObject outcome;
+        private final Object outcome;
 
         private T platformTask;
 
@@ -113,7 +109,7 @@ public class SyncCallbackTask<T> extends Task<T> {
          * @param task The asynchronous portion of the task
          * @param outcome The value(s) returned from the function called during the asynchronous portion of the task
          */
-        private Callback(SyncCallbackTask<T> task, PyObject outcome) {
+        private Callback(SyncCallbackTask<T> task, Object outcome) {
             this.task = task;
             this.outcome = outcome;
         }
@@ -131,15 +127,10 @@ public class SyncCallbackTask<T> extends Task<T> {
          */
         @Override
         public void run() {
-            Py.setSystemState(task.script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(task.script.getInterpreter().getSystemState());
-
             try {
-                if (outcome instanceof PyNone)
-                    ScriptContext.runWith(task.script, () -> task.callbackFunction.__call__(threadState));
-                else
-                    ScriptContext.runWith(task.script, () -> task.callbackFunction.__call__(threadState, outcome));
-            } catch (PyException e) {
+                //TODO Test null and non-null outcome
+                ScriptContext.runWith(task.script, () -> task.callbackFunction.call(outcome));
+            } catch (JepException e) {
                 ScriptManager.get().handleScriptException(task.script, e, "Error while executing callback task");
             } finally {
                 synchronized (task) {

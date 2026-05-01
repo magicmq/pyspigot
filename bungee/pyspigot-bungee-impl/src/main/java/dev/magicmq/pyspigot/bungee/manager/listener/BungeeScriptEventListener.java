@@ -21,13 +21,10 @@ import dev.magicmq.pyspigot.manager.listener.ScriptEventListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.JepException;
+import jep.python.PyCallable;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Listener;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
 
 /**
  * A dummy BungeeCord Listener that holds an event a script is currently listening to.
@@ -36,7 +33,7 @@ import org.python.core.ThreadState;
 public class BungeeScriptEventListener implements Listener, ScriptEventListener<Event> {
 
     private final Script script;
-    private final PyFunction listenerFunction;
+    private final PyCallable listenerFunction;
     private final Class<? extends Event> event;
     private final byte priority;
 
@@ -47,7 +44,7 @@ public class BungeeScriptEventListener implements Listener, ScriptEventListener<
      * @param event The BungeeCord event associated with this listener. Should be a {@link Class} of the BungeeCord event
      * @param priority The priority of this event listener
      */
-    public BungeeScriptEventListener(Script script, PyFunction listenerFunction, Class<? extends Event> event, byte priority) {
+    public BungeeScriptEventListener(Script script, PyCallable listenerFunction, Class<? extends Event> event, byte priority) {
         this.script = script;
         this.listenerFunction = listenerFunction;
         this.event = event;
@@ -62,20 +59,13 @@ public class BungeeScriptEventListener implements Listener, ScriptEventListener<
         if (event instanceof ScriptExceptionEvent scriptExceptionEvent) {
             Script eventScript = scriptExceptionEvent.getScript();
             if (eventScript.equals(script)) {
-                String listenerFunctionName = listenerFunction.__code__.co_name;
-                String exceptionFunctionName = scriptExceptionEvent.getException().traceback.tb_frame.f_code.co_name;
-                if (listenerFunctionName.equals(exceptionFunctionName)) {
-                    return;
-                }
+                //TODO Handle if ScriptExceptionEvent fired as a result of an exception in this listener
             }
         }
 
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject parameter = Py.java2py(event);
-            ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameter));
-        } catch (PyException exception) {
+            ScriptContext.runWith(script, () -> listenerFunction.call(event));
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
         }
     }
@@ -86,7 +76,7 @@ public class BungeeScriptEventListener implements Listener, ScriptEventListener<
     }
 
     @Override
-    public PyFunction getListenerFunction() {
+    public PyCallable getListenerFunction() {
         return listenerFunction;
     }
 

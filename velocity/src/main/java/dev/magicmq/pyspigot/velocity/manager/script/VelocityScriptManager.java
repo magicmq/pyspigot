@@ -30,7 +30,7 @@ import dev.magicmq.pyspigot.velocity.config.VelocityProjectOptionsConfig;
 import dev.magicmq.pyspigot.velocity.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.velocity.event.ScriptLoadEvent;
 import dev.magicmq.pyspigot.velocity.event.ScriptUnloadEvent;
-import org.python.core.PyException;
+import jep.JepException;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -85,7 +85,7 @@ public class VelocityScriptManager extends ScriptManager {
     }
 
     @Override
-    protected boolean callScriptExceptionEvent(Script script, PyException exception) {
+    protected boolean callScriptExceptionEvent(Script script, JepException exception) {
         ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception);
         try {
             return PyVelocity.get().getProxy().getEventManager().fire(event).get().doReportException();

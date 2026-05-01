@@ -20,8 +20,8 @@ import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
+import jep.python.PyCallable;
 import net.md_5.bungee.api.ProxyServer;
-import org.python.core.PyFunction;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class BungeeCommandManager extends CommandManager {
     }
 
     @Override
-    protected ScriptCommand registerCommandImpl(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+    protected ScriptCommand registerCommandImpl(Script script, PyCallable commandFunction, PyCallable tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         BungeeScriptCommand newCommand = new BungeeScriptCommand(script, commandFunction, tabFunction, name, aliases, permission);
         ProxyServer.getInstance().getPluginManager().registerCommand(PyBungee.get().getPlugin(), newCommand);
         return newCommand;

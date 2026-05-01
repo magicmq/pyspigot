@@ -23,7 +23,7 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -73,12 +73,12 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * Register a new synchronous listener.
      * <p>
      * <b>Note:</b> This should be called from scripts only!
-     * @see RedisPubSubClient#registerSyncListener(PyFunction, String)
+     * @see RedisPubSubClient#registerSyncListener(PyCallable, String)
      * @param function The function that should be called when a message on the specified channel is received
      * @param channel The channel to listen on
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
      */
-    public ScriptPubSubListener registerListener(PyFunction function, String channel) {
+    public ScriptPubSubListener registerListener(PyCallable function, String channel) {
         return registerSyncListener(function, channel);
     }
 
@@ -90,7 +90,7 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * @param channel The channel to listen on
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
      */
-    public ScriptPubSubListener registerSyncListener(PyFunction function, String channel) {
+    public ScriptPubSubListener registerSyncListener(PyCallable function, String channel) {
         Script script = ScriptContext.require();
         ScriptPubSubListener listener = new ScriptPubSubListener(script, function, channel);
         connection.addListener(listener);
@@ -109,7 +109,7 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * @param channel The channel to listen on
      * @return A {@link ScriptPubSubListener} representing the listener that was registered
      */
-    public ScriptPubSubListener registerAsyncListener(PyFunction function, String channel) {
+    public ScriptPubSubListener registerAsyncListener(PyCallable function, String channel) {
         Script script = ScriptContext.require();
         ScriptPubSubListener listener = new ScriptPubSubListener(script, function, channel);
         connection.addListener(listener);
@@ -145,7 +145,7 @@ public class RedisPubSubClient extends ScriptRedisClient {
      * Unregister a listener via the function associated with it.
      * @param function The function associated with the listener to unregister
      */
-    public void unregisterListener(PyFunction function) {
+    public void unregisterListener(PyCallable function) {
         List<ScriptPubSubListener> syncListeners = List.copyOf(this.syncListeners);
         for (ScriptPubSubListener listener : syncListeners) {
             if (listener.getFunction().equals(function))

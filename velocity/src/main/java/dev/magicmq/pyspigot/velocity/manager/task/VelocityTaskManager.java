@@ -25,7 +25,7 @@ import dev.magicmq.pyspigot.manager.task.Task;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.PyVelocity;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,44 +40,33 @@ public class VelocityTaskManager extends TaskManager<ScheduledTask> {
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#runTaskAsync(PyFunction, Object...)}
+     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#runTaskAsync(PyCallable, Object...)}
      * @throws UnsupportedOperationException always
      */
     @Override
-    public synchronized Task<ScheduledTask> runTask(PyFunction function, Object... functionArgs) {
+    public synchronized Task<ScheduledTask> runTask(PyCallable function, Object... functionArgs) {
         throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#runTaskLaterAsync(PyFunction, long, Object...)}
+     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#runTaskLaterAsync(PyCallable, long, Object...)}
      * @throws UnsupportedOperationException always
      */
     @Override
-    public synchronized Task<ScheduledTask> runTaskLater(PyFunction function, long delay, Object... functionArgs) {
+    public synchronized Task<ScheduledTask> runTaskLater(PyCallable function, long delay, Object... functionArgs) {
         throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
     /**
      * <b>Unsupported operation.</b>
      * <p>
-     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#scheduleAsyncRepeatingTask(PyFunction, long, long, Object...)}
+     * Synchronous tasks are not implemented in Velocity, so this method will not work. Instead, use {@link TaskManager#scheduleAsyncRepeatingTask(PyCallable, long, long, Object...)}
      * @throws UnsupportedOperationException always
      */
     @Override
-    public synchronized RepeatingTask<ScheduledTask> scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
-        throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
-    }
-
-    /**
-     * <b>Unsupported operation.</b>
-     * <p>
-     * Synchronous tasks are not implemented in Velocity, so this method will not work.
-     * @throws UnsupportedOperationException always
-     */
-    @Override
-    public synchronized SyncCallbackTask<ScheduledTask> runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
+    public synchronized RepeatingTask<ScheduledTask> scheduleRepeatingTask(PyCallable function, long delay, long interval, Object... functionArgs) {
         throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
@@ -88,7 +77,18 @@ public class VelocityTaskManager extends TaskManager<ScheduledTask> {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public synchronized SyncCallbackTask<ScheduledTask> runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
+    public synchronized SyncCallbackTask<ScheduledTask> runSyncCallbackTask(PyCallable function, PyCallable callback, Object... functionArgs) {
+        throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
+    }
+
+    /**
+     * <b>Unsupported operation.</b>
+     * <p>
+     * Synchronous tasks are not implemented in Velocity, so this method will not work.
+     * @throws UnsupportedOperationException always
+     */
+    @Override
+    public synchronized SyncCallbackTask<ScheduledTask> runSyncCallbackTaskLater(PyCallable function, PyCallable callback, long delay, Object... functionArgs) {
         throw new UnsupportedOperationException("Velocity does not support synchronous tasks.");
     }
 
@@ -102,7 +102,7 @@ public class VelocityTaskManager extends TaskManager<ScheduledTask> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A Task object representing the registered task
      */
-    public synchronized Task<ScheduledTask> runTaskLaterAsync(PyFunction function, long delay, TimeUnit delayUnit, Object... functionArgs) {
+    public synchronized Task<ScheduledTask> runTaskLaterAsync(PyCallable function, long delay, TimeUnit delayUnit, Object... functionArgs) {
         Script script = ScriptContext.require();
         Task<ScheduledTask> task = new Task<>(script, function, functionArgs, true, delay);
         addTask(task);
@@ -122,7 +122,7 @@ public class VelocityTaskManager extends TaskManager<ScheduledTask> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A RepeatingTask object representing the registered task
      */
-    public synchronized RepeatingTask<ScheduledTask> scheduleAsyncRepeatingTask(PyFunction function, long delay, TimeUnit delayUnit, long interval, TimeUnit intervalUnit, Object... functionArgs) {
+    public synchronized RepeatingTask<ScheduledTask> scheduleAsyncRepeatingTask(PyCallable function, long delay, TimeUnit delayUnit, long interval, TimeUnit intervalUnit, Object... functionArgs) {
         Script script = ScriptContext.require();
         RepeatingTask<ScheduledTask> task = new RepeatingTask<>(script, function, functionArgs, true, delay, interval);
         addTask(task);

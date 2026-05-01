@@ -18,9 +18,7 @@ package dev.magicmq.pyspigot.util;
 
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import org.python.core.Py;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
+import jep.python.PyCallable;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -74,589 +72,538 @@ import java.util.function.UnaryOperator;
  */
 public final class SAMHelper {
 
-    public static Runnable runnable(PyFunction function) {
+    public static Runnable runnable(PyCallable function) {
         return runnable(ScriptContext.require(), function);
     }
 
-    public static Runnable runnable(Script script, PyFunction function) {
+    public static Runnable runnable(Script script, PyCallable function) {
         return () -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                function.__call__();
+                function.call();
             }
         };
     }
 
-    public static <T, U> BiConsumer<T, U> biConsumer(PyFunction function) {
+    public static <T, U> BiConsumer<T, U> biConsumer(PyCallable function) {
         return biConsumer(ScriptContext.require(), function);
     }
 
-    public static <T, U> BiConsumer<T, U> biConsumer(Script script, PyFunction function) {
+    public static <T, U> BiConsumer<T, U> biConsumer(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                function.__call__(p1, p2);
+                function.call(v1, v2);
             }
         };
     }
 
-    public static <T, U, R> BiFunction<T, U, R> biFunction(PyFunction function) {
+    public static <T, U, R> BiFunction<T, U, R> biFunction(PyCallable function) {
         return biFunction(ScriptContext.require(), function);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, U, R> BiFunction<T, U, R> biFunction(Script script, PyFunction function) {
+    public static <T, U, R> BiFunction<T, U, R> biFunction(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return (R) function.__call__(p1, p2);
+                return (R) function.call(v1, v2);
             }
         };
     }
 
-    public static <T> BinaryOperator<T> binaryOperator(PyFunction function) {
+    public static <T> BinaryOperator<T> binaryOperator(PyCallable function) {
         return binaryOperator(ScriptContext.require(), function);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> BinaryOperator<T> binaryOperator(Script script, PyFunction function) {
+    public static <T> BinaryOperator<T> binaryOperator(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return (T) function.__call__(p1, p2);
+                return (T) function.call(v1, v2);
             }
         };
     }
 
-    public static <T, U> BiPredicate<T, U> biPredicate(PyFunction function) {
+    public static <T, U> BiPredicate<T, U> biPredicate(PyCallable function) {
         return biPredicate(ScriptContext.require(), function);
     }
 
-    public static <T, U> BiPredicate<T, U> biPredicate(Script script, PyFunction function) {
+    public static <T, U> BiPredicate<T, U> biPredicate(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return function.__call__(p1, p2).__nonzero__();
+                return function.callAs(Boolean.class, v1, v2);
             }
         };
     }
 
-    public static BooleanSupplier booleanSupplier(PyFunction function) {
+    public static BooleanSupplier booleanSupplier(PyCallable function) {
         return booleanSupplier(ScriptContext.require(), function);
     }
 
-    public static BooleanSupplier booleanSupplier(Script script, PyFunction function) {
+    public static BooleanSupplier booleanSupplier(Script script, PyCallable function) {
         return () -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                return function.__call__().__nonzero__();
+                return function.callAs(Boolean.class);
             }
         };
     }
 
-    public static <T> Consumer<T> consumer(PyFunction function) {
+    public static <T> Consumer<T> consumer(PyCallable function) {
         return consumer(ScriptContext.require(), function);
     }
 
-    public static <T> Consumer<T> consumer(Script script, PyFunction function) {
+    public static <T> Consumer<T> consumer(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                function.__call__(p1);
+                function.call(v1);
             }
         };
     }
 
-    public static DoubleBinaryOperator doubleBinaryOperator(PyFunction function) {
+    public static DoubleBinaryOperator doubleBinaryOperator(PyCallable function) {
         return doubleBinaryOperator(ScriptContext.require(), function);
     }
 
-    public static DoubleBinaryOperator doubleBinaryOperator(Script script, PyFunction function) {
+    public static DoubleBinaryOperator doubleBinaryOperator(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return function.__call__(p1, p2).asDouble();
+                return function.callAs(Double.class, v1, v2);
             }
         };
     }
 
-    public static DoubleConsumer doubleConsumer(PyFunction function) {
+    public static DoubleConsumer doubleConsumer(PyCallable function) {
         return doubleConsumer(ScriptContext.require(), function);
     }
 
-    public static DoubleConsumer doubleConsumer(Script script, PyFunction function) {
+    public static DoubleConsumer doubleConsumer(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                function.__call__(p1);
+                function.call(v1);
             }
         };
     }
 
-    public static <R> DoubleFunction<R> doubleFunction(PyFunction function) {
+    public static <R> DoubleFunction<R> doubleFunction(PyCallable function) {
         return doubleFunction(ScriptContext.require(), function);
     }
 
     @SuppressWarnings("unchecked")
-    public static <R> DoubleFunction<R> doubleFunction(Script script, PyFunction function) {
+    public static <R> DoubleFunction<R> doubleFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return (R) function.__call__(p1);
+                return (R) function.call(v1);
             }
         };
     }
 
-    public static DoublePredicate doublePredicate(PyFunction function) {
+    public static DoublePredicate doublePredicate(PyCallable function) {
         return doublePredicate(ScriptContext.require(), function);
     }
 
-    public static DoublePredicate doublePredicate(Script script, PyFunction function) {
+    public static DoublePredicate doublePredicate(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).__nonzero__();
+                return function.callAs(Boolean.class, v1);
             }
         };
     }
 
-    public static DoubleSupplier doubleSupplier(PyFunction function) {
+    public static DoubleSupplier doubleSupplier(PyCallable function) {
         return doubleSupplier(ScriptContext.require(), function);
     }
 
-    public static DoubleSupplier doubleSupplier(Script script, PyFunction function) {
+    public static DoubleSupplier doubleSupplier(Script script, PyCallable function) {
         return () -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                return function.__call__().asDouble();
+                return function.callAs(Double.class);
             }
         };
     }
 
-    public static DoubleToIntFunction doubleToIntFunction(PyFunction function) {
+    public static DoubleToIntFunction doubleToIntFunction(PyCallable function) {
         return doubleToIntFunction(ScriptContext.require(), function);
     }
 
-    public static DoubleToIntFunction doubleToIntFunction(Script script, PyFunction function) {
+    public static DoubleToIntFunction doubleToIntFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asInt();
+                return function.callAs(Integer.class, v1);
             }
         };
     }
 
-    public static DoubleToLongFunction doubleToLongFunction(PyFunction function) {
+    public static DoubleToLongFunction doubleToLongFunction(PyCallable function) {
         return doubleToLongFunction(ScriptContext.require(), function);
     }
 
-    public static DoubleToLongFunction doubleToLongFunction(Script script, PyFunction function) {
+    public static DoubleToLongFunction doubleToLongFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asLong();
+                return function.callAs(Long.class, v1);
             }
         };
     }
 
-    public static DoubleUnaryOperator doubleUnaryOperator(PyFunction function) {
+    public static DoubleUnaryOperator doubleUnaryOperator(PyCallable function) {
         return doubleUnaryOperator(ScriptContext.require(), function);
     }
 
-    public static DoubleUnaryOperator doubleUnaryOperator(Script script, PyFunction function) {
+    public static DoubleUnaryOperator doubleUnaryOperator(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asDouble();
+                return function.callAs(Double.class, v1);
             }
         };
     }
 
-    public static <T, R> Function<T, R> function(PyFunction function) {
+    public static <T, R> Function<T, R> function(PyCallable function) {
         return function(ScriptContext.require(), function);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, R> Function<T, R> function(Script script, PyFunction function) {
+    public static <T, R> Function<T, R> function(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return (R) function.__call__(p1);
+                return (R) function.call(v1);
             }
         };
     }
 
-    public static IntBinaryOperator intBinaryOperator(PyFunction function) {
+    public static IntBinaryOperator intBinaryOperator(PyCallable function) {
         return intBinaryOperator(ScriptContext.require(), function);
     }
 
-    public static IntBinaryOperator intBinaryOperator(Script script, PyFunction function) {
+    public static IntBinaryOperator intBinaryOperator(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return function.__call__(p1, p2).asInt();
+                return function.callAs(Integer.class, v1, v2);
             }
         };
     }
 
-    public static IntConsumer intConsumer(PyFunction function) {
+    public static IntConsumer intConsumer(PyCallable function) {
         return intConsumer(ScriptContext.require(), function);
     }
 
-    public static IntConsumer intConsumer(Script script, PyFunction function) {
+    public static IntConsumer intConsumer(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                function.__call__(p1);
+                function.call(v1);
             }
         };
     }
 
-    public static <R> IntFunction<R> intFunction(PyFunction function) {
+    public static <R> IntFunction<R> intFunction(PyCallable function) {
         return intFunction(ScriptContext.require(), function);
     }
 
     @SuppressWarnings("unchecked")
-    public static <R> IntFunction<R> intFunction(Script script, PyFunction function) {
+    public static <R> IntFunction<R> intFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return (R) function.__call__(p1);
+                return (R) function.call(v1);
             }
         };
     }
 
-    public static IntPredicate intPredicate(PyFunction function) {
+    public static IntPredicate intPredicate(PyCallable function) {
         return intPredicate(ScriptContext.require(), function);
     }
 
-    public static IntPredicate intPredicate(Script script, PyFunction function) {
+    public static IntPredicate intPredicate(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).__nonzero__();
+                return function.callAs(Boolean.class, v1);
             }
         };
     }
 
-    public static IntSupplier intSupplier(PyFunction function) {
+    public static IntSupplier intSupplier(PyCallable function) {
         return intSupplier(ScriptContext.require(), function);
     }
 
-    public static IntSupplier intSupplier(Script script, PyFunction function) {
+    public static IntSupplier intSupplier(Script script, PyCallable function) {
         return () -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                return function.__call__().asInt();
+                return function.callAs(Integer.class);
             }
         };
     }
 
-    public static IntToDoubleFunction intToDoubleFunction(PyFunction function) {
+    public static IntToDoubleFunction intToDoubleFunction(PyCallable function) {
         return intToDoubleFunction(ScriptContext.require(), function);
     }
 
-    public static IntToDoubleFunction intToDoubleFunction(Script script, PyFunction function) {
+    public static IntToDoubleFunction intToDoubleFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asDouble();
+                return function.callAs(Double.class, v1);
             }
         };
     }
 
-    public static IntToLongFunction intToLongFunction(PyFunction function) {
+    public static IntToLongFunction intToLongFunction(PyCallable function) {
         return intToLongFunction(ScriptContext.require(), function);
     }
 
-    public static IntToLongFunction intToLongFunction(Script script, PyFunction function) {
+    public static IntToLongFunction intToLongFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asLong();
+                return function.callAs(Long.class, v1);
             }
         };
     }
 
-    public static IntUnaryOperator intUnaryOperator(PyFunction function) {
+    public static IntUnaryOperator intUnaryOperator(PyCallable function) {
         return intUnaryOperator(ScriptContext.require(), function);
     }
 
-    public static IntUnaryOperator intUnaryOperator(Script script, PyFunction function) {
+    public static IntUnaryOperator intUnaryOperator(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asInt();
+                return function.callAs(Integer.class, v1);
             }
         };
     }
 
-    public static LongBinaryOperator longBinaryOperator(PyFunction function) {
+    public static LongBinaryOperator longBinaryOperator(PyCallable function) {
         return longBinaryOperator(ScriptContext.require(), function);
     }
 
-    public static LongBinaryOperator longBinaryOperator(Script script, PyFunction function) {
+    public static LongBinaryOperator longBinaryOperator(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return function.__call__(p1, p2).asLong();
+                return function.callAs(Long.class, v1, v2);
             }
         };
     }
 
-    public static LongConsumer longConsumer(PyFunction function) {
+    public static LongConsumer longConsumer(PyCallable function) {
         return longConsumer(ScriptContext.require(), function);
     }
 
-    public static LongConsumer longConsumer(Script script, PyFunction function) {
+    public static LongConsumer longConsumer(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                function.__call__(p1);
+                function.call(v1);
             }
         };
     }
 
-    public static <R> LongFunction<R> longFunction(PyFunction function) {
+    public static <R> LongFunction<R> longFunction(PyCallable function) {
         return longFunction(ScriptContext.require(), function);
     }
 
     @SuppressWarnings("unchecked")
-    public static <R> LongFunction<R> longFunction(Script script, PyFunction function) {
+    public static <R> LongFunction<R> longFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return (R) function.__call__(p1);
+                return (R) function.call(v1);
             }
         };
     }
 
-    public static LongPredicate longPredicate(PyFunction function) {
+    public static LongPredicate longPredicate(PyCallable function) {
         return longPredicate(ScriptContext.require(), function);
     }
 
-    public static LongPredicate longPredicate(Script script, PyFunction function) {
+    public static LongPredicate longPredicate(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).__nonzero__();
+                return function.callAs(Boolean.class, v1);
             }
         };
     }
 
-    public static LongSupplier longSupplier(PyFunction function) {
+    public static LongSupplier longSupplier(PyCallable function) {
         return longSupplier(ScriptContext.require(), function);
     }
 
-    public static LongSupplier longSupplier(Script script, PyFunction function) {
+    public static LongSupplier longSupplier(Script script, PyCallable function) {
         return () -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                return function.__call__().asLong();
+                return function.callAs(Long.class);
             }
         };
     }
 
-    public static LongToDoubleFunction longToDoubleFunction(PyFunction function) {
+    public static LongToDoubleFunction longToDoubleFunction(PyCallable function) {
         return longToDoubleFunction(ScriptContext.require(), function);
     }
 
-    public static LongToDoubleFunction longToDoubleFunction(Script script, PyFunction function) {
+    public static LongToDoubleFunction longToDoubleFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asDouble();
+                return function.callAs(Double.class, v1);
             }
         };
     }
 
-    public static LongToIntFunction longToIntFunction(PyFunction function) {
+    public static LongToIntFunction longToIntFunction(PyCallable function) {
         return longToIntFunction(ScriptContext.require(), function);
     }
 
-    public static LongToIntFunction longToIntFunction(Script script, PyFunction function) {
+    public static LongToIntFunction longToIntFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asInt();
+                return function.callAs(Integer.class, v1);
             }
         };
     }
 
-    public static LongUnaryOperator longUnaryOperator(PyFunction function) {
+    public static LongUnaryOperator longUnaryOperator(PyCallable function) {
         return longUnaryOperator(ScriptContext.require(), function);
     }
 
-    public static LongUnaryOperator longUnaryOperator(Script script, PyFunction function) {
+    public static LongUnaryOperator longUnaryOperator(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asLong();
+                return function.callAs(Long.class, v1);
             }
         };
     }
 
-    public static <T> ObjDoubleConsumer<T> objDoubleConsumer(PyFunction function) {
+    public static <T> ObjDoubleConsumer<T> objDoubleConsumer(PyCallable function) {
         return objDoubleConsumer(ScriptContext.require(), function);
     }
 
-    public static <T> ObjDoubleConsumer<T> objDoubleConsumer(Script script, PyFunction function) {
+    public static <T> ObjDoubleConsumer<T> objDoubleConsumer(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                function.__call__(p1, p2);
+                function.call(v1, v2);
             }
         };
     }
 
-    public static <T> ObjIntConsumer<T> objIntConsumer(PyFunction function) {
+    public static <T> ObjIntConsumer<T> objIntConsumer(PyCallable function) {
         return objIntConsumer(ScriptContext.require(), function);
     }
 
-    public static <T> ObjIntConsumer<T> objIntConsumer(Script script, PyFunction function) {
+    public static <T> ObjIntConsumer<T> objIntConsumer(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                function.__call__(p1, p2);
+                function.call(v1, v2);
             }
         };
     }
 
-    public static <T> ObjLongConsumer<T> objLongConsumer(PyFunction function) {
+    public static <T> ObjLongConsumer<T> objLongConsumer(PyCallable function) {
         return objLongConsumer(ScriptContext.require(), function);
     }
 
-    public static <T> ObjLongConsumer<T> objLongConsumer(Script script, PyFunction function) {
+    public static <T> ObjLongConsumer<T> objLongConsumer(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                function.__call__(p1, p2);
+                function.call(v1, v2);
             }
         };
     }
 
-    public static <T> Predicate<T> predicate(PyFunction function) {
+    public static <T> Predicate<T> predicate(PyCallable function) {
         return predicate(ScriptContext.require(), function);
     }
 
-    public static <T> Predicate<T> predicate(Script script, PyFunction function) {
+    public static <T> Predicate<T> predicate(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).__nonzero__();
+                return function.callAs(Boolean.class, v1);
             }
         };
     }
 
-    public static <T> Supplier<T> supplier(PyFunction function) {
+    public static <T> Supplier<T> supplier(PyCallable function) {
         return supplier(ScriptContext.require(), function);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Supplier<T> supplier(Script script, PyFunction function) {
+    public static <T> Supplier<T> supplier(Script script, PyCallable function) {
         return () -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                return (T) function.__call__();
+                return (T) function.call();
             }
         };
     }
 
-    public static <T, U> ToDoubleBiFunction<T, U> toDoubleBiFunction(PyFunction function) {
+    public static <T, U> ToDoubleBiFunction<T, U> toDoubleBiFunction(PyCallable function) {
         return toDoubleBiFunction(ScriptContext.require(), function);
     }
 
-    public static <T, U> ToDoubleBiFunction<T, U> toDoubleBiFunction(Script script, PyFunction function) {
+    public static <T, U> ToDoubleBiFunction<T, U> toDoubleBiFunction(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return function.__call__(p1, p2).asDouble();
+                return function.callAs(Double.class, v1, v2);
             }
         };
     }
 
-    public static <T> ToDoubleFunction<T> toDoubleFunction(PyFunction function) {
+    public static <T> ToDoubleFunction<T> toDoubleFunction(PyCallable function) {
         return toDoubleFunction(ScriptContext.require(), function);
     }
 
-    public static <T> ToDoubleFunction<T> toDoubleFunction(Script script, PyFunction function) {
+    public static <T> ToDoubleFunction<T> toDoubleFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asDouble();
+                return function.callAs(Double.class, v1);
             }
         };
     }
 
-    public static <T, U> ToIntBiFunction<T, U> toIntBiFunction(PyFunction function) {
+    public static <T, U> ToIntBiFunction<T, U> toIntBiFunction(PyCallable function) {
         return toIntBiFunction(ScriptContext.require(), function);
     }
 
-    public static <T, U> ToIntBiFunction<T, U> toIntBiFunction(Script script, PyFunction function) {
+    public static <T, U> ToIntBiFunction<T, U> toIntBiFunction(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return function.__call__(p1, p2).asInt();
+                return function.callAs(Integer.class, v1, v2);
             }
         };
     }
 
-    public static <T> ToIntFunction<T> toIntFunction(PyFunction function) {
+    public static <T> ToIntFunction<T> toIntFunction(PyCallable function) {
         return toIntFunction(ScriptContext.require(), function);
     }
 
-    public static <T> ToIntFunction<T> toIntFunction(Script script, PyFunction function) {
+    public static <T> ToIntFunction<T> toIntFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asInt();
+                return function.callAs(Integer.class, v1);
             }
         };
     }
 
-    public static <T, U> ToLongBiFunction<T, U> toLongBiFunction(PyFunction function) {
+    public static <T, U> ToLongBiFunction<T, U> toLongBiFunction(PyCallable function) {
         return toLongBiFunction(ScriptContext.require(), function);
     }
 
-    public static <T, U> ToLongBiFunction<T, U> toLongBiFunction(Script script, PyFunction function) {
+    public static <T, U> ToLongBiFunction<T, U> toLongBiFunction(Script script, PyCallable function) {
         return (v1, v2) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                PyObject p2 = Py.java2py(v2);
-                return function.__call__(p1, p2).asLong();
+                return function.callAs(Long.class, v1, v2);
             }
         };
     }
 
-    public static <T> ToLongFunction<T> toLongFunction(PyFunction function) {
+    public static <T> ToLongFunction<T> toLongFunction(PyCallable function) {
         return toLongFunction(ScriptContext.require(), function);
     }
 
-    public static <T> ToLongFunction<T> toLongFunction(Script script, PyFunction function) {
+    public static <T> ToLongFunction<T> toLongFunction(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return function.__call__(p1).asLong();
+                return function.callAs(Long.class, v1);
             }
         };
     }
 
-    public static <T> UnaryOperator<T> unaryOperator(PyFunction function) {
+    public static <T> UnaryOperator<T> unaryOperator(PyCallable function) {
         return unaryOperator(ScriptContext.require(), function);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> UnaryOperator<T> unaryOperator(Script script, PyFunction function) {
+    public static <T> UnaryOperator<T> unaryOperator(Script script, PyCallable function) {
         return (v1) -> {
             try (ScriptContext.Scope ignored = ScriptContext.enter(script)) {
-                PyObject p1 = Py.java2py(v1);
-                return (T) function.__call__(p1);
+                return (T) function.call(v1);
             }
         };
     }

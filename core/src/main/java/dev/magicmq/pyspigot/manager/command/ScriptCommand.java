@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.manager.command;
 
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 /**
  * A command registered by a script. Meant to be implemented by platform-specific classes that also implement or extend an API's command executor class/interface.
@@ -35,7 +35,7 @@ public interface ScriptCommand {
      * Get the command function associated with this command.
      * @return The command function associated with this command
      */
-    PyFunction getCommandFunction();
+    PyCallable getCommandFunction();
 
     /**
      * Get the name of this command.
@@ -47,6 +47,6 @@ public interface ScriptCommand {
      * Set the tab completion function for this command.
      * @param tabFunction The tab function to set
      */
-    void setTabFunction(PyFunction tabFunction);
+    void setTabFunction(PyCallable tabFunction);
 
 }

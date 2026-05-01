@@ -19,7 +19,7 @@ package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,13 +46,13 @@ public class PlaceholderManager {
     /**
      * Register a new script placeholder expansion.
      * <p>
-     * To register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction)}
+     * To register a relational placeholder expansion, see {@link #registerPlaceholder(PyCallable, PyCallable)}
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function that should be called when the placeholder is used
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
-    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction) {
+    public ScriptPlaceholder registerPlaceholder(PyCallable placeholderFunction) {
         Objects.requireNonNull(placeholderFunction);
 
         return registerPlaceholder(placeholderFunction, null, null, "Script Author", "1.0.0");
@@ -66,7 +66,7 @@ public class PlaceholderManager {
      * @param relPlaceholderFunction The function that should be called when the relational placeholder
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
-    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction) {
+    public ScriptPlaceholder registerPlaceholder(PyCallable placeholderFunction, PyCallable relPlaceholderFunction) {
         return registerPlaceholder(placeholderFunction, relPlaceholderFunction, null, "Script Author", "1.0.0");
     }
 
@@ -75,7 +75,7 @@ public class PlaceholderManager {
      * <p>
      * Note that for the identifier, invalid characters ("_", "%", "{", and "}") are automatically removed.
      * <p>
-     * To register a relational placeholder expansion, see {@link #registerPlaceholder(PyFunction, PyFunction, String, String, String)}
+     * To register a relational placeholder expansion, see {@link #registerPlaceholder(PyCallable, PyCallable, String, String, String)}
      * <p>
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function that should be called when the placeholder is used
@@ -85,7 +85,7 @@ public class PlaceholderManager {
      * @param version The version of the placeholder
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
-    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, String identifier, String author, String version) {
+    public ScriptPlaceholder registerPlaceholder(PyCallable placeholderFunction, String identifier, String author, String version) {
         return registerPlaceholder(placeholderFunction, null, identifier, author, version);
     }
 
@@ -103,7 +103,7 @@ public class PlaceholderManager {
      * @param version The version of the placeholder
      * @return A {@link ScriptPlaceholder} representing the placeholder expansion that was registered
      */
-    public ScriptPlaceholder registerPlaceholder(PyFunction placeholderFunction, PyFunction relPlaceholderFunction, String identifier, String author, String version) {
+    public ScriptPlaceholder registerPlaceholder(PyCallable placeholderFunction, PyCallable relPlaceholderFunction, String identifier, String author, String version) {
         Script script = ScriptContext.require();
 
         if (identifier == null)
@@ -141,7 +141,7 @@ public class PlaceholderManager {
      * @param relationalPlaceholderFunction The relational placeholder function to set
      * @param identifier The identifier of the placeholder expansion to register a relational function for
      */
-    public void setRelationalPlaceholderFunction(PyFunction relationalPlaceholderFunction, String identifier) {
+    public void setRelationalPlaceholderFunction(PyCallable relationalPlaceholderFunction, String identifier) {
         identifier = removeInvalidCharacters(identifier);
 
         Script script = ScriptContext.require();
@@ -169,7 +169,7 @@ public class PlaceholderManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param placeholderFunction The function associated with the placeholder expansion to unregister
      */
-    public void unregisterPlaceholder(PyFunction placeholderFunction) {
+    public void unregisterPlaceholder(PyCallable placeholderFunction) {
         Script script = ScriptContext.require();
         List<ScriptPlaceholder> placeholders = getPlaceholders(script);
         for (ScriptPlaceholder placeholder : placeholders) {

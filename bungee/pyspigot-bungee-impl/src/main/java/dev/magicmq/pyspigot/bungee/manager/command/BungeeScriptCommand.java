@@ -21,17 +21,13 @@ import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.JepException;
+import jep.python.PyCallable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyList;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,12 +41,12 @@ import java.util.List;
 public class BungeeScriptCommand extends Command implements TabExecutor, ScriptCommand {
 
     private final Script script;
-    private final PyFunction commandFunction;
+    private final PyCallable commandFunction;
     private final String name;
     private final List<String> aliases;
     private final String permission;
 
-    private PyFunction tabFunction;
+    private PyCallable tabFunction;
 
     /**
      *
@@ -61,7 +57,7 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
      * @param aliases A List of String containing all the aliases for this command. Use an empty list for no aliases
      * @param permission The required permission node to use this command. Can be null
      */
-    public BungeeScriptCommand(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, List<String> aliases, String permission) {
+    public BungeeScriptCommand(Script script, PyCallable commandFunction, PyCallable tabFunction, String name, List<String> aliases, String permission) {
         super(name, permission, aliases.toArray(new String[0]));
         this.script = script;
         this.commandFunction = commandFunction;
@@ -77,23 +73,20 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
     }
 
     @Override
-    public PyFunction getCommandFunction() {
+    public PyCallable getCommandFunction() {
         return commandFunction;
     }
 
     @Override
-    public void setTabFunction(PyFunction tabFunction) {
+    public void setTabFunction(PyCallable tabFunction) {
         this.tabFunction = tabFunction;
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
-            Py.setSystemState(script.getInterpreter().getSystemState());
-            ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-            PyObject[] parameters = Py.javas2pys(sender, getName(), args);
-            ScriptContext.runWith(script, () -> commandFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
-        } catch (PyException exception) {
+            ScriptContext.runWith(script, () -> commandFunction.call(sender, getName(), args));
+        } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + getName() + "'");
             //Mimic BungeeCord behavior
             PyBungee.get().getAdventure().sender(sender).sendMessage(Component.text("An internal error occurred whilst executing this command, please check the console log for details.", NamedTextColor.RED));
@@ -104,24 +97,21 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
         if (tabFunction != null) {
             try {
-                Py.setSystemState(script.getInterpreter().getSystemState());
-                ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                PyObject[] parameters = Py.javas2pys(sender, getName(), args);
-                PyObject result = ScriptContext.supplyWith(script, () -> tabFunction.__call__(threadState, parameters[0], parameters[1], parameters[2]));
-                if (result instanceof PyList pyList) {
+                Object result = ScriptContext.supplyWith(script, () -> tabFunction.call(sender, getName(), args));
+                if (result instanceof List list) {
                     ArrayList<String> toReturn = new ArrayList<>();
-                    for (Object object : pyList) {
+                    for (Object object : list) {
                         if (object instanceof String)
                             toReturn.add((String) object);
                         else {
-                            script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
+                            script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.getAttr("__name__"));
                             return Collections.emptyList();
                         }
                     }
                     return toReturn;
                 } else
-                    script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.__name__);
-            } catch (PyException exception) {
+                    script.getLogger().warn("Script tab complete function '{}' should return a list of str", tabFunction.getAttr("__name__"));
+            } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when tab completing command '" + getName() + "'");
             }
         }

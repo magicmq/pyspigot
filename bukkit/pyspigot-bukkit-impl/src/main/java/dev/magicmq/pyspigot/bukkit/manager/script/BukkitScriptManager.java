@@ -29,9 +29,9 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.manager.script.ScriptOptions;
 import dev.magicmq.pyspigot.manager.script.ScriptLoadService;
+import jep.JepException;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
-import org.python.core.PyException;
 
 import java.nio.file.Path;
 
@@ -79,7 +79,7 @@ public class BukkitScriptManager extends ScriptManager {
     }
 
     @Override
-    protected boolean callScriptExceptionEvent(Script script, PyException exception) {
+    protected boolean callScriptExceptionEvent(Script script, JepException exception) {
         ScriptExceptionEvent event = new ScriptExceptionEvent(script, exception, !Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
         return event.doReportException();

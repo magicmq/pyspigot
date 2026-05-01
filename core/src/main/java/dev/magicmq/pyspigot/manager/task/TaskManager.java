@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,7 +130,7 @@ public abstract class TaskManager<T> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A Task object representing the registered task
      */
-    public synchronized Task<T> runTask(PyFunction function, Object... functionArgs) {
+    public synchronized Task<T> runTask(PyCallable function, Object... functionArgs) {
         Script script = ScriptContext.require();
         Task<T> task = new Task<>(script, function, functionArgs, false, 0);
         addTask(task);
@@ -146,7 +146,7 @@ public abstract class TaskManager<T> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A Task object representing the registered task
      */
-    public synchronized Task<T> runTaskAsync(PyFunction function, Object... functionArgs) {
+    public synchronized Task<T> runTaskAsync(PyCallable function, Object... functionArgs) {
         Script script = ScriptContext.require();
         Task<T> task = new Task<>(script, function, functionArgs, true, 0);
         addTask(task);
@@ -163,7 +163,7 @@ public abstract class TaskManager<T> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A Task object representing the registered task
      */
-    public synchronized Task<T> runTaskLater(PyFunction function, long delay, Object... functionArgs) {
+    public synchronized Task<T> runTaskLater(PyCallable function, long delay, Object... functionArgs) {
         Script script = ScriptContext.require();
         Task<T> task = new Task<>(script, function, functionArgs, false, delay);
         addTask(task);
@@ -180,7 +180,7 @@ public abstract class TaskManager<T> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A Task object representing the registered task
      */
-    public synchronized Task<T> runTaskLaterAsync(PyFunction function, long delay, Object... functionArgs) {
+    public synchronized Task<T> runTaskLaterAsync(PyCallable function, long delay, Object... functionArgs) {
         Script script = ScriptContext.require();
         Task<T> task = new Task<>(script, function, functionArgs, true, delay);
         addTask(task);
@@ -198,7 +198,7 @@ public abstract class TaskManager<T> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A RepeatingTask object representing the registered task
      */
-    public synchronized RepeatingTask<T> scheduleRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
+    public synchronized RepeatingTask<T> scheduleRepeatingTask(PyCallable function, long delay, long interval, Object... functionArgs) {
         Script script = ScriptContext.require();
         RepeatingTask<T> task = new RepeatingTask<>(script, function, functionArgs, false, delay, interval);
         addTask(task);
@@ -216,7 +216,7 @@ public abstract class TaskManager<T> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A RepeatingTask object representing the registered task
      */
-    public synchronized RepeatingTask<T> scheduleAsyncRepeatingTask(PyFunction function, long delay, long interval, Object... functionArgs) {
+    public synchronized RepeatingTask<T> scheduleAsyncRepeatingTask(PyCallable function, long delay, long interval, Object... functionArgs) {
         Script script = ScriptContext.require();
         RepeatingTask<T> task = new RepeatingTask<>(script, function, functionArgs, true, delay, interval);
         addTask(task);
@@ -233,7 +233,7 @@ public abstract class TaskManager<T> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A SyncCallbackTask object representing the registered task
      */
-    public synchronized SyncCallbackTask<T> runSyncCallbackTask(PyFunction function, PyFunction callback, Object... functionArgs) {
+    public synchronized SyncCallbackTask<T> runSyncCallbackTask(PyCallable function, PyCallable callback, Object... functionArgs) {
         Script script = ScriptContext.require();
         SyncCallbackTask<T> task = new SyncCallbackTask<>(script, function, callback, functionArgs, 0);
         addTask(task);
@@ -251,7 +251,7 @@ public abstract class TaskManager<T> {
      * @param functionArgs Any arguments that should be passed to the function
      * @return A SyncCallbackTask object representing the registered task
      */
-    public synchronized SyncCallbackTask<T> runSyncCallbackTaskLater(PyFunction function, PyFunction callback, long delay, Object... functionArgs) {
+    public synchronized SyncCallbackTask<T> runSyncCallbackTaskLater(PyCallable function, PyCallable callback, long delay, Object... functionArgs) {
         Script script = ScriptContext.require();
         SyncCallbackTask<T> task = new SyncCallbackTask<>(script, function, callback, functionArgs, delay);
         addTask(task);
@@ -263,7 +263,7 @@ public abstract class TaskManager<T> {
      * Terminate the task associated with the function.
      * @param function The function whose task should be cancelled
      */
-    public synchronized void stopTask(PyFunction function) {
+    public synchronized void stopTask(PyCallable function) {
         Script script = ScriptContext.require();
         List<Task<T>> tasks = getTasks(script);
         for (Task<T> task : tasks) {

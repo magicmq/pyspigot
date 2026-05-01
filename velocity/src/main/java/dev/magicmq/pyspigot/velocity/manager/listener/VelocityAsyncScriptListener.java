@@ -23,12 +23,9 @@ import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.event.ScriptExceptionEvent;
+import jep.JepException;
+import jep.python.PyCallable;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -41,7 +38,7 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
 
     private final EventTaskType eventTaskType;
 
-    public VelocityAsyncScriptListener(Script script, PyFunction listenerFunction, Class<E> event, EventTaskType eventTaskType) {
+    public VelocityAsyncScriptListener(Script script, PyCallable listenerFunction, Class<E> event, EventTaskType eventTaskType) {
         super(script, listenerFunction, event);
         this.eventTaskType = eventTaskType;
     }
@@ -51,33 +48,25 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
         if (event instanceof ScriptExceptionEvent scriptExceptionEvent) {
             Script eventScript = scriptExceptionEvent.getScript();
             if (eventScript.equals(script)) {
-                String listenerFunctionName = listenerFunction.__code__.co_name;
-                String exceptionFunctionName = scriptExceptionEvent.getException().traceback.tb_frame.f_code.co_name;
-                if (listenerFunctionName.equals(exceptionFunctionName)) {
-                    return null;
-                }
+                //TODO Handle if ScriptExceptionEvent fired as a result of an exception in this listener
             }
         }
 
         if (eventTaskType == EventTaskType.ASYNC) {
             return EventTask.async(() -> {
                 try {
-                    Py.setSystemState(script.getInterpreter().getSystemState());
-                    ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                    PyObject parameter = Py.java2py(event);
-                    ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameter));
-                } catch (PyException exception) {
+                    //TODO Async
+                    ScriptContext.runWith(script, () -> listenerFunction.call(event));
+                } catch (JepException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                 }
             });
         } else if (eventTaskType == EventTaskType.CONTINUATION) {
             return EventTask.withContinuation((continuation) -> {
                 try {
-                    Py.setSystemState(script.getInterpreter().getSystemState());
-                    ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                    PyObject[] parameters = Py.javas2pys(event, continuation);
-                    ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameters[0], parameters[1]));
-                } catch (PyException exception) {
+                    //TODO Async
+                    ScriptContext.runWith(script, () -> listenerFunction.call(event, continuation));
+                } catch (JepException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                     continuation.resumeWithException(exception);
                 }
@@ -85,11 +74,9 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
         } else if (eventTaskType == EventTaskType.RESUME_WHEN_COMPLETE) {
             return EventTask.resumeWhenComplete(CompletableFuture.runAsync(() -> {
                 try {
-                    Py.setSystemState(script.getInterpreter().getSystemState());
-                    ThreadState threadState = Py.getThreadState(script.getInterpreter().getSystemState());
-                    PyObject parameter = Py.java2py(event);
-                    ScriptContext.runWith(script, () -> listenerFunction.__call__(threadState, parameter));
-                } catch (PyException exception) {
+                    //TODO Async
+                    ScriptContext.runWith(script, () -> listenerFunction.call(event));
+                } catch (JepException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                     throw new CompletionException(exception);
                 }

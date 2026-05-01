@@ -20,13 +20,10 @@ import dev.magicmq.pyspigot.bukkit.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.JepException;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.EventExecutor;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyObject;
-import org.python.core.ThreadState;
 
 /**
  * Represents a Bukkit event executor for script event listeners.
@@ -57,20 +54,13 @@ public class BukkitScriptEventExecutor implements EventExecutor {
             if (event instanceof ScriptExceptionEvent scriptExceptionEvent) {
                 Script script = scriptExceptionEvent.getScript();
                 if (scriptEventListener.getScript().equals(script)) {
-                    String listenerFunctionName = scriptEventListener.getListenerFunction().__code__.co_name;
-                    String exceptionFunctionName = scriptExceptionEvent.getException().traceback.tb_frame.f_code.co_name;
-                    if (listenerFunctionName.equals(exceptionFunctionName)) {
-                        return;
-                    }
+                    //TODO Handle if ScriptExceptionEvent fired as a result of an exception in this listener
                 }
             }
 
             try {
-                Py.setSystemState(scriptEventListener.getScript().getInterpreter().getSystemState());
-                ThreadState threadState = Py.getThreadState(scriptEventListener.getScript().getInterpreter().getSystemState());
-                PyObject parameter = Py.java2py(event);
-                ScriptContext.runWith(scriptEventListener.getScript(), () -> scriptEventListener.getListenerFunction().__call__(threadState, parameter));
-            } catch (PyException exception) {
+                ScriptContext.runWith(scriptEventListener.getScript(), () -> scriptEventListener.getListenerFunction().call(event));
+            } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(scriptEventListener.getScript(), exception, "Error when executing event listener");
             }
         }

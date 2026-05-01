@@ -20,13 +20,12 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
-import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.util.ScriptContext;
+import jep.python.PyCallable;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.python.core.PyFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,7 +78,7 @@ public class ProtocolManager {
      * @param type The packet type to listen for
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
-    public ScriptPacketListener registerPacketListener(PyFunction function, PacketType type) {
+    public ScriptPacketListener registerPacketListener(PyCallable function, PacketType type) {
         return registerPacketListener(function, type, ListenerPriority.NORMAL);
     }
 
@@ -94,7 +93,7 @@ public class ProtocolManager {
      * @param priority The priority of the packet listener relative to other packet listeners
      * @return A {@link ScriptPacketListener} representing the packet listener that was registered
      */
-    public ScriptPacketListener registerPacketListener(PyFunction function, PacketType type, ListenerPriority priority) {
+    public ScriptPacketListener registerPacketListener(PyCallable function, PacketType type, ListenerPriority priority) {
         Script script = ScriptContext.require();
 
         ScriptPacketListener listener = null;
@@ -127,7 +126,7 @@ public class ProtocolManager {
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function associated with the packet listener to unregister
      */
-    public void unregisterPacketListener(PyFunction function) {
+    public void unregisterPacketListener(PyCallable function) {
         Script script = ScriptContext.require();
         List<ScriptPacketListener> listeners = getPacketListeners(script);
         for (ScriptPacketListener listener : listeners) {
@@ -144,7 +143,7 @@ public class ProtocolManager {
      * @param function The function associated with the packet listener to unregister
      * @param type The packet type associated with the packet listener to unregister
      */
-    public void unregisterPacketListener(PyFunction function, PacketType type) {
+    public void unregisterPacketListener(PyCallable function, PacketType type) {
         Script script = ScriptContext.require();
         List<ScriptPacketListener> listeners = getPacketListeners(script);
         for (ScriptPacketListener listener : listeners) {

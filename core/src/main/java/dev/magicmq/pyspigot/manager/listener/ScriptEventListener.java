@@ -18,7 +18,7 @@ package dev.magicmq.pyspigot.manager.listener;
 
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 /**
  * A listener registered by a script. Meant to be implemented by platform-specific classes that make use of a platform API's listener framework.
@@ -36,7 +36,7 @@ public interface ScriptEventListener<T> {
      * Get the script function that should be called when the event occurs.
      * @return The script function that should be called when the event occurs
      */
-    PyFunction getListenerFunction();
+    PyCallable getListenerFunction();
 
     /**
      * Get the platform-specific event class associated with this listener.

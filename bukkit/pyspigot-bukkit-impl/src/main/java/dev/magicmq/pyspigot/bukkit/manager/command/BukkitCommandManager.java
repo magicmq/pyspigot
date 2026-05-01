@@ -22,10 +22,10 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
+import jep.python.PyCallable;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
-import org.python.core.PyFunction;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -61,7 +61,7 @@ public class BukkitCommandManager extends CommandManager {
     }
 
     @Override
-    protected ScriptCommand registerCommandImpl(Script script, PyFunction commandFunction, PyFunction tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
+    protected ScriptCommand registerCommandImpl(Script script, PyCallable commandFunction, PyCallable tabFunction, String name, String description, String usage, List<String> aliases, String permission) {
         BukkitScriptCommand newCommand = new BukkitScriptCommand(script, commandFunction, tabFunction, name, description, usage, aliases, permission);
         if (!addCommandToBukkit(newCommand))
             script.getLogger().warn("Used fallback prefix (script name) when registering command '{}'", name);

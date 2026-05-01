@@ -17,7 +17,7 @@
 package dev.magicmq.pyspigot.manager.listener;
 
 import dev.magicmq.pyspigot.manager.script.Script;
-import org.python.core.PyFunction;
+import jep.python.PyCallable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
      * @param eventClass The type of event to listen to
      * @return The ScriptEventListener that was registered
      */
-    public abstract T registerListener(PyFunction function, Class<? extends S> eventClass);
+    public abstract T registerListener(PyCallable function, Class<? extends S> eventClass);
 
     /**
      * Register a new event listener.
@@ -60,7 +60,7 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
      * @param priority The priority of the event relative to other listeners
      * @return The ScriptEventListener that was registered
      */
-    public abstract T registerListener(PyFunction function, Class<? extends S> eventClass, U priority);
+    public abstract T registerListener(PyCallable function, Class<? extends S> eventClass, U priority);
 
     /**
      * Register a new event listener with default priority.
@@ -71,7 +71,7 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
      * @return The ScriptEventListener that was registered
      */
-    public abstract T registerListener(PyFunction function, Class<? extends S> eventClass, boolean ignoreCancelled);
+    public abstract T registerListener(PyCallable function, Class<? extends S> eventClass, boolean ignoreCancelled);
 
     /**
      * Register a new event listener.
@@ -83,7 +83,7 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
      * @param ignoreCancelled If true, the event listener will not be called if the event has been previously cancelled by another listener.
      * @return The ScriptEventListener that was registered
      */
-    public abstract T registerListener(PyFunction function, Class<? extends S> eventClass, U priority, boolean ignoreCancelled);
+    public abstract T registerListener(PyCallable function, Class<? extends S> eventClass, U priority, boolean ignoreCancelled);
 
     /**
      * Unregister an event listener.
@@ -100,7 +100,7 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
      * @param function The function associated with the listener to unregister
      * @param eventClass The event class associated with the listener to unregister. Pass null to unregister all event listeners associated with a function, regardless of event class
      */
-    public abstract void unregisterListener(PyFunction function, Class<? extends S> eventClass);
+    public abstract void unregisterListener(PyCallable function, Class<? extends S> eventClass);
 
     /**
      * Unregister all event listeners belonging to a script.
@@ -114,7 +114,7 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
      * <b>Note:</b> This should be called from scripts only!
      * @param function The function associated with the listener to unregister
      */
-    public void unregisterListener(PyFunction function) {
+    public void unregisterListener(PyCallable function) {
         unregisterListener(function, null);
     }
 
@@ -143,7 +143,7 @@ public abstract class ListenerManager<T extends ScriptEventListener<? extends S>
         return scriptListeners != null ? List.copyOf(scriptListeners) : List.of();
     }
 
-    protected List<T> getListeners(Script script, PyFunction function, Class<? extends S> eventClass) {
+    protected List<T> getListeners(Script script, PyCallable function, Class<? extends S> eventClass) {
         List<T> listeners = getListeners(script);
         return listeners.stream()
                 .filter(listener -> listener.getListenerFunction().equals(function))
