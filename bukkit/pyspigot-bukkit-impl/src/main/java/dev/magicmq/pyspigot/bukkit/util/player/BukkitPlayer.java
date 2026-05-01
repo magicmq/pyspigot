@@ -17,7 +17,7 @@
 package dev.magicmq.pyspigot.bukkit.util.player;
 
 
-import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.util.player.PlayerAdapter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -45,7 +45,7 @@ public class BukkitPlayer implements PlayerAdapter {
 
     @Override
     public void sendMessage(Component message) {
-        Audience player = PyCore.get().getAdventure().player(this.player.getUniqueId());
+        Audience player = PySpigot.get().getAdventure().player(this.player);
         player.sendMessage(message);
     }
 }

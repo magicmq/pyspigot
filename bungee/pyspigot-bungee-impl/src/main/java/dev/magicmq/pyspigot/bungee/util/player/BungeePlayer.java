@@ -17,7 +17,7 @@
 package dev.magicmq.pyspigot.bungee.util.player;
 
 
-import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.util.player.PlayerAdapter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -45,7 +45,7 @@ public class BungeePlayer implements PlayerAdapter {
 
     @Override
     public void sendMessage(Component message) {
-        Audience player = PyCore.get().getAdventure().player(this.player.getUniqueId());
+        Audience player = PyBungee.get().getAdventure().sender(this.player);
         player.sendMessage(message);
     }
 

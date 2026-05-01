@@ -26,7 +26,6 @@ import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.script.GlobalVariables;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
 import dev.magicmq.pyspigot.util.StringUtils;
-import net.kyori.adventure.platform.AudienceProvider;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -54,7 +53,6 @@ public class PyCore {
 
     private Logger logger;
     private DependencyManager dependencyManager;
-    private AudienceProvider adventure;
     private MetricsAdapter metrics;
     private PluginConfig config;
     private ScriptOptionsConfig scriptOptionsConfig;
@@ -96,7 +94,7 @@ public class PyCore {
         this.dependencyManager = new DependencyManager(adapter.initClassPathAppender(), getDataFolderPath());
         this.dependencyManager.loadDependencies();
 
-        adventure = adapter.initAdventure();
+        adapter.initAdventure();
 
         initFolders();
 
@@ -148,8 +146,6 @@ public class PyCore {
         if (metrics != null)
             metrics.shutdown();
 
-        adventure.close();
-
         adapter.shutdownVersionChecking();
 
         dependencyManager.shutdown();
@@ -177,14 +173,6 @@ public class PyCore {
      */
     public DependencyManager getDependencyManager() {
         return dependencyManager;
-    }
-
-    /**
-     * Get the Adventure audience provider, for interacting with the Adventure API.
-     * @return The Adventure AudienceProvider
-     */
-    public AudienceProvider getAdventure() {
-        return adventure;
     }
 
     /**

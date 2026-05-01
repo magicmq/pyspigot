@@ -16,10 +16,9 @@
 
 package dev.magicmq.pyspigot.bukkit.util.player;
 
-import dev.magicmq.pyspigot.PyCore;
+import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.util.player.CommandSenderAdapter;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -46,7 +45,7 @@ public class BukkitCommandSender implements CommandSenderAdapter {
 
     @Override
     public void sendMessage(Component message) {
-        Audience sender = ((BukkitAudiences) PyCore.get().getAdventure()).sender(this.sender);
+        Audience sender = PySpigot.get().getAdventure().sender(this.sender);
         sender.sendMessage(message);
     }
 
