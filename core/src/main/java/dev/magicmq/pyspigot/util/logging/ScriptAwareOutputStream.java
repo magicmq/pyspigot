@@ -22,20 +22,40 @@ import dev.magicmq.pyspigot.util.ScriptContext;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
- * OutputStream installed via {@code JepConfig.redirectStdout}/{@code redirectStderr}.
+ * OutputStream installed via {@code JepConfig.redirectStdout}/{@code redirectStdErr}.
  * <p>
  * JEP routes every Python {@code sys.stdout}/{@code sys.stderr} write through this stream.
- * On each write, the current script is resolved from {@link ScriptContext} and the line is
- * forwarded to that script's logger. When no script context is active on this thread
- * (e.g., interpreter initialization, top-level module imports), output is forwarded to the
- * plugin logger as a fallback so it is still visible without being misattributed.
+ * Bytes are accumulated into an internal buffer and emitted as a single log entry once writes
+ * stop arriving for a short debounce window, or when {@link #flush()} is called. This means a
+ * multi-write Python traceback (which calls {@code stderr.write()} once per line) becomes one
+ * multi-line log entry, while a standalone {@code print()} still emits as its own entry after
+ * the debounce window elapses.
+ * <p>
+ * Routing: when a buffer is emitted, the active {@link Script} captured at write-time
+ * determines the destination logger; if no script context was active, output goes to the plugin
+ * logger as a fallback.
  */
 public final class ScriptAwareOutputStream extends OutputStream {
 
+    private static final ScheduledExecutorService SCHEDULER =
+            Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "PySpigot-LogFlush");
+                t.setDaemon(true);
+                return t;
+            });
+    private static final long DEBOUNCE_MS = 30L;
+
     private final boolean error;
     private final String prefix;
+    private final StringBuilder buffer = new StringBuilder();
+    private Script bufferedScript;
+    private ScheduledFuture<?> pendingFlush;
 
     /**
      *
@@ -48,28 +68,22 @@ public final class ScriptAwareOutputStream extends OutputStream {
     }
 
     /**
-     * Decodes the slice as UTF-8, strips a single trailing newline (the script logger adds
-     * its own line break), and routes the resulting text to the current script's logger or,
-     * if no script context is active on this thread, to the plugin logger.
+     * Appends the slice (decoded as UTF-8) to the internal buffer and (re)schedules a
+     * deferred emit. If the script context changes mid-buffer, the previously buffered
+     * content is emitted first so writes are not misattributed.
      */
     @Override
-    public void write(byte[] buf, int off, int len) {
-        String text = new String(buf, off, len, StandardCharsets.UTF_8).replaceAll("\\R$", "");
-        if (text.isEmpty())
-            return;
+    public synchronized void write(byte[] buf, int off, int len) {
+        Script current = ScriptContext.current();
+        if (buffer.length() > 0 && current != bufferedScript)
+            emitLocked();
 
-        Script script = ScriptContext.current();
-        if (script != null) {
-            if (error)
-                script.getLogger().error(prefix + text);
-            else
-                script.getLogger().info(prefix + text);
-        } else {
-            if (error)
-                PyCore.get().getLogger().error("{}{}", prefix, text);
-            else
-                PyCore.get().getLogger().info("{}{}", prefix, text);
-        }
+        buffer.append(new String(buf, off, len, StandardCharsets.UTF_8));
+        bufferedScript = current;
+
+        if (pendingFlush != null)
+            pendingFlush.cancel(false);
+        pendingFlush = SCHEDULER.schedule(this::scheduledFlush, DEBOUNCE_MS, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -86,5 +100,48 @@ public final class ScriptAwareOutputStream extends OutputStream {
     @Override
     public void write(int b) {
         write(new byte[]{(byte) b}, 0, 1);
+    }
+
+    /**
+     * Forces any buffered content to be emitted immediately. Called by JEP when Python code
+     * does {@code sys.stdout.flush()} / {@code sys.stderr.flush()}.
+     */
+    @Override
+    public synchronized void flush() {
+        if (pendingFlush != null) {
+            pendingFlush.cancel(false);
+            pendingFlush = null;
+        }
+        emitLocked();
+    }
+
+    private synchronized void scheduledFlush() {
+        pendingFlush = null;
+        emitLocked();
+    }
+
+    private void emitLocked() {
+        if (buffer.length() == 0)
+            return;
+
+        String text = buffer.toString().replaceAll("\\R$", "");
+        Script script = bufferedScript;
+        buffer.setLength(0);
+        bufferedScript = null;
+
+        if (text.isEmpty())
+            return;
+
+        if (script != null) {
+            if (error)
+                script.getLogger().error(prefix + text);
+            else
+                script.getLogger().info(prefix + text);
+        } else {
+            if (error)
+                PyCore.get().getLogger().error("{}{}", prefix, text);
+            else
+                PyCore.get().getLogger().info("{}{}", prefix, text);
+        }
     }
 }

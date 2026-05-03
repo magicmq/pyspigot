@@ -27,8 +27,8 @@ public enum Platform {
             "e17275eaf95ceb5877aa6816e209b7733f41fee401d39c3921b88fb73fc4a4ba",
             "linux-x86_64",
             "jep.so",
-            "/lib/python" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + "/",
-            "/lib/libpython" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + ".so.1.0"
+            "lib/python" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + "/",
+            "lib/libpython" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + ".so.1.0"
     ),
 
     LINUX_AARCH64(
@@ -37,8 +37,8 @@ public enum Platform {
             "5c8db1c21023316adad827a46d917bbbd6a85ae4e39bc3a58febda712c2f963d",
             "linux-aarch64",
             "jep.so",
-            "/lib/python" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + "/",
-            "/lib/libpython" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + ".so.1.0"
+            "lib/python" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + "/",
+            "lib/libpython" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + ".so.1.0"
     ),
 
     WINDOWS_X86_64(
@@ -47,7 +47,7 @@ public enum Platform {
             "9647bb46d3c236e34c1c11bbb7113444d9711811f0d11c39956168807a955b1a",
             "windows-x86_64",
             "jep.dll",
-            "/Lib/",
+            "Lib/",
             "python" + JepConstants.PYTHON_MAJOR + JepConstants.PYTHON_MINOR + ".dll"
     ),
 
@@ -57,8 +57,8 @@ public enum Platform {
             "8b7865e511b17093e090449bf71eb52933c17d45ad5257ddeacaffbb2c7239df",
             "macos-aarch64",
             "libjep.so",
-            "/lib/python" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + "/",
-            "/lib/libpython" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + ".dylib"
+            "lib/python" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + "/",
+            "lib/libpython" + JepConstants.PYTHON_MAJOR + "." + JepConstants.PYTHON_MINOR + ".dylib"
     );
 
     private final String downloadURL;

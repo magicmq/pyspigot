@@ -19,6 +19,7 @@ package dev.magicmq.pyspigot.jep;
 
 import jep.ClassEnquirer;
 import jep.ClassList;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,11 +36,17 @@ public class BukkitClassEnquirer implements ClassEnquirer {
 
     public BukkitClassEnquirer() throws IOException {
         try (Stream<Path> path = Files.list(JepBootstrapper.get().getPythonLibDir())) {
-            this.pythonStdLib = path.map(entry -> entry.getFileName().toString()).collect(Collectors.toSet());
+            this.pythonStdLib = path
+                    .map(entry -> entry.getFileName().toString())
+                    .map(FilenameUtils::removeExtension)
+                    .collect(Collectors.toSet());
         }
 
         try (Stream<Path> path = Files.list(JepBootstrapper.get().getSitePackagesDir())) {
-            this.sitePackages = path.map(entry -> entry.getFileName().toString()).collect(Collectors.toSet());
+            this.sitePackages = path
+                    .map(entry -> entry.getFileName().toString())
+                    .map(FilenameUtils::removeExtension)
+                    .collect(Collectors.toSet());
         }
 
         this.delegate = ClassList.getInstance();

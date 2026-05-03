@@ -27,6 +27,7 @@ import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.util.logging.ScriptAwareOutputStream;
+import jep.Jep;
 import jep.JepConfig;
 import jep.JepException;
 import jep.SharedInterpreter;
@@ -34,6 +35,8 @@ import jep.python.PyCallable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,6 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,8 +71,10 @@ public abstract class ScriptManager {
     private final LinkedHashMap<Path, Script> scripts;
     private final LinkedHashMap<String, Script> scriptNames;
     private final HashMap<Path, Path> moduleMap;
+    private final ThreadLocal<Jep> threadInterpreter;
+    private final Set<Jep> attachedInterpreters;
 
-    private SharedInterpreter interpreter;
+    private SharedInterpreter mainThreadInterpreter;
     private PyCallable defLoad;
     private PyCallable defStop;
     private PyCallable defUnload;
@@ -84,6 +90,8 @@ public abstract class ScriptManager {
         this.scripts = new LinkedHashMap<>();
         this.scriptNames = new LinkedHashMap<>();
         this.moduleMap = new HashMap<>();
+        this.threadInterpreter = new ThreadLocal<>();
+        this.attachedInterpreters = ConcurrentHashMap.newKeySet();
 
         //TODO Load on startup config option
         initInterpreter();
@@ -212,10 +220,11 @@ public abstract class ScriptManager {
             jepConfig.redirectStdErr(new ScriptAwareOutputStream(true));
             SharedInterpreter.setConfig(jepConfig);
 
-            this.interpreter = new SharedInterpreter();
+            mainThreadInterpreter = new SharedInterpreter();
+            this.threadInterpreter.set(mainThreadInterpreter);
 
             String loaderCode = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            this.interpreter.exec(loaderCode);
+            mainThreadInterpreter.exec(loaderCode);
         } catch (JepException | IOException e) {
             throw new RuntimeException("Failed to initialize JEP shared interpreter", e);
         }
@@ -243,14 +252,25 @@ public abstract class ScriptManager {
     }
 
     /**
-     * Get the shared JEP interpreter that backs every script.
+     * Get the shared JEP interpreter that backs every script, corresponding to the thread calling this method, via a
+     * {@link ThreadLocal} object.
      * <p>
      * Callers must observe JEP's threading constraint: the interpreter is bound to the thread that
      * created it (see {@link #initInterpreter()}).
+     * <p>
+     * If there is no SharedInterpreter bound to the thread from which this method is called, one will be created via
+     * the {@link jep.Interpreter#attach} method from the {@link jep.SharedInterpreter} bound to the main server thread.
      * @return The shared interpreter
      */
-    public SharedInterpreter getInterpreter() {
-        return interpreter;
+    public Jep getThreadInterpreter() {
+        Jep interpreter = threadInterpreter.get();
+        if (interpreter != null)
+            return interpreter;
+
+        Jep attached = (Jep) mainThreadInterpreter.attach(true);
+        threadInterpreter.set(attached);
+        attachedInterpreters.add(attached);
+        return attached;
     }
 
     /**
@@ -262,13 +282,22 @@ public abstract class ScriptManager {
 
         unloadScripts();
 
-        if (interpreter != null) {
+        for (Jep jep : attachedInterpreters) {
             try {
-                interpreter.close();
+                jep.close();
             } catch (JepException e) {
-                PyCore.get().getLogger().warn("Error closing JEP interpreter on shutdown", e);
+                PyCore.get().getLogger().warn("Error closing attached JEP interpreter on shutdown", e);
             }
-            interpreter = null;
+        }
+
+        attachedInterpreters.clear();
+
+        if (mainThreadInterpreter != null) {
+            try {
+                mainThreadInterpreter.close();
+            } catch (JepException e) {
+                PyCore.get().getLogger().warn("Error closing main JEP interpreter on shutdown", e);
+            }
         }
     }
 
@@ -591,8 +620,11 @@ public abstract class ScriptManager {
             if (message != null) {
                 toLog.append(message).append(":\n");
             }
-            String detail = exception.getMessage();
-            toLog.append(detail != null ? detail : exception.toString());
+
+            StringWriter trace = new StringWriter();
+            exception.printStackTrace(new PrintWriter(trace));
+            toLog.append(trace);
+
             script.getLogger().error(toLog.toString());
         }
     }

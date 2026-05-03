@@ -38,7 +38,6 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -48,7 +47,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.stream.Stream;
 
 /**
@@ -313,14 +311,14 @@ public class PyCore {
      * @param destination The path to save the folder's contents to outside the JAR
      */
     public void extractFolder(String folderPath, Path destination) throws IOException {
-        URI jarUri;
+        Path jarPath;
         try {
-            jarUri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+            jarPath = Path.of(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
         } catch (URISyntaxException e) {
             throw new IOException("Could not resolve JAR location", e);
         }
 
-        try (FileSystem jarFs = FileSystems.newFileSystem(jarUri, Collections.emptyMap())) {
+        try (FileSystem jarFs = FileSystems.newFileSystem(jarPath)) {
 
             Path sourceRoot = jarFs.getPath(folderPath);
 

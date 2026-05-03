@@ -1,6 +1,30 @@
 {
     "dependencies": [
         {
+            "groupId": "org.apache.commons",
+            "artifactId": "commons-compress",
+            "version": "1.28.0",
+            "checksum": "4VIpRSGEVvNkmjm8Sv1wzkvUZiIVGdun03jyFBpGQso="
+        },
+        {
+            "groupId": "commons-codec",
+            "artifactId": "commons-codec",
+            "version": "1.19.0",
+            "checksum": "XDiB5PVWhV6cUykn7gyd/elMxmdg1YBcAxpZiHBwr18="
+        },
+        {
+            "groupId": "commons-io",
+            "artifactId": "commons-io",
+            "version": "2.20.0",
+            "checksum": "35C7oP48tYa38WTnj+j49No/LdXCf6ZF+IgQDMwl3XI="
+        },
+        {
+            "groupId": "org.apache.commons",
+            "artifactId": "commons-lang3",
+            "version": "3.18.0",
+            "checksum": "Tu6ujSDAeKu2SwFewVit04OsWBVxzdxFxo8MmuAjByA="
+        },
+        {
             "groupId": "com.zaxxer",
             "artifactId": "HikariCP",
             "version": "7.0.2",
@@ -110,6 +134,10 @@
         }
     ],
     "relocations": [
+        {
+            "pattern": "org.apache.commons",
+            "shadedPattern": "dev.magicmq.lib.org.apache.commons"
+        },
         {
             "pattern": "com.zaxxer",
             "shadedPattern": "dev.magicmq.lib.com.zaxxer"

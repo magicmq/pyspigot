@@ -59,6 +59,7 @@ public class BukkitScriptEventExecutor implements EventExecutor {
             }
 
             try {
+                //TODO Async
                 ScriptContext.runWith(scriptEventListener.getScript(), () -> scriptEventListener.getListenerFunction().call(event));
             } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(scriptEventListener.getScript(), exception, "Error when executing event listener");

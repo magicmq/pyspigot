@@ -32,12 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -47,7 +44,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,15 +58,16 @@ public class JepBootstrapper {
     private final Path pythonLibDir;
     private final Path sitePackagesDir;
     private final Path nativeLibPath;
+    private final Path manifestPath;
 
     private JepBootstrapper() {
         this.platform = Platform.detectPlatform();
-        PyCore.get().getLogger().info("Detected platform: {}", platform);
 
         this.pythonDir = PyCore.get().getDataFolderPath().resolve("python");
         this.pythonLibDir = pythonDir.resolve(platform.getLibFolderPath());
         this.sitePackagesDir = pythonLibDir.resolve("site-packages");
         this.nativeLibPath = pythonDir.resolve(platform.getNativeLibPath());
+        this.manifestPath = pythonDir.resolve("manifest.json");
     }
 
     public void setupJep() throws Exception {
@@ -78,15 +75,14 @@ public class JepBootstrapper {
             deletePython();
 
             Path downloaded = downloadPython();
-            extractPython(pythonDir, downloaded);
+            extractPython(downloaded, PyCore.get().getDataFolderPath());
             extractJepPackage();
 
-            PyCore.get().extractFolder("Lib", pythonLibDir);
+            PyCore.get().extractFolder("/Lib/", pythonLibDir);
 
-            Path manifestPath = pythonDir.resolve("manifest.json");
-            updateManifest(manifestPath);
+            updateManifest();
         } else {
-            PyCore.get().getLogger().info("Python and JEP set up and up to date.");
+            PyCore.get().getLogger().info("Python/JEP set up and up to date.");
         }
 
         initJep();
@@ -117,7 +113,8 @@ public class JepBootstrapper {
         else
             PyCore.get().getLogger().warn("Python shared library not found under {}, JEP may fail to load", nativeLibPath);
 
-        MainInterpreter.setJepLibraryPath(nativeLibPath.toString());
+        Path jepLibPath = sitePackagesDir.resolve("jep/" + platform.getJniLibName());
+        MainInterpreter.setJepLibraryPath(jepLibPath.toString());
 
         PyConfig config = PyConfig.python();
         config.setHome(pythonDir.toString());
@@ -129,12 +126,11 @@ public class JepBootstrapper {
         if (!Files.exists(pythonDir))
             return false;
 
-        Path manifest = pythonDir.resolve("version.json");
-        if (!Files.exists(manifest))
+        if (!Files.exists(manifestPath))
             return false;
 
         try {
-            String jsonString = Files.readString(manifest);
+            String jsonString = Files.readString(manifestPath);
             JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
 
             String pythonVersion = json.get("pythonVersion").getAsString();
@@ -224,7 +220,8 @@ public class JepBootstrapper {
 
         PyCore.get().getLogger().info("Extracting Python runtime...");
 
-        Files.createDirectories(targetDir);
+        if (!Files.exists(targetDir))
+            Files.createDirectories(targetDir);
         Path normalizedTarget = targetDir.normalize();
         long totalExtracted = 0L;
 
@@ -316,7 +313,7 @@ public class JepBootstrapper {
         }
     }
 
-    private void updateManifest(Path manifestPath) throws IOException {
+    private void updateManifest() throws IOException {
         JsonObject manifest = new JsonObject();
         manifest.addProperty("pythonVersion", JepConstants.PYTHON_VERSION);
         manifest.addProperty("astralRelease", JepConstants.ASTRAL_RELEASE);

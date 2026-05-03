@@ -115,6 +115,10 @@
                         <shadedClassifierName>shaded</shadedClassifierName>
                         <relocations>
                             <relocation>
+                                <pattern>org.apache.commons</pattern>
+                                <shadedPattern>dev.magicmq.lib.org.apache.commons</shadedPattern>
+                            </relocation>
+                            <relocation>
                                 <pattern>io.netty</pattern>
                                 <shadedPattern>dev.magicmq.lib.io.netty</shadedPattern>
                             </relocation>
