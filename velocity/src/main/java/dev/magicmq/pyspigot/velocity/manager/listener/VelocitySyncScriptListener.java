@@ -20,7 +20,6 @@ package dev.magicmq.pyspigot.velocity.manager.listener;
 import com.velocitypowered.api.event.EventHandler;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.event.ScriptExceptionEvent;
 import jep.JepException;
 import jep.python.PyCallable;
@@ -45,7 +44,7 @@ public class VelocitySyncScriptListener<E> extends VelocityScriptListener<E> imp
         }
 
         try {
-            ScriptContext.runWith(script, () -> listenerFunction.call(event));
+            ScriptManager.get().getInterpreter().call(script, () -> listenerFunction.call(event));
         } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
         }

@@ -23,7 +23,6 @@ import com.github.retrooper.packetevents.event.ProtocolPacketEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 
@@ -93,8 +92,7 @@ public class ScriptPacketListener implements PacketListener {
     protected void callToScript(ProtocolPacketEvent event) {
         if (event.getPacketType().equals(packetType)) {
             try {
-                //TODO Async
-                ScriptContext.runWith(script, () -> function.call(event));
+                ScriptManager.get().getInterpreter().call(script, () -> function.call(event));
             } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(script, exception, "Error when calling packet events listener");
             }

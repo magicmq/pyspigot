@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.manager.script;
 
 import dev.magicmq.pyspigot.PyCore;
 import dev.magicmq.pyspigot.exception.ScriptInitializationException;
-import dev.magicmq.pyspigot.jep.BukkitClassEnquirer;
 import dev.magicmq.pyspigot.manager.command.CommandManager;
 import dev.magicmq.pyspigot.manager.database.DatabaseManager;
 import dev.magicmq.pyspigot.manager.listener.ListenerManager;
@@ -26,18 +25,11 @@ import dev.magicmq.pyspigot.manager.packetevents.PacketEventsManager;
 import dev.magicmq.pyspigot.manager.redis.RedisManager;
 import dev.magicmq.pyspigot.manager.task.TaskManager;
 import dev.magicmq.pyspigot.util.ScriptContext;
-import dev.magicmq.pyspigot.util.logging.ScriptAwareOutputStream;
-import jep.Jep;
-import jep.JepConfig;
 import jep.JepException;
-import jep.SharedInterpreter;
-import jep.python.PyCallable;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -49,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,15 +62,7 @@ public abstract class ScriptManager {
     private final LinkedHashMap<Path, Script> scripts;
     private final LinkedHashMap<String, Script> scriptNames;
     private final HashMap<Path, Path> moduleMap;
-    private final ThreadLocal<Jep> threadInterpreter;
-    private final Set<Jep> attachedInterpreters;
-
-    private SharedInterpreter mainThreadInterpreter;
-    private PyCallable defLoad;
-    private PyCallable defStop;
-    private PyCallable defUnload;
-    private PyCallable defIsLoaded;
-    private PyCallable defLoadedScripts;
+    private final ScriptInterpreter interpreter;
 
     protected ScriptManager(ScriptInfo scriptInfo) {
         instance = this;
@@ -90,16 +73,19 @@ public abstract class ScriptManager {
         this.scripts = new LinkedHashMap<>();
         this.scriptNames = new LinkedHashMap<>();
         this.moduleMap = new HashMap<>();
-        this.threadInterpreter = new ThreadLocal<>();
-        this.attachedInterpreters = ConcurrentHashMap.newKeySet();
+        this.interpreter = new ScriptInterpreter(PyCore.get().getConfig().getAsyncInterpreterPoolSize());
 
         //TODO Load on startup config option
-        initInterpreter();
+        interpreter.start();
 
         if (PyCore.get().getConfig().getScriptLoadDelay() > 0L)
             scheduleStartScriptTask();
         else
             loadScripts();
+    }
+
+    public void test() {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     /**
@@ -204,73 +190,11 @@ public abstract class ScriptManager {
     protected abstract void unloadScriptOnMainThread(Script script, boolean error);
 
     /**
-     * Initialize the shared JEP interpreter and import the Python loader module.
-     * <p>
-     * Called once during construction. Per JEP's threading rules the resulting
-     * {@link SharedInterpreter} must only be used on the same thread that created it; on Bukkit
-     * that is the primary server thread.
+     * Get the {@link ScriptInterpreter} that owns the JEP runtime backing every script.
+     * @return The interpreter
      */
-    public void initInterpreter() {
-        PyCore.get().getLogger().info("Creating JEP shared interpreter...");
-
-        try (InputStream is = PyCore.get().getResourceAsStream("loader_module.py")) {
-            JepConfig jepConfig = new JepConfig();
-            jepConfig.setClassEnquirer(new BukkitClassEnquirer());
-            jepConfig.redirectStdout(new ScriptAwareOutputStream(false));
-            jepConfig.redirectStdErr(new ScriptAwareOutputStream(true));
-            SharedInterpreter.setConfig(jepConfig);
-
-            mainThreadInterpreter = new SharedInterpreter();
-            this.threadInterpreter.set(mainThreadInterpreter);
-
-            String loaderCode = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            mainThreadInterpreter.exec(loaderCode);
-        } catch (JepException | IOException e) {
-            throw new RuntimeException("Failed to initialize JEP shared interpreter", e);
-        }
-    }
-
-    /**
-     * Initialize callable functions from the loader module so the ScriptManager can call them later from Java.
-     * <p>
-     * This should be called once from the loader module only.
-     * @param defLoad {@code def load(script_id, java_script, java_logger, main_path, source, project_path=None):}
-     * @param defStop {@code def stop(script_id):}
-     * @param defUnload {@code def unload(script_id):}
-     * @param defIsLoaded {@code def is_loaded(script_id):}
-     * @param defLoadedScripts {@code def loaded_scripts():}
-     */
-    public void initFunctions(PyCallable defLoad, PyCallable defStop, PyCallable defUnload, PyCallable defIsLoaded, PyCallable defLoadedScripts) {
-        if (this.defLoad != null)
-            throw new UnsupportedOperationException("Loader module functions have already been initialized");
-
-        this.defLoad = defLoad;
-        this.defStop = defStop;
-        this.defUnload = defUnload;
-        this.defIsLoaded = defIsLoaded;
-        this.defLoadedScripts = defLoadedScripts;
-    }
-
-    /**
-     * Get the shared JEP interpreter that backs every script, corresponding to the thread calling this method, via a
-     * {@link ThreadLocal} object.
-     * <p>
-     * Callers must observe JEP's threading constraint: the interpreter is bound to the thread that
-     * created it (see {@link #initInterpreter()}).
-     * <p>
-     * If there is no SharedInterpreter bound to the thread from which this method is called, one will be created via
-     * the {@link jep.Interpreter#attach} method from the {@link jep.SharedInterpreter} bound to the main server thread.
-     * @return The shared interpreter
-     */
-    public Jep getThreadInterpreter() {
-        Jep interpreter = threadInterpreter.get();
-        if (interpreter != null)
-            return interpreter;
-
-        Jep attached = (Jep) mainThreadInterpreter.attach(true);
-        threadInterpreter.set(attached);
-        attachedInterpreters.add(attached);
-        return attached;
+    public ScriptInterpreter getInterpreter() {
+        return interpreter;
     }
 
     /**
@@ -282,23 +206,7 @@ public abstract class ScriptManager {
 
         unloadScripts();
 
-        for (Jep jep : attachedInterpreters) {
-            try {
-                jep.close();
-            } catch (JepException e) {
-                PyCore.get().getLogger().warn("Error closing attached JEP interpreter on shutdown", e);
-            }
-        }
-
-        attachedInterpreters.clear();
-
-        if (mainThreadInterpreter != null) {
-            try {
-                mainThreadInterpreter.close();
-            } catch (JepException e) {
-                PyCore.get().getLogger().warn("Error closing main JEP interpreter on shutdown", e);
-            }
-        }
+        interpreter.shutdown();
     }
 
     /**
@@ -621,9 +529,19 @@ public abstract class ScriptManager {
                 toLog.append(message).append(":\n");
             }
 
-            StringWriter trace = new StringWriter();
-            exception.printStackTrace(new PrintWriter(trace));
-            toLog.append(trace);
+            if (exception.getPythonTraceback() != null) {
+                toLog.append(exception.getPythonTraceback());
+                if (exception.getCause() != null) {
+                    toLog.append("\nJava Stack Trace:\n");
+                    StringWriter trace = new StringWriter();
+                    exception.getCause().printStackTrace(new PrintWriter(trace));
+                    toLog.append(trace);
+                }
+            } else {
+                StringWriter trace = new StringWriter();
+                exception.printStackTrace(new PrintWriter(trace));
+                toLog.append(trace);
+            }
 
             script.getLogger().error(toLog.toString());
         }
@@ -840,17 +758,10 @@ public abstract class ScriptManager {
         };
 
         try {
-            ScriptContext.runWith(script, () -> {
-                try {
-                    defLoad.call(loaderArgs);
-                } catch (JepException e) {
-                    throw new LoaderInvocationException(e);
-                }
-            });
+            ScriptContext.runWith(script, () -> interpreter.callLoad(loaderArgs));
             callScriptLoadEvent(script);
             return RunResult.SUCCESS;
-        } catch (LoaderInvocationException wrapped) {
-            JepException e = wrapped.cause;
+        } catch (JepException e) {
             if (isPythonSystemExit(e)) {
                 String exitCode = extractSystemExitCode(e);
                 script.getLogger().info("Script exited with exit code '{}'", exitCode);
@@ -869,21 +780,15 @@ public abstract class ScriptManager {
 
         if (!error) {
             try {
-                Object failures = ScriptContext.supplyWith(script, () -> {
-                    try {
-                        return defStop.call(script.getName());
-                    } catch (JepException e) {
-                        throw new LoaderInvocationException(e);
-                    }
-                });
+                Object failures = ScriptContext.supplyWith(script, () -> interpreter.callStop(script.getName()));
                 if (failures instanceof List<?> failureList && !failureList.isEmpty()) {
                     gracefulStop = false;
                     for (Object failure : failureList) {
                         script.getLogger().error("Error when calling stop function: {}", failure);
                     }
                 }
-            } catch (LoaderInvocationException wrapped) {
-                handleScriptException(script, wrapped.cause, "Error when running stop hooks");
+            } catch (JepException e) {
+                handleScriptException(script, e, "Error when running stop hooks");
                 gracefulStop = false;
             }
         }
@@ -902,7 +807,7 @@ public abstract class ScriptManager {
         unregisterFromPlatformManagers(script);
 
         try {
-            defUnload.call(script.getName());
+            interpreter.callUnload(script.getName());
         } catch (JepException e) {
             PyCore.get().getLogger().warn("Error tearing down loader state for script '{}'", script.getName(), e);
             gracefulStop = false;
@@ -953,17 +858,4 @@ public abstract class ScriptManager {
         return instance;
     }
 
-    /**
-     * Unchecked carrier so we can pop a {@link JepException} back out of the
-     * {@link ScriptContext} lambdas without polluting their {@code Runnable}/{@code Supplier}
-     * signatures with a checked throws clause.
-     */
-    private static final class LoaderInvocationException extends RuntimeException {
-        private final JepException cause;
-
-        LoaderInvocationException(JepException cause) {
-            super(cause);
-            this.cause = cause;
-        }
-    }
 }

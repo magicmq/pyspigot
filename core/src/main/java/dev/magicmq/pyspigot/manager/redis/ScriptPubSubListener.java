@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.manager.redis;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import jep.JepException;
 import jep.python.PyCallable;
@@ -53,9 +52,8 @@ public class ScriptPubSubListener implements RedisPubSubListener<String, String>
     @Override
     public void message(String channel, String message) {
         if (channel.equals(this.channel)) {
-            //TODO Async
             try {
-                ScriptContext.runWith(script, () -> function.call(channel, message));
+                ScriptManager.get().getInterpreter().call(script, () -> function.call(channel, message));
             } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(script, exception, "Error when calling script redis pub/sub listener");
             }

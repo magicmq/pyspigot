@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.manager.task;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 
@@ -124,7 +123,6 @@ public class Task<T> implements Runnable {
     }
 
     protected Object callTaskFunction() {
-        //TODO Async
-        return ScriptContext.supplyWith(script, function::call);
+        return ScriptManager.get().getInterpreter().callWithResult(script, function::call);
     }
 }

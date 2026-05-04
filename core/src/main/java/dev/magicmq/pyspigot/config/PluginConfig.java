@@ -32,6 +32,8 @@ public interface PluginConfig {
 
     long getScriptLoadInterval();
 
+    int getAsyncInterpreterPoolSize();
+
     HashMap<String, String> getLibraryRelocations();
 
     DateTimeFormatter getLogTimestamp();

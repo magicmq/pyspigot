@@ -18,7 +18,6 @@ package dev.magicmq.pyspigot.bukkit.manager.placeholder;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -133,7 +132,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
         }
 
         try {
-            Object result = ScriptContext.supplyWith(script, () -> function.call(player, params));
+            Object result = ScriptManager.get().getInterpreter().callWithResult(script, () -> function.call(player, params));
             if (result instanceof String) {
                 return ((String) result);
             }
@@ -157,7 +156,7 @@ public class ScriptPlaceholder extends PlaceholderExpansion implements Relationa
         }
 
         try {
-            Object result = ScriptContext.supplyWith(script, () -> relFunction.call(playerOne, playerTwo, identifier));
+            Object result = ScriptManager.get().getInterpreter().callWithResult(script, () -> relFunction.call(playerOne, playerTwo, identifier));
             if (result instanceof String) {
                 return ((String) result);
             }

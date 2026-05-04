@@ -70,6 +70,11 @@ public class BungeePluginConfig implements PluginConfig {
     }
 
     @Override
+    public int getAsyncInterpreterPoolSize() {
+        return config.getInt("interpreter-pool-size");
+    }
+
+    @Override
     public HashMap<String, String> getLibraryRelocations() {
         HashMap<String, String> toReturn = new HashMap<>();
         for (String string : config.getStringList("library-relocations")) {

@@ -78,6 +78,11 @@ public class VelocityPluginConfig implements PluginConfig {
     }
 
     @Override
+    public int getAsyncInterpreterPoolSize() {
+        return config.node("interpreter-pool-size").getInt();
+    }
+
+    @Override
     public HashMap<String, String> getLibraryRelocations() {
         HashMap<String, String> toReturn = new HashMap<>();
         try {

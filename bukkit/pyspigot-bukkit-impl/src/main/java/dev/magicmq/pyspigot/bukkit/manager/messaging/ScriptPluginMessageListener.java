@@ -19,7 +19,6 @@ package dev.magicmq.pyspigot.bukkit.manager.messaging;
 
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 import org.bukkit.entity.Player;
@@ -74,7 +73,7 @@ public class ScriptPluginMessageListener implements PluginMessageListener {
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if (channel.equals(this.channel)) {
             try {
-                ScriptContext.runWith(script, () -> function.call(channel, player, message));
+                ScriptManager.get().getInterpreter().call(script, () -> function.call(channel, player, message));
             } catch (JepException e) {
                 ScriptManager.get().handleScriptException(script, e, "Error when calling plugin message listener");
             }

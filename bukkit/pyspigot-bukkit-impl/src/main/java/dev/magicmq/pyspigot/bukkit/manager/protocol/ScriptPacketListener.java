@@ -23,7 +23,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import dev.magicmq.pyspigot.bukkit.PySpigot;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 
@@ -92,8 +91,7 @@ public abstract class ScriptPacketListener extends PacketAdapter {
      */
     public void callToScript(PacketEvent event) {
         try {
-            //TODO Handle async
-            ScriptContext.runWith(script, () -> function.call(event));
+            ScriptManager.get().getInterpreter().call(script, () -> function.call(event));
         } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when calling packet listener");
         }

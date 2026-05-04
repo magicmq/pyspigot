@@ -25,10 +25,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <!-- Local forked build to expose Python traceback in JepException !-->
         <dependency>
-            <groupId>black.ninia</groupId>
+            <groupId>org.ninia</groupId>
             <artifactId>jep</artifactId>
-            <version>4.3.1</version>
+            <version>4.3.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -20,7 +20,6 @@ import dev.magicmq.pyspigot.bungee.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.manager.listener.ScriptEventListener;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 import net.md_5.bungee.api.plugin.Event;
@@ -64,7 +63,7 @@ public class BungeeScriptEventListener implements Listener, ScriptEventListener<
         }
 
         try {
-            ScriptContext.runWith(script, () -> listenerFunction.call(event));
+            ScriptManager.get().getInterpreter().call(script, () -> listenerFunction.call(event));
         } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
         }

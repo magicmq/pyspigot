@@ -19,7 +19,6 @@ package dev.magicmq.pyspigot.bukkit.manager.listener;
 import dev.magicmq.pyspigot.bukkit.event.ScriptExceptionEvent;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
@@ -59,8 +58,7 @@ public class BukkitScriptEventExecutor implements EventExecutor {
             }
 
             try {
-                //TODO Async
-                ScriptContext.runWith(scriptEventListener.getScript(), () -> scriptEventListener.getListenerFunction().call(event));
+                ScriptManager.get().getInterpreter().call(scriptEventListener.getScript(), () -> scriptEventListener.getListenerFunction().call(event));
             } catch (JepException exception) {
                 ScriptManager.get().handleScriptException(scriptEventListener.getScript(), exception, "Error when executing event listener");
             }

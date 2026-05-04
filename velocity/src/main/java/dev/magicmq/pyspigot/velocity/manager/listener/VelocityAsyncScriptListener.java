@@ -21,7 +21,6 @@ import com.velocitypowered.api.event.AwaitingEventExecutor;
 import com.velocitypowered.api.event.EventTask;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import dev.magicmq.pyspigot.velocity.event.ScriptExceptionEvent;
 import jep.JepException;
 import jep.python.PyCallable;
@@ -55,8 +54,7 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
         if (eventTaskType == EventTaskType.ASYNC) {
             return EventTask.async(() -> {
                 try {
-                    //TODO Async
-                    ScriptContext.runWith(script, () -> listenerFunction.call(event));
+                    ScriptManager.get().getInterpreter().call(script, () -> listenerFunction.call(event));
                 } catch (JepException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                 }
@@ -64,8 +62,7 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
         } else if (eventTaskType == EventTaskType.CONTINUATION) {
             return EventTask.withContinuation((continuation) -> {
                 try {
-                    //TODO Async
-                    ScriptContext.runWith(script, () -> listenerFunction.call(event, continuation));
+                    ScriptManager.get().getInterpreter().call(script, () -> listenerFunction.call(event, continuation));
                 } catch (JepException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                     continuation.resumeWithException(exception);
@@ -74,8 +71,7 @@ public class VelocityAsyncScriptListener<E> extends VelocityScriptListener<E> im
         } else if (eventTaskType == EventTaskType.RESUME_WHEN_COMPLETE) {
             return EventTask.resumeWhenComplete(CompletableFuture.runAsync(() -> {
                 try {
-                    //TODO Async
-                    ScriptContext.runWith(script, () -> listenerFunction.call(event));
+                    ScriptManager.get().getInterpreter().call(script, () -> listenerFunction.call(event));
                 } catch (JepException exception) {
                     ScriptManager.get().handleScriptException(script, exception, "Error when executing event listener");
                     throw new CompletionException(exception);

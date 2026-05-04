@@ -208,15 +208,3 @@ def _invoke_hook(hook, java_script):
         hook()
     else:
         hook(java_script)
-
-
-# Pass references to functions back to Java
-from dev.magicmq.pyspigot.manager.script import ScriptManager
-
-ScriptManager.get().initFunctions(
-    load,
-    stop,
-    unload,
-    is_loaded,
-    loaded_scripts,
-)

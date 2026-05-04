@@ -35,6 +35,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -43,10 +44,10 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class JepBootstrapper {
@@ -71,19 +72,21 @@ public class JepBootstrapper {
     }
 
     public void setupJep() throws Exception {
-        if (!verifyLatest()) {
-            deletePython();
+        UpdatePlan plan = computeUpdatePlan();
 
-            Path downloaded = downloadPython();
-            extractPython(downloaded, PyCore.get().getDataFolderPath());
-            extractJepPackage();
+        if (!plan.requiresAnyWork()) {
+            PyCore.get().getLogger().info("Python and JEP are set up and up to date.");
 
-            PyCore.get().extractFolder("/Lib/", pythonLibDir);
-
-            updateManifest();
-        } else {
-            PyCore.get().getLogger().info("Python/JEP set up and up to date.");
+            initJep();
+            return;
         }
+
+        if (plan.isFirstInstall())
+            performFirstInstall();
+        else
+            performSelectiveUpdate(plan);
+
+        writeManifest(plan);
 
         initJep();
     }
@@ -104,6 +107,72 @@ public class JepBootstrapper {
         return nativeLibPath;
     }
 
+    // Update plan orchestration
+
+    private UpdatePlan computeUpdatePlan() {
+        if (!Files.exists(pythonDir) || !Files.exists(manifestPath))
+            return UpdatePlan.firstInstall();
+
+        try {
+            String jsonString = Files.readString(manifestPath);
+            JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
+
+            boolean pythonOutdated =
+                    isFieldOutdated(json, "pythonVersion", JepConstants.PYTHON_VERSION) ||
+                            isFieldOutdated(json, "astralRelease", JepConstants.JEP_VERSION);
+
+            boolean jepOutdated =
+                    isFieldOutdated(json, "jepVersion", JepConstants.JEP_VERSION);
+
+            boolean modulesOutdated =
+                    isFieldOutdated(json, "pyspigotModulesVersion", JepConstants.PYSPIGOT_MODULES_VERSION);
+
+            return new UpdatePlan(false, pythonOutdated, jepOutdated, modulesOutdated);
+        } catch (IOException e) {
+            PyCore.get().getLogger().warn("Failed to parse manifest.json, performing a fresh installation. Cause: {}", e.getMessage());
+            return UpdatePlan.firstInstall();
+        }
+    }
+
+    private boolean isFieldOutdated(JsonObject json, String field, String expected) {
+        return !json.has(field) || !json.get(field).getAsString().equals(expected);
+    }
+
+    private void performFirstInstall() throws Exception {
+        PyCore.get().getLogger().info("Performing first-time Python/JEP installation...");
+
+        if (Files.exists(pythonDir))
+            deletePython();
+
+        Path downloaded = downloadPython();
+        extractPython(downloaded, PyCore.get().getDataFolderPath());
+        extractJepPackage();
+        extractPySpigotModules();
+    }
+
+    private void performSelectiveUpdate(UpdatePlan plan) throws Exception {
+        if (plan.needsPythonUpdate()) {
+            PyCore.get().getLogger().info("Python runtime update available, updating...");
+
+            Path downloaded = downloadPython();
+            extractPython(downloaded, PyCore.get().getDataFolderPath());
+        }
+
+        if (plan.needsJepUpdate()) {
+            PyCore.get().getLogger().info("JEP update available, updating...");
+
+            extractJepPackage();
+        }
+
+        if (plan.needsModulesUpdate()) {
+            PyCore.get().getLogger().info("PySpigot modules update available, updating...");
+
+            extractPySpigotModules();
+        }
+    }
+
+    //JEP initialization
+
     private void initJep() {
         PyCore.get().getLogger().info("Initializing JEP...");
 
@@ -122,48 +191,129 @@ public class JepBootstrapper {
         MainInterpreter.setInitParams(config);
     }
 
-    private boolean verifyLatest() {
-        if (!Files.exists(pythonDir))
-            return false;
+    // Component installers
 
-        if (!Files.exists(manifestPath))
-            return false;
+    private void extractJepPackage() throws IOException {
+        PyCore.get().getLogger().info("Installing JEP package...");
 
+        if (!Files.exists(sitePackagesDir))
+            throw new IOException("site-packages directory not found at '" + sitePackagesDir + "'");
+
+        Path jepPkgDir = sitePackagesDir.resolve("jep");
+        Files.createDirectories(jepPkgDir);
+
+        PyCore.get().extractFolder("jep-pkg/jep/", jepPkgDir);
+
+        String jniPath = "jep-pkg/native/" + platform.getJniLibDir() + "/" + platform.getJniLibName();
+        Path jniDest = jepPkgDir.resolve(platform.getJniLibName());
+
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(jniPath)) {
+            if (in == null)
+                throw new IOException("JEP native library not found in plugin JAR at '" + jniPath + "'");
+            Files.copy(in, jniDest, StandardCopyOption.REPLACE_EXISTING);
+            setPermissions(jniDest, 0755);
+        }
+
+        writeJepDistInfo();
+    }
+
+    private void writeJepDistInfo() throws IOException {
+        try (Stream<Path> entries = Files.list(sitePackagesDir)) {
+            entries.filter(p -> {
+                String name = p.getFileName().toString();
+                return name.startsWith("jep-") && name.endsWith(".dist-info");
+            }).forEach(p -> {
+                try {
+                    deleteFolder(p);
+                } catch (IOException ignored) {}
+            });
+        }
+
+        Path distInfoDir = sitePackagesDir.resolve(JepConstants.DIST_INFO_NAME);
+        Files.createDirectories(distInfoDir);
+
+        PyCore.get().extractFolder("jep-pkg/dist-info/", distInfoDir);
+
+        StringBuilder record = new StringBuilder();
+
+        Consumer<Path> consumer = (p) -> {
+            String rel = sitePackagesDir.relativize(p).toString()
+                    .replace(File.separatorChar, '/');
+            record.append(rel).append(",,\n");
+        };
+
+        try (Stream<Path> files = Files.walk(sitePackagesDir.resolve("jep"))) {
+            files.filter(Files::isRegularFile)
+                    .sorted()
+                    .forEach(consumer);
+        }
+
+        try (Stream<Path> files = Files.walk(distInfoDir)) {
+            files.filter(Files::isRegularFile)
+                    .filter(p -> !p.getFileName().toString().equals("RECORD"))
+                    .sorted()
+                    .forEach(consumer);
+        }
+
+        record.append(JepConstants.DIST_INFO_NAME).append("/RECORD,,\n");
+
+        Files.writeString(distInfoDir.resolve("RECORD"), record.toString());
+    }
+
+    private void extractPySpigotModules() throws IOException {
+        PyCore.get().getLogger().info("Installing PySpigot modules...");
+        PyCore.get().extractFolder("/Lib/", pythonLibDir);
+    }
+
+    // Manifest
+
+    private void writeManifest(UpdatePlan plan) throws Exception {
+        JsonObject manifest = new JsonObject();
+
+        if (!plan.isFirstInstall() && Files.exists(manifestPath)) {
+            try {
+                manifest = JsonParser.parseString(Files.readString(manifestPath)).getAsJsonObject();
+            } catch (Exception ignored) {
+                manifest = new JsonObject();
+            }
+        }
+
+        if (plan.isFirstInstall() || plan.needsPythonUpdate()) {
+            manifest.addProperty("pythonVersion", JepConstants.PYTHON_VERSION);
+            manifest.addProperty("astralRelease", JepConstants.ASTRAL_RELEASE);
+        }
+
+        if (plan.isFirstInstall() || plan.needsJepUpdate()) {
+            manifest.addProperty("jepVersion", JepConstants.JEP_VERSION);
+        }
+
+        if (plan.isFirstInstall() || plan.needsModulesUpdate()) {
+            manifest.addProperty("pyspigotModulesVersion", JepConstants.PYSPIGOT_MODULES_VERSION);
+        }
+
+        Path tmp = manifestPath.resolveSibling("manifest.json.tmp");
         try {
-            String jsonString = Files.readString(manifestPath);
-            JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
-
-            String pythonVersion = json.get("pythonVersion").getAsString();
-            if (!pythonVersion.equals(JepConstants.PYTHON_VERSION))
-                return false;
-
-            String pythonBuild = json.get("astralRelease").getAsString();
-            if (!pythonBuild.equals(JepConstants.ASTRAL_RELEASE))
-                return false;
-
-            String jepVersion = json.get("jepVersion").getAsString();
-            if (!jepVersion.equals(JepConstants.JEP_VERSION))
-                return false;
-
-            return true;
-        } catch (IOException ignored) {
-            return false;
+            Files.writeString(tmp, manifest.toString(), StandardCharsets.UTF_8);
+            Files.move(tmp, manifestPath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } finally {
+            Files.deleteIfExists(tmp);
         }
     }
 
+    // Download and extraction
+
     private void deletePython() throws IOException {
+        if (!Files.exists(pythonDir))
+            return;
+
         try (Stream<Path> paths = Files.list(pythonDir)) {
             if (paths.findAny().isEmpty())
                 return;
         }
 
-        PyCore.get().getLogger().info("Deleting Python runtime...");
+        PyCore.get().getLogger().info("Deleting existing Python runtime...");
 
-        try (Stream<Path> walk = Files.walk(pythonDir)) {
-            walk.sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        }
+        deleteFolder(pythonDir);
     }
 
     private Path downloadPython() throws Exception {
@@ -190,7 +340,7 @@ public class JepBootstrapper {
                     client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() != 200) {
-                throw new IOException("HTTP " + response.statusCode() + " from " + platform.getDownloadURL());
+                throw new IOException("HTTP " + response.statusCode() + " from '" + platform.getDownloadURL() + "'");
             }
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -205,7 +355,7 @@ public class JepBootstrapper {
 
             String actual = bytesToHex(digest.digest());
             if (!actual.equalsIgnoreCase(platform.getSha256()))
-                throw new IOException("SHA-256 mismatch: expected " + platform.getSha256() + ", but got " + actual);
+                throw new IOException("SHA-256 mismatch for Python archive: expected '" + platform.getSha256() + "', but got '" + actual + "'");
 
             success = true;
             return tempFile;
@@ -244,7 +394,7 @@ public class JepBootstrapper {
                 Path dest = targetDir.resolve("python").resolve(relative);
 
                 if (!dest.normalize().startsWith(normalizedTarget)) {
-                    throw new IOException("Path traversal detected in archive entry: " + name);
+                    throw new IOException("Path traversal detected in archive entry: '" + name + "'");
                 }
 
                 if (entry.isDirectory()) {
@@ -293,35 +443,14 @@ public class JepBootstrapper {
         }
     }
 
-    private void extractJepPackage() throws IOException {
-        PyCore.get().getLogger().info("Installing JEP package...");
+    // Utilities
 
-        if (!Files.exists(sitePackagesDir))
-            throw new IOException("Unable to locate site-packages directory");
-
-        Path jepPkgDir = sitePackagesDir.resolve("jep");
-        Files.createDirectories(jepPkgDir);
-
-        PyCore.get().extractFolder("jep-pkg/jep/", jepPkgDir);
-
-        String jniPath = "jep-pkg/native/" + platform.getJniLibDir() + "/" + platform.getJniLibName();
-        Path jniDest = jepPkgDir.resolve(platform.getJniLibName());
-
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream(jniPath)) {
-            Files.copy(in, jniDest, StandardCopyOption.REPLACE_EXISTING);
-            setPermissions(jniDest, 0755);
+    private void deleteFolder(Path folder) throws IOException {
+        try (Stream<Path> walk = Files.walk(folder)) {
+            walk.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
         }
-    }
-
-    private void updateManifest() throws IOException {
-        JsonObject manifest = new JsonObject();
-        manifest.addProperty("pythonVersion", JepConstants.PYTHON_VERSION);
-        manifest.addProperty("astralRelease", JepConstants.ASTRAL_RELEASE);
-        manifest.addProperty("jepVersion", JepConstants.JEP_VERSION);
-        manifest.addProperty("downloadedAt", Instant.now().toString());
-
-        String jsonString = manifest.toString();
-        Files.writeString(manifestPath, jsonString);
     }
 
     private String bytesToHex(byte[] bytes) {

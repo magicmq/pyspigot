@@ -22,7 +22,6 @@ import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 import net.kyori.adventure.text.Component;
@@ -119,7 +118,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         try {
-            Object result = ScriptContext.supplyWith(script, () -> commandFunction.call(sender, label, args));
+            Object result = ScriptManager.get().getInterpreter().callWithResult(script, () -> commandFunction.call(sender, label, args));
             if (result instanceof Boolean)
                 return ((Boolean) result);
             else
@@ -136,7 +135,7 @@ public class BukkitScriptCommand implements TabExecutor, ScriptCommand {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
         if (tabFunction != null) {
             try {
-                Object result = ScriptContext.supplyWith(script, () -> tabFunction.call(sender, alias, args));
+                Object result = ScriptManager.get().getInterpreter().callWithResult(script, () -> tabFunction.call(sender, alias, args));
                 if (result instanceof List list) {
                     ArrayList<String> toReturn = new ArrayList<>();
                     for (Object object : list) {

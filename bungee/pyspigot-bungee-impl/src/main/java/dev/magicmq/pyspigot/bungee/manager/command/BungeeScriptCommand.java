@@ -20,7 +20,6 @@ import dev.magicmq.pyspigot.bungee.PyBungee;
 import dev.magicmq.pyspigot.manager.command.ScriptCommand;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 import net.kyori.adventure.text.Component;
@@ -85,7 +84,7 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
-            ScriptContext.runWith(script, () -> commandFunction.call(sender, getName(), args));
+            ScriptManager.get().getInterpreter().call(script, () -> commandFunction.call(sender, getName(), args));
         } catch (JepException exception) {
             ScriptManager.get().handleScriptException(script, exception, "Unhandled exception when executing command '" + getName() + "'");
             //Mimic BungeeCord behavior
@@ -97,7 +96,7 @@ public class BungeeScriptCommand extends Command implements TabExecutor, ScriptC
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
         if (tabFunction != null) {
             try {
-                Object result = ScriptContext.supplyWith(script, () -> tabFunction.call(sender, getName(), args));
+                Object result = ScriptManager.get().getInterpreter().callWithResult(script, () -> tabFunction.call(sender, getName(), args));
                 if (result instanceof List list) {
                     ArrayList<String> toReturn = new ArrayList<>();
                     for (Object object : list) {

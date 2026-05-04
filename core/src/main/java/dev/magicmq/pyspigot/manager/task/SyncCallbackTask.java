@@ -19,7 +19,6 @@ package dev.magicmq.pyspigot.manager.task;
 import dev.magicmq.pyspigot.exception.ScriptRuntimeException;
 import dev.magicmq.pyspigot.manager.script.Script;
 import dev.magicmq.pyspigot.manager.script.ScriptManager;
-import dev.magicmq.pyspigot.util.ScriptContext;
 import jep.JepException;
 import jep.python.PyCallable;
 
@@ -129,7 +128,7 @@ public class SyncCallbackTask<T> extends Task<T> {
         public void run() {
             try {
                 //TODO Test null and non-null outcome
-                ScriptContext.runWith(task.script, () -> task.callbackFunction.call(outcome));
+                ScriptManager.get().getInterpreter().call(task.script, () -> task.callbackFunction.call(outcome));
             } catch (JepException e) {
                 ScriptManager.get().handleScriptException(task.script, e, "Error while executing callback task");
             } finally {

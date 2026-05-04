@@ -28,5 +28,8 @@ public class JepConstants {
     public static final String PYTHON_VERSION = PYTHON_MAJOR + "." + PYTHON_MINOR + "." + PYTHON_PATCH;
 
     public static final String JEP_VERSION = "4.3.1";
+    public static final String DIST_INFO_NAME = "jep-" + JEP_VERSION + ".dist-info";
+
+    public static final String PYSPIGOT_MODULES_VERSION = "1.0.0";
 
 }

@@ -4,6 +4,8 @@ metrics-enabled: true
 script-load-delay: 20
 # The delay, in ticks, PySpigot should wait in between loading each script/project. Setting this value to a higher number can help avoid server crashes, if there are many scripts/projects to load.
 script-load-interval: 1
+# The number of threads used to execute Python code asynchronously, across all scripts.
+interpreter-pool-size: 8
 # List of relocation rules for libraries in the libs folder. Format as <pattern>|<relocated pattern>
 library-relocations: []
 # Date/time format for timestamps in script log files, written in Java's SimpleDateFormat pattern: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/format/DateTimeFormatter.html
